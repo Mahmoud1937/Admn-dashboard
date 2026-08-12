@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getSpecialists } from "../service/specialistsService";
+import { getSpecialists } from "../service/SpecialistsService";
 
 export function useSpecialistsQuery({ pageNumber, pageSize, search }) {
   const query = useQuery({

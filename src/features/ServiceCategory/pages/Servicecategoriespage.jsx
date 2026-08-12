@@ -2,12 +2,12 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
-import { useServiceCategoriesQuery } from "../hooks/Useservicecategoriesquery";
-import { useServiceCategoryMutations } from "../hooks/Useservicecategorymutations";
-import ServiceCategoriesFilters from "../components/Servicecategoriesfilters";
-import ServiceCategoriesTable from "../components/Servicecategoriestable";
+import { useServiceCategoriesQuery } from "../hooks/useServiceCategoriesQuery";
+import { useServiceCategoryMutations } from "../hooks/useServiceCategoryMutations";
+import ServiceCategoriesFilters from "../components/ServiceCategoriesFilters";
+import ServiceCategoriesTable from "../components/ServiceCategoriesTable";
 import Pagination from "../../../shared/components/Pagination";
-import ServiceCategoryFormModal from "../components/Servicecategoryformmodal";
+import ServiceCategoryFormModal from "../components/ServiceCategoryFormModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 
 export default function ServiceCategoriesPage() {

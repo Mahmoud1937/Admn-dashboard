@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getCategories } from "../../categoreis/service/categoryService";
-import { getSpecialists } from "../../specialists/service/specialistsService";
+import { getSpecialists } from "../../specialists/service/SpecialistsService";
 
 export function useProviderCategoriesLookup() {
   const { data, isLoading } = useQuery({

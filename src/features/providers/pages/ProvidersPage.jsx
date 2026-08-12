@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
-import { useProviderToggleMutation } from "../hooks/Useprovidertogglemutation";
+import { useProviderToggleMutation } from "../hooks/useProviderToggleMutation";
 import { useProvidersQuery } from "../hooks/useProvidersQuery";
 import ProvidersTable from "../components/ProvidersTable";
 import Pagination from "../../../shared/components/Pagination";

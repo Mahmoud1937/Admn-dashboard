@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBan, faCheck, faPenToSquare, faPlus, faSearch, faBuilding } from "@fortawesome/free-solid-svg-icons";
 import { useParams } from "react-router-dom";
-import { useBranchesQuery } from "../hooks/UseBranchesQuery";
+import { useBranchesQuery } from "../hooks/useBranchesQuery";
 import { useBranchMutations } from "../hooks/useBranchMutations";
 import { useBranchToggleMutation } from "../hooks/useBranchToggleMutation";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
