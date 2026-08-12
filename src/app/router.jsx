@@ -10,8 +10,9 @@ import CategoriesPage from "../features/categoreis/pages/CategoryPage";
 import CitiesPage from "../features/cities/pages/cityPages";
 import SpecialistsPage from "../features/specialists/pages/SpecialistsPage";
 import ServiceCategoriesPage from "../features/ServiceCategory/pages/Servicecategoriespage";
-import ServicesPage from "../features/services-admin/pages/ServicesPage";
+
 import MedicinesPage from "../features/Medicines/pages/Medicinespage";
+import ServicesPage from "../features/services-admin/pages/Servicespage";
 
 const router = createBrowserRouter([
   {
