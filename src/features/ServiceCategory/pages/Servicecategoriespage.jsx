@@ -2,14 +2,13 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
-import Pagination from "../../../shared/components/Pagination";
-import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import { useServiceCategoriesQuery } from "../hooks/Useservicecategoriesquery";
 import { useServiceCategoryMutations } from "../hooks/Useservicecategorymutations";
-
-import ServiceCategoryFormModal from "../components/Servicecategoryformmodal";
 import ServiceCategoriesFilters from "../components/Servicecategoriesfilters";
 import ServiceCategoriesTable from "../components/Servicecategoriestable";
+import Pagination from "../../../shared/components/Pagination";
+import ServiceCategoryFormModal from "../components/Servicecategoryformmodal";
+import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 
 export default function ServiceCategoriesPage() {
   const [search, setSearch] = useState("");

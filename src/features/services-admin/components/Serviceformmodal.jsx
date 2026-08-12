@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
-import CategorySelect from "./Categoryselect";
+import CategorySelect from "./CategorySelect";
 import TextField from "../../../shared/components/TextField";
 import { serviceSchema } from "../schema/serviceSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
@@ -25,7 +25,7 @@ export default function ServiceFormModal({ isOpen, service, categories, onSave, 
       categoryId: "",
       cpt: "",
       serviceInstruction: "",
-     
+
     },
   });
 
@@ -37,7 +37,7 @@ export default function ServiceFormModal({ isOpen, service, categories, onSave, 
         categoryId: service?.categoryId ? String(service.categoryId) : "",
         cpt: service?.cpt ?? "",
         serviceInstruction: service?.serviceInstruction ?? "",
-       
+
       });
     }
   }, [isOpen, service, reset]);
@@ -56,7 +56,7 @@ export default function ServiceFormModal({ isOpen, service, categories, onSave, 
       enName: data.enName,
       cpt: data.cpt?.trim() || null,
       serviceInstruction: data.serviceInstruction?.trim() || null,
-   
+
     });
   };
 
