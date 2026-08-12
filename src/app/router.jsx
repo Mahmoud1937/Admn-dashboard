@@ -12,7 +12,7 @@ import SpecialistsPage from "../features/specialists/pages/SpecialistsPage";
 import ServiceCategoriesPage from "../features/ServiceCategory/pages/Servicecategoriespage";
 
 import MedicinesPage from "../features/Medicines/pages/Medicinespage";
-import ServicesPage from "../features/services-admin/pages/ServicesPage";
+import ServicesPage from "../features/services-admin/pages/Servicespage";
 
 
 const router = createBrowserRouter([
