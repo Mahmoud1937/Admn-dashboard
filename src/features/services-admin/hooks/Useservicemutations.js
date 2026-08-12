@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { createService, deleteService, updateService } from "../services/Servicesservice";
+import { createService, deleteService, updateService } from "../services/ServicesService";
 
 export function useServiceMutations({ onCreateSuccess, onUpdateSuccess, onDeleteSuccess }) {
   const queryClient = useQueryClient();
