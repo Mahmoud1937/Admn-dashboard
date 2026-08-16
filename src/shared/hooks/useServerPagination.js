@@ -11,21 +11,18 @@ function getPageNumbers(currentPage, totalPages, windowSize = 2) {
 
   return pages;
 }
+
 export function useServerPagination({ resetKey } = {}) {
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(undefined);
+  const [pageSize, setPageSize] = useState(20);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPageNumber(1);
-
   }, [resetKey]);
 
-
-  const lockPageSize = (backendPageSize) => {
-    if (pageSize === undefined && backendPageSize) {
-      setPageSize(backendPageSize);
-    }
+  const lockPageSize = () => {
+    // pageSize now always starts at 20 and is only changed by the user via handlePageSizeChange.
   };
 
   const goToPage = (page, totalPages) => {
