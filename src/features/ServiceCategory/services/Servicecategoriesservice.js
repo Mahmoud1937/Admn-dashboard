@@ -36,6 +36,7 @@ export async function updateServiceCategory(id, payload) {
 
   formData.append("ArName", payload.arName);
   formData.append("EnName", payload.enName);
+
   formData.append("IsUpdatedImage", payload.isUpdatedImage);
 
   if (payload.isUpdatedImage && payload.logoFile) {

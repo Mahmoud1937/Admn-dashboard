@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { createProvider, updateProvider } from "../services/providersService";
 
-
 export function useProviderMutation({ id, isCreateMode, onUpdateSuccess }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -31,14 +30,17 @@ export function useProviderMutation({ id, isCreateMode, onUpdateSuccess }) {
     onError: (error) => {
       const backendErrors = error?.response?.data?.errors;
 
-      if (backendErrors) {
-        const allMessages = Object.values(backendErrors).flat().join(" ");
-        toast.error(allMessages || "Please fix the highlighted fields.");
-      } else {
+      if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+        toast.error(backendErrors.join(" "));
+        return;
+      }
+
+      if (!backendErrors || typeof backendErrors !== "object") {
         toast.error(
           error?.response?.data?.title || error?.message || "Failed to save changes."
         );
       }
+      // object (field-level errors) case: no toast here, left for the form to display per-field
     },
   });
 

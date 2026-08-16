@@ -48,7 +48,7 @@ export const hotLineField = z
   .string()
   .trim()
   .min(1, "Hotline number is required")
-  .regex(/^[0-9]{6,20}$/, "Hotline should contain digits only (6–20 numbers)");
+  .regex(/^[0-9]{5}$/, "Hotline should contain digits only (5 numbers)");
 
 export const egyptianPhoneField = z
   .string()

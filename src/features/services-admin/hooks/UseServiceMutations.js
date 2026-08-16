@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { createService, deleteService, updateService } from "../services/ServicesService";
+import { handleMutationError } from "../../../shared/utils/handleMutationError";
+
 
 export function useServiceMutations({ onCreateSuccess, onUpdateSuccess, onDeleteSuccess }) {
   const queryClient = useQueryClient();
@@ -16,23 +18,17 @@ export function useServiceMutations({ onCreateSuccess, onUpdateSuccess, onDelete
       queryClient.invalidateQueries({ queryKey: ["services"] });
       onCreateSuccess?.();
     },
-    onError: (err) => {
-      setServerErrors(err?.response?.data?.errors || null);
-      toast.error(err?.response?.data?.message || "Failed to create service.");
-    },
+    onError: (err) => handleMutationError(err, "Failed to create service.", setServerErrors),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }) => updateService(id, payload),
+    mutationFn: updateService,
     onSuccess: () => {
       toast.success("Service updated successfully.");
       queryClient.invalidateQueries({ queryKey: ["services"] });
       onUpdateSuccess?.();
     },
-    onError: (err) => {
-      setServerErrors(err?.response?.data?.errors || null);
-      toast.error(err?.response?.data?.message || "Failed to update service.");
-    },
+    onError: (err) => handleMutationError(err, "Failed to update service.", setServerErrors),
   });
 
   const deleteMutation = useMutation({

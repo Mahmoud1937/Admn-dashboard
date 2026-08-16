@@ -23,8 +23,8 @@ export async function createSpecialist(payload) {
 }
 
 export async function updateSpecialist(payload) {
-  const { data } = await axiosInstance.put("/SpecialistAdmin", {
-    id: payload.id,
+  const { data } = await axiosInstance.put(`/SpecialistAdmin/${payload.id}`, {
+
     arName: payload.arName,
     enName: payload.enName,
   });

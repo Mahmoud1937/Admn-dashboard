@@ -21,7 +21,7 @@ export default function ServicesFilters({
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search services by name (EN/AR)..."
+          placeholder="Search services by name (EN/AR) or CPT..."
           className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
         />
       </div>

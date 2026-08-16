@@ -33,7 +33,7 @@ export async function createCategory(payload) {
 export async function updateCategory(id, payload) {
   const formData = new FormData();
 
-  formData.append("Id", id);
+
   formData.append("ArName", payload.arName);
   formData.append("EnName", payload.enName);
   formData.append("IsUpdatedImage", payload.isUpdatedImage);

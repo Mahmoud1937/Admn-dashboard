@@ -45,25 +45,26 @@ export async function createBranch(payload) {
 }
 
 export async function updateBranch(payload) {
-  const { data } = await axiosInstance.put("/ProviderBranchesAdmin/provider-branches", {
-    id: payload.id,
-    providerId: payload.providerId,
-    governorateId: payload.governorateId,
-    cityId: payload.cityId,
-    email: payload.email,
-    password: payload.password || null,
-    userName: payload.userName,
-    branchName: payload.branchName,
-    mapUrl: payload.mapUrl,
-    latitude: payload.latitude,
-    longitude: payload.longitude,
-    fullAddress: payload.fullAddress,
-    isActive: payload.isActive,
-  });
+  const { data } = await axiosInstance.put(
+    `/ProviderBranchesAdmin/provider-branches/${payload.id}`,
+    {
+      providerId: payload.providerId,
+      governorateId: payload.governorateId,
+      cityId: payload.cityId,
+      email: payload.email,
+      password: payload.password || null,
+      userName: payload.userName,
+      branchName: payload.branchName,
+      mapUrl: payload.mapUrl,
+      latitude: payload.latitude,
+      longitude: payload.longitude,
+      fullAddress: payload.fullAddress,
+      isActive: payload.isActive,
+    }
+  );
 
   return data;
 }
-
 export async function deactivateBranch(branchId) {
   const { data } = await axiosInstance.delete(`/ProviderBranchesAdmin/${branchId}`);
   return data;

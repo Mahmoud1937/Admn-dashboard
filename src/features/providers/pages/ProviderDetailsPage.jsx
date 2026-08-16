@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBuilding, faListCheck, faTag } from "@fortawesome/free-solid-svg-icons";
+import { useProviderQuery } from "../hooks/useProviderQuery";
 import { useProviderCategoriesLookup, useProviderSpecialistsLookup } from "../hooks/useProviderLookups";
 import { useProviderMutation } from "../hooks/useProviderMutation";
 import ProviderInfoForm from "../components/ProviderInfoForm";
 import ProviderBranchesTab from "../../branches/components/ProviderBranchesTab";
-import { useProviderQuery } from "../hooks/useProviderQuery";
+import ProviderServicesTab from "../../providerServices/components/ProviderServicesTab";
 
 const TABS = [
   { key: "info", label: "Provider Info", icon: faBuilding },
@@ -24,8 +25,8 @@ export default function ProviderDetailsPage() {
 
   const [activeTab, setActiveTab] = useState("info");
 
-const { provider, isLoading, isError, error } =
-  useProviderQuery(id, isCreateMode);
+  const { provider, isLoading, isError, error } =
+    useProviderQuery(id, isCreateMode);
   const { categories, isLoading: isCategoriesLoading } = useProviderCategoriesLookup();
   const { specialists, isLoading: isSpecialistsLoading } = useProviderSpecialistsLookup();
 
@@ -84,11 +85,7 @@ const { provider, isLoading, isError, error } =
 
       {activeTab === "branches" && <ProviderBranchesTab />}
 
-      {activeTab === "Services" && (
-        <div className="rounded-xl border border-slate-100 bg-white p-8 text-slate-500 shadow-sm">
-          Services content here...
-        </div>
-      )}
+      {activeTab === "Services" && <ProviderServicesTab />}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { createServiceCategory, deleteServiceCategory, updateServiceCategory } from "../services/Servicecategoriesservice";
+import { handleMutationError } from "../../../shared/utils/handleMutationError";
 
 export function useServiceCategoryMutations({ onCreateSuccess, onUpdateSuccess, onDeleteSuccess }) {
   const queryClient = useQueryClient();
@@ -16,10 +17,7 @@ export function useServiceCategoryMutations({ onCreateSuccess, onUpdateSuccess, 
       queryClient.invalidateQueries({ queryKey: ["service-categories"] });
       onCreateSuccess?.();
     },
-    onError: (err) => {
-      setServerErrors(err?.response?.data?.errors || null);
-      toast.error(err?.response?.data?.message || "Failed to create service category.");
-    },
+    onError: (err) => handleMutationError(err, "Failed to create service category.", setServerErrors),
   });
 
   const updateMutation = useMutation({
@@ -29,10 +27,7 @@ export function useServiceCategoryMutations({ onCreateSuccess, onUpdateSuccess, 
       queryClient.invalidateQueries({ queryKey: ["service-categories"] });
       onUpdateSuccess?.();
     },
-    onError: (err) => {
-      setServerErrors(err?.response?.data?.errors || null);
-      toast.error(err?.response?.data?.message || "Failed to update service category.");
-    },
+    onError: (err) => handleMutationError(err, "Failed to update service category.", setServerErrors),
   });
 
   const deleteMutation = useMutation({

@@ -5,14 +5,23 @@ import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
 import TextField from "../../../shared/components/TextField";
 import { governorateSchema } from "../schema/governorateSchema";
+import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 
-export default function GovernorateFormModal({ isOpen, governorate, onSave, onClose, isSaving }) {
+export default function GovernorateFormModal({
+  isOpen,
+  governorate,
+  onSave,
+  onClose,
+  isSaving,
+  serverErrors,
+}) {
   const isEditMode = !!governorate;
 
   const {
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(governorateSchema),
@@ -27,6 +36,10 @@ export default function GovernorateFormModal({ isOpen, governorate, onSave, onCl
       });
     }
   }, [isOpen, governorate, reset]);
+
+  useEffect(() => {
+    applyServerErrors(serverErrors, setError);
+  }, [serverErrors, setError]);
 
   if (!isOpen) return null;
 

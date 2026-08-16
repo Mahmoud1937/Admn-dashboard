@@ -1,42 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
-import { CloseIcon } from './icons';
+
+// Matches the `lg:hidden` breakpoint used for the Navbar's hamburger button.
+const MOBILE_QUERY = "(max-width: 1023px)";
 
 const Layout = () => {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia(MOBILE_QUERY).matches : false
+  );
+
+  // Auto-collapse to icon-only whenever the viewport crosses into mobile/tablet size.
+  // Manual toggling (sidebar header button or navbar hamburger) still works after that.
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const handleChange = (e) => setCollapsed(e.matches);
+    mq.addEventListener("change", handleChange);
+    return () => mq.removeEventListener("change", handleChange);
+  }, []);
 
   return (
     <div className="flex h-screen bg-slate-50">
-      {/* Desktop sidebar */}
-      <div className="hidden md:flex">
-        <Sidebar />
-      </div>
-
-      {/* Mobile sidebar drawer */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          <div
-            className="absolute inset-0 bg-slate-900/40"
-            onClick={() => setMobileOpen(false)}
-          />
-          <div className="relative flex h-full w-64 flex-col bg-white shadow-xl">
-            <button
-              type="button"
-              onClick={() => setMobileOpen(false)}
-              className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-50"
-              aria-label="Close menu"
-            >
-              <CloseIcon className="h-5 w-5" />
-            </button>
-            <Sidebar />
-          </div>
-        </div>
-      )}
+      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <Navbar onOpenMobileSidebar={() => setMobileOpen(true)} />
+        <Navbar onOpenSidebar={() => setCollapsed(false)} />
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <Outlet />
         </main>

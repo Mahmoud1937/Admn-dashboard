@@ -3,8 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFloppyDisk, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
-
-import { providerSchema } from "../schema/providerSchema";
+import { getProviderSchema } from "../schema/providerSchema"
 import ProviderLogoUpload from "./ProviderLogoUpload";
 import DateField from "./DateField";
 import {
@@ -25,7 +24,7 @@ export default function ProviderInfoForm({
   mutation,
   onCancelToList,
 }) {
-const [isEditing, setIsEditing] = useState(isCreateMode || isEditMode);
+  const [isEditing, setIsEditing] = useState(isCreateMode || isEditMode);
   const canEdit = isCreateMode || isEditing;
 
   const [imageFile, setImageFile] = useState(null);
@@ -37,9 +36,11 @@ const [isEditing, setIsEditing] = useState(isCreateMode || isEditMode);
     control,
     reset,
     setError,
+    setValue,
+    trigger,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(providerSchema),
+    resolver: zodResolver(getProviderSchema(isCreateMode)),
     defaultValues: emptyProviderForm,
   });
 
@@ -71,6 +72,7 @@ const [isEditing, setIsEditing] = useState(isCreateMode || isEditMode);
     const file = e.target.files?.[0];
     if (!file) return;
     setImageFile(file);
+    setValue("logoFile", file, { shouldValidate: true });
   };
 
   const onSubmit = (formValues) => {
@@ -143,6 +145,7 @@ const [isEditing, setIsEditing] = useState(isCreateMode || isEditMode);
         selectedFile={imageFile}
         onImageChange={handleImageChange}
         disabled={!canEdit}
+        error={errors.logoFile?.message}
       />
 
       {/* Join Date */}
@@ -257,7 +260,7 @@ const [isEditing, setIsEditing] = useState(isCreateMode || isEditMode);
       {/* Hotline + Phone */}
       <div className="mb-2 grid grid-cols-1 gap-6 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">Hotline</label>
+          <label className="mb-2 block text-sm font-medium text-slate-700">Hotline <span className="text-red-500">*</span></label>
           <input
             type="text"
             inputMode="numeric"
@@ -304,26 +307,23 @@ const [isEditing, setIsEditing] = useState(isCreateMode || isEditMode);
               type="button"
               disabled={!canEdit}
               onClick={() => field.onChange(!field.value)}
-              className={`relative h-6 w-11 rounded-full transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                field.value ? "bg-emerald-500" : "bg-slate-300"
-              }`}
+              className={`relative h-6 w-11 rounded-full transition disabled:cursor-not-allowed disabled:opacity-60 ${field.value ? "bg-emerald-500" : "bg-slate-300"
+                }`}
             >
               <span
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
-                  field.value ? "left-5" : "left-0.5"
-                }`}
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${field.value ? "left-5" : "left-0.5"
+                  }`}
               />
             </button>
           )}
         />
       </div>
 
-      {mutation.isError && (
+      {mutation.isError && Object.keys(errors).length === 0 && (
         <p className="mb-4 text-sm text-red-500">
-          {mutation.error?.message || "Failed to save changes."}
+          {mutation.error?.response?.data?.message || "Failed to save changes."}
         </p>
       )}
-
       {canEdit && (
         <div className="mt-8 flex items-center justify-end gap-4 border-t border-slate-100 pt-6">
           <button

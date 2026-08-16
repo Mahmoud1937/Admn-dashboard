@@ -18,7 +18,7 @@ export default function ProvidersSearchBar({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Search providers by name, ID, or specialty..."
+          placeholder="Search Providers By Name (EN/AR) or ID..."
           className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
         />
       </div>

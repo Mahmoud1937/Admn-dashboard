@@ -86,17 +86,17 @@ export default function SpecialistsPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Specialists Management</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Specialists Management</h1>
+          <p className="mt-1 text-sm text-slate-500 sm:text-sm">
             Manage all specialists across the platform.
           </p>
         </div>
 
         <button
           onClick={openAddForm}
-          className="flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-800"
+          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
         >
           <FontAwesomeIcon icon={faPlus} />
           Add Specialist

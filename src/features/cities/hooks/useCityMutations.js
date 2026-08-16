@@ -1,9 +1,15 @@
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { createCity, deleteCity, updateCity } from "../service/citeisService";
+import { handleMutationError } from "../../../shared/utils/handleMutationError";
+
 
 export function useCityMutations({ onCreateSuccess, onUpdateSuccess, onDeleteSuccess }) {
   const queryClient = useQueryClient();
+  const [serverErrors, setServerErrors] = useState(null);
+
+  const clearServerErrors = () => setServerErrors(null);
 
   const createMutation = useMutation({
     mutationFn: createCity,
@@ -12,9 +18,7 @@ export function useCityMutations({ onCreateSuccess, onUpdateSuccess, onDeleteSuc
       queryClient.invalidateQueries({ queryKey: ["cities"] });
       onCreateSuccess?.();
     },
-    onError: (err) => {
-      toast.error(err?.response?.data?.message || "Failed to create city.");
-    },
+    onError: (err) => handleMutationError(err, "Failed to create city.", setServerErrors),
   });
 
   const updateMutation = useMutation({
@@ -24,9 +28,7 @@ export function useCityMutations({ onCreateSuccess, onUpdateSuccess, onDeleteSuc
       queryClient.invalidateQueries({ queryKey: ["cities"] });
       onUpdateSuccess?.();
     },
-    onError: (err) => {
-      toast.error(err?.response?.data?.message || "Failed to update city.");
-    },
+    onError: (err) => handleMutationError(err, "Failed to update city.", setServerErrors),
   });
 
   const deleteMutation = useMutation({
@@ -46,5 +48,7 @@ export function useCityMutations({ onCreateSuccess, onUpdateSuccess, onDeleteSuc
     updateMutation,
     deleteMutation,
     isSaving: createMutation.isPending || updateMutation.isPending,
+    serverErrors,
+    clearServerErrors,
   };
 }

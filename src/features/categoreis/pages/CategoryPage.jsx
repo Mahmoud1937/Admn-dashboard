@@ -1,24 +1,20 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
-import { createCategory, deleteCategory, getCategories, updateCategory } from "../service/categoryService";
-import toast from "react-hot-toast";
+import { useCategoriesQuery } from "../hooks/useCategoriesQuery";
+import { useCategoryMutations } from "../hooks/useCategoryMutations";
 import Pagination from "../../../shared/components/Pagination";
 import CategoryFormModal from "../components/CategoryFormModal";
 import CategoriesTable from "../components/CategoriesTable";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 
-
 export default function CategoriesPage() {
-  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
-  const [serverErrors, setServerErrors] = useState(null);
 
   const {
     pageNumber,
@@ -29,76 +25,45 @@ export default function CategoriesPage() {
     getPageNumbers,
   } = useServerPagination({ resetKey: search });
 
-  const { data, isLoading, isError, error, isPlaceholderData } = useQuery({
-    queryKey: ["categories", pageNumber, pageSize, search],
-    queryFn: () => getCategories(pageNumber, pageSize, search),
-    placeholderData: (previousData) => previousData,
-  });
+  const {
+    categories,
+    totalCount,
+    totalPages,
+    serverPageSize,
+    isLoading,
+    isError,
+    error,
+    isPlaceholderData,
+  } = useCategoriesQuery({ pageNumber, pageSize, search });
 
-  const categories = data?.data?.items ?? [];
-  const totalCount = data?.data?.totalCount ?? 0;
-  const totalPages = data?.data?.totalPages ?? 1;
+  lockPageSize(serverPageSize);
 
-  lockPageSize(data?.data?.pageSize);
+  const closeForm = () => {
+    setIsFormOpen(false);
+    setEditingCategory(null);
+    clearServerErrors();
+  };
 
-  const createMutation = useMutation({
-    mutationFn: createCategory,
-    onSuccess: () => {
-      toast.success("Category created successfully.");
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      setIsFormOpen(false);
-      setServerErrors(null);
-    },
-    onError: (err) => {
-      const fieldErrors = err?.response?.data?.errors;
-      if (fieldErrors) {
-        setServerErrors(fieldErrors);
-      } else {
-        toast.error(err?.response?.data?.message || "Failed to create category.");
-      }
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, payload }) => updateCategory(id, payload),
-    onSuccess: () => {
-      toast.success("Category updated successfully.");
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      setIsFormOpen(false);
-      setEditingCategory(null);
-      setServerErrors(null);
-    },
-    onError: (err) => {
-      const fieldErrors = err?.response?.data?.errors;
-      if (fieldErrors) {
-        setServerErrors(fieldErrors);
-      } else {
-        toast.error(err?.response?.data?.message || "Failed to update category.");
-      }
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteCategory,
-    onSuccess: () => {
-      toast.success("Category deleted successfully.");
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      setCategoryToDelete(null);
-    },
-    onError: (err) => {
-      toast.error(err?.response?.data?.message || "Failed to delete category.");
-    },
+  const {
+    createMutation,
+    updateMutation,
+    deleteMutation,
+    isSaving,
+    serverErrors,
+    clearServerErrors,
+  } = useCategoryMutations({
+    onCreateSuccess: closeForm,
+    onUpdateSuccess: closeForm,
+    onDeleteSuccess: () => setCategoryToDelete(null),
   });
 
   const openAddForm = () => {
     setEditingCategory(null);
-    setServerErrors(null);
     setIsFormOpen(true);
   };
 
   const openEditForm = (category) => {
     setEditingCategory(category);
-    setServerErrors(null);
     setIsFormOpen(true);
   };
 
@@ -130,22 +95,21 @@ export default function CategoriesPage() {
     }
   };
 
-  const isSaving = createMutation.isPending || updateMutation.isPending;
   const hasActiveFilters = !!search;
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Categories Management</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Categories Management</h1>
+          <p className="mt-1 text-xs text-slate-500 sm:text-sm">
             Manage all provider categories across the platform.
           </p>
         </div>
 
         <button
           onClick={openAddForm}
-          className="flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-800"
+          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
         >
           <FontAwesomeIcon icon={faPlus} />
           Add Category
@@ -210,11 +174,7 @@ export default function CategoriesPage() {
         isOpen={isFormOpen}
         category={editingCategory}
         onSave={handleSave}
-        onClose={() => {
-          setIsFormOpen(false);
-          setEditingCategory(null);
-          setServerErrors(null);
-        }}
+        onClose={closeForm}
         isSaving={isSaving}
         serverErrors={serverErrors}
       />

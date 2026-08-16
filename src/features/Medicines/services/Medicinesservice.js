@@ -45,6 +45,7 @@ export async function createMedicine(payload) {
 export async function updateMedicine(id, payload) {
   const formData = new FormData();
 
+
   formData.append("arName", payload.arName);
   formData.append("enName", payload.enName);
   formData.append("medicinePrice", payload.medicinePrice);

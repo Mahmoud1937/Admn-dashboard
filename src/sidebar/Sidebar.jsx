@@ -1,14 +1,11 @@
-import { useState } from "react";
 import SidebarHeader from "./SidebarHeader";
 import SidebarItem from "./SidebarItem";
 import { navigation } from "./navigation";
 
-export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
-
+export default function Sidebar({ collapsed, setCollapsed }) {
   return (
     <aside
-      className={`flex h-screen flex-col border-r border-slate-200 bg-white transition-all duration-300 ${
+      className={`flex h-screen min-w-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 ${
         collapsed ? "w-20" : "w-72"
       }`}
     >

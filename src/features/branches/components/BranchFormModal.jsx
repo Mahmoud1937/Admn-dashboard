@@ -6,6 +6,7 @@ import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
 import { useCitiesByGovernorate } from "../hooks/UsecCtiesByGovernorate";
 import { createBranchSchema, updateBranchSchema } from "../schema/branchSchema";
+import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 
 const EMPTY_VALUES = {
   branchName: "",
@@ -43,12 +44,13 @@ export default function BranchFormModal({
   branch,
   providerId,
   governorates,
-  onSave,
+  createMutation,
+  updateMutation,
   onClose,
-  isSaving,
 }) {
   const isEditMode = !!branch;
   const schema = isEditMode ? updateBranchSchema : createBranchSchema;
+  const mutation = isEditMode ? updateMutation : createMutation;
 
   const {
     register,
@@ -56,6 +58,7 @@ export default function BranchFormModal({
     watch,
     reset,
     setValue,
+    setError,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -81,21 +84,30 @@ export default function BranchFormModal({
   };
 
   const onSubmit = (data) => {
-    onSave({
-      id: branch?.id,
-      providerId,
-      branchName: data.branchName,
-      governorateId: Number(data.governorateId),
-      cityId: Number(data.cityId),
-      email: data.email,
-      userName: data.userName,
-      password: data.password ? data.password : undefined,
-      mapUrl: data.mapUrl || "",
-      latitude: data.latitude,
-      longitude: data.longitude,
-      fullAddress: data.fullAddress || "",
-      isActive: data.isActive,
-    });
+  const payload = {
+  ...(isEditMode && { id: branch.id }),
+  providerId,
+  branchName: data.branchName,
+  governorateId: Number(data.governorateId),
+  cityId: Number(data.cityId),
+  email: data.email,
+  userName: data.userName,
+  password: data.password ? data.password : undefined,
+  mapUrl: data.mapUrl || "",
+  latitude: data.latitude,
+  longitude: data.longitude,
+  fullAddress: data.fullAddress || "",
+  isActive: data.isActive,
+};
+
+mutation.mutate(payload, {
+  onError: (error) => {
+    const backendErrors = error?.response?.data?.errors;
+    if (backendErrors && !Array.isArray(backendErrors) && typeof backendErrors === "object") {
+      applyServerErrors(backendErrors, setError);
+    }
+  },
+});
   };
 
   return (
@@ -103,7 +115,7 @@ export default function BranchFormModal({
       title={isEditMode ? "Edit Branch" : "Add Branch"}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
-      formClassName="max-h-[70vh] overflow-y-auto pr-1"
+      className="max-w-3xl"
     >
       <TextField
         label="Branch Name"
@@ -163,25 +175,25 @@ export default function BranchFormModal({
 
       <div className="mb-4" />
 
-      <TextField label="Full Address" {...register("fullAddress")} />
+      <TextField label="Full Address" required {...register("fullAddress")} />
       {errors.fullAddress && (
         <p className="-mt-3 mb-3 text-xs text-red-500">{errors.fullAddress.message}</p>
       )}
 
-      <TextField label="Map URL" {...register("mapUrl")} />
+      <TextField label="Map URL" required {...register("mapUrl")} />
       {errors.mapUrl && (
         <p className="-mt-3 mb-3 text-xs text-red-500">{errors.mapUrl.message}</p>
       )}
 
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div>
-          <TextField label="Latitude" {...register("latitude")} />
+          <TextField label="Latitude" required {...register("latitude")} />
           {errors.latitude && (
             <p className="mt-1 text-xs text-red-500">{errors.latitude.message}</p>
           )}
         </div>
         <div>
-          <TextField label="Longitude" {...register("longitude")} />
+          <TextField label="Longitude" required {...register("longitude")} />
           {errors.longitude && (
             <p className="mt-1 text-xs text-red-500">{errors.longitude.message}</p>
           )}
@@ -230,7 +242,7 @@ export default function BranchFormModal({
 
       <FormActions
         onCancel={onClose}
-        isSaving={isSaving}
+        isSaving={mutation.isPending}
         submitLabel={isEditMode ? "Save Changes" : "Add Branch"}
       />
     </FormModalShell>

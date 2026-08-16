@@ -21,8 +21,8 @@ export async function createGovernorate(payload) {
 }
 
 export async function updateGovernorate(payload) {
-  const { data } = await axiosInstance.put("/GovernoratesAdmin", {
-    id: payload.id,
+  const { data } = await axiosInstance.put(`/GovernoratesAdmin/${payload.id}`, {
+
     arName: payload.arName,
     enName: payload.enName,
   });

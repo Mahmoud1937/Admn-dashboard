@@ -36,7 +36,7 @@ export default function CategoryFormModal({ isOpen, category, onSave, onClose, i
     }
   }, [isOpen, category, reset]);
 
-  // كل ما يوصل error جديد من الباك اند، اربطه بالحقل الصح
+
   useEffect(() => {
     applyServerErrors(serverErrors, setError);
   }, [serverErrors, setError]);

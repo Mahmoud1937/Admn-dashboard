@@ -39,7 +39,7 @@ export async function createService(payload) {
 
 export async function updateService(payload) {
   const { data } = await axiosInstance.put(`/ServiceAdmin/services/${payload.id}`, {
-    id: payload.id,
+
     categoryId: payload.categoryId,
     arName: payload.arName,
     enName: payload.enName,

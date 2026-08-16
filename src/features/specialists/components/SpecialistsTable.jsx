@@ -15,7 +15,8 @@ export default function SpecialistsTable({ specialists, hasActiveFilters, onEdit
   }
 
   return (
-    <table className="w-full text-left text-sm">
+  <div className="overflow-x-auto">
+      <table className="w-full min-w-[500px] text-left text-sm">
       <thead>
         <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
           <th className="px-6 py-3">English Name</th>
@@ -36,5 +37,6 @@ export default function SpecialistsTable({ specialists, hasActiveFilters, onEdit
         ))}
       </tbody>
     </table>
+  </div>
   );
 }

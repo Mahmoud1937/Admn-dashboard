@@ -16,6 +16,8 @@ export default function ServiceCategoriesTable({ categories, hasActiveFilters, o
   }
 
   return (
+    <div className="overflow-x-auto">
+
     <table className="w-full text-left text-sm">
       <thead>
         <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -41,5 +43,6 @@ export default function ServiceCategoriesTable({ categories, hasActiveFilters, o
         ))}
       </tbody>
     </table>
+    </div>
   );
 }

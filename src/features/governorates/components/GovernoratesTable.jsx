@@ -15,7 +15,9 @@ export default function GovernoratesTable({ governorates, hasActiveFilters, onEd
   }
 
   return (
-    <table className="w-full text-left text-sm">
+    <div className="overflow-x-auto scroll-table">
+
+    <table className="w-full min-w-[500px] text-left text-sm">
       <thead>
         <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
           <th className="px-6 py-3">English Name</th>
@@ -36,5 +38,6 @@ export default function GovernoratesTable({ governorates, hasActiveFilters, onEd
         ))}
       </tbody>
     </table>
+    </div>
   );
 }

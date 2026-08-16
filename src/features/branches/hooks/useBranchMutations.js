@@ -1,11 +1,15 @@
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { createBranch, updateBranch } from "../services/providerBranchesService";
-
+import { handleMutationError } from "../../../shared/utils/handleMutationError";
 
 
 export function useBranchMutations({ onCreateSuccess, onUpdateSuccess }) {
   const queryClient = useQueryClient();
+  const [serverErrors, setServerErrors] = useState(null);
+
+  const clearServerErrors = () => setServerErrors(null);
 
   const createMutation = useMutation({
     mutationFn: createBranch,
@@ -14,9 +18,7 @@ export function useBranchMutations({ onCreateSuccess, onUpdateSuccess }) {
       queryClient.invalidateQueries({ queryKey: ["provider-branches"] });
       onCreateSuccess?.();
     },
-    onError: (err) => {
-      toast.error(err?.response?.data?.message || "Failed to create branch.");
-    },
+    onError: (error) => handleMutationError(error, "Failed to create branch.", setServerErrors),
   });
 
   const updateMutation = useMutation({
@@ -26,14 +28,8 @@ export function useBranchMutations({ onCreateSuccess, onUpdateSuccess }) {
       queryClient.invalidateQueries({ queryKey: ["provider-branches"] });
       onUpdateSuccess?.();
     },
-    onError: (err) => {
-      toast.error(err?.response?.data?.message || "Failed to update branch.");
-    },
+    onError: (error) => handleMutationError(error, "Failed to update branch.", setServerErrors),
   });
 
-  return {
-    createMutation,
-    updateMutation,
-    isSaving: createMutation.isPending || updateMutation.isPending,
-  };
+  return { createMutation, updateMutation, serverErrors, clearServerErrors };
 }

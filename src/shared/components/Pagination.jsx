@@ -14,8 +14,8 @@ export default function Pagination({
   const pageNumbers = getPageNumbers(pageNumber, totalPages);
 
   return (
-    <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
-      <div className="flex items-center gap-4">
+    <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
         <p className="text-xs text-slate-400">
           Showing page {pageNumber} of {totalPages} ({totalCount} {itemLabel})
         </p>
@@ -42,24 +42,27 @@ export default function Pagination({
         </div>
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center justify-center gap-1 md:justify-end">
         <button
           onClick={() => onGoToPage(pageNumber - 1)}
           disabled={pageNumber <= 1}
-          className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"
         >
-          Previous
+          <span className="hidden sm:inline">Previous</span>
+          <span className="sm:hidden">‹</span>
         </button>
 
         {pageNumbers[0] > 1 && (
           <>
             <button
               onClick={() => onGoToPage(1)}
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50"
+              className="hidden rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 xs:inline-flex"
             >
               1
             </button>
-            {pageNumbers[0] > 2 && <span className="px-1 text-slate-300">…</span>}
+            {pageNumbers[0] > 2 && (
+              <span className="hidden px-1 text-slate-300 xs:inline">…</span>
+            )}
           </>
         )}
 
@@ -80,11 +83,11 @@ export default function Pagination({
         {pageNumbers[pageNumbers.length - 1] < totalPages && (
           <>
             {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
-              <span className="px-1 text-slate-300">…</span>
+              <span className="hidden px-1 text-slate-300 xs:inline">…</span>
             )}
             <button
               onClick={() => onGoToPage(totalPages)}
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50"
+              className="hidden rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 xs:inline-flex"
             >
               {totalPages}
             </button>
@@ -94,9 +97,10 @@ export default function Pagination({
         <button
           onClick={() => onGoToPage(pageNumber + 1)}
           disabled={pageNumber >= totalPages}
-          className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"
         >
-          Next
+          <span className="hidden sm:inline">Next</span>
+          <span className="sm:hidden">›</span>
         </button>
       </div>
     </div>

@@ -1,39 +1,38 @@
-import { Outlet } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
+import Navbar from '../navbar/Navbar';
+import Sidebar from '../sidebar/Sidebar';
 
-import Navbar from "../navbar/Navbar";
-import Sidebar from "../sidebar/Sidebar"
-export default function DashboardLayout() {
-  const [openSidebar, setOpenSidebar] = useState(false);
+
+// Matches the `lg:hidden` breakpoint used for the Navbar's hamburger button.
+const MOBILE_QUERY = "(max-width: 1023px)";
+
+const Layout = () => {
+  const [collapsed, setCollapsed] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia(MOBILE_QUERY).matches : false
+  );
+
+  // Auto-collapse to icon-only whenever the viewport crosses into mobile/tablet size.
+  // Manual toggling (sidebar header button or navbar hamburger) still works after that.
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const handleChange = (e) => setCollapsed(e.matches);
+    mq.addEventListener("change", handleChange);
+    return () => mq.removeEventListener("change", handleChange);
+  }, []);
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:block">
-        <Sidebar />
-      </div>
+    <div className="flex h-screen bg-slate-50">
+      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
-      {/* Mobile Sidebar */}
-      {openSidebar && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setOpenSidebar(false)}
-          />
-
-          <div className="relative h-full w-72 bg-white shadow-xl">
-            <Sidebar />
-          </div>
-        </div>
-      )}
-
-      <div className="flex flex-1 flex-col">
-        <Navbar onOpenSidebar={() => setOpenSidebar(true)} />
-
-        <main className="flex-1 p-6">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Navbar onToggleSidebar={() => setCollapsed((prev) => !prev)} />
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <Outlet />
         </main>
       </div>
     </div>
   );
-}
+};
+
+export default Layout;

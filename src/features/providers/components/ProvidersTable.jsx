@@ -52,11 +52,11 @@ function formatDateNumeric(dateString) {
 }
 export default function ProvidersTable({ providers,onEdit, onToggleStatus,}) {
   const navigate = useNavigate();
-  return (
+  return ( 
     <table className="w-full text-left text-sm">
       <thead>
         <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
-          <th className="px-4 py-2.5 text-center">Provider Name</th>
+          <th className="px-4 py-2.5 text-center">Provider </th>
           <th className="px-6 py-2.5 text-center">Category</th>
           <th className="px-6 py-2.5 text-center">Specialist</th>
           <th className="px-6 py-2.5 text-center">Hotline</th>
@@ -80,24 +80,24 @@ export default function ProvidersTable({ providers,onEdit, onToggleStatus,}) {
               className="border-b border-slate-100 last:border-0 transition-all hover:bg-primary-600/10 hover:text-primary-600"
             >
               {/* Provider */}
-              <td className="px-4 py-2">
+              <td className="px-4 py-2  flex justify-center">
                 <div onClick={() =>
                  navigate(`/providers/${provider.id}`)
                   }
                   className="w-[70%] cursor-pointer"
                 >
-                  <div className="relative flex items-center gap-2 rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-white/70">
+                  <div className="relative flex items-center  justify-between gap-3 rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-white/70">
                     <ProviderAvatar
                       imageUrl={provider.imageUrl}
                       name={provider.enName}
                     />
 
                     <div className="min-w-0">
-                      <p className="truncate font-semibold text-slate-900">
+                      <p className="truncate font-semibold text-slate-900 text-end">
                         {provider.enName}
                       </p>
 
-                      <p className="truncate text-xs text-slate-400">
+                      <p className="truncate text-xs text-slate-400 text-end">
                         {provider.arName}
                       </p>
                     </div>

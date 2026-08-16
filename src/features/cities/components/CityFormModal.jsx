@@ -6,8 +6,17 @@ import FormActions from "../../../shared/components/FormActions";
 import GovernorateSelect from "./GovernorateSelect";
 import TextField from "../../../shared/components/TextField";
 import { citySchema } from "../schema/citySchema";
+import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 
-export default function CityFormModal({ isOpen, city, governorates, onSave, onClose, isSaving }) {
+export default function CityFormModal({
+  isOpen,
+  city,
+  governorates,
+  onSave,
+  onClose,
+  isSaving,
+  serverErrors,
+}) {
   const isEditMode = !!city;
 
   const {
@@ -15,6 +24,7 @@ export default function CityFormModal({ isOpen, city, governorates, onSave, onCl
     handleSubmit,
     reset,
     control,
+    setError,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(citySchema),
@@ -30,6 +40,10 @@ export default function CityFormModal({ isOpen, city, governorates, onSave, onCl
       });
     }
   }, [isOpen, city, reset]);
+
+  useEffect(() => {
+    applyServerErrors(serverErrors, setError);
+  }, [serverErrors, setError]);
 
   if (!isOpen) return null;
 

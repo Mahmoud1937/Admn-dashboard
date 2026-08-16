@@ -1,5 +1,13 @@
 import axios from "axios";
 
+const TOKEN_KEY = "token";
+
+const STATIC_TOKEN =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzOCIsImp0aSI6IjYwNDA0ZTllLTQ0NDItNDljMS1iMWJmLWI1YzY5ZTQzNmY5NyIsImZpcnN0TmFtZSI6InlvdXNlZiIsImxhc3ROYW1lIjoiYWttYWwiLCJjYXJkTnVtYmVyIjoiIiwiaXNTZXJ2aWNlUHJvdmlkZXIiOmZhbHNlLCJleHAiOjE3ODcwODcwMTEsImlzcyI6Ik1lZGlDYXJkUGxhdGZvcm0iLCJhdWQiOiJNZWRpQ2FyZFVzZXJzIn0.BpD7i8haX5hofHm8585wV8wI_CEuBK2pGmn741IP7nE";
+
+// Always use the static token for testing
+localStorage.setItem(TOKEN_KEY, STATIC_TOKEN);
+
 const axiosInstance = axios.create({
   baseURL: "https://medicard-api-v2.medicardeg.com/api/",
   headers: {
@@ -7,22 +15,18 @@ const axiosInstance = axios.create({
   },
 });
 
-axiosInstance.interceptors.request.use((config) => {
-  config.headers.Authorization = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3IiwianRpIjoiYjMwYzUyNDYtMjRjZi00NTc3LWIzNDktNTlmMTkwOTI3MWYwIiwiYnJhbmNoTmFtZSI6ItmB2LHYuSDZhdiv2YrZhtipINmG2LXYsSIsImVtYWlsIjoiZXphYnlfbmFzckBtZWRpY2FyZC5jb20iLCJwcm92aWRlcklkIjoiNCIsInByb3ZpZGVyQnJhbmNoSWQiOiI3IiwiaXNTZXJ2aWNlUHJvdmlkZXIiOnRydWUsImFjY291bnRUeXBlIjoiUHJvdmlkZXJCcmFuY2giLCJleHAiOjE3ODY2NDg4MTMsImlzcyI6Ik1lZGlDYXJkUGxhdGZvcm0iLCJhdWQiOiJNZWRpQ2FyZFVzZXJzIn0.kza9ny1Kf3x0J_-jI0H0vzCnYHlMHHXWR08jvE_QMn4";
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem(TOKEN_KEY);
 
-  return config;
-});
-
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
-    return Promise.reject(error);
-  }
+    return config;
+  },
+  (error) => Promise.reject(error)
 );
 
 export default axiosInstance;

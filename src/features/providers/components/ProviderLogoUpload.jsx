@@ -7,11 +7,12 @@ function ProviderLogoUpload({
   selectedFile,
   onImageChange,
   disabled,
+  error,
 }) {
   return (
     <div className="mb-6">
       <label className="mb-2 block text-sm font-medium text-slate-700">
-        Provider Logo
+        Provider Logo <span className="text-red-500">*</span>
       </label>
 
       <label
@@ -73,6 +74,8 @@ function ProviderLogoUpload({
         onChange={onImageChange}
         disabled={disabled}
       />
+
+      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
     </div>
   );
 }

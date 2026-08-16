@@ -65,7 +65,7 @@ export default function ProviderBranchesTab() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverPageSize]);
 
-  const { createMutation, updateMutation, isSaving } = useBranchMutations({
+  const { createMutation, updateMutation } = useBranchMutations({
     onCreateSuccess: () => setIsModalOpen(false),
     onUpdateSuccess: () => setIsModalOpen(false),
   });
@@ -84,14 +84,6 @@ export default function ProviderBranchesTab() {
   const handleOpenEdit = (branch) => {
     setSelectedBranch(branch);
     setIsModalOpen(true);
-  };
-
-  const handleSave = (payload) => {
-    if (selectedBranch) {
-      updateMutation.mutate(payload);
-    } else {
-      createMutation.mutate(payload);
-    }
   };
 
   const handleConfirmToggle = () => {
@@ -171,15 +163,15 @@ export default function ProviderBranchesTab() {
           />
         ) : (
           <>
-            <div className="p-6">
-              <table className="w-full text-left text-sm">
+            <div className="p-6 overflow-x-auto scroll-table">
+              <table className="w-full min-w-[1400px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
                     <th className="px-4 py-2.5 text-center">Branch Name</th>
                     <th className="px-6 py-2.5 text-center">Government</th>
                     <th className="px-6 py-2.5 text-center">City</th>
                     <th className="px-6 py-2.5 text-center">Email</th>
-                    <th className="px-6 py-2.5 text-center">Username</th>
+
                     <th className="px-6 py-2.5 text-center">Full Address</th>
                     <th className="px-6 py-2.5 text-center">Map URL</th>
                     <th className="px-6 py-2.5 text-center">Latitude</th>
@@ -202,7 +194,7 @@ export default function ProviderBranchesTab() {
                       <td className="px-6 py-2 text-center text-slate-600">{branch.governorateName}</td>
                       <td className="px-6 py-2 text-center text-slate-600">{branch.cityName}</td>
                       <td className="px-6 py-2 text-center text-slate-600">{branch.email}</td>
-                      <td className="px-6 py-2 text-center text-slate-600">{branch.userName}</td>
+
                       <td className="px-6 py-2 text-center text-slate-600">{branch.fullAddress}</td>
 
                       <td className="px-6 py-2 text-center">
@@ -291,9 +283,9 @@ export default function ProviderBranchesTab() {
         branch={selectedBranch}
         providerId={providerId}
         governorates={governorates ?? []}
-        onSave={handleSave}
+        createMutation={createMutation}
+        updateMutation={updateMutation}
         onClose={() => setIsModalOpen(false)}
-        isSaving={isSaving}
       />
 
       <ConfirmDeleteModal
