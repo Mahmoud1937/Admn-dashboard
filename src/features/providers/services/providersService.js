@@ -56,7 +56,7 @@ export async function createProvider(payload) {
 export async function updateProvider(id, payload) {
   const formData = new FormData();
 
-  formData.append("Id", id);
+
   formData.append("ProviderCategoryId", payload.providerCategoryId);
 
   if (payload.specialistId) {
@@ -73,7 +73,7 @@ export async function updateProvider(id, payload) {
     formData.append("Logo", payload.logoFile);
   }
 
-  const { data } = await axiosInstance.put("/admin/providers", formData, {
+  const { data } = await axiosInstance.put(`/admin/providers/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 
