@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useProvidersMapQuery } from "../hooks/useProvidersMapQuery";
+
 import { useClientLocationsQuery } from "../hooks/usecCientLocationsQuery";
-import CategoryTabs from "../components/CategoryTabs";
-import MapFilters from "../components/MapFilters";
+
+import MapFilters from "../components/MapFilters"
 import ProviderClusterMap from "../components/ProviderClusterMap";
+import { useProvidersMapQuery } from "../hooks/useProvidersMapQuery";
+import CategoryTabs from "../components/CategoryTabs";
 
 
 export default function ProviderMapPage() {
