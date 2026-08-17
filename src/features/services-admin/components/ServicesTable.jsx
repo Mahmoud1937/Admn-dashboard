@@ -16,13 +16,14 @@ export default function ServicesTable({ services, hasActiveFilters, onEdit, onDe
 
   return (
     <div className="scroll-table">
-      <table className="w-full text-left text-sm">
+      <table className="w-full text-center text-sm">
         <thead className="sticky top-0 bg-white">
           <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
             <th className="px-6 py-3">English Name</th>
             <th className="px-6 py-3">Arabic Name</th>
             <th className="px-6 py-3">Category</th>
             <th className="px-6 py-3">CPT</th>
+            <th className="px-6 py-3">Instructions</th>
             <th className="px-6 py-3 text-center">Actions</th>
           </tr>
         </thead>
@@ -34,6 +35,12 @@ export default function ServicesTable({ services, hasActiveFilters, onEdit, onDe
               <td className="px-6 py-3 text-slate-600">{service.arName}</td>
               <td className="px-6 py-3 text-slate-600">{service.categoryNameEn || "—"}</td>
               <td className="px-6 py-3 text-slate-600">{service.cpt || "—"}</td>
+              <td
+                className="max-w-xs truncate px-6 py-3 text-slate-600"
+                title={service.serviceInstruction || ""}
+              >
+                {service.serviceInstruction || "—"}
+              </td>
               <td className="px-6 py-3">
                 <RowActions onEdit={() => onEdit(service)} onDelete={() => onDeleteRequest(service)} />
               </td>

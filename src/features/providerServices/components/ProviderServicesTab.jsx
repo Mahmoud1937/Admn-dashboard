@@ -59,7 +59,8 @@ export default function ProviderServicesTab() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverPageSize]);
 
-  const { createMutation, updateMutation, isSaving } = useProviderServiceMutations({
+const { createMutation, updateMutation, isSaving, serverErrors, clearServerErrors } =
+  useProviderServiceMutations({
     onCreateSuccess: () => setIsModalOpen(false),
     onUpdateSuccess: () => setIsModalOpen(false),
   });
@@ -256,14 +257,16 @@ export default function ProviderServicesTab() {
         )}
       </div>
 
-      <ProviderServiceFormModal
-        isOpen={isModalOpen}
-        providerService={selectedService}
-        providerId={providerId}
-        onSave={handleSave}
-        onClose={() => setIsModalOpen(false)}
-        isSaving={isSaving}
-      />
+<ProviderServiceFormModal
+  isOpen={isModalOpen}
+  providerService={selectedService}
+  providerId={providerId}
+  onSave={handleSave}
+  onClose={() => setIsModalOpen(false)}
+  isSaving={isSaving}
+  serverErrors={serverErrors}
+  onClearErrors={clearServerErrors}
+/>
 
       <ConfirmDeleteModal
         isOpen={!!serviceToToggle}

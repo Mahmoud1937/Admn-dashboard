@@ -13,11 +13,7 @@ const EMPTY_VALUES = {
   governorateId: "",
   cityId: "",
   email: "",
-  userName: "",
-  password: "",
   mapUrl: "",
-  latitude: "",
-  longitude: "",
   fullAddress: "",
   isActive: true,
 };
@@ -29,11 +25,7 @@ function branchToFormValues(branch) {
     governorateId: branch.governorateId ? String(branch.governorateId) : "",
     cityId: branch.cityId ? String(branch.cityId) : "",
     email: branch.email ?? "",
-    userName: branch.userName ?? "",
-    password: "",
     mapUrl: branch.mapUrl ?? "",
-    latitude: branch.latitude ?? "",
-    longitude: branch.longitude ?? "",
     fullAddress: branch.fullAddress ?? "",
     isActive: branch.isActive ?? true,
   };
@@ -84,30 +76,26 @@ export default function BranchFormModal({
   };
 
   const onSubmit = (data) => {
-  const payload = {
-  ...(isEditMode && { id: branch.id }),
-  providerId,
-  branchName: data.branchName,
-  governorateId: Number(data.governorateId),
-  cityId: Number(data.cityId),
-  email: data.email,
-  userName: data.userName,
-  password: data.password ? data.password : undefined,
-  mapUrl: data.mapUrl || "",
-  latitude: data.latitude,
-  longitude: data.longitude,
-  fullAddress: data.fullAddress || "",
-  isActive: data.isActive,
-};
+    const payload = {
+      ...(isEditMode && { id: branch.id }),
+      providerId,
+      branchName: data.branchName,
+      governorateId: Number(data.governorateId),
+      cityId: Number(data.cityId),
+      email: data.email,
+      mapUrl: data.mapUrl || "",
+      fullAddress: data.fullAddress || "",
+      isActive: data.isActive,
+    };
 
-mutation.mutate(payload, {
-  onError: (error) => {
-    const backendErrors = error?.response?.data?.errors;
-    if (backendErrors && !Array.isArray(backendErrors) && typeof backendErrors === "object") {
-      applyServerErrors(backendErrors, setError);
-    }
-  },
-});
+    mutation.mutate(payload, {
+      onError: (error) => {
+        const backendErrors = error?.response?.data?.errors;
+        if (backendErrors && !Array.isArray(backendErrors) && typeof backendErrors === "object") {
+          applyServerErrors(backendErrors, setError);
+        }
+      },
+    });
   };
 
   return (
@@ -180,54 +168,21 @@ mutation.mutate(payload, {
         <p className="-mt-3 mb-3 text-xs text-red-500">{errors.fullAddress.message}</p>
       )}
 
-      <TextField label="Map URL" required {...register("mapUrl")} />
+      <TextField
+        label="Map URL"
+        required
+        maxLength={2048}
+        sanitize={false}
+        {...register("mapUrl")}
+      />
       {errors.mapUrl && (
         <p className="-mt-3 mb-3 text-xs text-red-500">{errors.mapUrl.message}</p>
       )}
-
-      <div className="mb-4 grid grid-cols-2 gap-3">
-        <div>
-          <TextField label="Latitude" required {...register("latitude")} />
-          {errors.latitude && (
-            <p className="mt-1 text-xs text-red-500">{errors.latitude.message}</p>
-          )}
-        </div>
-        <div>
-          <TextField label="Longitude" required {...register("longitude")} />
-          {errors.longitude && (
-            <p className="mt-1 text-xs text-red-500">{errors.longitude.message}</p>
-          )}
-        </div>
-      </div>
 
       <TextField label="Email" required {...register("email")} />
       {errors.email && (
         <p className="-mt-3 mb-3 text-xs text-red-500">{errors.email.message}</p>
       )}
-
-      <TextField label="Username" required {...register("userName")} />
-      {errors.userName && (
-        <p className="-mt-3 mb-3 text-xs text-red-500">{errors.userName.message}</p>
-      )}
-
-      <div className="mb-4">
-        <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Password {!isEditMode && <span className="text-red-500">*</span>}
-          {isEditMode && (
-            <span className="ml-1 text-xs font-normal text-slate-400">
-              (leave blank to keep current password)
-            </span>
-          )}
-        </label>
-        <input
-          type="password"
-          {...register("password")}
-          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
-        />
-        {errors.password && (
-          <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
-        )}
-      </div>
 
       {isEditMode && (
         <label className="mb-5 flex items-center gap-2 text-sm font-medium text-slate-700">

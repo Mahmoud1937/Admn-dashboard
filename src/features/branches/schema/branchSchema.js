@@ -9,18 +9,8 @@ const emailField = z
   .string()
   .trim()
   .min(1, "Email is required")
+  .max(100, "Email can't exceed 100 characters")
   .email("Please enter a valid email address");
-
-const userNameField = z
-  .string()
-  .trim()
-  .min(3, "Username should be at least 3 characters long")
-  .max(30, "Username can't exceed 30 characters")
-  .regex(/^[a-zA-Z0-9_.]+$/, "Username can only contain letters, numbers, underscores and dots");
-
-const passwordField = z
-  .string()
-  .min(6, "Password should be at least 6 characters long");
 
 const mapUrlField = z
   .string()
@@ -30,41 +20,22 @@ const mapUrlField = z
     message: "Map URL must start with http:// or https://",
   });
 
-const coordinateField = z
-  .union([z.string(), z.number()])
-  .refine((val) => val !== "" && val !== null && val !== undefined, {
-    message: "This field is required",
-  })
-  .transform((val) => Number(val))
-  .refine((val) => !Number.isNaN(val), {
-    message: "Must be a valid number",
-  });
-
 const fullAddressField = z
   .string()
   .trim()
-  .min(1, "Full address is required")
-  .max(200, "Address can't exceed 200 characters");
+  .min(10, "Full address should be at least 10 characters long")
+  .max(150, "Address can't exceed 150 characters");
 
-const branchBaseSchema = z.object({
+const branchSchema = z.object({
   branchName: nameField("Branch name"),
   governorateId: requiredIdField("Governorate"),
   cityId: requiredIdField("City"),
   email: emailField,
-  userName: userNameField,
   mapUrl: mapUrlField,
-  latitude: coordinateField,
-  longitude: coordinateField,
   fullAddress: fullAddressField,
   isActive: isActiveField,
 });
 
-// Add Branch: password required
-export const createBranchSchema = branchBaseSchema.extend({
-  password: passwordField,
-});
-
-// Edit Branch: password optional (leave blank to keep current)
-export const updateBranchSchema = branchBaseSchema.extend({
-  password: passwordField.optional().or(z.literal("")),
-});
+// Add/Edit Branch now share the same shape (no more password field on either).
+export const createBranchSchema = branchSchema;
+export const updateBranchSchema = branchSchema;

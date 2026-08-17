@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 const hasNoLeadingSymbols = (value) => {
-  // أول 3 حروف مينفعش يبقى فيهم / ( )
+
   const firstThree = value.slice(0, 3);
   return !/[/()]/.test(firstThree);
 };
 
 const hasNoRepeatedSymbols = (value) => {
-  // مينفعش نفس الرمز يتكرر ورا بعض: // أو (( أو ))
+
   return !/([/()])\1/.test(value);
 };
 

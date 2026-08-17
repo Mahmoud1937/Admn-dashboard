@@ -6,8 +6,8 @@ import { faFloppyDisk, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { getProviderSchema } from "../schema/providerSchema"
 import ProviderLogoUpload from "./ProviderLogoUpload";
 import DateField from "./DateField";
+import TextField from "../../../shared/components/TextField";
 import {
-  sanitizeNameInput,
   buildProviderFormValues,
   emptyProviderForm,
 } from "../utils/providerFormHelpers";
@@ -46,8 +46,6 @@ export default function ProviderInfoForm({
 
   const hotLineRegister = register("hotLine");
   const phoneNumberRegister = register("phoneNumber1");
-  const enNameRegister = register("enName");
-  const arNameRegister = register("arName");
 
   // Image preview
   useEffect(() => {
@@ -73,6 +71,11 @@ export default function ProviderInfoForm({
     if (!file) return;
     setImageFile(file);
     setValue("logoFile", file, { shouldValidate: true });
+  };
+
+  const handleDigitsOnlyChange = (fieldRegister) => (e) => {
+    e.target.value = e.target.value.replace(/\D/g, "");
+    fieldRegister.onChange(e);
   };
 
   const onSubmit = (formValues) => {
@@ -163,47 +166,25 @@ export default function ProviderInfoForm({
       )}
 
       {/* Names */}
-      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">
-            English Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            {...enNameRegister}
-            onChange={(e) => {
-              e.target.value = sanitizeNameInput(e.target.value);
-              enNameRegister.onChange(e);
-            }}
-            maxLength={100}
-            disabled={!canEdit}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500"
-          />
-          {errors.enName && (
-            <p className="mt-1 text-xs text-red-500">{errors.enName.message}</p>
-          )}
-        </div>
+      <div className="mb-2 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <TextField
+          label="English Name"
+          required
+          maxLength={100}
+          disabled={!canEdit}
+          error={errors.enName?.message}
+          {...register("enName")}
+        />
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">
-            Arabic Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            dir="rtl"
-            {...arNameRegister}
-            onChange={(e) => {
-              e.target.value = sanitizeNameInput(e.target.value);
-              arNameRegister.onChange(e);
-            }}
-            maxLength={100}
-            disabled={!canEdit}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500"
-          />
-          {errors.arName && (
-            <p className="mt-1 text-xs text-red-500">{errors.arName.message}</p>
-          )}
-        </div>
+        <TextField
+          label="Arabic Name"
+          required
+          dir="rtl"
+          maxLength={100}
+          disabled={!canEdit}
+          error={errors.arName?.message}
+          {...register("arName")}
+        />
       </div>
 
       {/* Category + Specialist */}
@@ -259,41 +240,26 @@ export default function ProviderInfoForm({
 
       {/* Hotline + Phone */}
       <div className="mb-2 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">Hotline <span className="text-red-500">*</span></label>
-          <input
-            type="text"
-            inputMode="numeric"
-            {...hotLineRegister}
-            onChange={(e) => {
-              e.target.value = e.target.value.replace(/\D/g, "");
-              hotLineRegister.onChange(e);
-            }}
-            disabled={!canEdit}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500"
-          />
-          {errors.hotLine && (
-            <p className="mt-1 text-xs text-red-500">{errors.hotLine.message}</p>
-          )}
-        </div>
+        <TextField
+          label="Hotline"
+          required
+          inputMode="numeric"
+          sanitize={false}
+          disabled={!canEdit}
+          error={errors.hotLine?.message}
+          {...hotLineRegister}
+          onChange={handleDigitsOnlyChange(hotLineRegister)}
+        />
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">Phone Number</label>
-          <input
-            type="text"
-            inputMode="numeric"
-            {...phoneNumberRegister}
-            onChange={(e) => {
-              e.target.value = e.target.value.replace(/\D/g, "");
-              phoneNumberRegister.onChange(e);
-            }}
-            disabled={!canEdit}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500"
-          />
-          {errors.phoneNumber1 && (
-            <p className="mt-1 text-xs text-red-500">{errors.phoneNumber1.message}</p>
-          )}
-        </div>
+        <TextField
+          label="Phone Number"
+          inputMode="numeric"
+          sanitize={false}
+          disabled={!canEdit}
+          error={errors.phoneNumber1?.message}
+          {...phoneNumberRegister}
+          onChange={handleDigitsOnlyChange(phoneNumberRegister)}
+        />
       </div>
 
       {/* Active Status */}

@@ -14,8 +14,11 @@ export const serviceSchema = z.object({
     .trim()
     .optional()
     .or(z.literal(""))
-    .refine((val) => !val || /^[0-9]+$/.test(val), {
-      message: "CPT code must contain digits only",
+    .refine((val) => !val || (val.length >= 3 && val.length <= 20), {
+      message: "CPT code should be between 3 and 50 characters",
+    })
+    .refine((val) => !val || /^[a-zA-Z0-9]+$/.test(val), {
+      message: "CPT code can only contain letters and numbers",
     }),
   serviceInstruction: z.string().trim().optional().or(z.literal("")),
 });

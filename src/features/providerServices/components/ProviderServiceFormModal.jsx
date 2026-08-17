@@ -8,8 +8,6 @@ import TextField from "../../../shared/components/TextField";
 import FormActions from "../../../shared/components/FormActions";
 
 
-
-
 const EMPTY_VALUES = {
   serviceId: "",
   priceBefore: "",
@@ -17,6 +15,21 @@ const EMPTY_VALUES = {
   isSpecialOffer: false,
   isActive: true,
 };
+
+// Backend returns PascalCase field names (ASP.NET ModelState style, e.g.
+// "ServiceId"). Map them to the camelCase field names used by the form.
+const SERVER_FIELD_NAME_MAP = {
+  ServiceId: "serviceId",
+  PriceBefore: "priceBefore",
+  DiscountPercentage: "discountPercentage",
+};
+
+function toFormFieldName(serverFieldName) {
+  return (
+    SERVER_FIELD_NAME_MAP[serverFieldName] ||
+    serverFieldName.charAt(0).toLowerCase() + serverFieldName.slice(1)
+  );
+}
 
 function providerServiceToFormValues(providerService) {
   if (!providerService) return EMPTY_VALUES;
@@ -40,6 +53,8 @@ export default function ProviderServiceFormModal({
   onSave,
   onClose,
   isSaving,
+  serverErrors,
+  onClearErrors,
 }) {
   const isEditMode = !!providerService;
   const schema = isEditMode ? updateProviderServiceSchema : createProviderServiceSchema;
@@ -48,6 +63,7 @@ export default function ProviderServiceFormModal({
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -57,8 +73,25 @@ export default function ProviderServiceFormModal({
   useEffect(() => {
     if (isOpen) {
       reset(providerServiceToFormValues(providerService));
+      onClearErrors?.();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, providerService, reset]);
+
+  // Map backend validation errors (PascalCase field -> [errorCode]) onto the
+  // matching form fields. Shown as-is, no client-side translation.
+  useEffect(() => {
+    if (!serverErrors) return;
+
+    Object.entries(serverErrors).forEach(([field, messages]) => {
+      const fieldName = toFormFieldName(field);
+      const rawMessage = Array.isArray(messages) ? messages[0] : messages;
+      setError(fieldName, {
+        type: "server",
+        message: rawMessage,
+      });
+    });
+  }, [serverErrors, setError]);
 
   const { services, isLoading: isServicesLoading } = useServicesLookup();
 

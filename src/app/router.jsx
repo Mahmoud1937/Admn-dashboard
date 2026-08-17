@@ -13,6 +13,7 @@ import ServiceCategoriesPage from "../features/ServiceCategory/pages/ServiceCate
 
 import MedicinesPage from "../features/Medicines/pages/Medicinespage";
 import ServicesPage from "../features/services-admin/pages/ServicesPage";
+import ProviderMapPage from "../features/provider-map/pages/ProviderMapPage";
 
 
 const router = createBrowserRouter([
@@ -31,7 +32,7 @@ const router = createBrowserRouter([
       { path: "providers/:id", element: <ProviderDetailsPage /> },
 
       { path: "clients", element: <PagePlaceholder title="Clients" /> },
-      { path: "provider-map", element: <PagePlaceholder title="Provider Map" /> },
+      { path: "provider-map", element: <ProviderMapPage /> },
       { path: "/provider-category", element: <CategoriesPage /> },
       { path: "/service-category", element: <ServiceCategoriesPage /> },
       { path: "services", element: <ServicesPage title="Services" /> },

@@ -59,7 +59,7 @@ export default function ServiceFormModal({ isOpen, service, categories, onSave, 
 
     });
   };
-const cptRegister = register("cpt"); 
+
   return (
     <FormModalShell
       title={isEditMode ? "Edit Service" : "Add Service"}
@@ -97,16 +97,12 @@ const cptRegister = register("cpt");
         error={errors.arName?.message}
       />
 
- <TextField
-  label="CPT Code"
-  inputMode="numeric"
-  {...cptRegister}
-  onChange={(e) => {
-    e.target.value = e.target.value.replace(/\D/g, "");
-    cptRegister.onChange(e);
-  }}
-  error={errors.cpt?.message}
-/>
+      <TextField
+        label="CPT Code"
+        maxLength={20}
+        {...register("cpt")}
+        error={errors.cpt?.message}
+      />
 
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
