@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getMapData } from "../services/providerMapService";
-import { hasValidEgyptCoords } from "../utils/mapCoords";
-import { normalizeArabic } from "../utils/arabicText";
+import { getMapData } from "../services/ProviderMapService";
+import { hasValidEgyptCoords } from "../utils/Mapcoords";
+import { normalizeArabic } from "../utils/Arabictext";
 
 export const useProvidersMapQuery = ({ category, governorateId, search }) => {
   const { data, isLoading, isError, error } = useQuery({

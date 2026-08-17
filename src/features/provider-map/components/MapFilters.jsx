@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
-import { normalizeArabic } from "../utils/arabicText";
+import { normalizeArabic } from "../utils/Arabictext";
 
 export default function MapFilters({
   governorates,
