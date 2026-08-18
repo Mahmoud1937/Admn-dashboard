@@ -1,18 +1,26 @@
 import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
-import { getCategories } from "../../categoreis/service/categoryService";
+import { getServiceCategories } from "../../ServiceCategory/services/Servicecategoriesservice";
 
-export default function CategorySelect({ value, onChange, placeholder = "Select category", error, disabled }) {
+export default function CategorySelect({
+  value,
+  onChange,
+  placeholder = "Select category",
+  error,
+  disabled,
+}) {
   return (
-    <SearchableAsyncSelect
-      queryKey={["categories"]}
-      fetchItems={getCategories}
-      value={value}
-      onChange={onChange}
-      getOptionLabel={(item) => `${item.enName} - ${item.arName}`}
-      placeholder={placeholder}
-      searchPlaceholder="Search categories..."
-      disabled={disabled}
-      error={error}
-    />
+    <div className="w-full sm:w-72">
+      <SearchableAsyncSelect
+        queryKey={["categories"]}
+        fetchItems={getServiceCategories}
+        value={value}
+        onChange={onChange}
+        getOptionLabel={(item) => `${item.enName} - ${item.arName}`}
+        placeholder={placeholder}
+        searchPlaceholder="Search categories..."
+        disabled={disabled}
+        error={error}
+      />
+    </div>
   );
 }

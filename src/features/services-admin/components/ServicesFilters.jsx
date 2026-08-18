@@ -25,14 +25,13 @@ export default function ServicesFilters({
           className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
         />
       </div>
-
-      <CategorySelect
-        categories={categories}
-        value={categoryFilter}
-        onChange={(e) => onCategoryFilterChange(e.target.value)}
-        placeholder="All Categories"
-        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:bg-white sm:w-56"
-      />
+<CategorySelect
+  categories={categories}
+  value={categoryFilter}
+  onChange={onCategoryFilterChange}   // ✅ ابعتها زي ما هي، من غير wrapper
+  placeholder="All Categories"
+  className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:bg-white sm:w-56"
+/>
     </div>
   );
 }

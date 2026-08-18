@@ -1,32 +1,32 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { serviceCategorySchema } from "../schema/serviceCategorySchema";
+import { getServiceCategorySchema } from "../schema/serviceCategorySchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import ImageUploadField from "../../../shared/components/ImageUploadField";
 import TextField from "../../../shared/components/TextField";
 import FormActions from "../../../shared/components/FormActions";
 
-
 export default function ServiceCategoryFormModal({ isOpen, category, onSave, onClose, isSaving, serverErrors }) {
   const isEditMode = !!category;
 
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [imageError, setImageError] = useState("");
 
   const {
     register,
     handleSubmit,
     reset,
     setError,
+    setValue,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(serviceCategorySchema),
+    resolver: zodResolver(getServiceCategorySchema(!isEditMode)),
     defaultValues: {
       enName: "",
       arName: "",
+      logo: null,
     },
   });
 
@@ -35,12 +35,12 @@ export default function ServiceCategoryFormModal({ isOpen, category, onSave, onC
       reset({
         enName: category?.enName ?? "",
         arName: category?.arName ?? "",
+        logo: isEditMode ? category?.imageUrl ?? null : null,
       });
       setPreview(category?.imageUrl || null);
       setImage(null);
-      setImageError("");
     }
-  }, [isOpen, category, reset]);
+  }, [isOpen, category, isEditMode, reset]);
 
   useEffect(() => {
     applyServerErrors(serverErrors, setError);
@@ -53,14 +53,10 @@ export default function ServiceCategoryFormModal({ isOpen, category, onSave, onC
     if (!file) return;
     setImage(file);
     setPreview(URL.createObjectURL(file));
-    setImageError("");
+    setValue("logo", file, { shouldValidate: true });
   };
 
   const onSubmit = (data) => {
-    if (!image && !preview) {
-      return;
-    }
-
     onSave({
       id: category?.id,
       enName: data.enName,
@@ -69,29 +65,20 @@ export default function ServiceCategoryFormModal({ isOpen, category, onSave, onC
     });
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-
-    if (!image && !preview) {
-      setImageError("Image is required.");
-    } else {
-      setImageError("");
-    }
-
-    handleSubmit(onSubmit)(e);
-  };
-
   return (
     <FormModalShell
       title={isEditMode ? "Edit Service Category" : "Add Service Category"}
       onClose={onClose}
-      onSubmit={handleFormSubmit}
-          formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
+      onSubmit={handleSubmit(onSubmit)}
+      formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
     >
-      <ImageUploadField preview={preview} onImageChange={handleImageChange} alt="Service category logo" />
-      {imageError && (
-        <p className="mb-4 text-center text-xs text-red-500">{imageError}</p>
-      )}
+      <ImageUploadField
+        preview={preview}
+        onImageChange={handleImageChange}
+        alt="Service category logo"
+        error={errors.logo?.message}
+        disabled={isSaving}
+      />
 
       <TextField
         label="English Name"

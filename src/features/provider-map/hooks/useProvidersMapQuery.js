@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getMapData } from "../services/ProviderMapService";
-import { hasValidEgyptCoords } from "../utils/Mapcoords";
-import { normalizeArabic } from "../utils/Arabictext";
+import { getMapData } from "../services/providerMapService";
+import { hasValidEgyptCoords } from "../utils/mapCoords";
+import { normalizeArabic } from "../utils/arabicText";
 
 export const useProvidersMapQuery = ({ category, governorateId, search }) => {
   const { data, isLoading, isError, error } = useQuery({
@@ -19,16 +19,41 @@ export const useProvidersMapQuery = ({ category, governorateId, search }) => {
     [governorates, governorateId]
   );
 
+  // NOTE: coordinates live on each branch inside `provider.branches`,
+  // NOT on the provider itself. We flatten provider -> branches into
+  // one "pin" record per branch before filtering/validating coords.
   const { validProviders, invalidCount } = useMemo(() => {
     let invalid = 0;
     const valid = [];
+
     for (const p of rawProviders) {
-      if (hasValidEgyptCoords(p.lat, p.lng)) {
-        valid.push(p);
-      } else {
-        invalid += 1;
+      const branches = p.branches ?? [];
+
+      for (const b of branches) {
+        if (hasValidEgyptCoords(b.lat, b.lng)) {
+          valid.push({
+            // provider-level info
+            providerId: p.providerId,
+            nameAr: p.nameAr,
+            nameEn: p.nameEn,
+            type: p.type,
+            categoryAr: p.categoryAr,
+            imageUrl: p.imageUrl,
+            // branch-level info (this is what actually has the pin location)
+            branchId: b.branchId,
+            lat: b.lat,
+            lng: b.lng,
+            address: b.address,
+            governorate: b.governorate,
+            city: b.city,
+            phone: b.phone,
+          });
+        } else {
+          invalid += 1;
+        }
       }
     }
+
     return { validProviders: valid, invalidCount: invalid };
   }, [rawProviders]);
 
@@ -42,43 +67,90 @@ export const useProvidersMapQuery = ({ category, governorateId, search }) => {
       )
         return false;
       if (term) {
-        const haystack = `${p.name || ""} ${p.nameEn || ""} ${p.address || ""}`.toLowerCase();
+        const haystack = `${p.nameAr || ""} ${p.nameEn || ""} ${p.address || ""}`.toLowerCase();
         if (!haystack.includes(term)) return false;
       }
       return true;
     });
   }, [validProviders, category, selectedGovernorate, search]);
 
-  // Bubble = one dot per DISTINCT governorate name, counting filtered providers in it.
+  // Bubble = one per (provider, governorate) pair, so each provider gets
+  // its own bubble even when it shares a governorate with other providers.
+  // Count = number of that provider's branches in that governorate.
   // The governorates list can contain multiple rows for what's really the same
   // governorate (typos/duplicates, e.g. "Cairoo" vs "القاهرة") — those get merged
-  // into a single bubble here instead of rendering one overlapping bubble each.
+  // by name before bubbles are built.
   const governorateBubbles = useMemo(() => {
-    const counts = new Map();
+    // group branches by (governorate, providerId)
+    const groups = new Map(); // `${govKey}::${providerId}` -> group info
     for (const p of filteredProviders) {
-      const key = normalizeArabic(p.governorate);
-      counts.set(key, (counts.get(key) || 0) + 1);
+      const govKey = normalizeArabic(p.governorate);
+      const groupKey = `${govKey}::${p.providerId}`;
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, {
+          govKey,
+          providerId: p.providerId,
+          nameAr: p.nameAr,
+          nameEn: p.nameEn,
+          imageUrl: p.imageUrl,
+          count: 0,
+        });
+      }
+      groups.get(groupKey).count += 1;
     }
 
-    const byNormalizedName = new Map();
+    // resolve governorate center coords (first row wins per normalized name)
+    const govCenterByKey = new Map();
     for (const g of governorates) {
       if (!hasValidEgyptCoords(g.centerLat, g.centerLng)) continue;
       const key = normalizeArabic(g.nameAr);
-      if (!byNormalizedName.has(key)) {
-        // first row wins for id/label/center; later duplicate rows just
-        // contribute their providers' count (already merged above by name)
-        byNormalizedName.set(key, {
+      if (!govCenterByKey.has(key)) {
+        govCenterByKey.set(key, {
           id: g.id,
           nameAr: g.nameAr,
           nameEn: g.nameEn,
           centerLat: g.centerLat,
           centerLng: g.centerLng,
-          count: counts.get(key) || 0,
         });
       }
     }
 
-    return Array.from(byNormalizedName.values()).filter((b) => b.count > 0);
+    // bucket provider-groups by governorate so siblings can be spread out
+    const byGov = new Map();
+    for (const group of groups.values()) {
+      if (!byGov.has(group.govKey)) byGov.set(group.govKey, []);
+      byGov.get(group.govKey).push(group);
+    }
+
+    const OFFSET_DEG = 0.12; // small horizontal spread so sibling bubbles sit side-by-side
+    const bubbles = [];
+
+    for (const [govKey, groupList] of byGov.entries()) {
+      const center = govCenterByKey.get(govKey);
+      if (!center) continue; // governorate name has no matching coords row
+
+      groupList.forEach((group, index) => {
+        bubbles.push({
+          id: `${center.id}-${group.providerId}`,
+          governorateId: center.id,
+          governorateNameAr: center.nameAr,
+          providerId: group.providerId,
+          nameAr: group.nameAr,
+          nameEn: group.nameEn,
+          imageUrl: group.imageUrl,
+          count: group.count,
+          centerLat: center.centerLat,
+          centerLng: center.centerLng,
+          // position of this bubble among its siblings at the same governorate
+          // point — used by the map layer to spread them apart by a FIXED
+          // pixel amount (not a geo offset, which shrinks/grows with zoom)
+          siblingIndex: index,
+          siblingCount: groupList.length,
+        });
+      });
+    }
+
+    return bubbles;
   }, [governorates, filteredProviders]);
 
   const invalidGovernorateCount = useMemo(

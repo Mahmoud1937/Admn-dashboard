@@ -7,6 +7,7 @@ export default function ImageUploadField({
   label = "Upload Logo",
   alt,
   error,
+  disabled = false,
 }) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
@@ -17,6 +18,8 @@ export default function ImageUploadField({
     setIsDragging(false);
     setDragCounter(0);
 
+    if (disabled) return;
+
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
 
@@ -26,6 +29,7 @@ export default function ImageUploadField({
   const handleDragEnter = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (disabled) return;
     setDragCounter((prev) => prev + 1);
     setIsDragging(true);
   };
@@ -52,17 +56,23 @@ export default function ImageUploadField({
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
-        className={`flex flex-col items-center gap-3 rounded-xl border-2 border-dashed p-4 transition-colors ${
-          isDragging ? "border-blue-400 bg-blue-50" : "border-transparent"
-        }`}
+        className={`flex flex-col items-center gap-3 rounded-xl border-2 border-dashed p-4 transition-colors
+          ${isDragging ? "border-blue-400 bg-blue-50" : "border-transparent"}
+          ${disabled ? "cursor-not-allowed opacity-60" : ""}
+        `}
       >
         <AvatarImage src={preview} alt={alt} size="h-24 w-24" />
-        <label className="cursor-pointer rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
+        <label
+          className={`rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600
+            ${disabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-slate-50"}
+          `}
+        >
           {label}
           <input
             type="file"
             accept="image/png, image/jpeg, image/webp"
             onChange={onImageChange}
+            disabled={disabled}
             className="hidden"
           />
         </label>

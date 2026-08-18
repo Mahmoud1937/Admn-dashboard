@@ -6,12 +6,14 @@ import {
   faDumbbell,
   faPersonWalking,
   faTooth,
+  faUserDoctor,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // key must match provider.type from the API (lowercase, e.g. "pharmacy")
 export const CATEGORIES = [
   { key: "All", label: "All", icon: null, color: "#1d4ed8" },
+  { key: "doctors", label: "Doctors", icon: faUserDoctor, color: "#0891b2" },
   { key: "pharmacy", label: "Pharmacy", icon: faPrescriptionBottleMedical, color: "#dc2626" },
   { key: "lab", label: "Lab", icon: faFlask, color: "#16a34a" },
   { key: "radiology", label: "Radiology", icon: faXRay, color: "#7c3aed" },

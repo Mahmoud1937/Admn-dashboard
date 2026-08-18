@@ -5,23 +5,29 @@ import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
 import ImageUploadField from "../../../shared/components/ImageUploadField";
 import TextField from "../../../shared/components/TextField";
-import { categorySchema } from "../schema/categorySchema";
+import { getCategorySchema } from "../schema/categorySchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ACCEPTED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 export default function CategoryFormModal({ isOpen, category, onSave, onClose, isSaving, serverErrors }) {
+  const isEditMode = !!category;
+
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [imageError, setImageError] = useState("");
 
   const {
     register,
     handleSubmit,
     reset,
     setError,
+    setValue,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(categorySchema),
-    defaultValues: { enName: "", arName: "" },
+    resolver: zodResolver(getCategorySchema(!isEditMode)),
+    defaultValues: { enName: "", arName: "", logo: null },
   });
 
   useEffect(() => {
@@ -29,13 +35,12 @@ export default function CategoryFormModal({ isOpen, category, onSave, onClose, i
       reset({
         enName: category?.enName || "",
         arName: category?.arName || "",
+        logo: isEditMode ? category?.imageUrl ?? null : null,
       });
       setPreview(category?.imageUrl || null);
       setImage(null);
-      setImageError("");
     }
-  }, [isOpen, category, reset]);
-
+  }, [isOpen, category, isEditMode, reset]);
 
   useEffect(() => {
     applyServerErrors(serverErrors, setError);
@@ -46,35 +51,46 @@ export default function CategoryFormModal({ isOpen, category, onSave, onClose, i
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const hasValidExtension = ACCEPTED_EXTENSIONS.some((ext) =>
+      file.name?.toLowerCase().endsWith(ext)
+    );
+
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type) || !hasValidExtension) {
+      e.target.value = "";
+      setError("logo", { type: "manual", message: "Logo must be a PNG, JPG, or WEBP image" });
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      e.target.value = "";
+      setError("logo", { type: "manual", message: "Logo size can't exceed 5MB" });
+      return;
+    }
+
     setImage(file);
     setPreview(URL.createObjectURL(file));
-    setImageError("");
+    setValue("logo", file, { shouldValidate: true });
   };
 
   const onSubmit = (data) => {
-    if (!image && !preview) return;
-    onSave({ id: category?.id, ...data, image });
-  };
-
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    if (!image && !preview) {
-      setImageError("Logo is required.");
-    } else {
-      setImageError("");
-    }
-    handleSubmit(onSubmit)(e);
+    onSave({ id: category?.id, enName: data.enName, arName: data.arName, image });
   };
 
   return (
     <FormModalShell
       title={category ? "Edit Category" : "Add Category"}
       onClose={onClose}
-      onSubmit={handleFormSubmit}
-          formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
+      onSubmit={handleSubmit(onSubmit)}
+      formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
     >
-      <ImageUploadField preview={preview} onImageChange={handleImageChange} alt="Category logo" />
-      {imageError && <p className="mb-4 text-center text-xs text-red-500">{imageError}</p>}
+      <ImageUploadField
+        preview={preview}
+        onImageChange={handleImageChange}
+        alt="Category logo"
+        error={errors.logo?.message}
+        disabled={isSaving}
+      />
 
       <TextField
         label="English Name"
