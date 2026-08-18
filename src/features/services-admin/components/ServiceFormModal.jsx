@@ -1,19 +1,21 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormModalShell from "../../../shared/components/FormModalShell";
-import FormActions from "../../../shared/components/FormActions";
-import CategorySelect from "./CategorySelect";
-import TextField from "../../../shared/components/TextField";
 import { serviceSchema } from "../schema/serviceSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
+import FormModalShell from "../../../shared/components/FormModalShell";
+import CategorySelect from "./CategorySelect";
+import TextField from "../../../shared/components/TextField";
+import FormActions from "../../../shared/components/FormActions";
 
-export default function ServiceFormModal({ isOpen, service, categories, onSave, onClose, isSaving, serverErrors }) {
+
+export default function ServiceFormModal({ isOpen, service, onSave, onClose, isSaving, serverErrors }) {
   const isEditMode = !!service;
 
   const {
     register,
     handleSubmit,
+    control,
     reset,
     setError,
     formState: { errors },
@@ -71,15 +73,18 @@ export default function ServiceFormModal({ isOpen, service, categories, onSave, 
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
           Category <span className="text-red-500">*</span>
         </label>
-        <CategorySelect
-          categories={categories}
-          {...register("categoryId")}
-          placeholder="Select category"
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400"
+        <Controller
+          name="categoryId"
+          control={control}
+          render={({ field }) => (
+            <CategorySelect
+              value={field.value}
+              onChange={field.onChange}
+              placeholder="Select category"
+              error={errors.categoryId?.message}
+            />
+          )}
         />
-        {errors.categoryId && (
-          <p className="mt-1 text-xs text-red-500">{errors.categoryId.message}</p>
-        )}
       </div>
 
       <TextField

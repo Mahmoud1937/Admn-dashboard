@@ -8,7 +8,7 @@ export default function ProvidersSearchBar({
   activeFilterCount = 0,
 }) {
   return (
-    <div className="flex items-center gap-3 border-b border-slate-200 p-4">
+    <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center">
       <div className="relative flex-1">
         <FontAwesomeIcon
           icon={faSearch}
@@ -18,17 +18,17 @@ export default function ProvidersSearchBar({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Search Providers By Name (EN/AR) or ID..."
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
+          placeholder="Search by name (EN/AR) or ID..."
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white sm:placeholder:content-[attr(placeholder)]"
         />
       </div>
 
       <button
         onClick={onFilterClick}
-        className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
       >
         <FontAwesomeIcon icon={faFilter} />
-        Filters
+        <span>Filters</span>
         {activeFilterCount > 0 && (
           <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-xs text-white">
             {activeFilterCount}

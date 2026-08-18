@@ -86,6 +86,7 @@ export default function ServiceCategoryFormModal({ isOpen, category, onSave, onC
       title={isEditMode ? "Edit Service Category" : "Add Service Category"}
       onClose={onClose}
       onSubmit={handleFormSubmit}
+          formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
     >
       <ImageUploadField preview={preview} onImageChange={handleImageChange} alt="Service category logo" />
       {imageError && (

@@ -50,24 +50,24 @@ export default function ProviderDetailsPage() {
 
   return (
     <div>
-      {!isCreateMode && (
-        <div className="mb-6 flex gap-6 border-b border-slate-200">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium transition ${
-                activeTab === tab.key
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-slate-500 hover:text-slate-700"
-              }`}
-            >
-              <FontAwesomeIcon icon={tab.icon} />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      )}
+{!isCreateMode && (
+  <div className="mb-6 flex gap-2 border-b border-slate-200 sm:gap-6">
+    {TABS.map((tab) => (
+      <button
+        key={tab.key}
+        onClick={() => setActiveTab(tab.key)}
+        className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 px-1 py-2.5 text-xs font-medium transition sm:flex-initial sm:justify-start sm:gap-2 sm:py-3 sm:text-sm ${
+          activeTab === tab.key
+            ? "border-blue-600 text-blue-600"
+            : "border-transparent text-slate-500 hover:text-slate-700"
+        }`}
+      >
+        <FontAwesomeIcon icon={tab.icon} className="text-[11px] sm:text-sm" />
+        <span className="truncate">{tab.label}</span>
+      </button>
+    ))}
+  </div>
+)}
 
       {activeTab === "info" && (
         <ProviderInfoForm

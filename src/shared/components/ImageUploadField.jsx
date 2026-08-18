@@ -1,38 +1,15 @@
 import { useState } from "react";
 import AvatarImage from "./AvatarImage";
 
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-
-function validateFile(file) {
-  if (!ACCEPTED_TYPES.includes(file.type)) {
-    return "Please select a valid image file (PNG, JPG, or WEBP).";
-  }
-  if (file.size > MAX_FILE_SIZE) {
-    return "Image size can't exceed 5MB.";
-  }
-  return "";
-}
-
-export default function ImageUploadField({ preview, onImageChange, label = "Upload Logo", alt }) {
-  const [fileError, setFileError] = useState("");
+export default function ImageUploadField({
+  preview,
+  onImageChange,
+  label = "Upload Logo",
+  alt,
+  error,
+}) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
-
-  const handleChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const error = validateFile(file);
-    if (error) {
-      setFileError(error);
-      e.target.value = ""; // reset so the same invalid file can be re-selected after a fix
-      return;
-    }
-
-    setFileError("");
-    onImageChange(e);
-  };
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -43,16 +20,6 @@ export default function ImageUploadField({ preview, onImageChange, label = "Uplo
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
 
-    const error = validateFile(file);
-    if (error) {
-      setFileError(error);
-      return;
-    }
-
-    setFileError("");
-    // Reuse the same handler contract as the file input: an event-like
-    // object exposing target.files, so the parent's onImageChange doesn't
-    // need to know whether the image came from a click or a drop.
     onImageChange({ target: { files: e.dataTransfer.files } });
   };
 
@@ -74,8 +41,6 @@ export default function ImageUploadField({ preview, onImageChange, label = "Uplo
   };
 
   const handleDragOver = (e) => {
-    // Required to allow dropping; without preventDefault the browser
-    // rejects the drop and opens the file in a new tab instead.
     e.preventDefault();
     e.stopPropagation();
   };
@@ -97,13 +62,14 @@ export default function ImageUploadField({ preview, onImageChange, label = "Uplo
           <input
             type="file"
             accept="image/png, image/jpeg, image/webp"
-            onChange={handleChange}
+            onChange={onImageChange}
             className="hidden"
           />
         </label>
         <p className="text-[11px] text-slate-400">or drag and drop an image here</p>
       </div>
-      {fileError && <p className="text-xs text-red-500">{fileError}</p>}
+
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }

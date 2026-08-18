@@ -1,9 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import { getCategories } from "../../categoreis/service/categoryService";
-import { getSpecialists } from "../../specialists/service/SpecialistsService";
+import CategorySelect from "../../services-admin/components/CategorySelect";
+import SpecialistSelect from "../../services-admin/components/SpecialistSelect";
+
 
 export const emptyFilters = {
   status: 0,
@@ -14,20 +13,13 @@ export const emptyFilters = {
 };
 
 export default function ProvidersFilters({ draft, onChange, onApply, onClear, onClose, panelRef }) {
-  const { data: categoriesData, isLoading: isCategoriesLoading } = useQuery({
-    queryKey: ["categories", "dropdown"],
-    queryFn: () => getCategories(),
-  });
-
-  const { data: specialistsData, isLoading: isSpecialistsLoading } = useQuery({
-    queryKey: ["specialists", "dropdown"],
-    queryFn: () => getSpecialists(1, 1000),
-  });
-
-  const categories = categoriesData?.data?.items ?? [];
-  const specialists = specialistsData?.data?.items ?? [];
   const set = (field) => (e) =>
     onChange((prev) => ({ ...prev, [field]: e.target.value }));
+
+  // CategorySelect/SpecialistSelect are controlled components: onChange
+  // receives the raw value directly (not an input change event).
+  const setValue = (field) => (val) =>
+    onChange((prev) => ({ ...prev, [field]: val }));
 
   const setStatus = (e) =>
     onChange((prev) => ({ ...prev, status: Number(e.target.value) }));
@@ -104,42 +96,22 @@ export default function ProvidersFilters({ draft, onChange, onApply, onClear, on
           <label className="mb-1.5 block text-xs font-medium text-slate-500">
             Category
           </label>
-          <select
+          <CategorySelect
             value={draft.categoryId}
-            onChange={set("categoryId")}
-            disabled={isCategoriesLoading}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:text-slate-400"
-          >
-            <option value="">
-              {isCategoriesLoading ? "Loading categories..." : "All categories"}
-            </option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.enName}
-              </option>
-            ))}
-          </select>
+            onChange={setValue("categoryId")}
+            placeholder="All categories"
+          />
         </div>
 
         <div className="mb-5">
           <label className="mb-1.5 block text-xs font-medium text-slate-500">
             Specialist
           </label>
-          <select
+          <SpecialistSelect
             value={draft.specialistId}
-            onChange={set("specialistId")}
-            disabled={isSpecialistsLoading}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:text-slate-400"
-          >
-            <option value="">
-              {isSpecialistsLoading ? "Loading specialists..." : "All specialists"}
-            </option>
-            {specialists.map((spec) => (
-              <option key={spec.id} value={spec.id}>
-                {spec.enName}
-              </option>
-            ))}
-          </select>
+            onChange={setValue("specialistId")}
+            placeholder="All specialists"
+          />
         </div>
 
         <div className="flex items-center justify-between border-t border-slate-100 pt-4">

@@ -71,6 +71,7 @@ export default function CategoryFormModal({ isOpen, category, onSave, onClose, i
       title={category ? "Edit Category" : "Add Category"}
       onClose={onClose}
       onSubmit={handleFormSubmit}
+          formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
     >
       <ImageUploadField preview={preview} onImageChange={handleImageChange} alt="Category logo" />
       {imageError && <p className="mb-4 text-center text-xs text-red-500">{imageError}</p>}

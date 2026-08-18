@@ -24,12 +24,16 @@ const Layout = () => {
     <div className="flex h-screen bg-slate-50">
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Navbar onOpenSidebar={() => setCollapsed(false)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <Outlet />
-        </main>
-      </div>
+<div className="flex h-screen bg-slate-50">
+  <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+
+  <div className="flex min-w-0 flex-1 flex-col">
+    <Navbar onOpenSidebar={() => setCollapsed(false)} />
+    <main className="min-w-0 flex-1 overflow-y-auto p-4 md:p-8">
+      <Outlet />
+    </main>
+  </div>
+</div>
     </div>
   );
 };

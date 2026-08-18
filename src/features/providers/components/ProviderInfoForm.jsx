@@ -3,24 +3,22 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFloppyDisk, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
-import { getProviderSchema } from "../schema/providerSchema"
-import ProviderLogoUpload from "./ProviderLogoUpload";
-import DateField from "./DateField";
-import TextField from "../../../shared/components/TextField";
-import {
-  buildProviderFormValues,
-  emptyProviderForm,
-} from "../utils/providerFormHelpers";
+import { buildProviderFormValues, emptyProviderForm } from "../utils/providerFormHelpers";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
+import TextField from "../../../shared/components/TextField";
+import DateField from "./DateField";
+import CategorySelect from "../../services-admin/components/CategorySelect";
+import SpecialistSelect from "../../services-admin/components/SpecialistSelect";
+import {getProviderSchema} from "../schema/providerSchema"
+import ProviderLogoUpload from "../components/ProviderLogoUpload"
+
+const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg"];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export default function ProviderInfoForm({
   isCreateMode,
   provider,
-  categories,
   isEditMode,
-  isCategoriesLoading,
-  specialists,
-  isSpecialistsLoading,
   mutation,
   onCancelToList,
 }) {
@@ -40,7 +38,7 @@ export default function ProviderInfoForm({
     trigger,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(getProviderSchema(isCreateMode)),
+    resolver: zodResolver(getProviderSchema (isCreateMode)),
     defaultValues: emptyProviderForm,
   });
 
@@ -69,6 +67,25 @@ export default function ProviderInfoForm({
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      setError("logoFile", {
+        type: "manual",
+        message: "Please select a PNG or JPG image only.",
+      });
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      setError("logoFile", {
+        type: "manual",
+        message: "Image size must be less than 5MB.",
+      });
+      e.target.value = "";
+      return;
+    }
+
     setImageFile(file);
     setValue("logoFile", file, { shouldValidate: true });
   };
@@ -121,10 +138,10 @@ export default function ProviderInfoForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="rounded-xl border border-slate-100 bg-white p-8 shadow-sm"
+      className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm sm:p-8"
     >
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-4">
+      <div className="mb-6 flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
         <h2 className="text-lg font-semibold text-slate-900">
           {isCreateMode ? "Create Provider" : "Provider Information"}
         </h2>
@@ -133,7 +150,7 @@ export default function ProviderInfoForm({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="flex items-center justify-center gap-2 self-start rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:self-auto"
           >
             <FontAwesomeIcon icon={faPenToSquare} />
             Update
@@ -197,44 +214,30 @@ export default function ProviderInfoForm({
             name="providerCategoryId"
             control={control}
             render={({ field }) => (
-              <select
-                {...field}
-                onChange={(e) => field.onChange(Number(e.target.value) || "")}
-                disabled={!canEdit || isCategoriesLoading}
-                className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500"
-              >
-                <option value="">
-                  {isCategoriesLoading ? "Loading categories..." : "Select category"}
-                </option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.enName}
-                  </option>
-                ))}
-              </select>
+              <CategorySelect
+                value={field.value}
+                onChange={field.onChange}
+                disabled={!canEdit}
+                error={errors.providerCategoryId?.message}
+              />
             )}
           />
-          {errors.providerCategoryId && (
-            <p className="mt-1 text-xs text-red-500">{errors.providerCategoryId.message}</p>
-          )}
         </div>
 
         <div>
           <label className="mb-2 block text-sm font-medium text-slate-700">Specialist</label>
-          <select
-            {...register("specialistId")}
-            disabled={!canEdit || isSpecialistsLoading}
-            className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500"
-          >
-            <option value="">
-              {isSpecialistsLoading ? "Loading specialists..." : "Select specialist"}
-            </option>
-            {specialists.map((specialist) => (
-              <option key={specialist.id} value={specialist.id}>
-                {specialist.enName}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="specialistId"
+            control={control}
+            render={({ field }) => (
+              <SpecialistSelect
+                value={field.value}
+                onChange={field.onChange}
+                disabled={!canEdit}
+                error={errors.specialistId?.message}
+              />
+            )}
+          />
         </div>
       </div>
 
@@ -291,7 +294,7 @@ export default function ProviderInfoForm({
         </p>
       )}
       {canEdit && (
-        <div className="mt-8 flex items-center justify-end gap-4 border-t border-slate-100 pt-6">
+        <div className="mt-8 flex flex-col-reverse items-stretch justify-end gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:gap-4">
           <button
             type="button"
             onClick={handleCancelEdit}
@@ -302,7 +305,7 @@ export default function ProviderInfoForm({
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="flex items-center gap-2 rounded-lg bg-blue-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-60"
+            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-60"
           >
             <FontAwesomeIcon icon={faFloppyDisk} />
             {isCreateMode ? "Create Provider" : "Save Info"}

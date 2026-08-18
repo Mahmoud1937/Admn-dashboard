@@ -151,11 +151,14 @@ export default function ProviderServiceFormModal({
           )}
         </div>
         <div>
-          <TextField
-            label="Discount %"
-            inputMode="decimal"
-            {...register("discountPercentage")}
-          />
+  
+   <TextField
+  label="Discount %"
+  required
+  inputMode="decimal"
+  {...register("discountPercentage")}
+/>
+          
           {errors.discountPercentage && (
             <p className="mt-1 text-xs text-red-500">{errors.discountPercentage.message}</p>
           )}

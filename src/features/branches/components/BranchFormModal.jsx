@@ -99,12 +99,13 @@ export default function BranchFormModal({
   };
 
   return (
-    <FormModalShell
-      title={isEditMode ? "Edit Branch" : "Add Branch"}
-      onClose={onClose}
-      onSubmit={handleSubmit(onSubmit)}
-      className="max-w-3xl"
-    >
+<FormModalShell
+  title={isEditMode ? "Edit Branch" : "Add Branch"}
+  onClose={onClose}
+  onSubmit={handleSubmit(onSubmit)}
+  className="max-w-3xl"
+  formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
+>
       <TextField
         label="Branch Name"
         required
@@ -115,7 +116,7 @@ export default function BranchFormModal({
         <p className="-mt-3 mb-3 text-xs text-red-500">{errors.branchName.message}</p>
       )}
 
-      <div className="mb-1 grid grid-cols-2 gap-3">
+      <div className="mb-1 grid grid-cols-2 gap-3 ">
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Governorate <span className="text-red-500">*</span>

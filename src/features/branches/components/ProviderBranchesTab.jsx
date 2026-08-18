@@ -96,7 +96,7 @@ export default function ProviderBranchesTab() {
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 overflow-x-auto scroll-table">
           <div className="relative">
             <FontAwesomeIcon
               icon={faSearch}

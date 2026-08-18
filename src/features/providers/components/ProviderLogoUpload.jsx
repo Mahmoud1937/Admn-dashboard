@@ -13,16 +13,31 @@ function ProviderLogoUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
 
-  const handleDragEnter = (e) => {
-    if (disabled) return;
+  const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsDragging(false);
+    setDragCounter(0);
+
+    if (disabled) return;
+
+    const files = e.dataTransfer.files;
+    if (!files?.[0]) return;
+
+    // نبعتها بنفس شكل الـ event اللي بيبعته الـ <input onChange>
+    // عشان handleImageChange في الفورم يشتغل زي ما هو من غير أي تعديل
+    onImageChange({ target: { files } });
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (disabled) return;
     setDragCounter((prev) => prev + 1);
     setIsDragging(true);
   };
 
   const handleDragLeave = (e) => {
-    if (disabled) return;
     e.preventDefault();
     e.stopPropagation();
     setDragCounter((prev) => {
@@ -33,28 +48,10 @@ function ProviderLogoUpload({
   };
 
   const handleDragOver = (e) => {
-    if (disabled) return;
-    // Required to allow dropping; without preventDefault the browser
-    // rejects the drop and opens the file in a new tab instead.
+    // لازم عشان المتصفح يسمح بالـ drop، من غيرها الـ drop بيتلغي
+    // والملف بيتفتح في تاب جديد بدل ما يتحمل
     e.preventDefault();
     e.stopPropagation();
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    setDragCounter(0);
-
-    if (disabled) return;
-
-    const file = e.dataTransfer.files?.[0];
-    if (!file) return;
-
-    // Reuse the same handler contract as the file input: an event-like
-    // object exposing target.files. Validation (type/size) stays wherever
-    // onImageChange already does it for the click-to-upload path.
-    onImageChange({ target: { files: e.dataTransfer.files } });
   };
 
   return (
@@ -71,7 +68,7 @@ function ProviderLogoUpload({
         onDragOver={handleDragOver}
         className={`flex h-48 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition
           ${isDragging
-            ? "border-blue-400 bg-blue-100"
+            ? "border-blue-400 bg-blue-50"
             : currentImageUrl
               ? "border-blue-300 bg-blue-50"
               : "border-slate-200 bg-slate-50 hover:bg-slate-100"
@@ -103,19 +100,13 @@ function ProviderLogoUpload({
           </>
         ) : (
           <>
-            <FontAwesomeIcon
-              icon={faImage}
-              className="mb-3 text-3xl text-slate-400"
-            />
+            <FontAwesomeIcon icon={faImage} className="mb-3 text-3xl text-slate-400" />
 
             <p className="text-sm text-slate-600">
-              <span className="font-semibold">Click to upload</span> or drag &
-              drop
+              <span className="font-semibold">Click to upload</span> or drag & drop
             </p>
 
-            <p className="mt-1 text-xs text-slate-400">
-              PNG, JPG (Max 5MB)
-            </p>
+            <p className="mt-1 text-xs text-slate-400">PNG, JPG (Max 5MB)</p>
           </>
         )}
       </label>
