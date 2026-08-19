@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import CategorySelect from "../../services-admin/components/CategorySelect";
+import ProviderCategorySelect from "./ProviderCategorySelect";
 import SpecialistSelect from "../../services-admin/components/SpecialistSelect";
 
 
@@ -16,8 +16,8 @@ export default function ProvidersFilters({ draft, onChange, onApply, onClear, on
   const set = (field) => (e) =>
     onChange((prev) => ({ ...prev, [field]: e.target.value }));
 
-  // CategorySelect/SpecialistSelect are controlled components: onChange
-  // receives the raw value directly (not an input change event).
+  // SpecialistSelect is a controlled component: onChange receives the raw
+  // value directly (not an input change event).
   const setValue = (field) => (val) =>
     onChange((prev) => ({ ...prev, [field]: val }));
 
@@ -96,7 +96,7 @@ export default function ProvidersFilters({ draft, onChange, onApply, onClear, on
           <label className="mb-1.5 block text-xs font-medium text-slate-500">
             Category
           </label>
-          <CategorySelect
+          <ProviderCategorySelect
             value={draft.categoryId}
             onChange={setValue("categoryId")}
             placeholder="All categories"
