@@ -1,26 +1,29 @@
-import { useProviderCategoriesLookup } from "../hooks/useProviderLookups";
+import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
+import { getCategories } from "../../categoreis/service/categoryService";
+
 
 export default function ProviderCategorySelect({
   value,
   onChange,
   placeholder = "All categories",
+  error,
   disabled,
 }) {
-  const { categories, isLoading } = useProviderCategoriesLookup();
-
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      disabled={disabled || isLoading}
-      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:text-slate-400"
-    >
-      <option value="">{isLoading ? "Loading categories..." : placeholder}</option>
-      {categories.map((category) => (
-        <option key={category.id} value={category.id}>
-          {category.enName} - {category.arName}
-        </option>
-      ))}
-    </select>
+    <div className="w-full sm:w-72">
+      <SearchableAsyncSelect
+        queryKey={["provider-categories"]}
+        fetchItems={(pageNumber, pageSize, searchTerm) =>
+          getCategories(pageNumber, pageSize, searchTerm)
+        }
+        value={value}
+        onChange={onChange}
+        getOptionLabel={(item) => `${item.enName} - ${item.arName}`}
+        placeholder={placeholder}
+        searchPlaceholder="Search categories..."
+        disabled={disabled}
+        error={error}
+      />
+    </div>
   );
 }
