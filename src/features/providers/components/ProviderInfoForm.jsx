@@ -11,6 +11,7 @@ import CategorySelect from "../../services-admin/components/CategorySelect";
 import SpecialistSelect from "../../services-admin/components/SpecialistSelect";
 import {getProviderSchema} from "../schema/providerSchema"
 import ProviderLogoUpload from "../components/ProviderLogoUpload"
+import ProviderCategorySelect from "./ProviderCategorySelect";
 
 const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg"];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -214,7 +215,7 @@ export default function ProviderInfoForm({
             name="providerCategoryId"
             control={control}
             render={({ field }) => (
-              <CategorySelect
+              <ProviderCategorySelect
                 value={field.value}
                 onChange={field.onChange}
                 disabled={!canEdit}
