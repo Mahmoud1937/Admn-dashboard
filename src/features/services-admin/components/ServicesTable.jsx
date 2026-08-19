@@ -33,7 +33,10 @@ export default function ServicesTable({ services, hasActiveFilters, onEdit, onDe
             <tr key={service.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60">
               <td className="px-6 py-3 font-medium text-slate-900">{service.enName}</td>
               <td className="px-6 py-3 text-slate-600">{service.arName}</td>
-              <td className="px-6 py-3 text-slate-600">{service.categoryNameEn || "—"}</td>
+             <td className="px-6 py-3 text-slate-600">
+  <p className="truncate font-semibold text-slate-900">{service.categoryNameEn || "—"}</p>
+  <p className="truncate text-xs text-slate-400">{service.categoryNameAr || ""}</p>
+</td>
               <td className="px-6 py-3 text-slate-600">{service.cpt || "—"}</td>
               <td
                 className="max-w-xs truncate px-6 py-3 text-slate-600"

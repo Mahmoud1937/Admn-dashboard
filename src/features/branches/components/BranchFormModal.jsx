@@ -1,12 +1,14 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextField from "../../../shared/components/TextField";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
-import { useCitiesByGovernorate } from "../hooks/UsecCtiesByGovernorate";
 import { createBranchSchema, updateBranchSchema } from "../schema/branchSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
+import GovernorateSelect from "../../cities/components/GovernorateSelect";
+import CitySelect from "./CitySelect";
+
 
 const EMPTY_VALUES = {
   branchName: "",
@@ -35,7 +37,6 @@ export default function BranchFormModal({
   isOpen,
   branch,
   providerId,
-  governorates,
   createMutation,
   updateMutation,
   onClose,
@@ -51,6 +52,7 @@ export default function BranchFormModal({
     reset,
     setValue,
     setError,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -64,16 +66,8 @@ export default function BranchFormModal({
   }, [isOpen, branch, reset]);
 
   const governorateId = watch("governorateId");
-  const { cities, isLoading: isCitiesLoading } = useCitiesByGovernorate(governorateId);
 
   if (!isOpen) return null;
-
-  const governorateRegister = register("governorateId");
-
-  const handleGovernorateChange = (e) => {
-    governorateRegister.onChange(e);
-    setValue("cityId", "");
-  };
 
   const onSubmit = (data) => {
     const payload = {
@@ -99,13 +93,13 @@ export default function BranchFormModal({
   };
 
   return (
-<FormModalShell
-  title={isEditMode ? "Edit Branch" : "Add Branch"}
-  onClose={onClose}
-  onSubmit={handleSubmit(onSubmit)}
-  className="max-w-3xl"
-  formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
->
+    <FormModalShell
+      title={isEditMode ? "Edit Branch" : "Add Branch"}
+      onClose={onClose}
+      onSubmit={handleSubmit(onSubmit)}
+      className="max-w-3xl"
+      formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
+    >
       <TextField
         label="Branch Name"
         required
@@ -121,44 +115,41 @@ export default function BranchFormModal({
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Governorate <span className="text-red-500">*</span>
           </label>
-          <select
-            {...governorateRegister}
-            onChange={handleGovernorateChange}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400"
-          >
-            <option value="">Select governorate</option>
-            {governorates.map((governorate) => (
-              <option key={governorate.id} value={governorate.id}>
-                {governorate.enName}
-              </option>
-            ))}
-          </select>
-          {errors.governorateId && (
-            <p className="mt-1 text-xs text-red-500">{errors.governorateId.message}</p>
-          )}
+          <Controller
+            name="governorateId"
+            control={control}
+            render={({ field }) => (
+              <GovernorateSelect
+                value={field.value}
+                onChange={(value) => {
+                  field.onChange(value);
+                  setValue("cityId", "");
+                }}
+                placeholder="Select governorate"
+                error={errors.governorateId?.message}
+              />
+            )}
+          />
         </div>
 
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
             City <span className="text-red-500">*</span>
           </label>
-          <select
-            {...register("cityId")}
-            disabled={!governorateId || isCitiesLoading}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:text-slate-400"
-          >
-            <option value="">
-              {isCitiesLoading ? "Loading..." : "Select city"}
-            </option>
-            {cities.map((city) => (
-              <option key={city.id} value={city.id}>
-                {city.enName}
-              </option>
-            ))}
-          </select>
-          {errors.cityId && (
-            <p className="mt-1 text-xs text-red-500">{errors.cityId.message}</p>
-          )}
+          <Controller
+            name="cityId"
+            control={control}
+            render={({ field }) => (
+              <CitySelect
+                governorateId={governorateId}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Select city"
+                disabled={!governorateId}
+                error={errors.cityId?.message}
+              />
+            )}
+          />
         </div>
       </div>
 

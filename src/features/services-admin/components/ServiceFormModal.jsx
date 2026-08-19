@@ -104,7 +104,7 @@ export default function ServiceFormModal({ isOpen, service, onSave, onClose, isS
 
       <TextField
         label="CPT Code"
-        maxLength={20}
+
         {...register("cpt")}
         error={errors.cpt?.message}
       />

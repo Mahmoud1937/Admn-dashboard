@@ -1,19 +1,26 @@
+import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
+import { getGovernorates } from "../../governorates/services/governoratesService";
+
 export default function GovernorateSelect({
-  governorates,
   value,
   onChange,
-  placeholder,
-  className,
-  showArName = false,
+  placeholder = "Select governorate",
+  error,
+  disabled,
 }) {
   return (
-    <select value={value} onChange={onChange} className={className}>
-      <option value="">{placeholder}</option>
-      {governorates.map((governorate) => (
-        <option key={governorate.id} value={governorate.id}>
-          {showArName ? `${governorate.enName} - ${governorate.arName}` : governorate.enName}
-        </option>
-      ))}
-    </select>
+    <div className="w-full sm:w-72">
+      <SearchableAsyncSelect
+        queryKey={["governorates"]}
+        fetchItems={getGovernorates}
+        value={value}
+        onChange={onChange}
+        getOptionLabel={(item) => `${item.enName} - ${item.arName}`}
+        placeholder={placeholder}
+        searchPlaceholder="Search governorates..."
+        disabled={disabled}
+        error={error}
+      />
+    </div>
   );
 }

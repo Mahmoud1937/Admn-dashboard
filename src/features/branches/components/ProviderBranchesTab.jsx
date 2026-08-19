@@ -14,6 +14,7 @@ import TableEmptyState from "../../../shared/components/TableEmptyState";
 import StatusBadge from "../../providers/components/StatusBadge";
 import { formatDate } from "../../../utils/formatDate";
 import { useGovernoratesLookup } from "../../cities/hooks/useGovernoratesLookup";
+import GovernorateSelect from "../../cities/components/GovernorateSelect";
 
 export default function ProviderBranchesTab() {
   const { id: providerId } = useParams();
@@ -96,7 +97,7 @@ export default function ProviderBranchesTab() {
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-3 overflow-x-auto scroll-table">
+        <div className="flex flex-wrap items-center gap-3 ">
           <div className="relative">
             <FontAwesomeIcon
               icon={faSearch}
@@ -110,21 +111,14 @@ export default function ProviderBranchesTab() {
             />
           </div>
 
-          <select
-            value={governorateFilter}
-            onChange={(e) => {
-              setGovernorateFilter(e.target.value);
-              setCityFilter("");
-            }}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
-          >
-            <option value="">All governorates</option>
-            {governorates?.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.enName}
-              </option>
-            ))}
-          </select>
+        <GovernorateSelect
+  value={governorateFilter}
+  onChange={(value) => {
+    setGovernorateFilter(value);
+    setCityFilter("");
+  }}
+  placeholder="All governorates"
+/>
 
           <select
             value={statusFilter}

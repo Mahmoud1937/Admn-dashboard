@@ -61,7 +61,7 @@ export default function CityFormModal({
       title={isEditMode ? "Edit City" : "Add City"}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
-      formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
+   
     >
       <TextField
         label="English Name"

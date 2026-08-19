@@ -30,7 +30,7 @@ export default function CitiesFilters({
       <GovernorateSelect
         governorates={governorates}
         value={governorateFilter}
-        onChange={(e) => onGovernorateFilterChange(e.target.value)}
+        onChange={onGovernorateFilterChange}
         placeholder="All Governorates"
         className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:bg-white sm:w-56"
       />

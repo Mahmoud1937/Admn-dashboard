@@ -16,9 +16,16 @@ const mapUrlField = z
   .string()
   .trim()
   .min(1, "Map URL is required")
+  .max(2048, "Map URL can't exceed 2048 characters")
   .refine((val) => /^https?:\/\//.test(val), {
     message: "Map URL must start with http:// or https://",
-  });
+  })
+  .refine(
+    (val) =>
+      /(^|\.)google\.[a-z.]+\//.test(val) ||
+      /^https?:\/\/(maps\.app\.)?goo\.gl\//.test(val),
+    { message: "Map URL must be a valid Google Maps link" }
+  );
 
 const fullAddressField = z
   .string()

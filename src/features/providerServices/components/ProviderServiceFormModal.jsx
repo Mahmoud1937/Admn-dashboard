@@ -1,11 +1,12 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createProviderServiceSchema, updateProviderServiceSchema } from "../schema/providerServiceSchema";
-import { useServicesLookup } from "../hooks/useServicesLookup";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import TextField from "../../../shared/components/TextField";
 import FormActions from "../../../shared/components/FormActions";
+import ServiceSelect from "./ServiceSelect";
+
 
 
 const EMPTY_VALUES = {
@@ -64,10 +65,12 @@ export default function ProviderServiceFormModal({
     handleSubmit,
     reset,
     setError,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: EMPTY_VALUES,
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -93,8 +96,6 @@ export default function ProviderServiceFormModal({
     });
   }, [serverErrors, setError]);
 
-  const { services, isLoading: isServicesLoading } = useServicesLookup();
-
   if (!isOpen) return null;
 
   const onSubmit = (data) => {
@@ -119,23 +120,19 @@ export default function ProviderServiceFormModal({
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
           Service <span className="text-red-500">*</span>
         </label>
-        <select
-          {...register("serviceId")}
-          disabled={isServicesLoading}
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:text-slate-400"
-        >
-          <option value="">
-            {isServicesLoading ? "Loading services..." : "Select service"}
-          </option>
-          {services.map((service) => (
-            <option key={service.id} value={service.id}>
-              {service.enName}
-            </option>
-          ))}
-        </select>
-        {errors.serviceId && (
-          <p className="mt-1 text-xs text-red-500">{errors.serviceId.message}</p>
-        )}
+        <Controller
+          name="serviceId"
+          control={control}
+          render={({ field }) => (
+            <ServiceSelect
+              value={field.value}
+              onChange={(val) =>
+                field.onChange(val != null && val !== "" ? String(val) : "")
+              }
+              error={errors.serviceId?.message}
+            />
+          )}
+        />
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-3">
@@ -151,14 +148,12 @@ export default function ProviderServiceFormModal({
           )}
         </div>
         <div>
-  
-   <TextField
-  label="Discount %"
-  required
-  inputMode="decimal"
-  {...register("discountPercentage")}
-/>
-          
+          <TextField
+            label="Discount %"
+            required
+            inputMode="decimal"
+            {...register("discountPercentage")}
+          />
           {errors.discountPercentage && (
             <p className="mt-1 text-xs text-red-500">{errors.discountPercentage.message}</p>
           )}

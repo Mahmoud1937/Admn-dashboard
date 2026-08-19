@@ -109,7 +109,7 @@ export default function CitiesPage() {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <div className="rounded-xl border border-slate-200 bg-white">
         <CitiesFilters
           search={search}
           onSearchChange={setSearch}

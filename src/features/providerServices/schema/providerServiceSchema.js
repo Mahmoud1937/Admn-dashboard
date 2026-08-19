@@ -5,14 +5,17 @@ const baseShape = {
   priceBefore: z
     .string()
     .min(1, "Price is required")
-    .refine((v) => Number(v) > 0, "Price must be greater than 0"),
- discountPercentage: z
-  .string()
-  .min(1, "Discount percentage is required")
-  .refine(
-    (v) => Number(v) >= 0 && Number(v) <= 100,
-    "Discount must be between 0 and 100"
-  ),
+    .refine((v) => !isNaN(Number(v)), "Price must be a valid number")
+    .refine((v) => Number(v) >= 0, "Price cannot be negative")
+    .refine((v) => Number(v) <= 999999, "Price must not exceed 999,999"),
+  discountPercentage: z
+    .string()
+    .min(1, "Discount percentage is required")
+    .refine((v) => !isNaN(Number(v)), "Discount must be a valid number")
+    .refine(
+      (v) => Number(v) >= 0 && Number(v) <= 100,
+      "Discount must be between 0 and 100"
+    ),
   isSpecialOffer: z.boolean().default(false),
 };
 
