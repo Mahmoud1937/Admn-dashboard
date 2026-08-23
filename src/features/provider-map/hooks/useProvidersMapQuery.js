@@ -3,25 +3,28 @@ import { useQuery } from "@tanstack/react-query";
 import { getMapData } from "../services/ProviderMapService";
 import { hasValidEgyptCoords } from "../utils/Mapcoords";
 import { normalizeArabic } from "../utils/Arabictext";
+import { resolveGovernorateFromCoords } from "../utils/Resolvegovernorate";
 
-export const useProvidersMapQuery = ({ category, governorateId, search }) => {
+// نفس مركز مصر المستخدم في الماب (ProviderClusterMap's EGYPT_CENTER)، عشان
+// الـ countryBubble تتحط في نفس النقطة اللي الماب بيرجع يتمركز عليها.
+const EGYPT_CENTER_LAT = 26.8;
+const EGYPT_CENTER_LNG = 30.8;
+
+export const useProvidersMapQuery = ({ providerCategoryId, governorateId, search }) => {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["providers-map-data"],
-    queryFn: getMapData,
-    staleTime: 5 * 60_000, // whole dataset comes in one shot, cache for 5 min
+    queryKey: ["providers-map-data", providerCategoryId],
+    queryFn: () => getMapData(providerCategoryId),
+    staleTime: 5 * 60_000,
   });
 
   const rawProviders = data?.providers ?? [];
   const governorates = data?.governorates ?? [];
 
   const selectedGovernorate = useMemo(
-    () => governorates.find((g) => g.id === governorateId) || null,
+    () => governorates.find((g) => String(g.id) === String(governorateId)) || null,
     [governorates, governorateId]
   );
 
-  // NOTE: coordinates live on each branch inside `provider.branches`,
-  // NOT on the provider itself. We flatten provider -> branches into
-  // one "pin" record per branch before filtering/validating coords.
   const { validProviders, invalidCount } = useMemo(() => {
     let invalid = 0;
     const valid = [];
@@ -30,27 +33,41 @@ export const useProvidersMapQuery = ({ category, governorateId, search }) => {
       const branches = p.branches ?? [];
 
       for (const b of branches) {
-        if (hasValidEgyptCoords(b.lat, b.lng)) {
-          valid.push({
-            // provider-level info
-            providerId: p.providerId,
-            nameAr: p.nameAr,
-            nameEn: p.nameEn,
-            type: p.type,
-            categoryAr: p.categoryAr,
-            imageUrl: p.imageUrl,
-            // branch-level info (this is what actually has the pin location)
-            branchId: b.branchId,
-            lat: b.lat,
-            lng: b.lng,
-            address: b.address,
-            governorate: b.governorate,
-            city: b.city,
-            phone: b.phone,
-          });
-        } else {
+        if (!hasValidEgyptCoords(b.lat, b.lng)) {
           invalid += 1;
+          continue;
         }
+
+        const resolvedGov = resolveGovernorateFromCoords(b.lat, b.lng);
+        if (!resolvedGov) {
+          invalid += 1;
+          continue;
+        }
+
+        valid.push({
+          // provider-level info
+          providerId: p.providerId,
+          nameAr: p.nameAr,
+          nameEn: p.nameEn,
+          type: p.type,
+          categoryAr: p.categoryAr,
+          // نفس فكرة categoryAr بالظبط بس بالإنجليزي — محتاجة عشان البادج
+          // في BranchPopupCard كان بيرجع دايمًا p.type (تصنيف عام) بدل
+          // التصنيف الفعلي بالإنجليزي لأن الحقل ده كان مفقود هنا.
+          categoryEn: p.categoryEn,
+          imageUrl: p.imageUrl,
+          // branch-level info (ده اللي فعليًا هيتحط كـ pin بمكانه الصح)
+          branchId: b.branchId,
+          lat: b.lat,
+          lng: b.lng,
+          address: b.address,
+          city: b.city,
+          phone: b.phone,
+          // المحافظة المحسوبة فعليًا من الإحداثيات (مش من نص الـ backend)
+          governorate: resolvedGov.nameAr,
+          governorateNameEn: resolvedGov.nameEn,
+          governorateIsoCode: resolvedGov.isoCode,
+        });
       }
     }
 
@@ -60,7 +77,6 @@ export const useProvidersMapQuery = ({ category, governorateId, search }) => {
   const filteredProviders = useMemo(() => {
     const term = search.trim().toLowerCase();
     return validProviders.filter((p) => {
-      if (category !== "All" && p.type?.toLowerCase() !== category.toLowerCase()) return false;
       if (
         selectedGovernorate &&
         normalizeArabic(p.governorate) !== normalizeArabic(selectedGovernorate.nameAr)
@@ -72,23 +88,21 @@ export const useProvidersMapQuery = ({ category, governorateId, search }) => {
       }
       return true;
     });
-  }, [validProviders, category, selectedGovernorate, search]);
+  }, [validProviders, selectedGovernorate, search]);
 
-  // Bubble = one per (provider, governorate) pair, so each provider gets
-  // its own bubble even when it shares a governorate with other providers.
-  // Count = number of that provider's branches in that governorate.
-  // The governorates list can contain multiple rows for what's really the same
-  // governorate (typos/duplicates, e.g. "Cairoo" vs "القاهرة") — those get merged
-  // by name before bubbles are built.
   const governorateBubbles = useMemo(() => {
-    // group branches by (governorate, providerId)
-    const groups = new Map(); // `${govKey}::${providerId}` -> group info
+    const byGov = new Map(); // normalizedGovName -> { totalCount, providers: Map(providerId -> info) }
+
     for (const p of filteredProviders) {
       const govKey = normalizeArabic(p.governorate);
-      const groupKey = `${govKey}::${p.providerId}`;
-      if (!groups.has(groupKey)) {
-        groups.set(groupKey, {
-          govKey,
+      if (!byGov.has(govKey)) {
+        byGov.set(govKey, { totalCount: 0, providers: new Map() });
+      }
+      const group = byGov.get(govKey);
+      group.totalCount += 1;
+
+      if (!group.providers.has(p.providerId)) {
+        group.providers.set(p.providerId, {
           providerId: p.providerId,
           nameAr: p.nameAr,
           nameEn: p.nameEn,
@@ -96,10 +110,10 @@ export const useProvidersMapQuery = ({ category, governorateId, search }) => {
           count: 0,
         });
       }
-      groups.get(groupKey).count += 1;
+      group.providers.get(p.providerId).count += 1;
     }
 
-    // resolve governorate center coords (first row wins per normalized name)
+    // resolve governorate center coords (أول سطر بيكسب لكل اسم normalized)
     const govCenterByKey = new Map();
     for (const g of governorates) {
       if (!hasValidEgyptCoords(g.centerLat, g.centerLng)) continue;
@@ -115,43 +129,57 @@ export const useProvidersMapQuery = ({ category, governorateId, search }) => {
       }
     }
 
-    // bucket provider-groups by governorate so siblings can be spread out
-    const byGov = new Map();
-    for (const group of groups.values()) {
-      if (!byGov.has(group.govKey)) byGov.set(group.govKey, []);
-      byGov.get(group.govKey).push(group);
-    }
-
-    const OFFSET_DEG = 0.12; // small horizontal spread so sibling bubbles sit side-by-side
     const bubbles = [];
-
-    for (const [govKey, groupList] of byGov.entries()) {
+    for (const [govKey, group] of byGov.entries()) {
       const center = govCenterByKey.get(govKey);
-      if (!center) continue; // governorate name has no matching coords row
+      if (!center) continue; // اسم المحافظة معندوش إحداثيات في جدول الـ lookup
 
-      groupList.forEach((group, index) => {
-        bubbles.push({
-          id: `${center.id}-${group.providerId}`,
-          governorateId: center.id,
-          governorateNameAr: center.nameAr,
-          providerId: group.providerId,
-          nameAr: group.nameAr,
-          nameEn: group.nameEn,
-          imageUrl: group.imageUrl,
-          count: group.count,
-          centerLat: center.centerLat,
-          centerLng: center.centerLng,
-          // position of this bubble among its siblings at the same governorate
-          // point — used by the map layer to spread them apart by a FIXED
-          // pixel amount (not a geo offset, which shrinks/grows with zoom)
-          siblingIndex: index,
-          siblingCount: groupList.length,
-        });
+      bubbles.push({
+        id: center.id,
+        governorateNameAr: center.nameAr,
+        governorateNameEn: center.nameEn,
+        centerLat: center.centerLat,
+        centerLng: center.centerLng,
+        count: group.totalCount,
+        providers: Array.from(group.providers.values()).sort((a, b) => b.count - a.count),
       });
     }
 
     return bubbles;
   }, [governorates, filteredProviders]);
+
+  // بابل واحدة مجمعة لكل مصر — بتظهر لما المستخدم يزوّم أوت جدًا (برة زوم
+  // مصر العادي)، حيث بابلات كل محافظة على حدة هتبقى مجرد نقط صغيرة
+  // متلاصقة مالهاش فايدة عملية. مكانها ثابت في مركز مصر (نفس الإحداثيات
+  // اللي الماب بيرجعلها بالـ flyTo الافتراضي)، وبتجمع كل الـ providers من
+  // كل المحافظات مع بعض بنفس منطق تجميع بابل المحافظة.
+  const countryBubble = useMemo(() => {
+    if (filteredProviders.length === 0) return null;
+
+    const providersMap = new Map();
+    for (const p of filteredProviders) {
+      if (!providersMap.has(p.providerId)) {
+        providersMap.set(p.providerId, {
+          providerId: p.providerId,
+          nameAr: p.nameAr,
+          nameEn: p.nameEn,
+          imageUrl: p.imageUrl,
+          count: 0,
+        });
+      }
+      providersMap.get(p.providerId).count += 1;
+    }
+
+    return {
+      id: "egypt",
+      governorateNameAr: "مصر",
+      governorateNameEn: "Egypt",
+      centerLat: EGYPT_CENTER_LAT,
+      centerLng: EGYPT_CENTER_LNG,
+      count: filteredProviders.length,
+      providers: Array.from(providersMap.values()).sort((a, b) => b.count - a.count),
+    };
+  }, [filteredProviders]);
 
   const invalidGovernorateCount = useMemo(
     () => governorates.filter((g) => !hasValidEgyptCoords(g.centerLat, g.centerLng)).length,
@@ -160,8 +188,9 @@ export const useProvidersMapQuery = ({ category, governorateId, search }) => {
 
   return {
     providers: filteredProviders,
-    governorates,
     governorateBubbles,
+    countryBubble,
+    governorates,
     selectedGovernorate,
     totalCount: validProviders.length,
     invalidProviderCount: invalidCount,

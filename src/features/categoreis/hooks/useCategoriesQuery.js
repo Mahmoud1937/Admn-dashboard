@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { getCategories } from "../service/categoryService";
-;
 
 export function useCategoriesQuery({ pageNumber, pageSize, search }) {
-  const { data, isLoading, isError, error, isPlaceholderData } = useQuery({
+
+ const { data, isLoading, isFetching, isError, error, isPlaceholderData } = useQuery({
     queryKey: ["categories", pageNumber, pageSize, search],
     queryFn: () => getCategories(pageNumber, pageSize, search),
     placeholderData: (previousData) => previousData,
@@ -15,6 +15,7 @@ export function useCategoriesQuery({ pageNumber, pageSize, search }) {
     totalPages: data?.data?.totalPages ?? 1,
     serverPageSize: data?.data?.pageSize,
     isLoading,
+  isFetching,
     isError,
     error,
     isPlaceholderData,

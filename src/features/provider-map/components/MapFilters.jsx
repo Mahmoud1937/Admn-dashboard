@@ -19,8 +19,7 @@ export default function MapFilters({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
-  // Dropdown shouldn't list the same governorate twice just because the
-  // backend has duplicate/typo rows for it (e.g. "Cairoo" vs "القاهرة")
+
   const dedupedGovernorates = useMemo(() => {
     const seen = new Set();
     return governorates.filter((g) => {
@@ -35,13 +34,13 @@ export default function MapFilters({
     <div className="flex flex-wrap items-center gap-3">
       <select
         value={governorateId ?? ""}
-        onChange={(e) => onGovernorateChange(e.target.value ? Number(e.target.value) : null)}
+        onChange={(e) => onGovernorateChange(e.target.value || null)}
         className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
       >
         <option value="">All Governorates</option>
         {dedupedGovernorates.map((gov) => (
           <option key={gov.id} value={gov.id}>
-            {gov.nameAr}
+            {gov.nameEn}
           </option>
         ))}
       </select>

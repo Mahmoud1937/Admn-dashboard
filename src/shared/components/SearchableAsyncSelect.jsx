@@ -14,8 +14,7 @@ const PAGE_SIZE = 20;
  * fetchItems: (pageNumber, pageSize, searchTerm) => Promise<{ data: { items, pageNumber, totalPages } }>
  *   (matches the getCategories / getSpecialists service signature already in the project)
  */
-export default function SearchableAsyncSelect({
-  queryKey,
+export default function SearchableAsyncSelect({  queryKey,
   fetchItems,
   value,
   onChange,
@@ -26,12 +25,20 @@ export default function SearchableAsyncSelect({
   disabled = false,
   clearable = true,
   error,
-}) {
+  // Both default to the component's original styling, so every existing
+  // usage elsewhere in the project renders exactly as before. Only a caller
+  // that explicitly passes new values (e.g. to clear a map's zoom controls,
+  // or show a translucent panel) gets different behavior.
+  panelZIndexClassName = "z-30",
+  panelBgClassName = "bg-white",}) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 300);
   const containerRef = useRef(null);
   const listRef = useRef(null);
+
+  // ⬇️ moved up, before useInfiniteQuery
+  const [selectedLabel, setSelectedLabel] = useState(null);
 
   const {
     data,
@@ -48,15 +55,12 @@ export default function SearchableAsyncSelect({
       return pageNumber < totalPages ? pageNumber + 1 : undefined;
     },
     initialPageParam: 1,
-    enabled: isOpen,
+    enabled: isOpen || (Boolean(value) && !selectedLabel),
   });
 
   const items = data?.pages.flatMap((page) => page?.data?.items ?? []) ?? [];
 
-  // We may not have the selected item loaded yet (e.g. edit mode, before
-  // the user opens the dropdown) — carry a cached label so the closed
-  // button still shows something meaningful instead of just the raw id.
-  const [selectedLabel, setSelectedLabel] = useState(null);
+  // ⬇️ this useEffect stays here, just remove the duplicate useState line above it
   useEffect(() => {
     if (value === "" || value === null || value === undefined) {
       setSelectedLabel(null);
@@ -67,6 +71,16 @@ export default function SearchableAsyncSelect({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, items]);
 
+  useEffect(() => {
+    if (isOpen) return;
+    if (!value || selectedLabel) return;
+    if (isFetchingNextPage || !hasNextPage) return;
+    fetchNextPage();
+  }, [isOpen, value, selectedLabel, isFetchingNextPage, hasNextPage, fetchNextPage]);
+
+  // ...rest stays the same
+
+  
   // Close on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -126,7 +140,9 @@ export default function SearchableAsyncSelect({
       </button>
 
       {isOpen && (
-        <div className="absolute z-30 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg">
+        <div
+          className={`absolute ${panelZIndexClassName} mt-1 w-full rounded-lg border border-slate-200 ${panelBgClassName} shadow-lg`}
+        >
           <div className="relative border-b border-slate-100 p-2">
             <FontAwesomeIcon
               icon={faSearch}

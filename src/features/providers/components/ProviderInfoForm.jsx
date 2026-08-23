@@ -44,8 +44,8 @@ export default function ProviderInfoForm({
   });
 
   const hotLineRegister = register("hotLine");
-  const phoneNumberRegister = register("phoneNumber1");
-
+  const phoneNumberRegister = register("phoneNumber");
+const landlineRegister = register("landline");
   // Image preview
   useEffect(() => {
     if (!imageFile) {
@@ -97,16 +97,17 @@ export default function ProviderInfoForm({
   };
 
   const onSubmit = (formValues) => {
-    const payload = {
-      providerCategoryId: formValues.providerCategoryId,
-      specialistId: formValues.specialistId || null,
-      arName: formValues.arName,
-      enName: formValues.enName,
-      hotLine: formValues.hotLine,
-      phoneNumber1: formValues.phoneNumber1,
-      isActive: formValues.isActive,
-      logoFile: imageFile,
-    };
+const payload = {
+  providerCategoryId: formValues.providerCategoryId,
+  specialistId: formValues.specialistId || null,
+  arName: formValues.arName,
+  enName: formValues.enName,
+  hotLine: formValues.hotLine,
+  phoneNumber: formValues.phoneNumber,
+  landline: formValues.landline || null,  
+  isActive: formValues.isActive,
+  logoFile: imageFile,
+};
 
     if (!isCreateMode && formValues.joinDate) {
       payload.createdAt = new Date(formValues.joinDate).toISOString();
@@ -246,7 +247,7 @@ export default function ProviderInfoForm({
       <div className="mb-2 grid grid-cols-1 gap-6 md:grid-cols-2">
         <TextField
           label="Hotline"
-          required
+        
           inputMode="numeric"
           sanitize={false}
           disabled={!canEdit}
@@ -260,10 +261,19 @@ export default function ProviderInfoForm({
           inputMode="numeric"
           sanitize={false}
           disabled={!canEdit}
-          error={errors.phoneNumber1?.message}
+          error={errors.phoneNumber?.message}
           {...phoneNumberRegister}
           onChange={handleDigitsOnlyChange(phoneNumberRegister)}
         />
+         <TextField
+    label="Landline"
+    inputMode="numeric"
+    sanitize={false}
+    disabled={!canEdit}
+    error={errors.landline?.message}
+    {...landlineRegister}
+    onChange={handleDigitsOnlyChange(landlineRegister)}
+  />
       </div>
 
       {/* Active Status */}

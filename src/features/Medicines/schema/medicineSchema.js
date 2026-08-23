@@ -1,9 +1,22 @@
 import { z } from "zod";
-import { enNameField, arNameField, isActiveField } from "../../../shared/schema/validation";
+import { nameField, isActiveField } from "../../../shared/schema/validation";
+
+// Local to this page only: same base rules as the shared en/ar name fields,
+// but numbers are allowed alongside letters (medicine names like
+// "Panadol 500" or "بانادول 500" need this, unlike provider/service names).
+const medicineEnNameField = nameField("English name").regex(
+  /^[a-zA-Z0-9\s()/]+$/,
+  "Please use English letters and numbers only (spaces, ( ) and / are allowed)"
+);
+
+const medicineArNameField = nameField("Arabic name").regex(
+  /^[\u0600-\u06FF0-9\s()/]+$/,
+  "Please use Arabic letters and numbers only (spaces, ( ) and / are allowed)"
+);
 
 export const medicineSchema = z.object({
-  enName: enNameField,
-  arName: arNameField,
+  enName: medicineEnNameField,
+  arName: medicineArNameField,
   medicinePrice: z
     .union([z.string(), z.number()])
     .refine((val) => val !== "" && val !== null && !isNaN(Number(val)), {

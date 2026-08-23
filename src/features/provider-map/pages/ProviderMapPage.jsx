@@ -1,32 +1,33 @@
 import { useState } from "react";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-import { useClientLocationsQuery } from "../hooks/usecCientLocationsQuery";
-
-import MapFilters from "../components/MapFilters"
-import ProviderClusterMap from "../components/ProviderClusterMap";
 import { useProvidersMapQuery } from "../hooks/useProvidersMapQuery";
+import { useClientLocationsQuery } from "../hooks/usecCientLocationsQuery";
 import CategoryTabs from "../components/CategoryTabs";
+import MapFilters from "../components/MapFilters";
+import ProviderClusterMap from "../components/ProviderClusterMap";
 
 
 export default function ProviderMapPage() {
-  const [category, setCategory] = useState("All");
+  const [providerCategoryId, setProviderCategoryId] = useState(null); 
   const [governorateId, setGovernorateId] = useState(null);
   const [search, setSearch] = useState("");
   const [showUsers, setShowUsers] = useState(false);
+
+
 
   const {
     providers,
     governorates,
     governorateBubbles,
+    countryBubble,
     selectedGovernorate,
     totalCount,
     invalidProviderCount,
     invalidGovernorateCount,
     isLoading,
     isError,
-  } = useProvidersMapQuery({ category, governorateId, search });
+  } = useProvidersMapQuery({ providerCategoryId, governorateId, search });
 
   const { locations: clientLocations, isLoading: clientsLoading } =
     useClientLocationsQuery(showUsers);
@@ -41,7 +42,7 @@ export default function ProviderMapPage() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <CategoryTabs activeCategory={category} onChange={setCategory} />
+        <CategoryTabs activeCategoryId={providerCategoryId} onChange={setProviderCategoryId} />
         <div className="flex flex-wrap items-center gap-3">
           <MapFilters
             governorates={governorates}
@@ -79,10 +80,11 @@ export default function ProviderMapPage() {
         )}
         {(invalidProviderCount > 0 || invalidGovernorateCount > 0) && (
           <span className="text-amber-600">
-            {invalidProviderCount > 0 && `${invalidProviderCount} providers `}
-            {invalidProviderCount > 0 && invalidGovernorateCount > 0 && "and "}
-            {invalidGovernorateCount > 0 && `${invalidGovernorateCount} governorate centers `}
-            have bad coordinates and were hidden from the map
+            {invalidProviderCount > 0 &&
+              `${invalidProviderCount} branches were hidden because of invalid coordinates.`}
+            {invalidProviderCount > 0 && invalidGovernorateCount > 0 && " "}
+            {invalidGovernorateCount > 0 &&
+              `${invalidGovernorateCount} governorate centers were hidden because of invalid coordinates.`}
           </span>
         )}
       </div>
@@ -96,7 +98,9 @@ export default function ProviderMapPage() {
         <ProviderClusterMap
           providers={providers}
           governorateBubbles={governorateBubbles}
+          countryBubble={countryBubble}
           selectedGovernorate={selectedGovernorate}
+          onSelectGovernorate={setGovernorateId}
           clientLocations={clientLocations}
           showUsers={showUsers}
         />

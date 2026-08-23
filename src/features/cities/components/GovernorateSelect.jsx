@@ -9,7 +9,7 @@ export default function GovernorateSelect({
   disabled,
 }) {
   return (
-    <div className="w-full sm:w-72">
+    <div className="w-full">
       <SearchableAsyncSelect
         queryKey={["governorates"]}
         fetchItems={getGovernorates}

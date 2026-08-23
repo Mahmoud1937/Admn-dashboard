@@ -39,8 +39,9 @@ export async function createProvider(payload) {
   formData.append("ArName", payload.arName);
   formData.append("EnName", payload.enName);
   formData.append("HotLine", payload.hotLine ?? "");
-  formData.append("PhoneNumber1", payload.phoneNumber1 ?? "");
+  formData.append("PhoneNumber", payload.phoneNumber ?? "");
   formData.append("IsActive", payload.isActive);
+  formData.append("Landline", payload.landline ?? "");
 
   if (payload.logoFile) {
     formData.append("Logo", payload.logoFile);
@@ -56,7 +57,6 @@ export async function createProvider(payload) {
 export async function updateProvider(id, payload) {
   const formData = new FormData();
 
-
   formData.append("ProviderCategoryId", payload.providerCategoryId);
 
   if (payload.specialistId) {
@@ -66,8 +66,9 @@ export async function updateProvider(id, payload) {
   formData.append("ArName", payload.arName);
   formData.append("EnName", payload.enName);
   formData.append("HotLine", payload.hotLine ?? "");
-  formData.append("PhoneNumber1", payload.phoneNumber1 ?? "");
+  formData.append("PhoneNumber", payload.phoneNumber ?? "");
   formData.append("IsActive", payload.isActive);
+  formData.append("Landline", payload.landline ?? "");
 
   if (payload.logoFile) {
     formData.append("Logo", payload.logoFile);
