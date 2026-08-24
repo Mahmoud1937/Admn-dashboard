@@ -3,6 +3,7 @@ import {
   faPenToSquare,
   faBan,
   faCheck,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -15,24 +16,31 @@ function getInitials(name = "") {
 
 function ProviderAvatar({ imageUrl, name, size = "h-10 w-10" }) {
   const [hasError, setHasError] = useState(false);
+  const hasImage = imageUrl && !hasError;
 
-  return (
-    <div className={`flex-shrink-0 ${size} overflow-hidden rounded-lg`}>
-      {!imageUrl || hasError ? (
+  if (!hasImage) {
+    return (
+      <div className={`flex-shrink-0 ${size} overflow-hidden rounded-lg`}>
         <div className="flex h-full w-full items-center justify-center bg-slate-200 text-sm font-semibold text-slate-600">
           {getInitials(name)}
         </div>
-      ) : (
-        <img
-          src={imageUrl}
-          alt={name}
-          className="h-full w-full object-cover"
-          onError={() => setHasError(true)}
-        />
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`group relative flex-shrink-0 ${size} overflow-hidden rounded-lg`}>
+      <img
+        src={imageUrl}
+        alt={name}
+        className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110"
+        onError={() => setHasError(true)}
+      />
+      <span className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
     </div>
   );
 }
+
 
 function formatDateNumeric(dateString) {
   if (!dateString) return "";
@@ -78,6 +86,8 @@ function RowActions({ provider, onEdit, onToggleStatus }) {
 export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
   const navigate = useNavigate();
 
+
+
   return (
     <>
       {/* ---------- Mobile: stacked cards (below md) ---------- */}
@@ -89,12 +99,17 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
           return (
             <div key={provider.id} className="p-4">
               <div className="flex items-start justify-between gap-3">
-                <div
-                  onClick={() => navigate(`/providers/${provider.id}`)}
-                  className="flex min-w-0 flex-1 cursor-pointer items-center gap-3"
-                >
-                  <ProviderAvatar imageUrl={provider.imageUrl} name={provider.enName} size="h-11 w-11" />
-                  <div className="min-w-0">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <ProviderAvatar
+                    imageUrl={provider.imageUrl}
+                    name={provider.enName}
+                    size="h-11 w-11"
+                  
+                  />
+                  <div
+                    onClick={() => navigate(`/providers/${provider.id}`)}
+                    className="min-w-0 cursor-pointer"
+                  >
                     <p className="truncate font-semibold text-slate-900">{provider.enName}</p>
                     <p className="truncate text-xs text-slate-400">{provider.arName}</p>
                   </div>
@@ -165,13 +180,20 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
                 className="border-b border-slate-100 last:border-0 transition-all hover:bg-primary-600/10 hover:text-primary-600"
               >
                 <td className="px-4 py-2">
+                  <div className="mx-auto w-full max-w-[220px]">
                   <div
-                    onClick={() => navigate(`/providers/${provider.id}`)}
-                    className="mx-auto w-full max-w-[220px] cursor-pointer"
-                  >
-                    <div className="relative flex items-center justify-between gap-3 rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-white/70">
-                      <ProviderAvatar imageUrl={provider.imageUrl} name={provider.enName} />
-                      <div className="min-w-0">
+  onClick={() => navigate(`/providers/${provider.id}`)}
+  className="relative flex cursor-pointer items-center justify-between gap-3 rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-white/70"
+>
+                      <ProviderAvatar
+                        imageUrl={provider.imageUrl}
+                        name={provider.enName}
+                    
+                      />
+                      <div
+                        onClick={() => navigate(`/providers/${provider.id}`)}
+                        className="min-w-0 cursor-pointer"
+                      >
                         <p className="truncate font-semibold text-slate-900 text-end">{provider.enName}</p>
                         <p className="truncate text-xs text-slate-400 text-end">{provider.arName}</p>
                       </div>
@@ -219,6 +241,9 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
           })}
         </tbody>
       </table>
+
+     
+     
     </>
   );
 }

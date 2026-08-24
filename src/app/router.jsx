@@ -14,6 +14,8 @@ import ServiceCategoriesPage from "../features/ServiceCategory/pages/ServiceCate
 import MedicinesPage from "../features/Medicines/pages/Medicinespage";
 import ServicesPage from "../features/services-admin/pages/ServicesPage";
 import ProviderMapPage from "../features/provider-map/pages/ProviderMapPage";
+import SlidersPage from "../features/offer-sliders/pages/SlidersPage";
+import SliderDetailsPage from "../features/offer-sliders/pages/SliderDetailsPage";
 
 
 
@@ -45,8 +47,13 @@ const router = createBrowserRouter([
       { path: "speialist", element: <SpecialistsPage /> },
       { path: "support-tickets", element: <PagePlaceholder title="Support Tickets" /> },
       { path: "activity", element: <PagePlaceholder title="Activity" /> },
-      { path: "sliders", element: <PagePlaceholder title="Sliders" /> },
+      { path: "offer-sliders", element: <SlidersPage title="Sliders" /> },
+
+      // View / Update Slider details (full-size images + edit)
+      { path: "offer-sliders/:id", element: <SliderDetailsPage /> },
+
       { path: "plan-types", element: <PagePlaceholder title="Plan Types" /> },
+      // { path: "offer-sliders", element: <SlidersPage title="Plan Types" /> },
       { path: "offers", element: <PagePlaceholder title="Offers" /> },
 
       {

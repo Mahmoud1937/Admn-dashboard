@@ -63,6 +63,11 @@ export const navigation = [
     icon: faCreditCard,
   },
   {
+    title: "Offers Sliders",
+    path: "/offer-sliders",
+    icon: faImages,
+  },
+  {
     title: "Governorates",
     path: "/governorates",
     icon: faMap,
@@ -87,11 +92,11 @@ export const navigation = [
     path: "/activity",
     icon: faChartLine,
   },
-  {
-    title: "Sliders",
-    path: "/sliders",
-    icon: faImages,
-  },
+  // {
+  //   title: "Sliders",
+  //   path: "/sliders",
+  //   icon: faImages,
+  // },
   {
     title: "Plan Types",
     path: "/plan-types",

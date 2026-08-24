@@ -7,10 +7,9 @@ import { buildProviderFormValues, emptyProviderForm } from "../utils/providerFor
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import TextField from "../../../shared/components/TextField";
 import DateField from "./DateField";
-import CategorySelect from "../../services-admin/components/CategorySelect";
 import SpecialistSelect from "../../services-admin/components/SpecialistSelect";
-import {getProviderSchema} from "../schema/providerSchema"
-import ProviderLogoUpload from "../components/ProviderLogoUpload"
+import { getProviderSchema } from "../schema/providerSchema";
+import ProviderLogoUpload from "../components/ProviderLogoUpload";
 import ProviderCategorySelect from "./ProviderCategorySelect";
 
 const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg"];
@@ -36,16 +35,16 @@ export default function ProviderInfoForm({
     reset,
     setError,
     setValue,
-    trigger,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(getProviderSchema (isCreateMode)),
+    resolver: zodResolver(getProviderSchema(isCreateMode)),
     defaultValues: emptyProviderForm,
   });
 
   const hotLineRegister = register("hotLine");
   const phoneNumberRegister = register("phoneNumber");
-const landlineRegister = register("landline");
+  const landlineRegister = register("landline");
+
   // Image preview
   useEffect(() => {
     if (!imageFile) {
@@ -97,17 +96,17 @@ const landlineRegister = register("landline");
   };
 
   const onSubmit = (formValues) => {
-const payload = {
-  providerCategoryId: formValues.providerCategoryId,
-  specialistId: formValues.specialistId || null,
-  arName: formValues.arName,
-  enName: formValues.enName,
-  hotLine: formValues.hotLine,
-  phoneNumber: formValues.phoneNumber,
-  landline: formValues.landline || null,  
-  isActive: formValues.isActive,
-  logoFile: imageFile,
-};
+    const payload = {
+      providerCategoryId: formValues.providerCategoryId,
+      specialistId: formValues.specialistId || null,
+      arName: formValues.arName,
+      enName: formValues.enName,
+      hotLine: formValues.hotLine,
+      phoneNumber: formValues.phoneNumber,
+      landline: formValues.landline || null,
+      isActive: formValues.isActive,
+      logoFile: imageFile,
+    };
 
     if (!isCreateMode && formValues.joinDate) {
       payload.createdAt = new Date(formValues.joinDate).toISOString();
@@ -173,19 +172,26 @@ const payload = {
       {/* Join Date */}
       {!isCreateMode && (
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-medium text-slate-700">Join Date</label>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Join Date
+          </label>
+
           <Controller
             name="joinDate"
             control={control}
             render={({ field }) => (
-              <DateField value={field.value} onChange={field.onChange} disabled />
+              <DateField
+                value={field.value}
+                onChange={field.onChange}
+                disabled
+              />
             )}
           />
         </div>
       )}
 
       {/* Names */}
-      <div className="mb-2 grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
         <TextField
           label="English Name"
           required
@@ -212,6 +218,7 @@ const payload = {
           <label className="mb-2 block text-sm font-medium text-slate-700">
             Category <span className="text-red-500">*</span>
           </label>
+
           <Controller
             name="providerCategoryId"
             control={control}
@@ -227,7 +234,10 @@ const payload = {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">Specialist</label>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Specialist
+          </label>
+
           <Controller
             name="specialistId"
             control={control}
@@ -243,42 +253,51 @@ const payload = {
         </div>
       </div>
 
-      {/* Hotline + Phone */}
-      <div className="mb-2 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <TextField
-          label="Hotline"
-        
-          inputMode="numeric"
-          sanitize={false}
-          disabled={!canEdit}
-          error={errors.hotLine?.message}
-          {...hotLineRegister}
-          onChange={handleDigitsOnlyChange(hotLineRegister)}
-        />
+      {/* Contact Information */}
+      <div className="mb-6 rounded-xl border border-slate-200 bg-slate-50/50 p-4 sm:p-5">
+        <h3 className="mb-4 text-sm font-semibold text-slate-800">
+          Contact Information
+        </h3>
 
-        <TextField
-          label="Phone Number"
-          inputMode="numeric"
-          sanitize={false}
-          disabled={!canEdit}
-          error={errors.phoneNumber?.message}
-          {...phoneNumberRegister}
-          onChange={handleDigitsOnlyChange(phoneNumberRegister)}
-        />
-         <TextField
-    label="Landline"
-    inputMode="numeric"
-    sanitize={false}
-    disabled={!canEdit}
-    error={errors.landline?.message}
-    {...landlineRegister}
-    onChange={handleDigitsOnlyChange(landlineRegister)}
-  />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <TextField
+            label="Hotline"
+            inputMode="numeric"
+            sanitize={false}
+            disabled={!canEdit}
+            error={errors.hotLine?.message}
+            {...hotLineRegister}
+            onChange={handleDigitsOnlyChange(hotLineRegister)}
+          />
+
+          <TextField
+            label="Phone Number"
+            inputMode="numeric"
+            sanitize={false}
+            disabled={!canEdit}
+            error={errors.phoneNumber?.message}
+            {...phoneNumberRegister}
+            onChange={handleDigitsOnlyChange(phoneNumberRegister)}
+          />
+
+          <TextField
+            label="Landline"
+            inputMode="numeric"
+            sanitize={false}
+            disabled={!canEdit}
+            error={errors.landline?.message}
+            {...landlineRegister}
+            onChange={handleDigitsOnlyChange(landlineRegister)}
+          />
+        </div>
       </div>
 
       {/* Active Status */}
       <div className="mb-6 flex items-center gap-3">
-        <label className="text-sm font-medium text-slate-700">Active Status</label>
+        <label className="text-sm font-medium text-slate-700">
+          Active Status
+        </label>
+
         <Controller
           name="isActive"
           control={control}
@@ -287,12 +306,14 @@ const payload = {
               type="button"
               disabled={!canEdit}
               onClick={() => field.onChange(!field.value)}
-              className={`relative h-6 w-11 rounded-full transition disabled:cursor-not-allowed disabled:opacity-60 ${field.value ? "bg-emerald-500" : "bg-slate-300"
-                }`}
+              className={`relative h-6 w-11 rounded-full transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                field.value ? "bg-emerald-500" : "bg-slate-300"
+              }`}
             >
               <span
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${field.value ? "left-5" : "left-0.5"
-                  }`}
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+                  field.value ? "left-5" : "left-0.5"
+                }`}
               />
             </button>
           )}
@@ -304,6 +325,7 @@ const payload = {
           {mutation.error?.response?.data?.message || "Failed to save changes."}
         </p>
       )}
+
       {canEdit && (
         <div className="mt-8 flex flex-col-reverse items-stretch justify-end gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:gap-4">
           <button
@@ -313,6 +335,7 @@ const payload = {
           >
             Cancel
           </button>
+
           <button
             type="submit"
             disabled={mutation.isPending}

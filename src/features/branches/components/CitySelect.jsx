@@ -20,9 +20,7 @@ export default function CitySelect({
         value={value}
         onChange={onChange}
         getOptionLabel={(item) => `${item.enName} - ${item.arName}`}
-        placeholder={
-          !governorateId ? "Select governorate first" : placeholder
-        }
+        placeholder={!governorateId ? "Select governorate" : placeholder}
         searchPlaceholder="Search cities..."
         disabled={disabled || !governorateId}
         error={error}

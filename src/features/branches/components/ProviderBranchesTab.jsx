@@ -1,20 +1,30 @@
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBan, faCheck, faPenToSquare, faPlus, faSearch, faBuilding } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBan,
+  faCheck,
+  faPenToSquare,
+  faPlus,
+  faBuilding,
+} from "@fortawesome/free-solid-svg-icons";
 import { useParams } from "react-router-dom";
+
 import { useBranchesQuery } from "../hooks/useBranchesQuery";
 import { useBranchMutations } from "../hooks/useBranchMutations";
 import { useBranchToggleMutation } from "../hooks/useBranchToggleMutation";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
+
 import BranchFormModal from "./BranchFormModal";
+import BranchesFilters from "./BranchesFilters";
+
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import Pagination from "../../../shared/components/Pagination";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import StatusBadge from "../../providers/components/StatusBadge";
+
 import { formatDate } from "../../../utils/formatDate";
 import { useGovernoratesLookup } from "../../cities/hooks/useGovernoratesLookup";
-import GovernorateSelect from "../../cities/components/GovernorateSelect";
 
 export default function ProviderBranchesTab() {
   const { id: providerId } = useParams();
@@ -75,7 +85,12 @@ export default function ProviderBranchesTab() {
     onSuccess: () => setBranchToToggle(null),
   });
 
-  const hasActiveFilters = !!(search || governorateFilter || cityFilter || statusFilter);
+  const hasActiveFilters = !!(
+    search ||
+    governorateFilter ||
+    cityFilter ||
+    statusFilter
+  );
 
   const handleOpenAdd = () => {
     setSelectedBranch(null);
@@ -95,41 +110,9 @@ export default function ProviderBranchesTab() {
 
   return (
     <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-3 ">
-          <div className="relative">
-            <FontAwesomeIcon
-              icon={faSearch}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-            <input
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search branches..."
-              className="rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-blue-400"
-            />
-          </div>
-
-        <GovernorateSelect
-  value={governorateFilter}
-  onChange={(value) => {
-    setGovernorateFilter(value);
-    setCityFilter("");
-  }}
-  placeholder="All governorates"
-/>
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
-          >
-            <option value="">All statuses</option>
-            <option value="1">Active</option>
-            <option value="2">Inactive</option>
-          </select>
-        </div>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-slate-900">Branches</h2>
 
         <button
           onClick={handleOpenAdd}
@@ -140,10 +123,26 @@ export default function ProviderBranchesTab() {
         </button>
       </div>
 
-      {/* Table */}
+      {/* Card: Filters + Table */}
       <div className="rounded-xl border border-slate-100 bg-white shadow-sm">
+        {/* Filters */}
+        <BranchesFilters
+          search={searchInput}
+          onSearchChange={setSearchInput}
+          governorateFilter={governorateFilter}
+          onGovernorateFilterChange={(value) => {
+            setGovernorateFilter(value);
+            setCityFilter("");
+          }}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+        />
+
+        {/* Table Content */}
         {isLoading ? (
-          <p className="py-8 text-center text-sm text-slate-400">Loading branches...</p>
+          <p className="py-8 text-center text-sm text-slate-400">
+            Loading branches...
+          </p>
         ) : isError ? (
           <p className="py-8 text-center text-sm text-red-500">
             {error?.message || "Failed to load branches."}
@@ -157,7 +156,7 @@ export default function ProviderBranchesTab() {
           />
         ) : (
           <>
-            <div className="p-6 overflow-x-auto scroll-table">
+            <div className="overflow-x-auto p-6 scroll-table">
               <table className="w-full min-w-[1400px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -165,7 +164,6 @@ export default function ProviderBranchesTab() {
                     <th className="px-6 py-2.5 text-center">Government</th>
                     <th className="px-6 py-2.5 text-center">City</th>
                     <th className="px-6 py-2.5 text-center">Email</th>
-
                     <th className="px-6 py-2.5 text-center">Full Address</th>
                     <th className="px-6 py-2.5 text-center">Map URL</th>
                     <th className="px-6 py-2.5 text-center">Latitude</th>
@@ -185,11 +183,22 @@ export default function ProviderBranchesTab() {
                       <td className="px-4 py-2 text-center font-semibold text-slate-900">
                         {branch.branchName}
                       </td>
-                      <td className="px-6 py-2 text-center text-slate-600">{branch.governorateName}</td>
-                      <td className="px-6 py-2 text-center text-slate-600">{branch.cityName}</td>
-                      <td className="px-6 py-2 text-center text-slate-600">{branch.email}</td>
 
-                      <td className="px-6 py-2 text-center text-slate-600">{branch.fullAddress}</td>
+                      <td className="px-6 py-2 text-center text-slate-600">
+                        {branch.governorateName}
+                      </td>
+
+                      <td className="px-6 py-2 text-center text-slate-600">
+                        {branch.cityName}
+                      </td>
+
+                      <td className="px-6 py-2 text-center text-slate-600">
+                        {branch.email}
+                      </td>
+
+                      <td className="px-6 py-2 text-center text-slate-600">
+                        {branch.fullAddress}
+                      </td>
 
                       <td className="px-6 py-2 text-center">
                         {branch.mapUrl ? (
@@ -223,7 +232,10 @@ export default function ProviderBranchesTab() {
                         {formatDate(branch.createdAt)}
                       </td>
 
-                      <td className="px-6 py-2" onClick={(e) => e.stopPropagation()}>
+                      <td
+                        className="px-6 py-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleOpenEdit(branch)}
@@ -272,6 +284,7 @@ export default function ProviderBranchesTab() {
         )}
       </div>
 
+      {/* Branch Modal */}
       <BranchFormModal
         isOpen={isModalOpen}
         branch={selectedBranch}
@@ -282,16 +295,23 @@ export default function ProviderBranchesTab() {
         onClose={() => setIsModalOpen(false)}
       />
 
+      {/* Activate / Deactivate Confirmation */}
       <ConfirmDeleteModal
         isOpen={!!branchToToggle}
         variant={branchToToggle?.isActive ? "danger" : "success"}
-        title={branchToToggle?.isActive ? "Deactivate Branch" : "Activate Branch"}
+        title={
+          branchToToggle?.isActive
+            ? "Deactivate Branch"
+            : "Activate Branch"
+        }
         message={
           branchToToggle?.isActive
             ? `Are you sure you want to deactivate "${branchToToggle?.branchName}"? You can reactivate it later.`
             : `Are you sure you want to activate "${branchToToggle?.branchName}"?`
         }
-        confirmLabel={branchToToggle?.isActive ? "Deactivate" : "Activate"}
+        confirmLabel={
+          branchToToggle?.isActive ? "Deactivate" : "Activate"
+        }
         onConfirm={handleConfirmToggle}
         onCancel={() => setBranchToToggle(null)}
         isLoading={toggleMutation.isPending}
