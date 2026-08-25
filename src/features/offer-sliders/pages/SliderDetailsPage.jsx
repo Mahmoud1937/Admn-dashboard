@@ -34,7 +34,7 @@ const BannerPanel = ({ title, url }) => (
         <img
           src={url}
           alt={title}
-          className="max-h-[70vh] w-full object-contain"
+          className="max-h-[70vh] max-w-full object-contain"
         />
       ) : (
         <div className="flex flex-col items-center gap-2 text-gray-300">

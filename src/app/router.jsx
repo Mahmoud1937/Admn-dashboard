@@ -16,6 +16,11 @@ import ServicesPage from "../features/services-admin/pages/ServicesPage";
 import ProviderMapPage from "../features/provider-map/pages/ProviderMapPage";
 import SlidersPage from "../features/offer-sliders/pages/SlidersPage";
 import SliderDetailsPage from "../features/offer-sliders/pages/SliderDetailsPage";
+import TermsAndConditionsPage from "../features/termsAndConditions/pages/TermsAndConditionsPage";
+import RefundPolicyPage from "../features/refundPolicy/pages/RefundPolicyPage";
+import PrivacyPolicyPage from "../features/privacyPolicy/pages/PrivacyPolicyPage";
+import ContactUsPage from "../features/contactUs/pages/ContactUsPage";
+
 
 
 
@@ -38,6 +43,22 @@ const router = createBrowserRouter([
       { path: "provider-map", element: <ProviderMapPage /> },
       { path: "/provider-category", element: <CategoriesPage /> },
       { path: "/service-category", element: <ServiceCategoriesPage /> },
+            {
+        path: "terms-and-conditions",
+        element: <TermsAndConditionsPage/>,
+      },
+      {
+        path: "refund-policy",
+        element: <RefundPolicyPage/>,
+      },
+      {
+        path: "privacy-policy",
+        element: <PrivacyPolicyPage/>,
+      },
+      {
+        path: "contact-us",
+        element: <ContactUsPage/>,
+      },
       { path: "services", element: <ServicesPage title="Services" /> },
       { path: "medicines", element: <MedicinesPage title="Medicine" /> },
       { path: "card-activation", element: <PagePlaceholder title="Card Activation" /> },

@@ -8,12 +8,17 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
 ];
 
+const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
+
+const hasValidExtension = (file) =>
+  ACCEPTED_EXTENSIONS.some((ext) => file.name?.toLowerCase().endsWith(ext));
+
 export const imageFileSchema = z
   .instanceof(File, {
     message: "Please select an image.",
   })
   .refine(
-    (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
+    (file) => ACCEPTED_IMAGE_TYPES.includes(file.type) && hasValidExtension(file),
     "Only JPG, PNG, and WEBP images are allowed."
   )
   .refine(
@@ -29,7 +34,6 @@ export const buildSliderSchema = (isEditMode) =>
 export const validateImages = (enFile, arFile) => {
   const imageErrors = {};
 
-  // Validate English image only if a new file was selected
   if (enFile) {
     const enResult = imageFileSchema.safeParse(enFile);
 
@@ -40,7 +44,6 @@ export const validateImages = (enFile, arFile) => {
     imageErrors.enImageFile = "English image is required.";
   }
 
-  // Validate Arabic image only if a new file was selected
   if (arFile) {
     const arResult = imageFileSchema.safeParse(arFile);
 

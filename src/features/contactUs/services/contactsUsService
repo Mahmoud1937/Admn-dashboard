@@ -1,0 +1,21 @@
+import axiosInstance from "../../../shared/api/axiosInstance";
+
+const BASE_URL = "/admin/contact-us";
+
+export async function getContactUs() {
+  const { data } = await axiosInstance.get(BASE_URL);
+  return data;
+}
+
+export async function updateContactUs(payload) {
+  const { data } = await axiosInstance.post(BASE_URL, {
+    phoneNumber: payload.phoneNumber,
+    email: payload.email,
+    whatsApp: payload.whatsApp,
+    faceBook: payload.faceBook || null,
+    instagram: payload.instagram || null,
+    tikTok: payload.tikTok || null,
+  });
+
+  return data;
+}

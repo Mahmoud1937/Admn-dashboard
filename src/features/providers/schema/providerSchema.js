@@ -68,10 +68,11 @@ export const getProviderSchema = (isCreateMode) =>
               message: "Logo size can't exceed 5MB",
             }),
     })
-    .refine(
-      (data) => Boolean(data.hotLine) || Boolean(data.phoneNumber) || Boolean(data.landline),  
+       .refine(
+      (data) => Boolean(data.hotLine) || Boolean(data.phoneNumber) || Boolean(data.landline),
       {
         message: "Please provide at least one of: Hotline, Phone Number, or Landline",
-        path: ["hotLine"],
+        path: ["contactInfo"], 
+                                 
       }
     );

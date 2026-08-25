@@ -136,7 +136,7 @@ const SlidersTable = ({
     return (
         <>
             <div className="overflow-x-auto min-w-0">
-                <table className="w-full text-sm">
+                <table className="w-full min-w-[720px] text-sm">
                     <thead>
                         <tr className="text-center text-xs font-semibold text-gray-400 uppercase tracking-wide">
                             <th className="px-4 py-3 w-10">#</th>

@@ -5,6 +5,8 @@ import { buildSliderSchema, validateImages } from "../schema/sliderSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import ProviderSelectDropdown from "./ProviderSelectDropdown";
 import ImageUploadField from "../../../shared/components/ImageUploadField";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const SliderFormModal = ({
   isOpen,
@@ -112,11 +114,23 @@ const SliderFormModal = ({
         "";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
-          {isEditMode ? "Edit Slider" : "Add Slider"}
-        </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4">
+      <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl scroll-form sm:max-w-2xl sm:max-h-[85vh]">
+<div className="mb-4 flex items-center justify-between">
+  <h2 className="text-lg font-semibold text-gray-900">
+    {isEditMode ? "Edit Slider" : "Add Slider"}
+  </h2>
+
+  <button
+    type="button"
+    onClick={handleClose}
+    disabled={isSaving}
+    className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+    aria-label="Close"
+  >
+    <FontAwesomeIcon icon={faXmark} />
+  </button>
+</div>
 
         <form
           onSubmit={handleSubmit(handleFormSubmit)}
@@ -128,89 +142,88 @@ const SliderFormModal = ({
               Provider
             </label>
 
-            <Controller
-              name="providerId"
-              control={control}
-              render={({ field }) => (
-                <ProviderSelectDropdown
-                  value={field.value}
-                  onChange={field.onChange}
-                  initialLabel={providerLabel}
-                  error={errors.providerId?.message}
-                  disabled={isSaving}
-                />
+          <Controller
+  name="providerId"
+  control={control}
+  render={({ field }) => (
+    <ProviderSelectDropdown
+      value={field.value}
+      onChange={(val) => field.onChange(val != null ? String(val) : "")}
+      initialLabel={providerLabel}
+      error={errors.providerId?.message}
+      disabled={isSaving}
+    />
+  )}
+/>
+
+  
+          </div>
+
+          {/* Images */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* English Image */}
+            <div>
+              <ImageUploadField
+                label="English Image"
+                preview={
+                  enImageFile
+                    ? URL.createObjectURL(enImageFile)
+                    : isEditMode
+                      ? sliderToEdit.enImageUrl
+                      : null
+                }
+                onImageChange={(e) => {
+                  setEnImageFile(e.target.files?.[0] || null);
+                  setImageErrors((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          enImageFile: undefined,
+                        }
+                      : null
+                  );
+                }}
+                disabled={isSaving}
+              />
+
+              {imageErrors?.enImageFile && (
+                <p className="text-xs text-red-500">
+                  {imageErrors.enImageFile}
+                </p>
               )}
-            />
+            </div>
 
-            {errors.providerId && (
-              <p className="mt-1 text-xs text-red-500">
-                {errors.providerId.message}
-              </p>
-            )}
-          </div>
+            {/* Arabic Image */}
+            <div>
+              <ImageUploadField
+                label="Arabic Image"
+                preview={
+                  arImageFile
+                    ? URL.createObjectURL(arImageFile)
+                    : isEditMode
+                      ? sliderToEdit.arImageUrl
+                      : null
+                }
+                onImageChange={(e) => {
+                  setArImageFile(e.target.files?.[0] || null);
+                  setImageErrors((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          arImageFile: undefined,
+                        }
+                      : null
+                  );
+                }}
+                disabled={isSaving}
+              />
 
-          {/* English Image */}
-          <div>
-            <ImageUploadField
-              label="English Image"
-              preview={
-                enImageFile
-                  ? URL.createObjectURL(enImageFile)
-                  : isEditMode
-                    ? sliderToEdit.enImageUrl
-                    : null
-              }
-              onImageChange={(e) => {
-                setEnImageFile(e.target.files?.[0] || null);
-                setImageErrors((prev) =>
-                  prev
-                    ? {
-                        ...prev,
-                        enImageFile: undefined,
-                      }
-                    : null
-                );
-              }}
-              disabled={isSaving}
-            />
-
-            {imageErrors?.enImageFile && (
-              <p className="text-xs text-red-500">
-                {imageErrors.enImageFile}
-              </p>
-            )}
-          </div>
-
-          {/* Arabic Image */}
-          <div>
-            <ImageUploadField
-              label="Arabic Image"
-              preview={
-                arImageFile
-                  ? URL.createObjectURL(arImageFile)
-                  : isEditMode
-                    ? sliderToEdit.arImageUrl
-                    : null
-              }
-              onImageChange={(e) => {
-                setArImageFile(e.target.files?.[0] || null);
-                setImageErrors((prev) =>
-                  prev
-                    ? {
-                        ...prev,
-                        arImageFile: undefined,
-                      }
-                    : null
-                );
-              }}
-              disabled={isSaving}
-            />
-
-            {imageErrors?.arImageFile && (
-              <p className="text-xs text-red-500">
-                {imageErrors.arImageFile}
-              </p>
-            )}
+              {imageErrors?.arImageFile && (
+                <p className="text-xs text-red-500">
+                  {imageErrors.arImageFile}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Actions */}

@@ -84,10 +84,10 @@ const SlidersPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-start justify-between">
+    <div className="p-4 space-y-6 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
             Sliders
           </h1>
 
@@ -99,7 +99,7 @@ const SlidersPage = () => {
         <button
           type="button"
           onClick={handleOpenAdd}
-          className="inline-flex items-center gap-2 bg-blue-900 hover:bg-blue-800 text-white text-sm font-medium px-4 py-2.5 rounded-md"
+          className="inline-flex items-center justify-center gap-2 bg-blue-900 hover:bg-blue-800 text-white text-xs font-medium px-3 py-2 rounded-md sm:text-sm sm:px-4 sm:py-2.5"
         >
           <FontAwesomeIcon icon={faPlus} />
           Add Slider

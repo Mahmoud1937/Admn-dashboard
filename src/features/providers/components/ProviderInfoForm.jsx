@@ -253,44 +253,50 @@ export default function ProviderInfoForm({
         </div>
       </div>
 
-      {/* Contact Information */}
-      <div className="mb-6 rounded-xl border border-slate-200 bg-slate-50/50 p-4 sm:p-5">
-        <h3 className="mb-4 text-sm font-semibold text-slate-800">
-          Contact Information
-        </h3>
+{/* Contact Information */}
+<div className="mb-6 rounded-xl border border-slate-200 bg-slate-50/50 p-4 sm:p-5">
+  <h3 className="mb-4 text-sm font-semibold text-slate-800">
+    Contact Information
+  </h3>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <TextField
-            label="Hotline"
-            inputMode="numeric"
-            sanitize={false}
-            disabled={!canEdit}
-            error={errors.hotLine?.message}
-            {...hotLineRegister}
-            onChange={handleDigitsOnlyChange(hotLineRegister)}
-          />
+  {errors.contactInfo && (
+    <p className="mb-4 text-sm text-red-500">
+      {errors.contactInfo.message}
+    </p>
+  )}
 
-          <TextField
-            label="Phone Number"
-            inputMode="numeric"
-            sanitize={false}
-            disabled={!canEdit}
-            error={errors.phoneNumber?.message}
-            {...phoneNumberRegister}
-            onChange={handleDigitsOnlyChange(phoneNumberRegister)}
-          />
+  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <TextField
+      label="Hotline"
+      inputMode="numeric"
+      sanitize={false}
+      disabled={!canEdit}
+      error={errors.hotLine?.message}
+      {...hotLineRegister}
+      onChange={handleDigitsOnlyChange(hotLineRegister)}
+    />
 
-          <TextField
-            label="Landline"
-            inputMode="numeric"
-            sanitize={false}
-            disabled={!canEdit}
-            error={errors.landline?.message}
-            {...landlineRegister}
-            onChange={handleDigitsOnlyChange(landlineRegister)}
-          />
-        </div>
-      </div>
+    <TextField
+      label="Phone Number"
+      inputMode="numeric"
+      sanitize={false}
+      disabled={!canEdit}
+      error={errors.phoneNumber?.message}
+      {...phoneNumberRegister}
+      onChange={handleDigitsOnlyChange(phoneNumberRegister)}
+    />
+
+    <TextField
+      label="Landline"
+      inputMode="numeric"
+      sanitize={false}
+      disabled={!canEdit}
+      error={errors.landline?.message}
+      {...landlineRegister}
+      onChange={handleDigitsOnlyChange(landlineRegister)}
+    />
+  </div>
+</div>
 
       {/* Active Status */}
       <div className="mb-6 flex items-center gap-3">
