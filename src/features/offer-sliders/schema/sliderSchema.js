@@ -31,7 +31,7 @@ export const buildSliderSchema = (isEditMode) =>
     providerId: z.string().min(1, "Provider is required"),
   });
 
-export const validateImages = (enFile, arFile) => {
+export const validateImages = (enFile, arFile, isEditMode = false) => {
   const imageErrors = {};
 
   if (enFile) {
@@ -40,7 +40,9 @@ export const validateImages = (enFile, arFile) => {
     if (!enResult.success) {
       imageErrors.enImageFile = enResult.error.issues[0]?.message;
     }
-  } else {
+  } else if (!isEditMode) {
+    // Required only when creating a new slider. In edit mode, no new
+    // file selected means "keep the existing image as-is" — not an error.
     imageErrors.enImageFile = "English image is required.";
   }
 
@@ -50,7 +52,7 @@ export const validateImages = (enFile, arFile) => {
     if (!arResult.success) {
       imageErrors.arImageFile = arResult.error.issues[0]?.message;
     }
-  } else {
+  } else if (!isEditMode) {
     imageErrors.arImageFile = "Arabic image is required.";
   }
 

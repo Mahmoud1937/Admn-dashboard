@@ -39,14 +39,8 @@ export const updateSlider = async (payload) => {
 
   formData.append("Id", String(payload.id));
   formData.append("ProviderId", String(payload.providerId));
-  formData.append(
-    "IsUpdatedImageEn",
-    String(payload.isUpdatedImageEn)
-  );
-  formData.append(
-    "IsUpdatedImageAr",
-    String(payload.isUpdatedImageAr)
-  );
+  formData.append("IsUpdatedImageEn",String(payload.isUpdatedImageEn));
+  formData.append( "IsUpdatedImageAr",String(payload.isUpdatedImageAr));
 
   if (payload.isUpdatedImageEn && payload.enImageFile) {
     formData.append("EnImage", payload.enImageFile);
@@ -56,8 +50,11 @@ export const updateSlider = async (payload) => {
     formData.append("ArImage", payload.arImageFile);
   }
 
-  const { data } = await axiosInstance.put(BASE_URL, formData);
-
+const { data } = await axiosInstance.put(BASE_URL, formData, {
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+});
   return data.data;
 };
 // DELETE /api/SliderAdmin/{id}

@@ -40,6 +40,7 @@ const SliderFormModal = ({
   useEffect(() => {
     if (!isOpen) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEnImageFile(null);
     setArImageFile(null);
     setImageErrors(null);

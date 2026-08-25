@@ -13,6 +13,7 @@ const SlidersFilters = ({ search, onSearchChange, totalCount }) => {
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
+         
           placeholder="Search by provider name..."
           className="w-full pl-9 pr-3 py-2 rounded-md border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
