@@ -163,17 +163,14 @@ function BranchPopupCard({ p }) {
           ) : null}
         </div>
         <div className="min-w-0">
-          <div className="flex items-center justify-end gap-2">
-            <p className="truncate text-sm font-bold text-gray-900">
-              {p.nameAr}
-            </p>
-
-            {p.nameEn && (
-              <p className="truncate text-xs text-gray-500">
-                {p.nameEn}
-              </p>
-            )}
-          </div>
+<div className="flex flex-col text-start">
+  <span className="text-base font-semibold text-gray-900 leading-tight">
+    elsalam hospital
+  </span>
+  <span className="text-sm text-gray-500 leading-tight" >
+    مستشفى السلام
+  </span>
+</div>
           <div className="mt-1 flex flex-col items-center gap-1">
             <span
               className="inline-flex justify-center rounded-full px-2 py-0.5 text-[11px] font-semibold"

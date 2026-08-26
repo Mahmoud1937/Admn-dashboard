@@ -34,33 +34,35 @@ export default function MapFilters({
 
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <select
-        value={governorateId ?? ""}
-        onChange={(e) => onGovernorateChange(e.target.value || null)}
-        className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
-      >
-        <option value="">All Governorates</option>
-        {dedupedGovernorates.map((gov) => (
-          <option key={gov.id} value={gov.id}>
-            {gov.nameEn}
-          </option>
-        ))}
-      </select>
+<div className="flex flex-wrap items-center gap-3">
+  <select
+    value={governorateId ?? ""}
+    onChange={(e) => onGovernorateChange(e.target.value || null)}
+    className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400 focus:bg-white"
+  >
+    <option value="">All Governorates</option>
 
-      <div className="relative flex-1 min-w-[220px]">
-        <FontAwesomeIcon
-          icon={faSearch}
-          className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400"
-        />
-        <input
-          type="text"
-          value={localSearch}
-          onChange={(e) => setLocalSearch(e.target.value)}
-          placeholder="Search by name or address..."
-          className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-        />
-      </div>
-    </div>
+    {dedupedGovernorates.map((gov) => (
+      <option key={gov.id} value={gov.id}>
+        {gov.nameEn}
+      </option>
+    ))}
+  </select>
+
+  <div className="relative flex-1 min-w-[350px]">
+    <FontAwesomeIcon
+      icon={faSearch}
+      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+    />
+
+    <input
+      type="text"
+      value={localSearch}
+      onChange={(e) => setLocalSearch(e.target.value)}
+      placeholder="Search by Provider name or Branch address..."
+      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
+    />
+  </div>
+</div>
   );
 }

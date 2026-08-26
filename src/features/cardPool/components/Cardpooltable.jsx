@@ -14,11 +14,11 @@ const CardPoolTable = ({ items, isLoading, onExport, exportingId, onDelete }) =>
   }
 
   return (
-    <div className="overflow-x-auto min-w-0 border border-gray-200 rounded-lg scroll-table">
+    <div className="overflow-x-auto min-w-0 border border-gray-200 rounded-lg scroll-table ">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50 sticky top-0 z-10">
           <tr>
-            <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">ID</th>
+    
             <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">From</th>
             <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">To</th>
             <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Total Cards</th>
@@ -37,7 +37,7 @@ const CardPoolTable = ({ items, isLoading, onExport, exportingId, onDelete }) =>
         <tbody className="divide-y divide-gray-100 bg-white">
           {items.map((pool) => (
             <tr key={pool.id} className="hover:bg-gray-50">
-              <td className="px-4 py-3 text-sm text-center text-gray-700">{pool.id}</td>
+       
               <td className="px-4 py-3 text-sm text-center text-gray-700 font-mono">{pool.from}</td>
               <td className="px-4 py-3 text-sm text-center text-gray-700 font-mono">{pool.to}</td>
               <td className="px-4 py-3 text-sm text-center text-gray-700">{pool.totalCards}</td>

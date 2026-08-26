@@ -20,7 +20,7 @@ export const useCardPoolMutations = ({ onCreateSuccess, onDeleteSuccess } = {}) 
       onCreateSuccess?.();
     },
     onError: (error) => {
-      handleMutationError(error, setServerErrors, toast);
+      handleMutationError(error, "Something went wrong. Please try again.", setServerErrors);
     },
   });
 
@@ -51,7 +51,7 @@ export const useCardPoolMutations = ({ onCreateSuccess, onDeleteSuccess } = {}) 
       onDeleteSuccess?.();
     },
     onError: (error) => {
-      handleMutationError(error, setServerErrors, toast);
+    handleMutationError(error, "Failed to delete card pool. Please try again.", setServerErrors);
     },
   });
 
