@@ -20,6 +20,7 @@ import TermsAndConditionsPage from "../features/termsAndConditions/pages/TermsAn
 import RefundPolicyPage from "../features/refundPolicy/pages/RefundPolicyPage";
 import PrivacyPolicyPage from "../features/privacyPolicy/pages/PrivacyPolicyPage";
 import ContactUsPage from "../features/contactUs/pages/ContactUsPage";
+import CardPoolPage from "../features/cardPool/pages/Cardpoolpage";
 
 
 
@@ -43,33 +44,33 @@ const router = createBrowserRouter([
       { path: "provider-map", element: <ProviderMapPage /> },
       { path: "/provider-category", element: <CategoriesPage /> },
       { path: "/service-category", element: <ServiceCategoriesPage /> },
-            {
+      {
         path: "terms-and-conditions",
-        element: <TermsAndConditionsPage/>,
+        element: <TermsAndConditionsPage />,
       },
       {
         path: "refund-policy",
-        element: <RefundPolicyPage/>,
+        element: <RefundPolicyPage />,
       },
       {
         path: "privacy-policy",
-        element: <PrivacyPolicyPage/>,
+        element: <PrivacyPolicyPage />,
       },
       {
         path: "contact-us",
-        element: <ContactUsPage/>,
+        element: <ContactUsPage />,
       },
       { path: "services", element: <ServicesPage title="Services" /> },
       { path: "medicines", element: <MedicinesPage title="Medicine" /> },
       { path: "card-activation", element: <PagePlaceholder title="Card Activation" /> },
       { path: "governorates", element: <GovernoratesPage /> },
-      { path: "cities", element: <CitiesPage/> },
-      { path: "card-pools", element: <PagePlaceholder title="Card Pools" /> },
+      { path: "cities", element: <CitiesPage /> },
+      // { path: "card-pools", element: <PagePlaceholder title="Card Pools" /> },
       { path: "speialist", element: <SpecialistsPage /> },
       { path: "support-tickets", element: <PagePlaceholder title="Support Tickets" /> },
       { path: "activity", element: <PagePlaceholder title="Activity" /> },
       { path: "offer-sliders", element: <SlidersPage title="Sliders" /> },
-
+      { path: "card-pools", element: <CardPoolPage /> },
       // View / Update Slider details (full-size images + edit)
       { path: "offer-sliders/:id", element: <SliderDetailsPage /> },
 

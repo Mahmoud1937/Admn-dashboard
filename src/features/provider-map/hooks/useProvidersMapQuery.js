@@ -4,6 +4,7 @@ import { getMapData } from "../services/ProviderMapService";
 import { hasValidEgyptCoords } from "../utils/Mapcoords";
 import { normalizeArabic } from "../utils/Arabictext";
 import { resolveGovernorateFromCoords } from "../utils/Resolvegovernorate";
+import { getAllGovernorateCenters } from "../utils/GovernorateCenters";
 
 // نفس مركز مصر المستخدم في الماب (ProviderClusterMap's EGYPT_CENTER)، عشان
 // الـ countryBubble تتحط في نفس النقطة اللي الماب بيرجع يتمركز عليها.
@@ -20,11 +21,10 @@ export const useProvidersMapQuery = ({ providerCategoryId, governorateId, search
   const rawProviders = data?.providers ?? [];
   const governorates = data?.governorates ?? [];
 
-  const selectedGovernorate = useMemo(
-    () => governorates.find((g) => String(g.id) === String(governorateId)) || null,
-    [governorates, governorateId]
-  );
-
+const selectedGovernorate = useMemo(() => {
+  if (!governorateId) return null;
+  return getAllGovernorateCenters().find((g) => g.isoCode === governorateId) || null;
+}, [governorateId])
   const { validProviders, invalidCount } = useMemo(() => {
     let invalid = 0;
     const valid = [];
@@ -114,20 +114,20 @@ export const useProvidersMapQuery = ({ providerCategoryId, governorateId, search
     }
 
     // resolve governorate center coords (أول سطر بيكسب لكل اسم normalized)
-    const govCenterByKey = new Map();
-    for (const g of governorates) {
-      if (!hasValidEgyptCoords(g.centerLat, g.centerLng)) continue;
-      const key = normalizeArabic(g.nameAr);
-      if (!govCenterByKey.has(key)) {
-        govCenterByKey.set(key, {
-          id: g.id,
-          nameAr: g.nameAr,
-          nameEn: g.nameEn,
-          centerLat: g.centerLat,
-          centerLng: g.centerLng,
-        });
-      }
-    }
+   const govCenterByKey = new Map();
+for (const g of getAllGovernorateCenters()) {
+  if (!hasValidEgyptCoords(g.centerLat, g.centerLng)) continue;
+  const key = normalizeArabic(g.nameAr);
+  if (!govCenterByKey.has(key)) {
+    govCenterByKey.set(key, {
+      id: g.isoCode,   
+      nameAr: g.nameAr,
+      nameEn: g.nameEn,
+      centerLat: g.centerLat,
+      centerLng: g.centerLng,
+    });
+  }
+}
 
     const bubbles = [];
     for (const [govKey, group] of byGov.entries()) {

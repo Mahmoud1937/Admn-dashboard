@@ -3,6 +3,7 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { normalizeArabic } from "../utils/Arabictext";
+import { getAllGovernorateCenters } from "../utils/GovernorateCenters";
 
 export default function MapFilters({
   governorates,
@@ -21,14 +22,16 @@ export default function MapFilters({
 
 
   const dedupedGovernorates = useMemo(() => {
+    const all = getAllGovernorateCenters();
     const seen = new Set();
-    return governorates.filter((g) => {
+    return all.filter((g) => {
       const key = normalizeArabic(g.nameAr);
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
     });
-  }, [governorates]);
+  }, []);
+
 
   return (
     <div className="flex flex-wrap items-center gap-3">

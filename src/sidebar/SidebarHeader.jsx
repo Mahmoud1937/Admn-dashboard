@@ -4,13 +4,13 @@ import { faBars } from "@fortawesome/free-solid-svg-icons";
 
 export default function SidebarHeader({ collapsed, setCollapsed }) {
   return (
-    <div className="flex items-center justify-between border-b border-slate-200 p-4">
+    <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
       {!collapsed && (
-        <div className="flex flex-1 justify-center p-3">
+        <div className="flex flex-1 justify-center">
           <img
             src={Logo}
             alt="Medicard Logo"
-            className="h-14 w-auto object-contain"
+            className="h-9 w-auto object-contain"
           />
         </div>
       )}
