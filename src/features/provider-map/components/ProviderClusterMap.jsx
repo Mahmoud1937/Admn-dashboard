@@ -163,14 +163,15 @@ function BranchPopupCard({ p }) {
           ) : null}
         </div>
         <div className="min-w-0">
-<div className="flex flex-col text-start">
-  <span className="text-base font-semibold text-gray-900 leading-tight">
-    elsalam hospital
-  </span>
-  <span className="text-sm text-gray-500 leading-tight" >
-    مستشفى السلام
-  </span>
-</div>
+          <div className="flex flex-col text-start">
+            <span className="text-base font-semibold text-gray-900 leading-tight">
+              {p.nameEn}
+            </span>
+            <span className="text-sm text-gray-500 leading-tight">
+              {p.nameAr}
+            </span>
+          </div>
+
           <div className="mt-1 flex flex-col items-center gap-1">
             <span
               className="inline-flex justify-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
@@ -495,10 +496,10 @@ export default function ProviderClusterMap({
 
   const showIndividualPins = zoom >= INDIVIDUAL_PIN_ZOOM || !!selectedGovernorate;
   const showCountryBubble = zoom < DEFAULT_ZOOM;
-const showGovernorateBubbles =
-  !showIndividualPins &&
-  !showCountryBubble &&
-  !selectedGovernorate;
+  const showGovernorateBubbles =
+    !showIndividualPins &&
+    !showCountryBubble &&
+    !selectedGovernorate;
 
   const handleZoomChange = useCallback((z) => setZoom(z), []);
 
@@ -572,7 +573,7 @@ const showGovernorateBubbles =
           <GovernorateBubbleLayer bubbles={governorateBubbles} onSelectGovernorate={onSelectGovernorate} />
         )}
 
-          {showIndividualPins && (
+        {showIndividualPins && (
           <ClusterClickFlyer
             chunkedLoading
             maxClusterRadius={40}
