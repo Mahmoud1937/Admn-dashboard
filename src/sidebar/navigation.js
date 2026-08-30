@@ -1,5 +1,4 @@
 import {
-  faGaugeHigh,
   faHospital,
   faUsers,
   faMapLocationDot,
@@ -9,10 +8,7 @@ import {
   faCreditCard,
   faMap,
   faCity,
-  // faHeadset,
-  // faChartLine,
   faImages,
-  // faClipboardList,
   faUserDoctor,
   faFileContract,
   faUndo,
@@ -22,40 +18,33 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 export const navigation = [
-  // {
-  //   title: "Dashboard",
-  //   path: "/",
-  //   icon: faGaugeHigh,
-  // },
-
   {
     title: "Providers",
     path: "/providers",
     icon: faHospital,
+    children: [
+      {
+        title: "Provider Category",
+        path: "/provider-category",
+        icon: faLayerGroup,
+      },
+      {
+        title: "Service Category",
+        path: "/service-category",
+        icon: faLayerGroup,
+      },
+      {
+        title: "Provider Map",
+        path: "/provider-map",
+        icon: faMapLocationDot,
+      },
+    ],
   },
 
   {
     title: "Clients",
     path: "/clients",
     icon: faUsers,
-  },
-
-  {
-    title: "Provider Map",
-    path: "/provider-map",
-    icon: faMapLocationDot,
-  },
-
-  {
-    title: "Provider Category",
-    path: "/provider-category",
-    icon: faLayerGroup,
-  },
-
-  {
-    title: "Service Category",
-    path: "/service-category",
-    icon: faLayerGroup,
   },
 
   {
@@ -127,22 +116,4 @@ export const navigation = [
     path: "/contact-us",
     icon: faAddressBook,
   },
-
-  // {
-  //   title: "Support Tickets",
-  //   path: "/support-tickets",
-  //   icon: faHeadset,
-  // },
-
-  // {
-  //   title: "Activity",
-  //   path: "/activity",
-  //   icon: faChartLine,
-  // },
-
-  // {
-  //   title: "Plan Types",
-  //   path: "/plan-types",
-  //   icon: faClipboardList,
-  // },
 ];

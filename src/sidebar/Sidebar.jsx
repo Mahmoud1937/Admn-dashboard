@@ -1,5 +1,6 @@
 import SidebarHeader from "./SidebarHeader";
 import SidebarItem from "./SidebarItem";
+import SidebarGroup from "./SidebarGroup";
 import { navigation } from "./navigation";
 
 export default function Sidebar({ collapsed, setCollapsed }) {
@@ -12,9 +13,18 @@ export default function Sidebar({ collapsed, setCollapsed }) {
       <SidebarHeader collapsed={collapsed} setCollapsed={setCollapsed} />
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-        {navigation.map((item) => (
-          <SidebarItem key={item.path} {...item} collapsed={collapsed} />
-        ))}
+        {navigation.map((item) =>
+          item.children ? (
+            <SidebarGroup
+              key={item.path}
+              {...item}
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+            />
+          ) : (
+            <SidebarItem key={item.path} {...item} collapsed={collapsed} />
+          )
+        )}
       </nav>
     </aside>
   );

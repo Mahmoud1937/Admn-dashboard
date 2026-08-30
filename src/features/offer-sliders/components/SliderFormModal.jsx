@@ -188,7 +188,7 @@ const SliderFormModal = ({
               />
 
               {imageErrors?.enImageFile && (
-                <p className="text-xs text-red-500">
+                <p className="text-xs text-red-500 text-center">
                   {imageErrors.enImageFile}
                 </p>
               )}
@@ -220,7 +220,7 @@ const SliderFormModal = ({
               />
 
               {imageErrors?.arImageFile && (
-                <p className="text-xs text-red-500">
+                <p className="text-xs text-red-500 text-center">
                   {imageErrors.arImageFile}
                 </p>
               )}

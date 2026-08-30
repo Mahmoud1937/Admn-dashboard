@@ -183,20 +183,20 @@ const SlidersTable = ({
                                     </div>
                                 </td>
 
-                              <td className="px-4 py-3 text-center align-middle">
-  <div className="flex flex-col items-center justify-center leading-tight">
-    <p className="font-medium text-gray-900">
-      {slider.providerNameEn}
-    </p>
+                                <td className="px-4 py-3 text-center align-middle">
+                                    <div className="flex flex-col items-center justify-center leading-tight">
+                                        <p className="font-medium text-gray-900">
+                                            {slider.providerNameEn}
+                                        </p>
 
-    <p
-      className="mt-0.5 text-xs text-gray-400"
-      style={{ unicodeBidi: "plaintext" }}
-    >
-      {slider.providerNameAr}
-    </p>
-  </div>
-</td>
+                                        <p
+                                            className="mt-0.5 text-xs text-gray-400"
+                                            style={{ unicodeBidi: "plaintext" }}
+                                        >
+                                            {slider.providerNameAr}
+                                        </p>
+                                    </div>
+                                </td>
 
                                 <td className="px-4 py-3">
                                     <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
