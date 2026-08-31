@@ -24,8 +24,6 @@ function ProviderLogoUpload({
     const files = e.dataTransfer.files;
     if (!files?.[0]) return;
 
-    // نبعتها بنفس شكل الـ event اللي بيبعته الـ <input onChange>
-    // عشان handleImageChange في الفورم يشتغل زي ما هو من غير أي تعديل
     onImageChange({ target: { files } });
   };
 
@@ -48,8 +46,6 @@ function ProviderLogoUpload({
   };
 
   const handleDragOver = (e) => {
-    // لازم عشان المتصفح يسمح بالـ drop، من غيرها الـ drop بيتلغي
-    // والملف بيتفتح في تاب جديد بدل ما يتحمل
     e.preventDefault();
     e.stopPropagation();
   };
