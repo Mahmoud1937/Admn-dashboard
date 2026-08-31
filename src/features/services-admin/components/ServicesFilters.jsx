@@ -2,13 +2,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import CategorySelect from "./CategorySelect";
 
-
 export default function ServicesFilters({
   search,
   onSearchChange,
   categoryFilter,
   onCategoryFilterChange,
-  categories,
 }) {
   return (
     <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row">
@@ -25,13 +23,12 @@ export default function ServicesFilters({
           className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
         />
       </div>
-<CategorySelect
-  categories={categories}
-  value={categoryFilter}
-  onChange={onCategoryFilterChange}   // ✅ ابعتها زي ما هي، من غير wrapper
-  placeholder="All Categories"
-  className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:bg-white sm:w-56"
-/>
+
+      <CategorySelect
+        value={categoryFilter}
+        onChange={onCategoryFilterChange}
+        placeholder="All Categories"
+      />
     </div>
   );
 }

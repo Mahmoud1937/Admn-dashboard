@@ -9,7 +9,6 @@ export default function CitiesFilters({
   onGovernorateFilterChange,
   statusFilter,
   onStatusFilterChange,
-  governorates,
 }) {
   return (
     <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row">
@@ -28,7 +27,6 @@ export default function CitiesFilters({
       </div>
 
       <GovernorateSelect
-        governorates={governorates}
         value={governorateFilter}
         onChange={onGovernorateFilterChange}
         placeholder="All Governorates"

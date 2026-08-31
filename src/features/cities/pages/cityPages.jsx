@@ -1,21 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
-import {useGovernoratesLookup} from "../hooks/useGovernoratesLookup"
-import {useCitiesQuery} from "../hooks/useCitiesQuery"
-import {useCityMutations} from "../hooks/useCityMutations"
-import CitiesFilters from "../components/CitiesFilters"
+
+import { useCitiesQuery } from "../hooks/useCitiesQuery";
+import { useCityMutations } from "../hooks/useCityMutations";
+import CitiesFilters from "../components/CitiesFilters";
 import CitiesTable from "../components/CitiesTable";
 import Pagination from "../../../shared/components/Pagination";
 import CityFormModal from "../components/CityFormModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+
 export default function CitiesPage() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 400);
   const [governorateFilter, setGovernorateFilter] = useState("");
-
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCity, setEditingCity] = useState(null);
@@ -30,8 +30,6 @@ export default function CitiesPage() {
     getPageNumbers,
   } = useServerPagination({ resetKey: `${debouncedSearch}-${governorateFilter}` });
 
-  const { governorates } = useGovernoratesLookup ();
-
   const {
     cities,
     totalCount,
@@ -41,9 +39,12 @@ export default function CitiesPage() {
     isError,
     error,
     isPlaceholderData,
-  } = useCitiesQuery ({ pageNumber, pageSize, search: debouncedSearch, governorateFilter });
+  } = useCitiesQuery({ pageNumber, pageSize, search: debouncedSearch, governorateFilter });
 
-  lockPageSize(serverPageSize);
+  useEffect(() => {
+    lockPageSize(serverPageSize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverPageSize]);
 
   const closeForm = () => {
     setIsFormOpen(false);
@@ -115,7 +116,6 @@ export default function CitiesPage() {
           onSearchChange={setSearch}
           governorateFilter={governorateFilter}
           onGovernorateFilterChange={setGovernorateFilter}
-          governorates={governorates}
         />
 
         {isLoading && (
@@ -156,7 +156,6 @@ export default function CitiesPage() {
       <CityFormModal
         isOpen={isFormOpen}
         city={editingCity}
-        governorates={governorates}
         onSave={handleSave}
         onClose={closeForm}
         isSaving={isSaving}

@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import Pagination from "../../../shared/components/Pagination";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
-import { useServiceCategoriesLookup } from "../hooks/useServiceCategoriesLookup";
 import { useServicesQuery } from "../hooks/UseServicesQuery";
 import { useServiceMutations } from "../hooks/UseServiceMutations";
 import ServiceFormModal from "../components/ServiceFormModal";
@@ -27,8 +26,6 @@ export default function ServicesPage() {
     getPageNumbers,
   } = useServerPagination({ resetKey: `${search}-${categoryFilter}` });
 
-  const { categories } = useServiceCategoriesLookup();
-
   const {
     services,
     totalCount,
@@ -40,14 +37,16 @@ export default function ServicesPage() {
     isPlaceholderData,
   } = useServicesQuery({ pageNumber, pageSize, search, categoryFilter });
 
-  lockPageSize(serverPageSize);
+  useEffect(() => {
+    lockPageSize(serverPageSize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverPageSize]);
 
   const closeForm = () => {
     setIsFormOpen(false);
     setEditingService(null);
     clearServerErrors();
   };
-
 
   const { createMutation, updateMutation, deleteMutation, isSaving, serverErrors, clearServerErrors } =
     useServiceMutations({
@@ -107,7 +106,6 @@ export default function ServicesPage() {
           onSearchChange={setSearch}
           categoryFilter={categoryFilter}
           onCategoryFilterChange={setCategoryFilter}
-          categories={categories}
         />
 
         {isLoading && (
@@ -148,7 +146,6 @@ export default function ServicesPage() {
       <ServiceFormModal
         isOpen={isFormOpen}
         service={editingService}
-        categories={categories}
         onSave={handleSave}
         onClose={closeForm}
         isSaving={isSaving}

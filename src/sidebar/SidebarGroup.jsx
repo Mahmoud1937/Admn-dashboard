@@ -1,32 +1,38 @@
 import { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
 export default function SidebarGroup({ title, path, icon, children, collapsed }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const isChildActive = children.some((child) =>
     location.pathname.startsWith(child.path)
   );
+  const isParentActive = location.pathname === path;
+  const isActive = isParentActive || isChildActive;
   const [open, setOpen] = useState(isChildActive);
 
   useEffect(() => {
     if (isChildActive) setOpen(true);
   }, [isChildActive]);
 
-  // In collapsed mode (icons only), clicking the parent icon reveals the
-  // children as icon-only rows stacked underneath it - sidebar width
-  // itself never changes
+  // In collapsed mode (icons only), clicking the parent icon both navigates
+  // to the parent route and reveals the children as icon-only rows stacked
+  // underneath it - sidebar width itself never changes
   if (collapsed) {
     return (
       <div>
         <button
           type="button"
-          onClick={() => setOpen((prev) => !prev)}
+          onClick={() => {
+            navigate(path);
+            setOpen((prev) => !prev);
+          }}
           title={title}
           className={`flex w-full cursor-pointer items-center justify-center rounded-xl px-4 py-3 text-sm font-medium transition-all
           ${
-            isChildActive
+            isActive
               ? "bg-primary-600/10 text-primary-600"
               : "text-muted hover:bg-slate-50 hover:text-heading"
           }`}
@@ -64,7 +70,7 @@ export default function SidebarGroup({ title, path, icon, children, collapsed })
       <div
         className={`flex items-center rounded-xl text-sm font-medium transition-all
         ${
-          isChildActive
+          isActive
             ? "bg-primary-600/10 text-primary-600"
             : "text-muted hover:bg-slate-50 hover:text-heading"
         }`}
@@ -72,7 +78,6 @@ export default function SidebarGroup({ title, path, icon, children, collapsed })
         <NavLink
           to={path}
           end
-          onClick={() => setOpen((prev) => !prev)}
           className="flex flex-1 cursor-pointer items-center gap-3 px-4 py-3"
         >
           <FontAwesomeIcon icon={icon} className="w-5 shrink-0" />

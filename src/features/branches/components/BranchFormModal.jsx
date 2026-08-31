@@ -97,7 +97,7 @@ export default function BranchFormModal({
       title={isEditMode ? "Edit Branch" : "Add Branch"}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
-      className="max-w-3xl"
+      className="max-w-4xl"
       formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
     >
       <TextField
@@ -110,7 +110,7 @@ export default function BranchFormModal({
         <p className="-mt-3 mb-3 text-xs text-red-500">{errors.branchName.message}</p>
       )}
 
-      <div className="mb-1 grid grid-cols-2 gap-3 ">
+   <div className="mb-1 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Governorate <span className="text-red-500">*</span>
@@ -125,7 +125,7 @@ export default function BranchFormModal({
                   field.onChange(value);
                   setValue("cityId", "");
                 }}
-                placeholder="Select governorate"
+                placeholder="Select Governorate"
                 error={errors.governorateId?.message}
               />
             )}

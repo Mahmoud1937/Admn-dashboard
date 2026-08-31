@@ -219,18 +219,19 @@ export default function ProviderInfoForm({
             Category <span className="text-red-500">*</span>
           </label>
 
-          <Controller
-            name="providerCategoryId"
-            control={control}
-            render={({ field }) => (
-              <ProviderCategorySelect
-                value={field.value}
-                onChange={field.onChange}
-                disabled={!canEdit}
-                error={errors.providerCategoryId?.message}
-              />
-            )}
-          />
+<Controller
+  name="providerCategoryId"
+  control={control}
+  render={({ field }) => (
+    <ProviderCategorySelect
+      value={field.value}
+      onChange={field.onChange}
+      disabled={!canEdit}
+      error={errors.providerCategoryId?.message}
+      className="w-full"
+    />
+  )}
+/>
         </div>
 
         <div>

@@ -1,16 +1,16 @@
 import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
 import { getCategories } from "../../categoreis/service/categoryService";
 
-
 export default function ProviderCategorySelect({
   value,
   onChange,
   placeholder = "All categories",
   error,
   disabled,
+  className = "w-full sm:w-72", // default kept exactly as before
 }) {
   return (
-    <div className="w-full sm:w-72">
+    <div className={className}>
       <SearchableAsyncSelect
         queryKey={["provider-categories"]}
         fetchItems={(pageNumber, pageSize, searchTerm) =>

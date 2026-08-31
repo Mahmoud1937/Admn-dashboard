@@ -11,7 +11,7 @@ import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 export default function CityFormModal({
   isOpen,
   city,
-  governorates,
+
   onSave,
   onClose,
   isSaving,
@@ -87,7 +87,7 @@ export default function CityFormModal({
           control={control}
           render={({ field }) => (
             <GovernorateSelect
-              governorates={governorates}
+           
               value={field.value}
               onChange={field.onChange}
               placeholder="Select governorate"

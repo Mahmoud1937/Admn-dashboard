@@ -29,11 +29,6 @@ export const navigation = [
         icon: faLayerGroup,
       },
       {
-        title: "Service Category",
-        path: "/service-category",
-        icon: faLayerGroup,
-      },
-      {
         title: "Provider Map",
         path: "/provider-map",
         icon: faMapLocationDot,
@@ -42,15 +37,22 @@ export const navigation = [
   },
 
   {
-    title: "Clients",
-    path: "/clients",
-    icon: faUsers,
+    title: "Service Category",
+    path: "/service-category",
+    icon: faLayerGroup,
+    children: [
+      {
+        title: "Services",
+        path: "/services",
+        icon: faStethoscope,
+      },
+    ],
   },
 
   {
-    title: "Services",
-    path: "/services",
-    icon: faStethoscope,
+    title: "Clients",
+    path: "/clients",
+    icon: faUsers,
   },
 
   {

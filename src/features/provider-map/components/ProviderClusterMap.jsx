@@ -245,19 +245,6 @@ function SizeFixer() {
   return null;
 }
 
-// Flies the map to the selected governorate (or back to the Egypt-wide view
-// when cleared) so picking a governorate is visibly reflected on the map,
-// even before the filtered results finish rendering.
-//
-// IMPORTANT: the "clear" branch only flies back to EGYPT_CENTER if the map
-// is currently zoomed in PAST DEFAULT_ZOOM. Without this check, whenever
-// `selectedGovernorate` became null — including when ClearSelectionOnZoomOut
-// cleared it because the user had manually zoomed out on their own — this
-// effect would force the camera to re-center on Egypt, yanking the map back
-// even though the user was already zoomed out and possibly panned somewhere
-// else on purpose. Only recenter when the clear happens while still zoomed
-// in (e.g. user cleared the governorate dropdown while inside a
-// governorate's individual-pins view), where snapping back out makes sense.
 function FlyToGovernorate({ selectedGovernorate }) {
   const map = useMap();
   const isFirstRun = useRef(true);
@@ -394,11 +381,6 @@ function GovernorateBubble({ bubble, displayLatLng, onSelectGovernorate }) {
   );
 }
 
-// Single merged bubble shown once the user zooms out past Egypt itself —
-// at that point per-governorate bubbles would just be a cluttered handful
-// of tiny overlapping circles, so everything collapses into one. Clicking
-// it isn't a "select a governorate" action (there isn't one), it just
-// zooms back in to the normal country-wide, per-governorate view.
 function CountryBubble({ bubble }) {
   const map = useMap();
 

@@ -24,7 +24,7 @@ import TableEmptyState from "../../../shared/components/TableEmptyState";
 import StatusBadge from "../../providers/components/StatusBadge";
 
 import { formatDate } from "../../../utils/formatDate";
-import { useGovernoratesLookup } from "../../cities/hooks/useGovernoratesLookup";
+
 
 export default function ProviderBranchesTab() {
   const { id: providerId } = useParams();
@@ -40,7 +40,7 @@ export default function ProviderBranchesTab() {
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [branchToToggle, setBranchToToggle] = useState(null);
 
-  const { governorates } = useGovernoratesLookup();
+
 
   const {
     pageNumber,
@@ -289,7 +289,7 @@ export default function ProviderBranchesTab() {
         isOpen={isModalOpen}
         branch={selectedBranch}
         providerId={providerId}
-        governorates={governorates ?? []}
+ 
         createMutation={createMutation}
         updateMutation={updateMutation}
         onClose={() => setIsModalOpen(false)}
