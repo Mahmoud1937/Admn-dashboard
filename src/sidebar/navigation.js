@@ -15,6 +15,7 @@ import {
   faShieldHalved,
   faAddressBook,
   faIdCard,
+  faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 
 export const navigation = [
@@ -61,11 +62,7 @@ export const navigation = [
     icon: faPills,
   },
 
-  {
-    title: "Card Activation",
-    path: "/card-activation",
-    icon: faCreditCard,
-  },
+
 
   {
     title: "Offers Sliders",
@@ -95,6 +92,16 @@ export const navigation = [
     path: "/card-pools",
     icon: faIdCard,
   },
+  {
+    title: "Sold Card",
+    path: "/sold-card",
+    icon: faCreditCard,
+  },
+  {
+  title: "Missed Cards",
+  path: "/card-missed",
+  icon: faTriangleExclamation,
+},
   {
     title: "Terms & Conditions",
     path: "/terms-and-conditions",

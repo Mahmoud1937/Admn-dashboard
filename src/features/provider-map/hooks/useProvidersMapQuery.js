@@ -6,8 +6,7 @@ import { normalizeArabic } from "../utils/Arabictext";
 import { resolveGovernorateFromCoords } from "../utils/Resolvegovernorate";
 import { getAllGovernorateCenters } from "../utils/GovernorateCenters";
 
-// نفس مركز مصر المستخدم في الماب (ProviderClusterMap's EGYPT_CENTER)، عشان
-// الـ countryBubble تتحط في نفس النقطة اللي الماب بيرجع يتمركز عليها.
+
 const EGYPT_CENTER_LAT = 26.8;
 const EGYPT_CENTER_LNG = 30.8;
 

@@ -21,6 +21,9 @@ import RefundPolicyPage from "../features/refundPolicy/pages/RefundPolicyPage";
 import PrivacyPolicyPage from "../features/privacyPolicy/pages/PrivacyPolicyPage";
 import ContactUsPage from "../features/contactUs/pages/ContactUsPage";
 import CardPoolPage from "../features/cardPool/pages/Cardpoolpage";
+import CardSoldPage from "../features/sold-card/pages/CardSoldPage";
+import CardMissedPage from "../features/missedCard/pages/CardMissedPage";
+import CardActivationPage from "../features/cardActivtion/pages/CardActivationPage";
 
 
 
@@ -62,7 +65,7 @@ const router = createBrowserRouter([
       },
       { path: "services", element: <ServicesPage title="Services" /> },
       { path: "medicines", element: <MedicinesPage title="Medicine" /> },
-      { path: "card-activation", element: <PagePlaceholder title="Card Activation" /> },
+    { path: "card-activation", element: <CardActivationPage /> },
       { path: "governorates", element: <GovernoratesPage /> },
       { path: "cities", element: <CitiesPage /> },
       // { path: "card-pools", element: <PagePlaceholder title="Card Pools" /> },
@@ -71,6 +74,8 @@ const router = createBrowserRouter([
       { path: "activity", element: <PagePlaceholder title="Activity" /> },
       { path: "offer-sliders", element: <SlidersPage title="Sliders" /> },
       { path: "card-pools", element: <CardPoolPage /> },
+      { path: "sold-card", element: <CardSoldPage /> },
+      { path: "card-missed", element: <CardMissedPage /> },
       // View / Update Slider details (full-size images + edit)
       { path: "offer-sliders/:id", element: <SliderDetailsPage /> },
 

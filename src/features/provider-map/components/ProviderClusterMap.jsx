@@ -78,20 +78,35 @@ function createBubbleIcon(count, governorateName) {
   });
 }
 
+// Groups the branches inside a cluster by their provider (not just by Arabic
+// name, which can collide across different providers) and keeps both the
+// Arabic and English name so the tooltip can show both.
 function buildClusterIconHtml(count, color, size, providersInCluster) {
   const grouped = new Map();
   for (const p of providersInCluster) {
-    const key = p.nameAr;
-    grouped.set(key, (grouped.get(key) ?? 0) + 1);
+    const key = p.providerId ?? p.nameAr;
+    if (!grouped.has(key)) {
+      grouped.set(key, { nameAr: p.nameAr, nameEn: p.nameEn, count: 0 });
+    }
+    grouped.get(key).count += 1;
   }
-  const tooltipRows = Array.from(grouped.entries())
-    .map(([name, cnt]) => `<div style="display:flex;justify-content:space-between;gap:8px;padding:2px 0;"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</span><span style="flex-shrink:0;opacity:0.5;">${cnt}</span></div>`)
+  const tooltipRows = Array.from(grouped.values())
+    .map(
+      ({ nameAr, nameEn, count: groupCount }) => `
+      <div style="padding:3px 0;">
+        <div style="display:flex;justify-content:space-between;gap:8px;">
+          <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">${nameAr}</span>
+          <span style="flex-shrink:0;opacity:0.5;">${groupCount}</span>
+        </div>
+        ${nameEn ? `<div style="font-size:11px;color:#9ca3af;direction:ltr;text-align:right;">${nameEn}</div>` : ""}
+      </div>`
+    )
     .join("");
   const tooltipHtml = grouped.size > 0
     ? `<div class="cluster-tooltip" style="
         display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
         background:white;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.15);
-        padding:8px 12px;min-width:160px;max-width:220px;z-index:10000;
+        padding:8px 12px;min-width:170px;max-width:230px;z-index:10000;
         border:1px solid #e5e7eb;pointer-events:none;
         font-family:sans-serif;font-size:12px;color:#374151;
         direction:rtl;text-align:right;
@@ -370,7 +385,9 @@ function GovernorateBubble({ bubble, displayLatLng, onSelectGovernorate }) {
                 key={p.providerId}
                 className="flex items-center justify-between px-2 py-1 text-xs"
               >
-                <span className="truncate">{p.nameAr}</span>
+                <span className="truncate">
+                  {p.nameAr} <span className="text-gray-400">/ {p.nameEn}</span>
+                </span>
                 <span className="shrink-0 text-gray-400">{p.count}</span>
               </div>
             ))}
