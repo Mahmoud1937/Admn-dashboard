@@ -1,19 +1,29 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
+import CardSoldFilters, { emptyFilters } from "../components/CardSoldFilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useCardSoldQuery } from "../hooks/useCardSoldQuery";
 import { useCardSoldMutations } from "../hooks/useCardSoldMutations";
-import CardSoldFilters from "../components/CardSoldFilters";
+
+import CardSoldSearchBar from "../components/CardSoldSearchBar";
 import CardSoldTable from "../components/CardSoldTable";
 import Pagination from "../../../shared/components/Pagination";
 import CardSoldCreateModal from "../components/CardSoldCreateModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 export default function CardSoldPage() {
+  const countActiveSoldFilters = (filters) =>
+  Object.values(filters).filter((value) => value !== "" && value !== null && value !== undefined).length;
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 400);
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState(emptyFilters);
+  const [draftFilters, setDraftFilters] = useState(emptyFilters);
+  const filterPanelRef = useRef(null);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [soldToDelete, setSoldToDelete] = useState(null);
@@ -25,7 +35,22 @@ export default function CardSoldPage() {
     handlePageSizeChange,
     lockPageSize,
     getPageNumbers,
-  } = useServerPagination({ resetKey: debouncedSearch });
+  } = useServerPagination({
+    resetKey: `${debouncedSearch}-${JSON.stringify(filters)}`,
+  });
+
+  useEffect(() => {
+    if (!isFilterOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (filterPanelRef.current && !filterPanelRef.current.contains(e.target)) {
+        setIsFilterOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isFilterOpen]);
 
   const {
     cardSolds,
@@ -35,8 +60,15 @@ export default function CardSoldPage() {
     isLoading,
     isError,
     error,
+    refetch,
     isPlaceholderData,
-  } = useCardSoldQuery({ pageNumber, pageSize, searchTerm: debouncedSearch });
+  } = useCardSoldQuery({
+    pageNumber,
+    pageSize,
+    searchTerm: debouncedSearch,
+    fromDate: filters.fromDate,
+    toDate: filters.toDate,
+  });
 
   lockPageSize(serverPageSize);
 
@@ -59,6 +91,21 @@ export default function CardSoldPage() {
     onDeleteSuccess: () => setSoldToDelete(null),
   });
 
+  const openFilters = () => {
+    setDraftFilters(filters);
+    setIsFilterOpen(true);
+  };
+
+  const applyFilters = () => {
+    setFilters(draftFilters);
+    setIsFilterOpen(false);
+  };
+
+  const clearFilters = () => {
+    setFilters(emptyFilters);
+    setDraftFilters(emptyFilters);
+  };
+
   const openAddForm = () => setIsFormOpen(true);
 
   const handleSave = ({ type, payload }) => {
@@ -75,7 +122,7 @@ export default function CardSoldPage() {
     }
   };
 
-  const hasActiveFilters = !!search;
+  const hasActiveFilters = !!search || countActiveSoldFilters(filters) > 0;
 
   return (
     <div>
@@ -97,16 +144,36 @@ export default function CardSoldPage() {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white">
-        <CardSoldFilters searchTerm={search} onSearchChange={setSearch} />
+        <div className="relative">
+          <CardSoldSearchBar
+            value={search}
+            onChange={setSearch}
+            onFilterClick={openFilters}
+            activeFilterCount={countActiveSoldFilters(filters)}
+          />
+
+          {isFilterOpen && (
+            <CardSoldFilters
+              draft={draftFilters}
+              onChange={setDraftFilters}
+              onApply={applyFilters}
+              onClear={clearFilters}
+              onClose={() => setIsFilterOpen(false)}
+              panelRef={filterPanelRef}
+            />
+          )}
+        </div>
 
         {isLoading && (
           <p className="p-8 text-center text-sm text-slate-400">Loading sold cards...</p>
         )}
 
         {isError && (
-          <p className="p-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load sold cards."}
-          </p>
+<QueryErrorState
+  title="Unable to load sold card"
+  error={error}
+  onRetry={refetch}
+/>
         )}
 
         {!isLoading && !isError && (
@@ -141,6 +208,7 @@ export default function CardSoldPage() {
         onSave={handleSave}
         isSaving={isSaving}
         serverErrors={serverErrors}
+        clearServerErrors={clearServerErrors}
       />
 
       <ConfirmDeleteModal

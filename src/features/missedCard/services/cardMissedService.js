@@ -1,17 +1,27 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
 
 const BASE_URL = "/CardMissedAdmin";
-
-// GET /api/CardMissedAdmin?SearchTerm=&PageNumber=&PageSize=
-export const getCardMisseds = async ({ searchTerm, pageNumber, pageSize }) => {
+//https://medicard-api-v2.medicardeg.com/api/CardMissedAdmin
+// GET /api/CardMissedAdmin?CardPoolId=&SearchTerm=&PageNumber=&PageSize=
+export const getCardMisseds = async ({
+  cardPoolId,
+  searchTerm,
+  fromDate,
+  toDate,
+  pageNumber,
+  pageSize,
+}) => {
   const response = await axiosInstance.get(BASE_URL, {
     params: {
+      CardPoolId: cardPoolId || undefined,
       SearchTerm: searchTerm || undefined,
+      FromDate: fromDate || undefined,
+      ToDate: toDate || undefined,
       PageNumber: pageNumber,
       PageSize: pageSize,
     },
   });
-  return response.data.data; // { items, pageNumber, pageSize, totalCount, totalPages }
+  return response.data.data;
 };
 
 // POST /api/CardMissedAdmin  { cardNumber, missingType }

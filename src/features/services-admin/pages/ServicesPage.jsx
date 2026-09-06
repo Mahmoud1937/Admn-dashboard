@@ -9,6 +9,7 @@ import { useServiceMutations } from "../hooks/UseServiceMutations";
 import ServiceFormModal from "../components/ServiceFormModal";
 import ServicesFilters from "../components/ServicesFilters";
 import ServicesTable from "../components/ServicesTable";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 export default function ServicesPage() {
   const [search, setSearch] = useState("");
@@ -35,6 +36,7 @@ export default function ServicesPage() {
     isError,
     error,
     isPlaceholderData,
+    refetch
   } = useServicesQuery({ pageNumber, pageSize, search, categoryFilter });
 
   useEffect(() => {
@@ -113,9 +115,11 @@ export default function ServicesPage() {
         )}
 
         {isError && (
-          <p className="p-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load services."}
-          </p>
+<QueryErrorState
+  title="Unable to load services"
+  error={error}
+  onRetry={refetch}
+/>
         )}
 
         {!isLoading && !isError && (

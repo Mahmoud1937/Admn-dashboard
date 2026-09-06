@@ -1,24 +1,62 @@
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const CardSoldFilters = ({ searchTerm, onSearchChange }) => {
+export const emptyFilters = { fromDate: "", toDate: "" };
+
+export default function CardSoldFilters({ draft, onChange, onApply, onClear, onClose, panelRef }) {
+  const setField = (field, value) => onChange({ ...draft, [field]: value });
+
   return (
-    <div className="border-b border-slate-200 p-4">
-      <div className="relative">
-        <FontAwesomeIcon
-          icon={faSearch}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-        />
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search sold cards..."
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
-        />
+    <div
+      ref={panelRef}
+      className="absolute right-4 top-full z-20 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-4 shadow-lg"
+    >
+      <div className="mb-3 flex items-center justify-between">
+        <h4 className="text-sm font-semibold text-slate-900">Filters</h4>
+        <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <FontAwesomeIcon icon={faXmark} />
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-500">From Date</label>
+          <input
+            type="date"
+            value={draft.fromDate || ""}
+            onChange={(e) => setField("fromDate", e.target.value)}
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-500">To Date</label>
+          <input
+            type="date"
+            value={draft.toDate || ""}
+            min={draft.fromDate || undefined}
+            onChange={(e) => setField("toDate", e.target.value)}
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400"
+          />
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={onClear}
+          className="text-sm font-medium text-slate-500 hover:text-slate-700"
+        >
+          Clear
+        </button>
+        <button
+          type="button"
+          onClick={onApply}
+          className="rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
+        >
+          Apply
+        </button>
       </div>
     </div>
   );
-};
-
-export default CardSoldFilters;
+}

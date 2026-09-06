@@ -24,6 +24,7 @@ import TableEmptyState from "../../../shared/components/TableEmptyState";
 import StatusBadge from "../../providers/components/StatusBadge";
 
 import { formatDate } from "../../../utils/formatDate";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 
 export default function ProviderBranchesTab() {
@@ -61,6 +62,7 @@ export default function ProviderBranchesTab() {
     isLoading,
     isError,
     error,
+    refetch
   } = useBranchesQuery({
     providerId,
     pageNumber,
@@ -143,11 +145,15 @@ export default function ProviderBranchesTab() {
           <p className="py-8 text-center text-sm text-slate-400">
             Loading branches...
           </p>
-        ) : isError ? (
-          <p className="py-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load branches."}
-          </p>
-        ) : branches.length === 0 ? (
+        ) : 
+        
+isError ? (
+  <QueryErrorState
+    title="Unable to load branches"
+    error={error}
+    onRetry={refetch}
+  />
+) : branches.length === 0 ? (
           <TableEmptyState
             icon={faBuilding}
             title="No branches found"

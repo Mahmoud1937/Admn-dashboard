@@ -8,6 +8,7 @@ import GovernoratesTable from "../components/GovernoratesTable";
 import Pagination from "../../../shared/components/Pagination";
 import GovernorateFormModal from "../components/GovernorateFormModel";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 
 export default function GovernoratesPage() {
@@ -35,6 +36,7 @@ export default function GovernoratesPage() {
     isError,
     error,
     isPlaceholderData,
+    refetch
   } = useGovernoratesQuery({ pageNumber, pageSize, search });
 
   lockPageSize(serverPageSize);
@@ -126,11 +128,13 @@ export default function GovernoratesPage() {
           </p>
         )}
 
-        {isError && (
-          <p className="p-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load governorates."}
-          </p>
-        )}
+{isError && (
+  <QueryErrorState
+    title="Unable to load governorates"
+    error={error}
+    onRetry={refetch}
+  />
+)}
 
         {!isLoading && !isError && (
           <div className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>

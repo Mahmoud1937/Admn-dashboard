@@ -24,6 +24,11 @@ import CardPoolPage from "../features/cardPool/pages/Cardpoolpage";
 import CardSoldPage from "../features/sold-card/pages/CardSoldPage";
 import CardMissedPage from "../features/missedCard/pages/CardMissedPage";
 import CardActivationPage from "../features/cardActivtion/pages/CardActivationPage";
+import SoldCardsByPoolPage from "../features/cardPool/pages/SoldCardsByPoolPage";
+import ClientsPage from "../features/clients/pages/ClientsPage";
+import ClientDetailsPage from "../features/clients/pages/ClientDetailsPage";
+
+
 
 
 
@@ -43,7 +48,11 @@ const router = createBrowserRouter([
       // Edit / View Provider
       { path: "providers/:id", element: <ProviderDetailsPage /> },
 
-      { path: "clients", element: <PagePlaceholder title="Clients" /> },
+      { path: "clients", element: <ClientsPage title="Clients" /> },
+
+      // View Client Details
+      { path: "clients/:clientId", element: <ClientDetailsPage/> },
+
       { path: "provider-map", element: <ProviderMapPage /> },
       { path: "/provider-category", element: <CategoriesPage /> },
       { path: "/service-category", element: <ServiceCategoriesPage /> },
@@ -74,6 +83,7 @@ const router = createBrowserRouter([
       { path: "activity", element: <PagePlaceholder title="Activity" /> },
       { path: "offer-sliders", element: <SlidersPage title="Sliders" /> },
       { path: "card-pools", element: <CardPoolPage /> },
+      { path:"/card-pool/sold-cards", element:<SoldCardsByPoolPage />},
       { path: "sold-card", element: <CardSoldPage /> },
       { path: "card-missed", element: <CardMissedPage /> },
       // View / Update Slider details (full-size images + edit)

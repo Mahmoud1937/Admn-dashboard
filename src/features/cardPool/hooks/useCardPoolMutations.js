@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 import { createCardPool, deleteCardPool, exportCardPool } from "../services/cardPoolService";
 import { handleMutationError } from "../../../shared/utils/handleMutationError";
 
-
 export const useCardPoolMutations = ({ onCreateSuccess, onDeleteSuccess } = {}) => {
   const queryClient = useQueryClient();
   const [serverErrors, setServerErrors] = useState(null);
@@ -51,7 +50,7 @@ export const useCardPoolMutations = ({ onCreateSuccess, onDeleteSuccess } = {}) 
       onDeleteSuccess?.();
     },
     onError: (error) => {
-    handleMutationError(error, "Failed to delete card pool. Please try again.", setServerErrors);
+      handleMutationError(error, "Failed to delete card pool. Please try again.", setServerErrors);
     },
   });
 

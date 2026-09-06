@@ -2,14 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useSliderMutations } from "../hooks/useSliderMutations";
 import { useSlidersQuery } from "../hooks/useSlidersQuery";
+
 import SlidersFilters from "../components/SlidersFilters";
 import SlidersTable from "../components/SlidersTable";
+
 import Pagination from "../../../shared/components/Pagination";
 import SliderFormModal from "../components/SliderFormModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 const SlidersPage = () => {
   const navigate = useNavigate();
@@ -28,7 +32,13 @@ const SlidersPage = () => {
     getPageNumbers,
   } = useServerPagination({ resetKey: search });
 
-  const { data, isLoading } = useSlidersQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useSlidersQuery({
     pageNumber,
     pageSize,
     search,
@@ -46,17 +56,20 @@ const SlidersPage = () => {
 
   const handleOpenAdd = () => {
     setSliderToEdit(null);
+    clearServerErrors();
     setIsFormOpen(true);
   };
 
   const handleOpenEdit = (slider) => {
     setSliderToEdit(slider);
+    clearServerErrors();
     setIsFormOpen(true);
   };
 
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setSliderToEdit(null);
+    clearServerErrors();
   };
 
   const handleView = (slider) => {
@@ -84,14 +97,15 @@ const SlidersPage = () => {
   };
 
   return (
-    <div className="p-4 space-y-6 sm:p-6">
+    <div className="space-y-6 p-4 sm:p-6">
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
             Sliders
           </h1>
 
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="mt-1 text-sm text-gray-500">
             Manage homepage banner sliders in both languages.
           </p>
         </div>
@@ -99,15 +113,17 @@ const SlidersPage = () => {
         <button
           type="button"
           onClick={handleOpenAdd}
-          className="inline-flex items-center justify-center gap-2 bg-blue-900 hover:bg-blue-800 text-white text-xs font-medium px-3 py-2 rounded-md sm:text-sm sm:px-4 sm:py-2.5"
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
         >
           <FontAwesomeIcon icon={faPlus} />
           Add Slider
         </button>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
-        <div className="p-4 border-b border-gray-100">
+      {/* Sliders Card */}
+      <div className="overflow-hidden rounded-lg border border-gray-100 bg-white">
+        {/* Filters */}
+        <div className="border-b border-gray-100 p-4">
           <SlidersFilters
             search={search}
             onSearchChange={setSearch}
@@ -115,16 +131,26 @@ const SlidersPage = () => {
           />
         </div>
 
-        <SlidersTable
-          sliders={data?.items ?? []}
-          isLoading={isLoading}
-          onView={handleView}
-          onEdit={handleOpenEdit}
-          onDelete={setSliderToDelete}
-        />
+        {/* Table / Error */}
+        {isError ? (
+          <QueryErrorState
+            title="Unable to load sliders"
+            error={error}
+            onRetry={refetch}
+          />
+        ) : (
+          <SlidersTable
+            sliders={data?.items ?? []}
+            isLoading={isLoading}
+            onView={handleView}
+            onEdit={handleOpenEdit}
+            onDelete={setSliderToDelete}
+          />
+        )}
 
-        {(data?.totalPages ?? 0) > 1 && (
-          <div className="p-4 border-t border-gray-100">
+        {/* Pagination */}
+        {!isError && (data?.totalPages ?? 0) > 1 && (
+          <div className="border-t border-gray-100 p-4">
             <Pagination
               pageNumber={pageNumber}
               totalPages={data.totalPages}
@@ -141,6 +167,7 @@ const SlidersPage = () => {
         )}
       </div>
 
+      {/* Create / Update Modal */}
       <SliderFormModal
         isOpen={isFormOpen}
         onClose={handleCloseForm}
@@ -154,6 +181,7 @@ const SlidersPage = () => {
         clearServerErrors={clearServerErrors}
       />
 
+      {/* Delete Confirmation */}
       <ConfirmDeleteModal
         isOpen={!!sliderToDelete}
         onCancel={() => setSliderToDelete(null)}

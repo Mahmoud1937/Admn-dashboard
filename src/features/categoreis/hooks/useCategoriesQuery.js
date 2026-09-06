@@ -3,7 +3,7 @@ import { getCategories } from "../service/categoryService";
 
 export function useCategoriesQuery({ pageNumber, pageSize, search }) {
 
- const { data, isLoading, isFetching, isError, error, isPlaceholderData } = useQuery({
+ const { data, isLoading, isFetching, isError, error, isPlaceholderData,refetch } = useQuery({
     queryKey: ["categories", pageNumber, pageSize, search],
     queryFn: () => getCategories(pageNumber, pageSize, search),
     placeholderData: (previousData) => previousData,
@@ -18,6 +18,7 @@ export function useCategoriesQuery({ pageNumber, pageSize, search }) {
   isFetching,
     isError,
     error,
+    refetch,
     isPlaceholderData,
   };
 }

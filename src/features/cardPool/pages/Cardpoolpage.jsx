@@ -1,20 +1,31 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
+import CardPoolFilters, { emptyFilters } from "../components/Cardpoolfilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
-import { useCardPoolQuery } from "../hooks/useCardPoolQuery";
 import { useCardPoolMutations } from "../hooks/useCardPoolMutations";
-import CardPoolFilters from "../components/Cardpoolfilters";
+import { useCardPoolQuery } from "../hooks/Usecardpoolquery";
+import CardPoolSearchBar from "../components/Cardpoolsearchbar";
 import CardPoolTable from "../components/Cardpooltable";
 import Pagination from "../../../shared/components/Pagination";
 import CardPoolCreateModal from "../components/Cardpoolcreatemodal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
+
 
 
 export default function CardPoolPage() {
+  const countActivePoolFilters = (filters) =>
+    Object.values(filters).filter((value) => value !== "" && value !== null && value !== undefined).length;
+
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 400);
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState(emptyFilters);
+  const [draftFilters, setDraftFilters] = useState(emptyFilters);
+  const filterPanelRef = useRef(null);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [poolToDelete, setPoolToDelete] = useState(null);
@@ -26,7 +37,22 @@ export default function CardPoolPage() {
     handlePageSizeChange,
     lockPageSize,
     getPageNumbers,
-  } = useServerPagination({ resetKey: debouncedSearch });
+  } = useServerPagination({
+    resetKey: `${debouncedSearch}-${JSON.stringify(filters)}`,
+  });
+
+  useEffect(() => {
+    if (!isFilterOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (filterPanelRef.current && !filterPanelRef.current.contains(e.target)) {
+        setIsFilterOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isFilterOpen]);
 
   const {
     cardPools,
@@ -36,8 +62,14 @@ export default function CardPoolPage() {
     isLoading,
     isError,
     error,
+    refetch,
     isPlaceholderData,
-  } = useCardPoolQuery({ pageNumber, pageSize, searchTerm: debouncedSearch });
+  } = useCardPoolQuery({
+    pageNumber,
+    pageSize,
+    searchTerm: debouncedSearch,
+  filters,
+  });
 
   lockPageSize(serverPageSize);
 
@@ -59,6 +91,21 @@ export default function CardPoolPage() {
     onDeleteSuccess: () => setPoolToDelete(null),
   });
 
+  const openFilters = () => {
+    setDraftFilters(filters);
+    setIsFilterOpen(true);
+  };
+
+  const applyFilters = () => {
+    setFilters(draftFilters);
+    setIsFilterOpen(false);
+  };
+
+  const clearFilters = () => {
+    setFilters(emptyFilters);
+    setDraftFilters(emptyFilters);
+  };
+
   const openAddForm = () => setIsFormOpen(true);
 
   const handleSave = (payload) => {
@@ -71,7 +118,7 @@ export default function CardPoolPage() {
     }
   };
 
-  const hasActiveFilters = !!search;
+  const hasActiveFilters = !!search || countActivePoolFilters(filters) > 0;
 
   return (
     <div>
@@ -93,17 +140,37 @@ export default function CardPoolPage() {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white">
-        <CardPoolFilters searchTerm={search} onSearchChange={setSearch} />
+        <div className="relative">
+          <CardPoolSearchBar
+            value={search}
+            onChange={setSearch}
+            onFilterClick={openFilters}
+            activeFilterCount={countActivePoolFilters(filters)}
+          />
+
+          {isFilterOpen && (
+            <CardPoolFilters
+              draft={draftFilters}
+              onChange={setDraftFilters}
+              onApply={applyFilters}
+              onClear={clearFilters}
+              onClose={() => setIsFilterOpen(false)}
+              panelRef={filterPanelRef}
+            />
+          )}
+        </div>
 
         {isLoading && (
           <p className="p-8 text-center text-sm text-slate-400">Loading card pools...</p>
         )}
 
-        {isError && (
-          <p className="p-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load card pools."}
-          </p>
-        )}
+  {isError && (
+  <QueryErrorState
+    title="Unable to load Card Pools"
+    error={error}
+    onRetry={refetch}
+  />
+)}
 
         {!isLoading && !isError && (
           <div className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>

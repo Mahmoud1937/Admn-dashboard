@@ -31,18 +31,22 @@ export function useMedicineMutations({ onCreateSuccess, onUpdateSuccess, onDelet
     onError: (err) => handleMutationError(err, "Failed to update medicine.", setServerErrors),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteMedicine,
-    onSuccess: () => {
-      toast.success("Medicine deleted successfully.");
-      queryClient.invalidateQueries({ queryKey: ["medicines"] });
-      onDeleteSuccess?.();
-    },
-    onError: (err) => {
-      toast.error(err?.response?.data?.message || "Failed to delete medicine.");
-    },
-  });
+const deleteMutation = useMutation({
+  mutationFn: deleteMedicine,
 
+  onSuccess: () => {
+    toast.success("Medicine deleted successfully.");
+    queryClient.invalidateQueries({ queryKey: ["medicines"] });
+    onDeleteSuccess?.();
+  },
+
+  onError: (err) =>
+    handleMutationError(
+      err,
+      "Failed to delete medicine.",
+      setServerErrors
+    ),
+});
   return {
     createMutation,
     updateMutation,

@@ -1,11 +1,17 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getCardPools } from "../services/cardPoolService";
 
-
-export const useCardPoolQuery = ({ searchTerm, pageNumber, pageSize }) => {
-  const { data, isLoading, isError, error, isPlaceholderData } = useQuery({
-    queryKey: ["cardPools", searchTerm, pageNumber, pageSize],
-    queryFn: () => getCardPools({ searchTerm, pageNumber, pageSize }),
+export const useCardPoolQuery = ({ searchTerm, filters, pageNumber, pageSize }) => {
+  const { data, isLoading, isError, error, isPlaceholderData,refetch } = useQuery({
+    queryKey: ["cardPools", searchTerm, filters, pageNumber, pageSize],
+    queryFn: () =>
+      getCardPools({
+        searchTerm,
+        fromDate: filters?.fromDate,
+        toDate: filters?.toDate,
+        pageNumber,
+        pageSize,
+      }),
     placeholderData: keepPreviousData,
   });
 
@@ -18,5 +24,6 @@ export const useCardPoolQuery = ({ searchTerm, pageNumber, pageSize }) => {
     isError,
     error,
     isPlaceholderData,
+    refetch
   };
 };

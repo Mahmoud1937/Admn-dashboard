@@ -8,6 +8,7 @@ import Pagination from "../../../shared/components/Pagination";
 import CategoryFormModal from "../components/CategoryFormModal";
 import CategoriesTable from "../components/CategoriesTable";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 export default function CategoriesPage() {
   const [search, setSearch] = useState("");
@@ -33,6 +34,7 @@ export default function CategoriesPage() {
     isLoading,
     isError,
     error,
+    refetch,
     isPlaceholderData,
   } = useCategoriesQuery({ pageNumber, pageSize, search });
 
@@ -139,11 +141,13 @@ export default function CategoriesPage() {
           </p>
         )}
 
-        {isError && (
-          <p className="p-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load categories."}
-          </p>
-        )}
+{isError && (
+  <QueryErrorState
+    title="Unable to load Categories"
+    error={error}
+    onRetry={refetch}
+  />
+)}
 
         {!isLoading && !isError && (
           <div className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>

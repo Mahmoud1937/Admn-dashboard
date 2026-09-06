@@ -3,11 +3,13 @@ import axiosInstance from "../../../shared/api/axiosInstance";
 const BASE_URL = "/admin/card-solds";
 
 // GET /api/admin/card-solds?SearchTerm=&PageNumber=&PageSize=
-export const getCardSolds = async ({ searchTerm, pageNumber, pageSize }) => {
+export const getCardSolds = async ({ searchTerm,fromDate,toDate ,pageNumber, pageSize }) => {
   const response = await axiosInstance.get(BASE_URL, {
     params: {
       SearchTerm: searchTerm || undefined,
       PageNumber: pageNumber,
+           FromDate: fromDate || undefined,
+      ToDate: toDate || undefined,
       PageSize: pageSize,
     },
   });

@@ -1,19 +1,41 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
+import CardMissedFilters, { emptyFilters } from "../components/CardMissedFilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useCardMissedQuery } from "../hooks/useCardMissedQuery";
 import { useCardMissedMutations } from "../hooks/useCardMissedMutations";
-import CardMissedFilters from "../components/CardMissedFilters";
+import CardMissedSearchBar from "../components/CardMissedSearchBar";
 import CardMissedTable from "../components/CardMissedTable";
 import Pagination from "../../../shared/components/Pagination";
 import CardMissedCreateModal from "../components/CardMissedCreateModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
+
+const countActiveMissedFilters = (filters) =>
+  Object.values(filters).filter((value) => value !== "" && value !== null && value !== undefined).length;
 
 export default function CardMissedPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const cardPoolId = searchParams.get("CardPoolId");
+
+  // Data passed from CardPoolTable's "Missed" link
+  const from = location.state?.from;
+  const to = location.state?.to;
+  const count = location.state?.count;
+
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 400);
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState(emptyFilters);
+  const [draftFilters, setDraftFilters] = useState(emptyFilters);
+  const filterPanelRef = useRef(null);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
@@ -25,7 +47,22 @@ export default function CardMissedPage() {
     handlePageSizeChange,
     lockPageSize,
     getPageNumbers,
-  } = useServerPagination({ resetKey: debouncedSearch });
+  } = useServerPagination({
+    resetKey: `${cardPoolId}-${debouncedSearch}-${JSON.stringify(filters)}`,
+  });
+
+  useEffect(() => {
+    if (!isFilterOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (filterPanelRef.current && !filterPanelRef.current.contains(e.target)) {
+        setIsFilterOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isFilterOpen]);
 
   const {
     cardMisseds,
@@ -36,7 +73,8 @@ export default function CardMissedPage() {
     isError,
     error,
     isPlaceholderData,
-  } = useCardMissedQuery({ pageNumber, pageSize, searchTerm: debouncedSearch });
+    refetch
+  } = useCardMissedQuery({ cardPoolId, pageNumber, pageSize, searchTerm: debouncedSearch, filters });
 
   lockPageSize(serverPageSize);
 
@@ -51,6 +89,21 @@ export default function CardMissedPage() {
       onDeleteSuccess: () => setItemToDelete(null),
     });
 
+  const openFilters = () => {
+    setDraftFilters(filters);
+    setIsFilterOpen(true);
+  };
+
+  const applyFilters = () => {
+    setFilters(draftFilters);
+    setIsFilterOpen(false);
+  };
+
+  const clearFilters = () => {
+    setFilters(emptyFilters);
+    setDraftFilters(emptyFilters);
+  };
+
   const openAddForm = () => setIsFormOpen(true);
 
   const handleSave = (payload) => {
@@ -63,15 +116,35 @@ export default function CardMissedPage() {
     }
   };
 
-  const hasActiveFilters = !!search;
+  const hasActiveFilters = !!search || countActiveMissedFilters(filters) > 0;
 
   return (
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
+          {cardPoolId && (
+            <button
+              type="button"
+              onClick={() => navigate("/card-pools")}
+              className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+              Back to Card Pools
+            </button>
+          )}
+
           <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">Missed / Damaged Cards</h1>
+
           <p className="mt-1 text-sm text-slate-500 sm:sm-sm">
-            Track and report missing or damaged cards.
+            {cardPoolId && from && to ? (
+              <>
+                <span className="font-semibold text-slate-700">{count ?? 0}</span> missed cards from{" "}
+                <span className="font-medium text-slate-700">{from}</span> to{" "}
+                <span className="font-medium text-slate-700">{to}</span>.
+              </>
+            ) : (
+              "Track and report missing or damaged cards."
+            )}
           </p>
         </div>
 
@@ -85,17 +158,37 @@ export default function CardMissedPage() {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white">
-        <CardMissedFilters searchTerm={search} onSearchChange={setSearch} />
+        <div className="relative">
+          <CardMissedSearchBar
+            value={search}
+            onChange={setSearch}
+            onFilterClick={openFilters}
+            activeFilterCount={countActiveMissedFilters(filters)}
+          />
+
+          {isFilterOpen && (
+            <CardMissedFilters
+              draft={draftFilters}
+              onChange={setDraftFilters}
+              onApply={applyFilters}
+              onClear={clearFilters}
+              onClose={() => setIsFilterOpen(false)}
+              panelRef={filterPanelRef}
+            />
+          )}
+        </div>
 
         {isLoading && (
           <p className="p-8 text-center text-sm text-slate-400">Loading records...</p>
         )}
 
-        {isError && (
-          <p className="p-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load records."}
-          </p>
-        )}
+{isError && (
+  <QueryErrorState
+    title="Unable to load missed card"
+    error={error}
+    onRetry={refetch}
+  />
+)}
 
         {!isLoading && !isError && (
           <div className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>

@@ -10,6 +10,7 @@ import ProvidersHeader from "../components/ProvidersHeader";
 import ProvidersSearchBar from "../components/ProvidersSearchBar";
 import { countActiveFilters } from "../utils/countActiveFilters";
 import ProvidersFilters, { emptyFilters } from "../components/ProvidersFilters";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 
 
@@ -57,6 +58,7 @@ export default function ProvidersPage() {
     isLoading,
     isError,
     error,
+    refetch,
     isPlaceholderData,
   } = useProvidersQuery({ pageNumber, pageSize, search, filters });
 
@@ -126,13 +128,13 @@ const handleEdit = (provider) => {
           <p className="p-6 text-center text-sm text-slate-400">Loading providers...</p>
         )}
 
-        {isError && (
-          <p className="p-6 text-center text-sm text-red-500">
-            {error?.message || "Failed to load providers."}
-          </p>
-        )}
-
-        {!isLoading && !isError && (
+{isError && (
+  <QueryErrorState
+    title="Unable to load providers"
+    error={error}
+    onRetry={refetch}
+  />
+)}     {!isLoading && !isError && (
           <div
             className={`overflow-hidden rounded-b-xl transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"
               }`}

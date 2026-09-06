@@ -9,6 +9,7 @@ import MedicinesTable from "../components/Medicinestable";
 import Pagination from "../../../shared/components/Pagination";
 import MedicineFormModal from "../components/Medicineformmodal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 
 export default function MedicinesPage() {
@@ -35,6 +36,7 @@ export default function MedicinesPage() {
     isLoading,
     isError,
     error,
+    refetch,
     isPlaceholderData,
   } = useMedicinesQuery({ pageNumber, pageSize, search });
 
@@ -132,12 +134,13 @@ export default function MedicinesPage() {
           <p className="p-8 text-center text-sm text-slate-400">Loading medicines...</p>
         )}
 
-        {isError && (
-          <p className="p-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load medicines."}
-          </p>
-        )}
-
+{isError && (
+  <QueryErrorState
+    title="Unable to load medicines"
+    error={error}
+    onRetry={refetch}
+  />
+)}
         {!isLoading && !isError && (
           <div className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>
             <MedicinesTable

@@ -13,6 +13,7 @@ import { formatDate } from "../../../utils/formatDate";
 import Pagination from "../../../shared/components/Pagination";
 import ProviderServiceFormModal from "./ProviderServiceFormModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 
 export default function ProviderServicesTab() {
@@ -38,21 +39,22 @@ export default function ProviderServicesTab() {
     resetKey: `${search}|${statusFilter}`,
   });
 
-  const {
-    providerServices,
-    totalPages,
-    totalCount,
-    serverPageSize,
-    isLoading,
-    isError,
-    error,
-  } = useProviderServicesQuery({
-    providerId,
-    pageNumber,
-    pageSize,
-    search,
-    statusFilter,
-  });
+const {
+  providerServices,
+  totalPages,
+  totalCount,
+  serverPageSize,
+  isLoading,
+  isError,
+  error,
+  refetch,
+} = useProviderServicesQuery({
+  providerId,
+  pageNumber,
+  pageSize,
+  search,
+  statusFilter,
+});
 
   useEffect(() => {
     lockPageSize(serverPageSize);
@@ -138,9 +140,11 @@ const { createMutation, updateMutation, isSaving, serverErrors, clearServerError
         {isLoading ? (
           <p className="py-8 text-center text-sm text-slate-400">Loading services...</p>
         ) : isError ? (
-          <p className="py-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load services."}
-          </p>
+<QueryErrorState
+  title="Unable to load services"
+  error={error}
+  onRetry={refetch}
+/>
         ) : providerServices.length === 0 ? (
           <TableEmptyState
             icon={faTag}

@@ -7,6 +7,7 @@ import { useProviderMutation } from "../hooks/useProviderMutation";
 import ProviderInfoForm from "../components/ProviderInfoForm";
 import ProviderBranchesTab from "../../branches/components/ProviderBranchesTab";
 import ProviderServicesTab from "../../providerServices/components/ProviderServicesTab";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 const TABS = [
   { key: "info", label: "Provider Info", icon: faBuilding },
@@ -24,7 +25,7 @@ export default function ProviderDetailsPage() {
 
   const [activeTab, setActiveTab] = useState("info");
 
-  const { provider, isLoading, isError, error } =
+  const { provider, isLoading, isError, error,refetch } =
     useProviderQuery(id, isCreateMode);
 
   const { mutation } = useProviderMutation({ id, isCreateMode });
@@ -40,7 +41,13 @@ export default function ProviderDetailsPage() {
   if (!isCreateMode && isError) {
     return (
       <div className="flex h-64 items-center justify-center text-red-500">
-        {error?.message || "Failed to load provider."}
+       {isError && (
+         <QueryErrorState
+           title="Unable to load Providers Details"
+           error={error}
+           onRetry={refetch}
+         />
+       )}
       </div>
     );
   }

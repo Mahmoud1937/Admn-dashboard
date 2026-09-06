@@ -6,6 +6,7 @@ import { useClientLocationsQuery } from "../hooks/usecCientLocationsQuery";
 import CategoryTabs from "../components/CategoryTabs";
 import MapFilters from "../components/MapFilters";
 import ProviderClusterMap from "../components/ProviderClusterMap";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 
 export default function ProviderMapPage() {
@@ -16,18 +17,20 @@ export default function ProviderMapPage() {
 
 
 
-  const {
-    providers,
-    governorates,
-    governorateBubbles,
-    countryBubble,
-    selectedGovernorate,
-    totalCount,
-    invalidProviderCount,
-    invalidGovernorateCount,
-    isLoading,
-    isError,
-  } = useProvidersMapQuery({ providerCategoryId, governorateId, search });
+const {
+  providers,
+  governorates,
+  governorateBubbles,
+  countryBubble,
+  selectedGovernorate,
+  totalCount,
+  invalidProviderCount,
+  invalidGovernorateCount,
+  isLoading,
+  isError,
+  error,
+  refetch,
+} = useProvidersMapQuery({ providerCategoryId, governorateId, search });
 
   const { locations: clientLocations, isLoading: clientsLoading } =
     useClientLocationsQuery(showUsers);
@@ -69,42 +72,58 @@ export default function ProviderMapPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500">
-        {isError ? (
-          <span className="text-red-600">Failed to load providers.</span>
-        ) : (
-          <span>
-            Showing {providers.length} of {totalCount} providers
-            {showUsers && !clientsLoading && ` · ${clientLocations.length} client locations`}
-          </span>
-        )}
-        {(invalidProviderCount > 0 || invalidGovernorateCount > 0) && (
-          <span className="text-amber-600">
-            {invalidProviderCount > 0 &&
-              `${invalidProviderCount} branches were hidden because of invalid coordinates.`}
-            {invalidProviderCount > 0 && invalidGovernorateCount > 0 && " "}
-            {invalidGovernorateCount > 0 &&
-              `${invalidGovernorateCount} governorate centers were hidden because of invalid coordinates.`}
-          </span>
-        )}
-      </div>
+<div className="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500">
+  <span>
+    Showing {providers.length} of {totalCount} providers
+    {showUsers &&
+      !clientsLoading &&
+      ` · ${clientLocations.length} client locations`}
+  </span>
 
-      <div className="relative min-h-[500px] flex-1 overflow-hidden rounded-lg border border-gray-200">
-        {isLoading && (
-          <div className="absolute inset-0 z-[500] flex items-center justify-center bg-white/60">
-            <span className="text-sm text-gray-500">Loading providers...</span>
-          </div>
-        )}
-        <ProviderClusterMap
-          providers={providers}
-          governorateBubbles={governorateBubbles}
-          countryBubble={countryBubble}
-          selectedGovernorate={selectedGovernorate}
-          onSelectGovernorate={setGovernorateId}
-          clientLocations={clientLocations}
-          showUsers={showUsers}
-        />
-      </div>
+  {(invalidProviderCount > 0 || invalidGovernorateCount > 0) && (
+    <span className="text-amber-600">
+      {invalidProviderCount > 0 &&
+        `${invalidProviderCount} branches were hidden because of invalid coordinates.`}
+
+      {invalidProviderCount > 0 &&
+        invalidGovernorateCount > 0 &&
+        " "}
+
+      {invalidGovernorateCount > 0 &&
+        `${invalidGovernorateCount} governorate centers were hidden because of invalid coordinates.`}
+    </span>
+  )}
+</div>
+
+ <div className="relative min-h-[500px] flex-1 overflow-hidden rounded-lg border border-gray-200">
+  {isLoading && (
+    <div className="absolute inset-0 z-[500] flex items-center justify-center bg-white/70">
+      <span className="text-sm text-gray-500">
+        Loading providers...
+      </span>
+    </div>
+  )}
+
+{isError ? (
+  <div className="absolute inset-0 z-[600]">
+    <QueryErrorState
+      title="Unable to load providers"
+      error={error}
+      onRetry={refetch}
+    />
+  </div>
+) : (
+  <ProviderClusterMap
+    providers={providers}
+    governorateBubbles={governorateBubbles}
+    countryBubble={countryBubble}
+    selectedGovernorate={selectedGovernorate}
+    onSelectGovernorate={setGovernorateId}
+    clientLocations={clientLocations}
+    showUsers={showUsers}
+  />
+)}
+</div>
     </div>
   );
 }

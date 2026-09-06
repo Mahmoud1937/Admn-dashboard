@@ -1,5 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { activateProviderService, deactivateProviderService } from "../services/providerServicesService";
+import toast from "react-hot-toast";
+
+import {
+  activateProviderService,
+  deactivateProviderService,
+} from "../services/providerServicesService";
 
 export function useProviderServiceToggleMutation({ onSuccess }) {
   const queryClient = useQueryClient();
@@ -9,13 +14,28 @@ export function useProviderServiceToggleMutation({ onSuccess }) {
       if (service.isActive) {
         return deactivateProviderService(service.id);
       }
+
       return activateProviderService(service.id);
     },
+
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["provider-services"] });
+      toast.success("Service status updated successfully.");
+
+      queryClient.invalidateQueries({
+        queryKey: ["provider-services"],
+      });
+
       onSuccess?.();
+    },
+
+    onError: () => {
+      toast.error(
+        "Unable to update service status. Please try again."
+      );
     },
   });
 
-  return { toggleMutation };
+  return {
+    toggleMutation,
+  };
 }

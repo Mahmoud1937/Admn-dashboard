@@ -10,15 +10,13 @@ export const cardPoolSchema = z.object({
     },
     z
       .number({
-        // Zod v4 syntax: a single `error` callback replaces
-        // the old invalid_type_error / required_error options.
         error: (issue) =>
           issue.input === undefined
             ? "Number of cards is required"
             : "Please enter a valid number",
       })
-      .int("Count must be a whole number")
-.min(1, "Count must be between 1 and 10,000")
-.max(10000, "Count must be between 1 and 10,000")
+      .int("Count must be between 1 and 10,000")
+      .min(1, "Count must be between 1 and 10,000")
+      .max(10000, "Count must be between 1 and 10,000")
   ),
 });

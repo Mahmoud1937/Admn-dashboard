@@ -11,6 +11,7 @@ import CitiesTable from "../components/CitiesTable";
 import Pagination from "../../../shared/components/Pagination";
 import CityFormModal from "../components/CityFormModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 export default function CitiesPage() {
   const [search, setSearch] = useState("");
@@ -39,6 +40,7 @@ export default function CitiesPage() {
     isError,
     error,
     isPlaceholderData,
+    refetch,
   } = useCitiesQuery({ pageNumber, pageSize, search: debouncedSearch, governorateFilter });
 
   useEffect(() => {
@@ -122,11 +124,13 @@ export default function CitiesPage() {
           <p className="p-8 text-center text-sm text-slate-400">Loading cities...</p>
         )}
 
-        {isError && (
-          <p className="p-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load cities."}
-          </p>
-        )}
+{isError && (
+  <QueryErrorState
+    title="Unable to load cities"
+    error={error}
+    onRetry={refetch}
+  />
+)}
 
         {!isLoading && !isError && (
           <div className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>

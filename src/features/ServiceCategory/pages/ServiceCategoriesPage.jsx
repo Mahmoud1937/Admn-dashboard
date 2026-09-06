@@ -9,6 +9,7 @@ import ServiceCategoriesTable from "../components/ServiceCategoriesTable";
 import Pagination from "../../../shared/components/Pagination";
 import ServiceCategoryFormModal from "../components/ServiceCategoryFormModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 export default function ServiceCategoriesPage() {
   const [search, setSearch] = useState("");
@@ -35,6 +36,7 @@ export default function ServiceCategoriesPage() {
     isError,
     error,
     isPlaceholderData,
+    refetch
   } = useServiceCategoriesQuery({ pageNumber, pageSize, search });
 
   lockPageSize(serverPageSize);
@@ -118,9 +120,11 @@ export default function ServiceCategoriesPage() {
         )}
 
         {isError && (
-          <p className="p-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load service categories."}
-          </p>
+ <QueryErrorState
+  title="Unable to load service categories"
+  error={error}
+  onRetry={refetch}
+/>
         )}
 
         {!isLoading && !isError && (

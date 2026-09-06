@@ -11,11 +11,11 @@ const EGYPT_CENTER_LAT = 26.8;
 const EGYPT_CENTER_LNG = 30.8;
 
 export const useProvidersMapQuery = ({ providerCategoryId, governorateId, search }) => {
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["providers-map-data", providerCategoryId],
-    queryFn: () => getMapData(providerCategoryId),
-    staleTime: 5 * 60_000,
-  });
+const { data, isLoading, isError, error, refetch } = useQuery({
+  queryKey: ["providers-map-data", providerCategoryId],
+  queryFn: () => getMapData(providerCategoryId),
+  staleTime: 5 * 60_000,
+});
 
   const rawProviders = data?.providers ?? [];
   const governorates = data?.governorates ?? [];
@@ -197,5 +197,6 @@ for (const g of getAllGovernorateCenters()) {
     isLoading,
     isError,
     error,
+    refetch,
   };
 };

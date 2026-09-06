@@ -1,10 +1,10 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getCardSolds } from "../services/cardSoldService";
 
-export const useCardSoldQuery = ({ searchTerm, pageNumber, pageSize }) => {
+export const useCardSoldQuery = ({ searchTerm, pageNumber, pageSize, fromDate, toDate }) => {
   const { data, isLoading, isError, error, isPlaceholderData } = useQuery({
-    queryKey: ["cardSolds", searchTerm, pageNumber, pageSize],
-    queryFn: () => getCardSolds({ searchTerm, pageNumber, pageSize }),
+    queryKey: ["cardSolds", searchTerm, pageNumber, pageSize, fromDate, toDate],
+    queryFn: () => getCardSolds({ searchTerm, pageNumber, pageSize, fromDate, toDate }),
     placeholderData: keepPreviousData,
   });
 

@@ -1,6 +1,7 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate } from "../../../utils/formatDate";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
 
 const typeBadge = (type) => {
   const isDamaged = type === "Damaged" || type === 1;
@@ -27,40 +28,40 @@ const CardMissedTable = ({ items, isLoading, onDelete }) => {
   }
 
   return (
-    <div className="overflow-x-auto min-w-0 border border-gray-200 rounded-lg scroll-table">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50 sticky top-0 z-10">
-          <tr>
-            <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Card Number</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Card Pool ID</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Type</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Created By</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Created At</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Delete</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100 bg-white">
-          {items.map((item) => (
-            <tr key={item.id} className="hover:bg-gray-50">
-              <td className="px-4 py-3 text-sm text-center text-gray-700 font-mono">{item.cardNumber}</td>
-              <td className="px-4 py-3 text-sm text-center text-gray-700">{item.cardPoolId}</td>
-              <td className="px-4 py-3 text-sm text-center">{typeBadge(item.missingType)}</td>
-              <td className="px-4 py-3 text-sm text-center text-gray-700">{item.createdBy}</td>
-              <td className="px-4 py-3 text-sm text-center text-gray-700">{formatDate(item.createdAt)}</td>
-              <td className="px-4 py-3 text-sm text-center">
-                <button
-                  type="button"
-                  onClick={() => onDelete(item)}
-                  className="text-red-600 hover:text-red-800 cursor-pointer"
-                  title="Delete record"
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-              </td>
+    <div className="min-w-0 border border-gray-200 rounded-lg">
+      <ScrollableTable maxHeight="60vh">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50 sticky top-0 z-10">
+            <tr>
+              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Card Number</th>
+              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Type</th>
+              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Created By</th>
+              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Created At</th>
+              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Delete</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-100 bg-white">
+            {items.map((item) => (
+              <tr key={item.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 text-sm text-center text-gray-700 font-mono">{item.cardNumber}</td>
+                <td className="px-4 py-3 text-sm text-center">{typeBadge(item.missingType)}</td>
+                <td className="px-4 py-3 text-sm text-center text-gray-700">{item.createdBy}</td>
+                <td className="px-4 py-3 text-sm text-center text-gray-700">{formatDate(item.createdAt)}</td>
+                <td className="px-4 py-3 text-sm text-center">
+                  <button
+                    type="button"
+                    onClick={() => onDelete(item)}
+                    className="text-red-600 hover:text-red-800 cursor-pointer"
+                    title="Delete record"
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </ScrollableTable>
     </div>
   );
 };

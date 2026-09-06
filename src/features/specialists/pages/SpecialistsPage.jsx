@@ -9,6 +9,7 @@ import { useSpecialistMutations } from "../hooks/useSpecialistMutations";
 import SpecialistFormModal from "../components/SpecialistFormModal";
 import SpecialistsFilters from "../components/SpecialistsFilters";
 import SpecialistsTable from "../components/SpecialistsTable";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 export default function SpecialistsPage() {
   const [search, setSearch] = useState("");
@@ -35,6 +36,7 @@ export default function SpecialistsPage() {
     isError,
     error,
     isPlaceholderData,
+    refetch
   } = useSpecialistsQuery({ pageNumber, pageSize, search });
 
   lockPageSize(serverPageSize);
@@ -111,9 +113,11 @@ export default function SpecialistsPage() {
         )}
 
         {isError && (
-          <p className="p-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load specialists."}
-          </p>
+  <QueryErrorState
+  title="Unable to load services"
+  error={error}
+  onRetry={refetch}
+/>
         )}
 
         {!isLoading && !isError && (

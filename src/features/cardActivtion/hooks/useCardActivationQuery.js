@@ -1,10 +1,10 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { getActivatedCards } from "../services/cardActivationService";
+import { getNotActivatedCards } from "../services/cardActivationService";
 
-export const useCardActivationQuery = ({ id, sourceType, pageNumber, pageSize }) => {
+export const useCardActivationQuery = ({ id, sourceType, searchTerm, pageNumber, pageSize }) => {
   const { data, isLoading, isError, error, isPlaceholderData } = useQuery({
-    queryKey: ["cardActivation", id, sourceType, pageNumber, pageSize],
-    queryFn: () => getActivatedCards({ id, sourceType, pageNumber, pageSize }),
+    queryKey: ["cardActivation", "not-activated", id, sourceType, searchTerm, pageNumber, pageSize],
+    queryFn: () => getNotActivatedCards({ id, sourceType, searchTerm, pageNumber, pageSize }),
     placeholderData: keepPreviousData,
     enabled: !!id && !!sourceType,
   });

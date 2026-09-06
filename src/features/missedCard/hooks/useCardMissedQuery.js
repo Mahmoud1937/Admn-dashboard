@@ -1,10 +1,19 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getCardMisseds } from "../services/cardMissedService";
 
-export const useCardMissedQuery = ({ searchTerm, pageNumber, pageSize }) => {
-  const { data, isLoading, isError, error, isPlaceholderData } = useQuery({
-    queryKey: ["cardMisseds", searchTerm, pageNumber, pageSize],
-    queryFn: () => getCardMisseds({ searchTerm, pageNumber, pageSize }),
+
+export const useCardMissedQuery = ({ cardPoolId, searchTerm, filters, pageNumber, pageSize }) => {
+  const { data, isLoading, isError, error, isPlaceholderData, refetch } = useQuery({
+    queryKey: ["cardMisseds", cardPoolId, searchTerm, filters, pageNumber, pageSize],
+    queryFn: () =>
+      getCardMisseds({
+        cardPoolId,
+        searchTerm,
+        fromDate: filters?.fromDate,
+        toDate: filters?.toDate,
+        pageNumber,
+        pageSize,
+      }),
     placeholderData: keepPreviousData,
   });
 
@@ -14,6 +23,7 @@ export const useCardMissedQuery = ({ searchTerm, pageNumber, pageSize }) => {
     totalPages: data?.totalPages ?? 1,
     serverPageSize: data?.pageSize,
     isLoading,
+    refetch,
     isError,
     error,
     isPlaceholderData,
