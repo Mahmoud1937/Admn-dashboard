@@ -5,7 +5,7 @@ import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import CardPoolFilters, { emptyFilters } from "../components/Cardpoolfilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useCardPoolMutations } from "../hooks/useCardPoolMutations";
-import { useCardPoolQuery } from "../hooks/Usecardpoolquery";
+import { useCardPoolQuery } from "../hooks/useCardPoolQuery";
 import CardPoolSearchBar from "../components/Cardpoolsearchbar";
 import CardPoolTable from "../components/Cardpooltable";
 import Pagination from "../../../shared/components/Pagination";
