@@ -24,29 +24,32 @@ const {
   countryBubble,
   selectedGovernorate,
   totalCount,
-  invalidProviderCount,
-  invalidGovernorateCount,
   isLoading,
   isError,
   error,
   refetch,
 } = useProvidersMapQuery({ providerCategoryId, governorateId, search });
 
-  const { locations: clientLocations, isLoading: clientsLoading } =
-    useClientLocationsQuery(showUsers);
+  const {
+    locationBubbles: clientLocationBubbles,
+    isLoading: clientsLoading,
+    isError: clientsError,
+    refetch: refetchClients,
+    totalCount: clientTotalCount,
+  } = useClientLocationsQuery(showUsers);
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4">
+    <div className="flex min-h-[calc(100dvh-7rem)] flex-col gap-3 p-0 sm:gap-4 sm:p-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Provider Directory Map</h1>
+        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Provider Directory Map</h1>
         <p className="text-sm text-gray-500">
           Visualize healthcare providers across Egyptian governorates
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <CategoryTabs activeCategoryId={providerCategoryId} onChange={setProviderCategoryId} />
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center xl:w-auto">
           <MapFilters
             governorates={governorates}
             governorateId={governorateId}
@@ -77,25 +80,20 @@ const {
     Showing {providers.length} of {totalCount} providers
     {showUsers &&
       !clientsLoading &&
-      ` · ${clientLocations.length} client locations`}
+      ` · ${clientTotalCount} client locations`}
   </span>
-
-  {(invalidProviderCount > 0 || invalidGovernorateCount > 0) && (
-    <span className="text-amber-600">
-      {invalidProviderCount > 0 &&
-        `${invalidProviderCount} branches were hidden because of invalid coordinates.`}
-
-      {invalidProviderCount > 0 &&
-        invalidGovernorateCount > 0 &&
-        " "}
-
-      {invalidGovernorateCount > 0 &&
-        `${invalidGovernorateCount} governorate centers were hidden because of invalid coordinates.`}
-    </span>
+  {showUsers && clientsError && (
+    <button
+      type="button"
+      onClick={() => refetchClients()}
+      className="text-xs font-medium text-red-600 hover:underline"
+    >
+      Unable to load client locations. Retry
+    </button>
   )}
 </div>
 
- <div className="relative min-h-[500px] flex-1 overflow-hidden rounded-lg border border-gray-200">
+ <div className="relative h-[55dvh] min-h-[22rem] overflow-hidden rounded-lg border border-gray-200 sm:h-[60dvh] sm:min-h-[30rem] lg:h-[calc(100dvh-15rem)]">
   {isLoading && (
     <div className="absolute inset-0 z-[500] flex items-center justify-center bg-white/70">
       <span className="text-sm text-gray-500">
@@ -119,7 +117,7 @@ const {
     countryBubble={countryBubble}
     selectedGovernorate={selectedGovernorate}
     onSelectGovernorate={setGovernorateId}
-    clientLocations={clientLocations}
+    clientLocationBubbles={clientLocationBubbles}
     showUsers={showUsers}
   />
 )}

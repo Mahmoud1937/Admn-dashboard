@@ -841,7 +841,7 @@ export default function TermsAndConditionsEditor({
               onClick={handleSave}
               disabled={saveDisabled}
               title={loading ? "Waiting for content to load..." : undefined}
-              className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+              className="flex items-center gap-2 bg-blue-900 hover:bg-blue-950 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
             >
               <Save className="w-4 h-4" />
               {loading ? "Loading..." : saving ? "Saving..." : "Save changes"}
@@ -853,7 +853,7 @@ export default function TermsAndConditionsEditor({
             onClick={() => setIsEditing(true)}
             disabled={loading || !isInitialized}
             title={loading ? "Waiting for content to load..." : undefined}
-            className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+            className="flex items-center gap-2 bg-blue-900 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
           >
             <Pencil className="w-4 h-4" /> {loading ? "Loading..." : "Update"}
           </button>

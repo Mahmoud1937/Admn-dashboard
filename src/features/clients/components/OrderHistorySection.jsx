@@ -298,11 +298,11 @@ export default function OrderHistorySection({ userId }) {
             <table className="w-full min-w-[800px] text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-xs font-medium uppercase tracking-wide text-slate-400">
-                  <th className="px-4 py-3">Invoice</th>
+                  <th className="px-4 py-3">Invoice ID</th>
                   <th className="px-4 py-3">Provider</th>
                   <th className="px-4 py-3 text-center">Status</th>
                   <th className="px-4 py-3 text-center">Date</th>
-                  <th className="px-4 py-3 text-right">Total</th>
+                  <th className="px-4 py-3 text-center">Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -322,9 +322,12 @@ export default function OrderHistorySection({ userId }) {
                     <td className="px-4 py-3 text-center text-slate-500">
                       {formatDate(order.createdAt)}
                     </td>
-                    <td className="px-4 py-3 text-right text-slate-700">
-                      {Number(order.totalAfter ?? 0).toFixed(2)} EGP
-                    </td>
+<td className="px-4 py-3 text-center text-slate-700">
+  {Number(order.totalAfter ?? 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} EGP
+</td>
                   </tr>
                 ))}
               </tbody>

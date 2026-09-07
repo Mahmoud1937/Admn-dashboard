@@ -6,7 +6,7 @@ import { navigation } from "./navigation";
 export default function Sidebar({ collapsed, setCollapsed }) {
   return (
     <aside
-      className={`flex h-screen min-w-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 ${
+      className={`relative z-40 flex h-screen min-w-0 shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 ${
         collapsed ? "w-20" : "w-72"
       }`}
     >

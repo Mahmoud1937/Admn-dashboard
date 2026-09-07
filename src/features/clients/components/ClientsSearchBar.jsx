@@ -18,7 +18,7 @@ export default function ClientsSearchBar({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Search by client name..."
+          placeholder="Search by client name, phone and card no..."
           className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white sm:placeholder:content-[attr(placeholder)]"
         />
       </div>

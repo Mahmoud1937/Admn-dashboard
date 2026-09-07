@@ -136,16 +136,19 @@ export default function CardMissedPage() {
           <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">Missed / Damaged Cards</h1>
 
           <p className="mt-1 text-sm text-slate-500 sm:sm-sm">
-            {cardPoolId && from && to ? (
-              <>
-                <span className="font-semibold text-slate-700">{count ?? 0}</span> missed cards from{" "}
-                <span className="font-medium text-slate-700">{from}</span> to{" "}
-                <span className="font-medium text-slate-700">{to}</span>.
-              </>
-            ) : (
-              "Track and report missing or damaged cards."
-            )}
-          </p>
+  {cardPoolId && from && to ? (
+    <>
+      <span className="font-semibold text-slate-700">
+        {totalCount ?? 0}
+      </span>{" "}
+      missed cards from{" "}
+      <span className="font-medium text-slate-700">{from}</span> to{" "}
+      <span className="font-medium text-slate-700">{to}</span>.
+    </>
+  ) : (
+    "Track and report missing or damaged cards."
+  )}
+</p>
         </div>
 
         <button

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Tooltip, CircleMarker, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap, useMapEvents } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -9,10 +9,12 @@ import {
   faCity,
   faHashtag,
   faBuilding,
+  faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CATEGORY_COLOR_BY_NAME, FALLBACK_CATEGORY_COLOR } from "./CategoryTabs";
 import { resolveGovernorateFromCoords } from "../utils/Resolvegovernorate";
+import { getLocationFromCoords } from "../utils/Reversegeocode";
 
 const EGYPT_CENTER = [26.8, 30.8];
 const DEFAULT_ZOOM = 6;
@@ -77,6 +79,15 @@ function createBubbleIcon(count, governorateName) {
     iconSize: [size, size],
   });
 }
+
+// Pushes every Users bubble off its exact ground point so it never covers the
+// Provider bubble sitting on the same coordinates; the fixed diagonal offset
+// leaves room for both markers to be visible side by side.
+// Blue is used for the Users group bubbles (white bubble with a blue ring,
+// same look as the Provider bubbles). Must stay distinct from the colored
+// Provider rings so Users groups remain recognizable.
+const CLIENT_BUBBLE_COLOR = "#2563eb";
+const CLIENT_BUBBLE_PIXEL_OFFSET = 16;
 
 // Groups the branches inside a cluster by their provider (not just by Arabic
 // name, which can collide across different providers) and keeps both the
@@ -249,11 +260,18 @@ function ZoomWatcher({ onZoomChange }) {
 function SizeFixer() {
   const map = useMap();
   useEffect(() => {
-    const id = setTimeout(() => map.invalidateSize(), 100);
-    const onResize = () => map.invalidateSize();
+    const invalidate = () => map.invalidateSize({ pan: false });
+    const id = setTimeout(invalidate, 100);
+    const onResize = invalidate;
+    // The sidebar changes the map container's width without firing a window
+    // resize event. Watching the container keeps tiles, markers and clicks in
+    // the correct position on tablets and mobile layouts.
+    const observer = new ResizeObserver(invalidate);
+    observer.observe(map.getContainer());
     window.addEventListener("resize", onResize);
     return () => {
       clearTimeout(id);
+      observer.disconnect();
       window.removeEventListener("resize", onResize);
     };
   }, [map]);
@@ -432,23 +450,139 @@ function CountryBubble({ bubble }) {
 }
 
 // Wraps the bubble list + decluttering so it only runs (and only subscribes
-// to zoom/move events) while bubbles are actually being shown.
-function GovernorateBubbleLayer({ bubbles, onSelectGovernorate }) {
+// to zoom/move events) while bubbles are actually being shown. `renderBubble`
+// lets callers supply their own bubble marker (provider vs client).
+function GovernorateBubbleLayer({ bubbles, onSelectGovernorate, renderBubble }) {
   const positionById = useDeclutteredBubblePositions(bubbles);
 
   return (
     <>
-      {bubbles.map((bubble) => (
-        <GovernorateBubble
-          key={bubble.id}
-          bubble={bubble}
-          displayLatLng={positionById.get(bubble.id)}
-          onSelectGovernorate={onSelectGovernorate}
-        />
-      ))}
+      {bubbles.map((bubble) =>
+        renderBubble ? (
+          renderBubble(bubble, positionById.get(bubble.id))
+        ) : (
+          <GovernorateBubble
+            key={bubble.id}
+            bubble={bubble}
+            displayLatLng={positionById.get(bubble.id)}
+            onSelectGovernorate={onSelectGovernorate}
+          />
+        )
+      )}
     </>
   );
 }
+
+// ---------------------------------------------------------------------------
+// CLIENT-SIDE MARKERS / BUBBLES (Governorate → City → District → Clients)
+// ---------------------------------------------------------------------------
+
+function ClientBubblePopup({ bubble, area, isLoading }) {
+  const primaryGovernorate = bubble.governorates[0];
+  const hasMultipleGovernorates = bubble.governorates.length > 1;
+
+  return (
+    <div className="w-56 overflow-hidden rounded-lg font-sans" dir="rtl">
+      <div className="flex items-center gap-2.5 bg-blue-600 px-3 py-2.5 text-right text-white">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold ring-1 ring-white/30">
+          {bubble.count}
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold leading-tight">Users within 200m</p>
+          <p className="text-[11px] text-blue-100">{bubble.count} client locations</p>
+        </div>
+        <FontAwesomeIcon icon={faUsers} className="h-4 w-4 text-blue-100" />
+      </div>
+
+      <div className="space-y-2 bg-white px-2.5 py-2 text-xs text-slate-700">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="min-w-0 rounded-md bg-blue-50 px-2 py-1.5 text-right">
+            <div className="mb-0.5 flex items-center gap-1 text-[10px] font-medium text-blue-600">
+              <FontAwesomeIcon icon={faLocationDot} className="h-2.5 w-2.5" />
+              المحافظة
+            </div>
+            <p className="truncate font-semibold text-slate-900">
+              {primaryGovernorate?.nameAr ?? "غير متاح"}
+              {hasMultipleGovernorates && ` +${bubble.governorates.length - 1}`}
+            </p>
+            {primaryGovernorate?.nameEn && (
+              <p className="truncate text-[10px] text-slate-400" dir="ltr">{primaryGovernorate.nameEn}</p>
+            )}
+          </div>
+
+          <div className="min-w-0 rounded-md bg-blue-50 px-2 py-1.5 text-right">
+            <div className="mb-0.5 flex items-center gap-1 text-[10px] font-medium text-blue-600">
+              <FontAwesomeIcon icon={faCity} className="h-2.5 w-2.5" />
+              المدينة
+            </div>
+            <p className="truncate font-semibold text-slate-900">
+              {isLoading ? "جاري التحديد..." : area?.cityAr ?? "غير متاح"}
+            </p>
+            {!isLoading && area?.cityEn && (
+              <p className="truncate text-[10px] text-slate-400" dir="ltr">{area.cityEn}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="border-t border-slate-100 pt-2">
+          <div className="min-w-0 text-right">
+            <p className="text-[10px] font-medium text-blue-600">الحي</p>
+            <p className="truncate font-medium text-slate-800">
+              {isLoading ? "جاري التحديد..." : area?.districtAr ?? "غير متاح"}
+            </p>
+            {!isLoading && area?.districtEn && (
+              <p className="truncate text-[10px] text-slate-400" dir="ltr">{area.districtEn}</p>
+            )}
+          </div>
+        </div>
+
+        {hasMultipleGovernorates && (
+          <div className="border-t border-slate-100 pt-2">
+            <p className="mb-1 font-medium text-slate-500">المحافظات داخل التجمع</p>
+            <div className="flex flex-wrap gap-1">
+              {bubble.governorates.map((governorate) => (
+                <span
+                  key={governorate.id}
+                  className="rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700"
+                >
+                  {governorate.nameAr} ({governorate.count})
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ClientLocationBubble({ bubble }) {
+  const [area, setArea] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const loadArea = useCallback(() => {
+    if (area || isLoading) return;
+
+    setIsLoading(true);
+    getLocationFromCoords(bubble.lat, bubble.lng)
+      .then(setArea)
+      .catch(() => setArea(null))
+      .finally(() => setIsLoading(false));
+  }, [area, bubble.lat, bubble.lng, isLoading]);
+
+  return (
+    <Marker
+      position={[bubble.lat, bubble.lng]}
+      icon={createClientBubbleIcon(bubble.count)}
+      eventHandlers={{ click: loadArea }}
+    >
+      <Popup minWidth={224} maxWidth={224} className="branch-popup">
+        <ClientBubblePopup bubble={bubble} area={area} isLoading={isLoading} />
+      </Popup>
+    </Marker>
+  );
+}
+
 const DISABLE_CLUSTERING_AT_ZOOM = 12;
 const CLUSTER_FLY_MAX_ZOOM = 15;
 function ClusterClickFlyer({ children, ...clusterProps }) {
@@ -482,13 +616,42 @@ function ClusterClickFlyer({ children, ...clusterProps }) {
   );
 }
 
+// Client markers use the same spiderfy/cluster machinery so a bunch of
+// clients in the same distribution stays readable. Clustering is driven by the
+// REAL ground distance (~200m diameter) — `maxClusterRadius` converts the fixed
+// meter radius into the matching pixel radius at the current zoom, so grouping
+// doesn't depend on the Leaflet screen grid. Zooming in only ever SPLITS
+// A Users group bubble rendered in exactly the same style as the white
+// Provider bubbles (with the member count), but on a fixed blue ring so Users
+// groups stay visually distinct from the colored Provider bubbles. The whole
+// icon is pushed by CLIENT_BUBBLE_PIXEL_OFFSET so it never sits exactly on top
+// of a Provider bubble sharing the same coordinates.
+function createClientBubbleIcon(count) {
+  // Keep the Users bubble dimensions consistent with Provider bubbles.
+  const size = bubbleSize(count);
+  return L.divIcon({
+    html: `
+      <div style="transform:translate(${CLIENT_BUBBLE_PIXEL_OFFSET}px, ${-CLIENT_BUBBLE_PIXEL_OFFSET}px);display:flex;align-items:center;justify-content:center;">
+        <div style="
+          width:${size}px;height:${size}px;border-radius:9999px;background:white;
+          border:3px solid ${CLIENT_BUBBLE_COLOR};display:flex;align-items:center;justify-content:center;
+          font-weight:700;color:${CLIENT_BUBBLE_COLOR};font-size:${count >= 100 ? 15 : 13}px;
+          box-shadow:0 1px 4px rgba(0,0,0,0.25);
+        ">${count}+</div>
+      </div>`,
+    className: "",
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+}
+
 export default function ProviderClusterMap({
   providers,
   governorateBubbles,
   countryBubble = null,
   selectedGovernorate = null,
   onSelectGovernorate,
-  clientLocations = [],
+  clientLocationBubbles = [],
   showUsers = false,
 }) {
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
@@ -531,7 +694,7 @@ export default function ProviderClusterMap({
   }, [providerByKey]);
 
   return (
-    <>
+    <div className="relative h-full w-full">
       <style>{`
         .branch-popup .leaflet-popup-content-wrapper {
           padding: 0;
@@ -545,6 +708,19 @@ export default function ProviderClusterMap({
         }
         .branch-popup .leaflet-popup-tip {
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .branch-popup .leaflet-popup-close-button {
+          color: white !important;
+          font-size: 20px;
+          font-weight: 400;
+          line-height: 28px;
+          width: 28px;
+          height: 28px;
+        }
+        .branch-popup .leaflet-popup-close-button:hover {
+          color: white !important;
+          background: rgba(255,255,255,0.16);
+          border-radius: 0 0 0 8px;
         }
       `}</style>
       <MapContainer
@@ -572,6 +748,14 @@ export default function ProviderClusterMap({
           <GovernorateBubbleLayer bubbles={governorateBubbles} onSelectGovernorate={onSelectGovernorate} />
         )}
 
+        {showUsers && clientLocationBubbles.length > 0 && (
+          <>
+            {clientLocationBubbles.map((bubble) => (
+              <ClientLocationBubble key={bubble.id} bubble={bubble} />
+            ))}
+          </>
+        )}
+
         {showIndividualPins && (
           <ClusterClickFlyer
             chunkedLoading
@@ -591,21 +775,7 @@ export default function ProviderClusterMap({
           </ClusterClickFlyer>
         )}
 
-        {showUsers &&
-          clientLocations.map((c, i) => (
-            <CircleMarker
-              key={`client-${i}-${c.lat}-${c.lng}`}
-              center={[c.lat, c.lng]}
-              radius={5}
-              pathOptions={{
-                color: "#2563eb",
-                fillColor: "#60a5fa",
-                fillOpacity: 0.7,
-                weight: 1,
-              }}
-            />
-          ))}
       </MapContainer>
-    </>
+    </div>
   );
 }

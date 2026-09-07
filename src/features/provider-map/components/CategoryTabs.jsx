@@ -145,7 +145,7 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
   }
 
   return (
-    <div ref={containerRef} className="relative inline-block w-64 text-left">
+    <div ref={containerRef} className="relative inline-block w-full sm:w-64 text-left">
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
@@ -163,7 +163,7 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
         // a plain opacity on the whole panel: only the background is translucent
         // (map shows through behind it) while text/icons stay fully opaque and
         // readable.
-        <div className="absolute z-[1100] mt-1 w-64 rounded-lg border border-gray-200 bg-white/90 shadow-lg backdrop-blur-sm">
+        <div className="absolute z-[1100] mt-1 w-full sm:w-64 rounded-lg border border-gray-200 bg-white/90 shadow-lg backdrop-blur-sm">
           <div className="relative border-b border-gray-100 p-2">
             <FontAwesomeIcon
               icon={faSearch}
