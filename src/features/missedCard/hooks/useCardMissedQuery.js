@@ -2,6 +2,8 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getCardMisseds } from "../services/cardMissedService";
 
 
+export const emptyFilters = { fromDate: "", toDate: "" };
+
 export const useCardMissedQuery = ({ cardPoolId, searchTerm, filters, pageNumber, pageSize }) => {
   const { data, isLoading, isError, error, isPlaceholderData, refetch } = useQuery({
     queryKey: ["cardMisseds", cardPoolId, searchTerm, filters, pageNumber, pageSize],
@@ -21,7 +23,6 @@ export const useCardMissedQuery = ({ cardPoolId, searchTerm, filters, pageNumber
     cardMisseds: data?.items ?? [],
     totalCount: data?.totalCount ?? 0,
     totalPages: data?.totalPages ?? 1,
-    serverPageSize: data?.pageSize,
     isLoading,
     refetch,
     isError,

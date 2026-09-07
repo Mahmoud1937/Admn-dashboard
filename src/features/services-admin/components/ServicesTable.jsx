@@ -1,6 +1,7 @@
 import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
 
 export default function ServicesTable({ services, hasActiveFilters, onEdit, onDeleteRequest }) {
   if (services.length === 0) {
@@ -15,7 +16,7 @@ export default function ServicesTable({ services, hasActiveFilters, onEdit, onDe
   }
 
   return (
-    <div className="scroll-table">
+    <ScrollableTable className="scroll-table">
       <table className="w-full text-center text-sm">
         <thead className="sticky top-0 bg-white">
           <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -51,6 +52,6 @@ export default function ServicesTable({ services, hasActiveFilters, onEdit, onDe
           ))}
         </tbody>
       </table>
-    </div>
+    </ScrollableTable>
   );
 }

@@ -80,14 +80,11 @@ function createBubbleIcon(count, governorateName) {
   });
 }
 
-// Pushes every Users bubble off its exact ground point so it never covers the
-// Provider bubble sitting on the same coordinates; the fixed diagonal offset
-// leaves room for both markers to be visible side by side.
-// Blue is used for the Users group bubbles (white bubble with a blue ring,
-// same look as the Provider bubbles). Must stay distinct from the colored
-// Provider rings so Users groups remain recognizable.
+// Push client bubbles far enough away from a provider bubble at the same
+// coordinates. The largest bubbles are 56px wide, so a 44px diagonal offset
+// leaves a visible gap even when both bubbles are at their maximum size.
 const CLIENT_BUBBLE_COLOR = "#2563eb";
-const CLIENT_BUBBLE_PIXEL_OFFSET = 16;
+const CLIENT_BUBBLE_PIXEL_OFFSET = 44;
 
 // Groups the branches inside a cluster by their provider (not just by Arabic
 // name, which can collide across different providers) and keeps both the
@@ -621,22 +618,19 @@ function ClusterClickFlyer({ children, ...clusterProps }) {
 // REAL ground distance (~200m diameter) — `maxClusterRadius` converts the fixed
 // meter radius into the matching pixel radius at the current zoom, so grouping
 // doesn't depend on the Leaflet screen grid. Zooming in only ever SPLITS
-// A Users group bubble rendered in exactly the same style as the white
-// Provider bubbles (with the member count), but on a fixed blue ring so Users
-// groups stay visually distinct from the colored Provider bubbles. The whole
-// icon is pushed by CLIENT_BUBBLE_PIXEL_OFFSET so it never sits exactly on top
-// of a Provider bubble sharing the same coordinates.
+// Client groups use a filled blue bubble with a white border, unlike the white
+// provider bubbles. The offset keeps a client group from touching a provider
+// marker that shares its coordinates.
 function createClientBubbleIcon(count) {
-  // Keep the Users bubble dimensions consistent with Provider bubbles.
   const size = bubbleSize(count);
   return L.divIcon({
     html: `
       <div style="transform:translate(${CLIENT_BUBBLE_PIXEL_OFFSET}px, ${-CLIENT_BUBBLE_PIXEL_OFFSET}px);display:flex;align-items:center;justify-content:center;">
         <div style="
-          width:${size}px;height:${size}px;border-radius:9999px;background:white;
-          border:3px solid ${CLIENT_BUBBLE_COLOR};display:flex;align-items:center;justify-content:center;
-          font-weight:700;color:${CLIENT_BUBBLE_COLOR};font-size:${count >= 100 ? 15 : 13}px;
-          box-shadow:0 1px 4px rgba(0,0,0,0.25);
+          width:${size}px;height:${size}px;border-radius:9999px;background:${CLIENT_BUBBLE_COLOR};
+          border:3px solid white;display:flex;align-items:center;justify-content:center;
+          font-weight:700;color:white;font-size:${count >= 100 ? 15 : 13}px;
+          box-shadow:0 0 0 2px ${CLIENT_BUBBLE_COLOR},0 2px 6px rgba(0,0,0,0.3);
         ">${count}+</div>
       </div>`,
     className: "",

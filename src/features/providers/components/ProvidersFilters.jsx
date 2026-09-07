@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import ProviderCategorySelect from "./ProviderCategorySelect";
 import SpecialistSelect from "../../services-admin/components/SpecialistSelect";
+import FilterPanel from "../../../shared/components/FilterPanel";
 
 
 export const emptyFilters = {
@@ -25,24 +26,8 @@ export default function ProvidersFilters({ draft, onChange, onApply, onClear, on
     onChange((prev) => ({ ...prev, status: Number(e.target.value) }));
 
   return (
-    <>
-      {/* Mobile-only backdrop, closes the panel on outside tap */}
-      <div
-        onClick={onClose}
-        className="fixed inset-0 z-20 bg-slate-900/30 sm:hidden"
-      />
-
-      <div
-        ref={panelRef}
-        className="
-          fixed inset-x-0 bottom-0 z-30 max-h-[85vh] w-full overflow-y-auto
-          rounded-t-2xl border border-slate-200 bg-white p-5 shadow-lg
-          sm:absolute sm:inset-x-auto sm:right-4 sm:top-full sm:bottom-auto
-          sm:z-20 sm:mt-2 sm:max-h-none sm:w-80 sm:rounded-xl sm:bg-white/95
-          sm:backdrop-blur-sm
-        "
-      >
-        <div className="mb-4 flex items-center justify-between">
+    <FilterPanel panelRef={panelRef} onClose={onClose} className="sm:w-80">
+      <div className="mb-4 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-800">Filters</h3>
           <button
             onClick={onClose}
@@ -67,7 +52,7 @@ export default function ProvidersFilters({ draft, onChange, onApply, onClear, on
           </select>
         </div>
 
-        <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="mb-4 grid grid-cols-1 gap-3">
           <div>
             <label className="mb-1.5 block text-xs font-medium text-slate-500">
               Join Date From
@@ -128,7 +113,6 @@ export default function ProvidersFilters({ draft, onChange, onApply, onClear, on
             Apply
           </button>
         </div>
-      </div>
-    </>
+    </FilterPanel>
   );
 }

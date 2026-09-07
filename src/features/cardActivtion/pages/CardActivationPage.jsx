@@ -44,7 +44,6 @@ export default function CardActivationPage() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({
     resetKey: `${id}-${sourceType}-${debouncedSearch}`,
@@ -54,7 +53,6 @@ export default function CardActivationPage() {
     cards,
     totalCount,
     totalPages,
-    serverPageSize,
     isLoading,
     isError,
     error,
@@ -67,7 +65,6 @@ export default function CardActivationPage() {
     pageSize,
   });
 
-  lockPageSize(serverPageSize);
 
   const backPath = SOURCE_TYPE_BACK_PATH[sourceType];
 

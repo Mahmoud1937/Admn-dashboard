@@ -11,6 +11,12 @@ export const PLATFORM_TYPE = {
   WEB: 2,
 };
 
+export const emptyFilters = {
+  platformType: "",
+  isMale: "",
+  hasCard: "",
+};
+
 const DEFAULT_FILTERS = {
   searchTerm: "",
   platformType: "", // "" = all, otherwise 0 | 1 | 2

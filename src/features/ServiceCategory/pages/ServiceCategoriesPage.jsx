@@ -23,7 +23,6 @@ export default function ServiceCategoriesPage() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({ resetKey: search });
 
@@ -31,7 +30,6 @@ export default function ServiceCategoriesPage() {
     categories,
     totalCount,
     totalPages,
-    serverPageSize,
     isLoading,
     isError,
     error,
@@ -39,7 +37,6 @@ export default function ServiceCategoriesPage() {
     refetch
   } = useServiceCategoriesQuery({ pageNumber, pageSize, search });
 
-  lockPageSize(serverPageSize);
 
   const closeForm = () => {
     setIsFormOpen(false);

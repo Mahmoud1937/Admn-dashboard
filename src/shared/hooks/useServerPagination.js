@@ -21,9 +21,9 @@ export function useServerPagination({ resetKey } = {}) {
     setPageNumber(1);
   }, [resetKey]);
 
-  const lockPageSize = () => {
-    // pageSize now always starts at 20 and is only changed by the user via handlePageSizeChange.
-  };
+  useEffect(() => {
+    window.dispatchEvent(new Event("table:pagination-change"));
+  }, [pageNumber]);
 
   const goToPage = (page, totalPages) => {
     if (page < 1 || page > totalPages || page === pageNumber) return;
@@ -41,7 +41,6 @@ export function useServerPagination({ resetKey } = {}) {
     setPageNumber,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   };
 }

@@ -21,6 +21,7 @@ export default function SoldCardsByPoolPage() {
 
   const from = location.state?.from;
   const to = location.state?.to;
+  const count = location.state?.count;
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 400);
@@ -30,7 +31,6 @@ export default function SoldCardsByPoolPage() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({
     resetKey: `${cardPoolId}-${debouncedSearch}`,
@@ -40,7 +40,6 @@ export default function SoldCardsByPoolPage() {
     soldCards,
     totalCount,
     totalPages,
-    serverPageSize,
     isLoading,
     isError,
     error,
@@ -53,7 +52,6 @@ export default function SoldCardsByPoolPage() {
     pageSize,
   });
 
-  lockPageSize(serverPageSize);
 
   return (
     <div>
@@ -74,9 +72,12 @@ export default function SoldCardsByPoolPage() {
         </h1>
 
         <p className="mt-1 text-sm text-slate-500">
-          {from && to ? (
+          {cardPoolId && from && to ? (
             <>
-              Cards sold from{" "}
+              <span className="font-semibold text-slate-700">
+                {count ?? 0}
+              </span>{" "}
+              sold cards from{" "}
               <span className="font-medium text-slate-700">
                 {from}
               </span>{" "}
@@ -153,4 +154,3 @@ export default function SoldCardsByPoolPage() {
     </div>
   );
 }
-

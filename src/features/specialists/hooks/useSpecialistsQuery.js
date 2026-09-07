@@ -13,6 +13,5 @@ export function useSpecialistsQuery({ pageNumber, pageSize, search }) {
     specialists: query.data?.data?.items ?? [],
     totalCount: query.data?.data?.totalCount ?? 0,
     totalPages: query.data?.data?.totalPages ?? 1,
-    serverPageSize: query.data?.data?.pageSize,
   };
 }

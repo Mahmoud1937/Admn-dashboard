@@ -47,7 +47,7 @@ const {
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+      <div className="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center xl:justify-between">
         <CategoryTabs activeCategoryId={providerCategoryId} onChange={setProviderCategoryId} />
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center xl:w-auto">
           <MapFilters

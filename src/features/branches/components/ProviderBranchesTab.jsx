@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBan,
@@ -21,6 +21,7 @@ import BranchesFilters from "./BranchesFilters";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import Pagination from "../../../shared/components/Pagination";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
 import StatusBadge from "../../providers/components/StatusBadge";
 
 import { formatDate } from "../../../utils/formatDate";
@@ -48,7 +49,6 @@ export default function ProviderBranchesTab() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({
     resetKey: `${search}|${governorateFilter}|${cityFilter}|${statusFilter}`,
@@ -58,7 +58,6 @@ export default function ProviderBranchesTab() {
     branches,
     totalPages,
     totalCount,
-    serverPageSize,
     isLoading,
     isError,
     error,
@@ -72,11 +71,6 @@ export default function ProviderBranchesTab() {
     cityFilter,
     statusFilter,
   });
-
-  useEffect(() => {
-    lockPageSize(serverPageSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverPageSize]);
 
   const { createMutation, updateMutation } = useBranchMutations({
     onCreateSuccess: () => setIsModalOpen(false),
@@ -162,7 +156,7 @@ isError ? (
           />
         ) : (
           <>
-            <div className="overflow-x-auto p-6 scroll-table">
+            <ScrollableTable className="p-6 scroll-table">
               <table className="w-full min-w-[1400px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -274,7 +268,7 @@ isError ? (
                   ))}
                 </tbody>
               </table>
-            </div>
+            </ScrollableTable>
 
             <Pagination
               pageNumber={pageNumber}

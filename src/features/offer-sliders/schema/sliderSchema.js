@@ -26,7 +26,7 @@ export const imageFileSchema = z
     "Image size must not exceed 5 MB."
   );
 
-export const buildSliderSchema = (isEditMode) =>
+export const buildSliderSchema = () =>
   z.object({
     providerId: z.string().min(1, "Provider is required"),
   });

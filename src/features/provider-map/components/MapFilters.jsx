@@ -6,7 +6,6 @@ import { normalizeArabic } from "../utils/Arabictext";
 import { getAllGovernorateCenters } from "../utils/GovernorateCenters";
 
 export default function MapFilters({
-  governorates,
   governorateId,
   onGovernorateChange,
   search,

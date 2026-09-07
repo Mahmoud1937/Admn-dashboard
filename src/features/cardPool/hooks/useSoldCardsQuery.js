@@ -19,7 +19,6 @@ export const useSoldCardsQuery = ({ cardPoolId, searchTerm, pageNumber, pageSize
     soldCards: data?.items ?? [],
     totalCount: data?.totalCount ?? 0,
     totalPages: data?.totalPages ?? 1,
-    serverPageSize: data?.pageSize,
     isLoading,
     isError,
     error,

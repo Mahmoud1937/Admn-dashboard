@@ -3,7 +3,6 @@ import {
   faPenToSquare,
   faBan,
   faCheck,
-  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -93,7 +92,7 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
       {/* ---------- Mobile: stacked cards (below md) ---------- */}
       <div className="divide-y divide-slate-100 md:hidden">
         {providers.map((provider) => {
-          const { ar: categoryAr, en: categoryEn } = splitBilingualName(provider.categoryName);
+          const { en: categoryEn } = splitBilingualName(provider.categoryName);
           const hasSpecialist = provider.specialistNameEn || provider.specialistNameAr;
 
           return (

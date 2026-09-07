@@ -41,6 +41,5 @@ export function useBranchesQuery({
     branches: query.data?.items ?? [],
     totalCount: query.data?.totalCount ?? 0,
     totalPages: query.data?.totalPages ?? 1,
-    serverPageSize: query.data?.pageSize,
   };
 }

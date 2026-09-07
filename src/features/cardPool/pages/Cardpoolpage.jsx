@@ -2,10 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
-import CardPoolFilters, { emptyFilters } from "../components/Cardpoolfilters";
+import CardPoolFilters from "../components/Cardpoolfilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useCardPoolMutations } from "../hooks/useCardPoolMutations";
-import { useCardPoolQuery } from "../hooks/useCardPoolQuery";
+import { emptyFilters, useCardPoolQuery } from "../hooks/useCardPoolQuery";
 import CardPoolSearchBar from "../components/Cardpoolsearchbar";
 import CardPoolTable from "../components/Cardpooltable";
 import Pagination from "../../../shared/components/Pagination";
@@ -35,7 +35,6 @@ export default function CardPoolPage() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({
     resetKey: `${debouncedSearch}-${JSON.stringify(filters)}`,
@@ -58,7 +57,6 @@ export default function CardPoolPage() {
     cardPools,
     totalCount,
     totalPages,
-    serverPageSize,
     isLoading,
     isError,
     error,
@@ -71,7 +69,6 @@ export default function CardPoolPage() {
   filters,
   });
 
-  lockPageSize(serverPageSize);
 
   const closeForm = () => {
     setIsFormOpen(false);

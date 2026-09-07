@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
@@ -27,7 +27,6 @@ export default function CitiesPage() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({ resetKey: `${debouncedSearch}-${governorateFilter}` });
 
@@ -35,18 +34,12 @@ export default function CitiesPage() {
     cities,
     totalCount,
     totalPages,
-    serverPageSize,
     isLoading,
     isError,
     error,
     isPlaceholderData,
     refetch,
   } = useCitiesQuery({ pageNumber, pageSize, search: debouncedSearch, governorateFilter });
-
-  useEffect(() => {
-    lockPageSize(serverPageSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverPageSize]);
 
   const closeForm = () => {
     setIsFormOpen(false);

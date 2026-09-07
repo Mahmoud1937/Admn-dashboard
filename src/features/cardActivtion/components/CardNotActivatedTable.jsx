@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { faSearch, faFileExport, faSpinner, faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faSpinner, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { exportNotActivatedCards } from "../services/cardActivationService";
 import ScrollableTable from "../../../shared/components/ScrollableTable";

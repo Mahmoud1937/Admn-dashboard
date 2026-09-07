@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBan, faCheck, faPenToSquare, faPlus, faSearch, faTag } from "@fortawesome/free-solid-svg-icons";
 import { useParams } from "react-router-dom";
@@ -8,6 +8,7 @@ import { useProviderServicesQuery } from "../hooks/useProviderServicesQuery";
 import { useProviderServiceMutations } from "../hooks/useProviderServiceMutations";
 import { useProviderServiceToggleMutation } from "../hooks/useProviderServiceToggleMutation";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
 import StatusBadge from "../../services-admin/components/StatusBadge";
 import { formatDate } from "../../../utils/formatDate";
 import Pagination from "../../../shared/components/Pagination";
@@ -33,7 +34,6 @@ export default function ProviderServicesTab() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({
     resetKey: `${search}|${statusFilter}`,
@@ -43,7 +43,6 @@ const {
   providerServices,
   totalPages,
   totalCount,
-  serverPageSize,
   isLoading,
   isError,
   error,
@@ -55,11 +54,6 @@ const {
   search,
   statusFilter,
 });
-
-  useEffect(() => {
-    lockPageSize(serverPageSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverPageSize]);
 
 const { createMutation, updateMutation, isSaving, serverErrors, clearServerErrors } =
   useProviderServiceMutations({
@@ -154,7 +148,7 @@ const { createMutation, updateMutation, isSaving, serverErrors, clearServerError
           />
         ) : (
           <>
-            <div className="p-6 overflow-x-auto scroll-table">
+            <ScrollableTable className="p-6 scroll-table">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -245,7 +239,7 @@ const { createMutation, updateMutation, isSaving, serverErrors, clearServerError
                   ))}
                 </tbody>
               </table>
-            </div>
+            </ScrollableTable>
 
             <Pagination
               pageNumber={pageNumber}

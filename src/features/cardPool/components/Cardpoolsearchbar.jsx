@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function CardPoolSearchBar({ value, onChange, onFilterClick, activeFilterCount = 0 }) {
   return (
-    <div className="flex items-center gap-3 border-b border-slate-200 p-4">
-      <div className="relative flex-1">
+    <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center">
+      <div className="relative min-w-0 flex-1">
         <FontAwesomeIcon
           icon={faSearch}
           className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
@@ -22,7 +22,7 @@ export default function CardPoolSearchBar({ value, onChange, onFilterClick, acti
       <button
         type="button"
         onClick={onFilterClick}
-        className="relative flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+        className="relative flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 sm:w-auto"
       >
         <FontAwesomeIcon icon={faFilter} />
         Filters

@@ -1,6 +1,7 @@
 import { faCity } from "@fortawesome/free-solid-svg-icons";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
 
 export default function CitiesTable({ cities, hasActiveFilters, onEdit, onDeleteRequest }) {
   if (cities.length === 0) {
@@ -15,7 +16,7 @@ export default function CitiesTable({ cities, hasActiveFilters, onEdit, onDelete
   }
 
   return (
-    <div className="overflow-x-auto scroll-table">
+    <ScrollableTable className="scroll-table">
 
     <table className="w-full min-w-[500px] text-left text-sm">
       <thead>
@@ -43,6 +44,6 @@ export default function CitiesTable({ cities, hasActiveFilters, onEdit, onDelete
         ))}
       </tbody>
     </table>
-    </div>
+    </ScrollableTable>
   );
 }

@@ -28,7 +28,6 @@ const SlidersPage = () => {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({ resetKey: search });
 
@@ -52,7 +51,6 @@ const SlidersPage = () => {
     clearServerErrors,
   } = useSliderMutations();
 
-  lockPageSize(data?.pageSize);
 
   const handleOpenAdd = () => {
     setSliderToEdit(null);

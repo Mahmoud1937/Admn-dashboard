@@ -159,21 +159,6 @@ const saveSelection = useCallback(() => {
   savedSelection.current = range.cloneRange();
 }, []);
 
-const restoreSelection = useCallback(() => {
-  if (!savedSelection.current) return false;
-
-  const sel = window.getSelection();
-
-  try {
-    sel.removeAllRanges();
-    sel.addRange(savedSelection.current);
-    return true;
-  } catch (error) {
-    console.error("Could not restore selection:", error);
-    return false;
-  }
-}, []);
-
   const isRTL = lang === "ar";
   const direction = isRTL ? "rtl" : "ltr";
 

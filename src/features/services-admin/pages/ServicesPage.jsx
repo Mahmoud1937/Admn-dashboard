@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
@@ -23,7 +23,6 @@ export default function ServicesPage() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({ resetKey: `${search}-${categoryFilter}` });
 
@@ -31,18 +30,12 @@ export default function ServicesPage() {
     services,
     totalCount,
     totalPages,
-    serverPageSize,
     isLoading,
     isError,
     error,
     isPlaceholderData,
     refetch
   } = useServicesQuery({ pageNumber, pageSize, search, categoryFilter });
-
-  useEffect(() => {
-    lockPageSize(serverPageSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverPageSize]);
 
   const closeForm = () => {
     setIsFormOpen(false);

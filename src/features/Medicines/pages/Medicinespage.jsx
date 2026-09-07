@@ -24,7 +24,6 @@ export default function MedicinesPage() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({ resetKey: search });
 
@@ -32,7 +31,6 @@ export default function MedicinesPage() {
     medicines,
     totalCount,
     totalPages,
-    serverPageSize,
     isLoading,
     isError,
     error,
@@ -40,7 +38,6 @@ export default function MedicinesPage() {
     isPlaceholderData,
   } = useMedicinesQuery({ pageNumber, pageSize, search });
 
-  lockPageSize(serverPageSize);
 
   const closeForm = () => {
     setIsFormOpen(false);

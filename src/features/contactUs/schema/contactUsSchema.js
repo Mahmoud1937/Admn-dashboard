@@ -1,7 +1,5 @@
 // schema/contactUsSchema.js
 import { z } from "zod";
-import { egyptianPhoneField } from "../../../shared/schema/validation";
-
 // TODO: move this to shared/schema/validation once you're ready — no emailField
 // exists there yet, so it's defined locally here for now.
 const emailField = z
@@ -10,9 +8,7 @@ const emailField = z
   .min(1, "Email is required")
   .email("Enter a valid email");
 
-// egyptianPhoneField in shared/validation is optional by design (used for
-// optional contact fields elsewhere). phoneNumber/whatsApp here are required,
-// so we re-apply the same pattern with a required check.
+// Phone number and WhatsApp are required on this form.
 const requiredEgyptianPhoneField = z
   .string()
   .trim()

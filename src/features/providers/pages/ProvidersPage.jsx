@@ -5,6 +5,7 @@ import { useProviderToggleMutation } from "../hooks/useProviderToggleMutation";
 import { useProvidersQuery } from "../hooks/useProvidersQuery";
 import ProvidersTable from "../components/ProvidersTable";
 import Pagination from "../../../shared/components/Pagination";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import ProvidersHeader from "../components/ProvidersHeader";
 import ProvidersSearchBar from "../components/ProvidersSearchBar";
@@ -31,7 +32,6 @@ export default function ProvidersPage() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({
     resetKey: `${search}-${JSON.stringify(filters)}`,
@@ -54,7 +54,6 @@ export default function ProvidersPage() {
     providers,
     totalCount,
     totalPages,
-    serverPageSize,
     isLoading,
     isError,
     error,
@@ -62,7 +61,6 @@ export default function ProvidersPage() {
     isPlaceholderData,
   } = useProvidersQuery({ pageNumber, pageSize, search, filters });
 
-  lockPageSize(serverPageSize);
 
   const { toggleMutation } = useProviderToggleMutation({
     onSuccess: () => setProviderToToggle(null),
@@ -139,13 +137,13 @@ const handleEdit = (provider) => {
             className={`overflow-hidden rounded-b-xl transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"
               }`}
           >
-            <div className="max-h-[600px] overflow-y-auto">
+            <ScrollableTable maxHeight="600px">
               <ProvidersTable
                 providers={providers}
                 onEdit={handleEdit}
                 onToggleStatus={handleToggleClick}
               />
-            </div>
+            </ScrollableTable>
 
             {providers.length === 0 && (
               <p className="py-8 text-center text-sm text-slate-400">No providers found.</p>

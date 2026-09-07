@@ -2,9 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
-import CardSoldFilters, { emptyFilters } from "../components/CardSoldFilters";
+import CardSoldFilters from "../components/CardSoldFilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
-import { useCardSoldQuery } from "../hooks/useCardSoldQuery";
+import { emptyFilters, useCardSoldQuery } from "../hooks/useCardSoldQuery";
 import { useCardSoldMutations } from "../hooks/useCardSoldMutations";
 
 import CardSoldSearchBar from "../components/CardSoldSearchBar";
@@ -33,7 +33,6 @@ export default function CardSoldPage() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({
     resetKey: `${debouncedSearch}-${JSON.stringify(filters)}`,
@@ -56,7 +55,6 @@ export default function CardSoldPage() {
     cardSolds,
     totalCount,
     totalPages,
-    serverPageSize,
     isLoading,
     isError,
     error,
@@ -70,7 +68,6 @@ export default function CardSoldPage() {
     toDate: filters.toDate,
   });
 
-  lockPageSize(serverPageSize);
 
   const closeForm = () => {
     setIsFormOpen(false);

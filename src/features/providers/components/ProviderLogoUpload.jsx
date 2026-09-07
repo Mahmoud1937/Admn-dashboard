@@ -11,7 +11,7 @@ function ProviderLogoUpload({
   error,
 }) {
   const [isDragging, setIsDragging] = useState(false);
-  const [dragCounter, setDragCounter] = useState(0);
+  const [, setDragCounter] = useState(0);
 
   const handleDrop = (e) => {
     e.preventDefault();

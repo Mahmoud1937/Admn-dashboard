@@ -7,8 +7,6 @@ export default function CitiesFilters({
   onSearchChange,
   governorateFilter,
   onGovernorateFilterChange,
-  statusFilter,
-  onStatusFilterChange,
 }) {
   return (
     <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row">

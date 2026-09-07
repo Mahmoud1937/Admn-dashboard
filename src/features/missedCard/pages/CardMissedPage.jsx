@@ -3,9 +3,9 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
-import CardMissedFilters, { emptyFilters } from "../components/CardMissedFilters";
+import CardMissedFilters from "../components/CardMissedFilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
-import { useCardMissedQuery } from "../hooks/useCardMissedQuery";
+import { emptyFilters, useCardMissedQuery } from "../hooks/useCardMissedQuery";
 import { useCardMissedMutations } from "../hooks/useCardMissedMutations";
 import CardMissedSearchBar from "../components/CardMissedSearchBar";
 import CardMissedTable from "../components/CardMissedTable";
@@ -27,7 +27,6 @@ export default function CardMissedPage() {
   // Data passed from CardPoolTable's "Missed" link
   const from = location.state?.from;
   const to = location.state?.to;
-  const count = location.state?.count;
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 400);
@@ -45,7 +44,6 @@ export default function CardMissedPage() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({
     resetKey: `${cardPoolId}-${debouncedSearch}-${JSON.stringify(filters)}`,
@@ -68,7 +66,6 @@ export default function CardMissedPage() {
     cardMisseds,
     totalCount,
     totalPages,
-    serverPageSize,
     isLoading,
     isError,
     error,
@@ -76,7 +73,6 @@ export default function CardMissedPage() {
     refetch
   } = useCardMissedQuery({ cardPoolId, pageNumber, pageSize, searchTerm: debouncedSearch, filters });
 
-  lockPageSize(serverPageSize);
 
   const closeForm = () => {
     setIsFormOpen(false);

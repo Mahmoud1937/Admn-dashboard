@@ -23,7 +23,6 @@ export default function GovernoratesPage() {
     pageSize,
     goToPage,
     handlePageSizeChange,
-    lockPageSize,
     getPageNumbers,
   } = useServerPagination({ resetKey: search });
 
@@ -31,7 +30,6 @@ export default function GovernoratesPage() {
     governorates,
     totalCount,
     totalPages,
-    serverPageSize,
     isLoading,
     isError,
     error,
@@ -39,7 +37,6 @@ export default function GovernoratesPage() {
     refetch
   } = useGovernoratesQuery({ pageNumber, pageSize, search });
 
-  lockPageSize(serverPageSize);
 
   const closeForm = () => {
     setIsFormOpen(false);

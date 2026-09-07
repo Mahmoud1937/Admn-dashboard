@@ -13,7 +13,6 @@ export function useCategoriesQuery({ pageNumber, pageSize, search }) {
     categories: data?.data?.items ?? [],
     totalCount: data?.data?.totalCount ?? 0,
     totalPages: data?.data?.totalPages ?? 1,
-    serverPageSize: data?.data?.pageSize,
     isLoading,
   isFetching,
     isError,

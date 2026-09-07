@@ -1,6 +1,7 @@
 import { faMap } from "@fortawesome/free-solid-svg-icons";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
 
 export default function GovernoratesTable({ governorates, hasActiveFilters, onEdit, onDeleteRequest }) {
   if (governorates.length === 0) {
@@ -15,7 +16,7 @@ export default function GovernoratesTable({ governorates, hasActiveFilters, onEd
   }
 
   return (
-    <div className="overflow-x-auto scroll-table">
+    <ScrollableTable className="scroll-table">
 
     <table className="w-full min-w-[500px] text-left text-sm">
       <thead>
@@ -38,6 +39,6 @@ export default function GovernoratesTable({ governorates, hasActiveFilters, onEd
         ))}
       </tbody>
     </table>
-    </div>
+    </ScrollableTable>
   );
 }

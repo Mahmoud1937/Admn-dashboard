@@ -109,7 +109,7 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const { categories, totalPages, isLoading, isFetching } = useCategoriesQuery({
+  const { categories, totalPages, isFetching } = useCategoriesQuery({
     pageNumber,
     pageSize: PAGE_SIZE,
     search: debouncedSearch,
