@@ -55,6 +55,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
   const switchMode = (newMode) => {
     setMode(newMode);
     reset(defaultValues(newMode));
+    clearServerErrors?.();
   };
 
   if (!isOpen) return null;
@@ -228,6 +229,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
           Proof of Payment <span className="text-red-500">*</span>
         </label>
         <input
+          key={mode}
           type="file"
           accept="image/*"
           onChange={(e) => {
