@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { faFileExcel, faSpinner, faTrash, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faFileExcel, faSpinner, faTrash, faXmark, faCreditCard } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate } from "../../../utils/formatDate";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
+import TableEmptyState from "../../../shared/components/TableEmptyState";
 
-const CardSoldTable = ({ items, isLoading, onExport, exportingId, onDelete }) => {
+const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exportingId, onDelete }) => {
   const isArabic = (text) => /[\u0600-\u06FF]/.test(text || "");
   const [previewImage, setPreviewImage] = useState(null);
 
@@ -15,7 +16,11 @@ const CardSoldTable = ({ items, isLoading, onExport, exportingId, onDelete }) =>
 
   if (!items?.length) {
     return (
-      <div className="text-center py-8 text-gray-500">No sold cards found</div>
+      <TableEmptyState
+        icon={faCreditCard}
+        title="No sold cards found"
+        hasActiveFilters={hasActiveFilters}
+      />
     );
   }
 

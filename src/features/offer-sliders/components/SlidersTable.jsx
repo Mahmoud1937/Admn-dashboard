@@ -6,6 +6,7 @@ import {
     faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import TableEmptyState from "../../../shared/components/TableEmptyState";
 
 const ImageCell = ({ url, label, onPreview }) => {
     if (!url) {
@@ -127,9 +128,11 @@ const SlidersTable = ({
 
     if (!sliders?.length) {
         return (
-            <div className="p-10 text-center text-gray-400 text-sm">
-                No sliders found.
-            </div>
+            <TableEmptyState
+                icon={faImage}
+                title="No sliders found"
+                emptyMessage="Get started by adding a new slider."
+            />
         );
     }
 

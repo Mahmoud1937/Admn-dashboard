@@ -1,8 +1,8 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import ProviderCategorySelect from "./ProviderCategorySelect";
 import SpecialistSelect from "../../services-admin/components/SpecialistSelect";
 import FilterPanel from "../../../shared/components/FilterPanel";
+import FilterPanelHeader from "../../../shared/components/FilterPanelHeader";
+import FilterPanelFooter from "../../../shared/components/FilterPanelFooter";
 
 
 export const emptyFilters = {
@@ -27,15 +27,7 @@ export default function ProvidersFilters({ draft, onChange, onApply, onClear, on
 
   return (
     <FilterPanel panelRef={panelRef} onClose={onClose} className="sm:w-80">
-      <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-800">Filters</h3>
-          <button
-            onClick={onClose}
-            className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-          >
-            <FontAwesomeIcon icon={faXmark} />
-          </button>
-        </div>
+      <FilterPanelHeader onClose={onClose} />
 
         <div className="mb-4">
           <label className="mb-1.5 block text-xs font-medium text-slate-500">
@@ -99,20 +91,7 @@ export default function ProvidersFilters({ draft, onChange, onApply, onClear, on
           />
         </div>
 
-        <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-          <button
-            onClick={onClear}
-            className="text-sm font-medium text-slate-500 hover:text-slate-700"
-          >
-            Clear all
-          </button>
-          <button
-            onClick={onApply}
-            className="rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
-          >
-            Apply
-          </button>
-        </div>
+        <FilterPanelFooter onClear={onClear} onApply={onApply} />
     </FilterPanel>
   );
 }

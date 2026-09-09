@@ -10,22 +10,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import useClientDetailsQuery from "../hooks/useClientDetailsQuery";
 import OrderHistorySection from "../components/OrderHistorySection";
-
-const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString("en-GB") : "-";
+import StatusBadge from "../../../shared/components/StatusBadge";
+import { formatDate } from "../../../utils/formatDate";
 
 const formatDateTime = (value) =>
   value ? new Date(value).toLocaleString("en-GB") : "-";
-
-const StatusBadge = ({ isBlocked }) => (
-  <span
-    className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
-      isBlocked ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"
-    }`}
-  >
-    {isBlocked ? "Blocked" : "Active"}
-  </span>
-);
 
 const InfoField = ({ label, value }) => (
   <div>
@@ -172,7 +161,9 @@ const ClientDetailsPage = () => {
                 </div>
 
                 <div className="ml-auto">
-                  <StatusBadge isBlocked={client.isBlocked} />
+                  <StatusBadge tone={client.isBlocked ? "danger" : "success"}>
+                    {client.isBlocked ? "Blocked" : "Active"}
+                  </StatusBadge>
                 </div>
               </div>
 

@@ -1,13 +1,9 @@
-export default function StatusBadge({ isActive }) {
+import StatusBadge from "../../../shared/components/StatusBadge";
+
+export default function ProviderStatusBadge({ isActive }) {
   return (
-    <span
-      className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${
-        isActive
-          ? "bg-emerald-50 text-emerald-600"
-          : "bg-slate-100 text-slate-500"
-      }`}
-    >
+    <StatusBadge tone={isActive ? "emerald" : "inactive"} size="sm">
       {isActive ? "Active" : "Inactive"}
-    </span>
+    </StatusBadge>
   );
 }

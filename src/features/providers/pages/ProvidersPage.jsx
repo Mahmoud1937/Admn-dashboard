@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useProviderToggleMutation } from "../hooks/useProviderToggleMutation";
@@ -7,8 +8,9 @@ import ProvidersTable from "../components/ProvidersTable";
 import Pagination from "../../../shared/components/Pagination";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
+import TableEmptyState from "../../../shared/components/TableEmptyState";
 import ProvidersHeader from "../components/ProvidersHeader";
-import ProvidersSearchBar from "../components/ProvidersSearchBar";
+import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilters";
 import { countActiveFilters } from "../utils/countActiveFilters";
 import ProvidersFilters, { emptyFilters } from "../components/ProvidersFilters";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
@@ -103,9 +105,10 @@ const handleEdit = (provider) => {
 
       <div className="mt-6 rounded-xl border border-slate-200 bg-white">
         <div className="relative">
-          <ProvidersSearchBar
+          <SearchBarWithFilters
             value={search}
             onChange={setSearch}
+            placeholder="Search by name (EN/AR) or ID..."
             onFilterClick={openFilters}
             activeFilterCount={countActiveFilters(filters)}
           />
@@ -146,7 +149,11 @@ const handleEdit = (provider) => {
             </ScrollableTable>
 
             {providers.length === 0 && (
-              <p className="py-8 text-center text-sm text-slate-400">No providers found.</p>
+              <TableEmptyState
+                icon={faUsers}
+                title="No providers found"
+                emptyMessage="Get started by adding a new provider."
+              />
             )}
 
             {providers.length > 0 && (

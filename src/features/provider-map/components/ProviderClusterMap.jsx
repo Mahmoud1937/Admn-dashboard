@@ -49,7 +49,7 @@ const GOVERNORATE_COLORS = {
   "الأقصر": "#EA580C",
   "أسوان": "#059669",
   "الوادي الجديد": "#CA8A04",
-  // كانت ناقصة، فكانت بتاخد اللون الرمادي الافتراضي بدل لون مميز
+  // Was missing, so it was falling back to the default gray instead of a distinct color
   "البحر الأحمر": "#F59E0B",
 };
 
@@ -62,19 +62,24 @@ function bubbleSize(count) {
   return count >= 100 ? 56 : count >= 25 ? 48 : 40;
 }
 
-
+// Shared circle body used by every bubble icon (governorate, cluster and
+// client). Callers supply the background/border/text colors to tune the look.
+function bubbleCircleStyle(size, count, color, { bg = "white", border = `3px solid ${color}` } = {}) {
+  return `
+    width:${size}px;height:${size}px;border-radius:9999px;background:${bg};
+    border:${border};display:flex;align-items:center;justify-content:center;
+    font-weight:700;color:${color};font-size:${count >= 100 ? 15 : 13}px;
+  `;
+}
+function bubbleCircleHtml(size, count, color, { bg, border, shadow = "box-shadow:0 1px 4px rgba(0,0,0,0.25);" } = {}) {
+  return `<div style="${bubbleCircleStyle(size, count, color, { bg, border })}${shadow}">${count}+</div>`;
+}
 
 function createBubbleIcon(count, governorateName) {
   const color = governorateColor(governorateName);
   const size = bubbleSize(count);
   return L.divIcon({
-    html: `
-      <div style="
-        width:${size}px;height:${size}px;border-radius:9999px;background:white;
-        border:3px solid ${color};display:flex;align-items:center;justify-content:center;
-        font-weight:700;color:${color};font-size:${count >= 100 ? 15 : 13}px;
-        box-shadow:0 1px 4px rgba(0,0,0,0.25);
-      ">${count}+</div>`,
+    html: bubbleCircleHtml(size, count, color),
     className: "",
     iconSize: [size, size],
   });
@@ -128,12 +133,7 @@ function buildClusterIconHtml(count, color, size, providersInCluster) {
   return `
     <div style="position:relative;cursor:pointer;" onmouseenter="this.querySelector('.cluster-tooltip').style.display='block'" onmouseleave="this.querySelector('.cluster-tooltip').style.display='none'">
       ${tooltipHtml}
-      <div style="
-        width:${size}px;height:${size}px;border-radius:9999px;background:white;
-        border:3px solid ${color};display:flex;align-items:center;justify-content:center;
-        font-weight:700;color:${color};font-size:${count >= 100 ? 15 : 13}px;
-        box-shadow:0 1px 4px rgba(0,0,0,0.25);
-      ">${count}+</div>
+      ${bubbleCircleHtml(size, count, color)}
     </div>`;
 }
 
@@ -366,7 +366,6 @@ function useDeclutteredBubblePositions(bubbles) {
       map.off("zoomend", recompute);
       map.off("moveend", recompute);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, bubbles]);
 
   return positionById;
@@ -380,8 +379,7 @@ function GovernorateBubble({ bubble, displayLatLng, onSelectGovernorate }) {
       position={position}
       icon={createBubbleIcon(
         bubble.count,
-        bubble.governorateNameAr,
-        bubble.governorateNameEn
+        bubble.governorateNameAr
       )}
       eventHandlers={{
         click: () => {
@@ -496,10 +494,10 @@ function ClientBubblePopup({ bubble, area, isLoading }) {
           <div className="min-w-0 rounded-md bg-blue-50 px-2 py-1.5 text-right">
             <div className="mb-0.5 flex items-center gap-1 text-[10px] font-medium text-blue-600">
               <FontAwesomeIcon icon={faLocationDot} className="h-2.5 w-2.5" />
-              المحافظة
+              Governorate
             </div>
             <p className="truncate font-semibold text-slate-900">
-              {primaryGovernorate?.nameAr ?? "غير متاح"}
+              {primaryGovernorate?.nameAr ?? "N/A"}
               {hasMultipleGovernorates && ` +${bubble.governorates.length - 1}`}
             </p>
             {primaryGovernorate?.nameEn && (
@@ -510,10 +508,10 @@ function ClientBubblePopup({ bubble, area, isLoading }) {
           <div className="min-w-0 rounded-md bg-blue-50 px-2 py-1.5 text-right">
             <div className="mb-0.5 flex items-center gap-1 text-[10px] font-medium text-blue-600">
               <FontAwesomeIcon icon={faCity} className="h-2.5 w-2.5" />
-              المدينة
+              City
             </div>
             <p className="truncate font-semibold text-slate-900">
-              {isLoading ? "جاري التحديد..." : area?.cityAr ?? "غير متاح"}
+              {isLoading ? "Resolving..." : area?.cityAr ?? "N/A"}
             </p>
             {!isLoading && area?.cityEn && (
               <p className="truncate text-[10px] text-slate-400" dir="ltr">{area.cityEn}</p>
@@ -523,9 +521,9 @@ function ClientBubblePopup({ bubble, area, isLoading }) {
 
         <div className="border-t border-slate-100 pt-2">
           <div className="min-w-0 text-right">
-            <p className="text-[10px] font-medium text-blue-600">الحي</p>
+            <p className="text-[10px] font-medium text-blue-600">District</p>
             <p className="truncate font-medium text-slate-800">
-              {isLoading ? "جاري التحديد..." : area?.districtAr ?? "غير متاح"}
+              {isLoading ? "Resolving..." : area?.districtAr ?? "N/A"}
             </p>
             {!isLoading && area?.districtEn && (
               <p className="truncate text-[10px] text-slate-400" dir="ltr">{area.districtEn}</p>
@@ -535,7 +533,7 @@ function ClientBubblePopup({ bubble, area, isLoading }) {
 
         {hasMultipleGovernorates && (
           <div className="border-t border-slate-100 pt-2">
-            <p className="mb-1 font-medium text-slate-500">المحافظات داخل التجمع</p>
+            <p className="mb-1 font-medium text-slate-500">Governorates in cluster</p>
             <div className="flex flex-wrap gap-1">
               {bubble.governorates.map((governorate) => (
                 <span
@@ -579,7 +577,6 @@ function ClientLocationBubble({ bubble }) {
     </Marker>
   );
 }
-
 const DISABLE_CLUSTERING_AT_ZOOM = 12;
 const CLUSTER_FLY_MAX_ZOOM = 15;
 function ClusterClickFlyer({ children, ...clusterProps }) {
@@ -612,26 +609,16 @@ function ClusterClickFlyer({ children, ...clusterProps }) {
     </MarkerClusterGroup>
   );
 }
-
-// Client markers use the same spiderfy/cluster machinery so a bunch of
-// clients in the same distribution stays readable. Clustering is driven by the
-// REAL ground distance (~200m diameter) — `maxClusterRadius` converts the fixed
-// meter radius into the matching pixel radius at the current zoom, so grouping
-// doesn't depend on the Leaflet screen grid. Zooming in only ever SPLITS
-// Client groups use a filled blue bubble with a white border, unlike the white
-// provider bubbles. The offset keeps a client group from touching a provider
-// marker that shares its coordinates.
 function createClientBubbleIcon(count) {
   const size = bubbleSize(count);
+  const innerStyle = bubbleCircleStyle(size, count, "#fff", {
+    bg: CLIENT_BUBBLE_COLOR,
+    border: "3px solid white",
+  });
   return L.divIcon({
     html: `
       <div style="transform:translate(${CLIENT_BUBBLE_PIXEL_OFFSET}px, ${-CLIENT_BUBBLE_PIXEL_OFFSET}px);display:flex;align-items:center;justify-content:center;">
-        <div style="
-          width:${size}px;height:${size}px;border-radius:9999px;background:${CLIENT_BUBBLE_COLOR};
-          border:3px solid white;display:flex;align-items:center;justify-content:center;
-          font-weight:700;color:white;font-size:${count >= 100 ? 15 : 13}px;
-          box-shadow:0 0 0 2px ${CLIENT_BUBBLE_COLOR},0 2px 6px rgba(0,0,0,0.3);
-        ">${count}+</div>
+        <div style="${innerStyle}box-shadow:0 0 0 2px ${CLIENT_BUBBLE_COLOR},0 2px 6px rgba(0,0,0,0.3);">${count}+</div>
       </div>`,
     className: "",
     iconSize: [size, size],

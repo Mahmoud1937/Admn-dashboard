@@ -7,7 +7,7 @@ import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { emptyFilters, useCardSoldQuery } from "../hooks/useCardSoldQuery";
 import { useCardSoldMutations } from "../hooks/useCardSoldMutations";
 
-import CardSoldSearchBar from "../components/CardSoldSearchBar";
+import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilters";
 import CardSoldTable from "../components/CardSoldTable";
 import Pagination from "../../../shared/components/Pagination";
 import CardSoldCreateModal from "../components/CardSoldCreateModal";
@@ -142,11 +142,13 @@ export default function CardSoldPage() {
 
       <div className="rounded-xl border border-slate-200 bg-white">
         <div className="relative">
-          <CardSoldSearchBar
+          <SearchBarWithFilters
             value={search}
             onChange={setSearch}
+            placeholder="Search by sold cards, client name or client phone..."
             onFilterClick={openFilters}
             activeFilterCount={countActiveSoldFilters(filters)}
+            stacked={false}
           />
 
           {isFilterOpen && (

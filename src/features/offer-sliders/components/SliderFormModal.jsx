@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { buildSliderSchema, validateImages } from "../schema/sliderSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
-import ProviderSelectDropdown from "./ProviderSelectDropdown";
+import ProviderSelect from "../../clients/components/Providerselect";
 import ImageUploadField from "../../../shared/components/ImageUploadField";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -52,7 +52,7 @@ const SliderFormModal = ({
           }
         : {
             providerId: "",
-          }
+          },
     );
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -76,11 +76,7 @@ const SliderFormModal = ({
   };
 
   const handleFormSubmit = (values) => {
-    const imgErrors = validateImages(
-      enImageFile,
-      arImageFile,
-      isEditMode
-    );
+    const imgErrors = validateImages(enImageFile, arImageFile, isEditMode);
 
     if (imgErrors) {
       setImageErrors(imgErrors);
@@ -107,57 +103,46 @@ const SliderFormModal = ({
     }
   };
 
-  const providerLabel =
-    sliderToEdit?.providerArName && sliderToEdit?.providerEnName
-      ? `${sliderToEdit.providerArName} - ${sliderToEdit.providerEnName}`
-      : sliderToEdit?.providerArName ||
-        sliderToEdit?.providerEnName ||
-        "";
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4">
       <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl scroll-form sm:max-w-2xl sm:max-h-[85vh]">
-<div className="mb-4 flex items-center justify-between">
-  <h2 className="text-lg font-semibold text-gray-900">
-    {isEditMode ? "Edit Slider" : "Add Slider"}
-  </h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">
+            {isEditMode ? "Edit Slider" : "Add Slider"}
+          </h2>
 
-  <button
-    type="button"
-    onClick={handleClose}
-    disabled={isSaving}
-    className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-    aria-label="Close"
-  >
-    <FontAwesomeIcon icon={faXmark} />
-  </button>
-</div>
+          <button
+            type="button"
+            onClick={handleClose}
+            disabled={isSaving}
+            className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Close"
+          >
+            <FontAwesomeIcon icon={faXmark} />
+          </button>
+        </div>
 
-        <form
-          onSubmit={handleSubmit(handleFormSubmit)}
-          className="space-y-4"
-        >
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           {/* Provider */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Provider
             </label>
 
-          <Controller
-  name="providerId"
-  control={control}
-  render={({ field }) => (
-    <ProviderSelectDropdown
-      value={field.value}
-      onChange={(val) => field.onChange(val != null ? String(val) : "")}
-      initialLabel={providerLabel}
-      error={errors.providerId?.message}
-      disabled={isSaving}
-    />
-  )}
-/>
-
-  
+            <Controller
+              name="providerId"
+              control={control}
+              render={({ field }) => (
+                <ProviderSelect
+                  value={field.value}
+                  onChange={(val) =>
+                    field.onChange(val != null ? String(val) : "")
+                  }
+                  error={errors.providerId?.message}
+                  disabled={isSaving}
+                />
+              )}
+            />
           </div>
 
           {/* Images */}
@@ -181,7 +166,7 @@ const SliderFormModal = ({
                           ...prev,
                           enImageFile: undefined,
                         }
-                      : null
+                      : null,
                   );
                 }}
                 disabled={isSaving}
@@ -213,7 +198,7 @@ const SliderFormModal = ({
                           ...prev,
                           arImageFile: undefined,
                         }
-                      : null
+                      : null,
                   );
                 }}
                 disabled={isSaving}

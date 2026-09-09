@@ -4,9 +4,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faUndo } from "@fortawesome/free-solid-svg-icons";
 import { emptyFilters, useClientsQuery } from "../hooks/useClientsQuery";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
+import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilters";
 import ClientsFiltersPanel from "../components/ClientsFiltersPanel";
 import useClientBlockMutation from "../hooks/useClientBlockMutation";
-import ClientsSearchBar from "../components/ClientsSearchBar";
 import ClientsTable from "../components/ClientsTable";
 import Pagination from "../../../shared/components/Pagination";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
@@ -166,9 +166,10 @@ const ClientsPage = () => {
 
       <div className="rounded-2xl border border-slate-200 bg-white">
         <div className="relative">
-          <ClientsSearchBar
+          <SearchBarWithFilters
             value={searchInput}
             onChange={setSearchInput}
+            placeholder="Search by client name, phone and card no..."
             onFilterClick={panelOpen ? closePanel : openPanel}
             activeFilterCount={activeFilterCount}
           />

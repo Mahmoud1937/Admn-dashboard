@@ -1,12 +1,14 @@
-import { faFileExcel, faSpinner, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faFileExcel, faSpinner, faTrash, faLayerGroup } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../../utils/formatDate";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
+import TableEmptyState from "../../../shared/components/TableEmptyState";
 
 const CardPoolTable = ({
   items,
   isLoading,
+  hasActiveFilters,
   onExport,
   exportingId,
   onDelete,
@@ -17,9 +19,11 @@ const CardPoolTable = ({
 
   if (!items?.length) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        No card pools found
-      </div>
+      <TableEmptyState
+        icon={faLayerGroup}
+        title="No card pools found"
+        hasActiveFilters={hasActiveFilters}
+      />
     );
   }
 

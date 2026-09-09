@@ -1,7 +1,8 @@
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate } from "../../../utils/formatDate";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
+import TableEmptyState from "../../../shared/components/TableEmptyState";
 
 const typeBadge = (type) => {
   const isDamaged = type === "Damaged" || type === 1;
@@ -16,14 +17,18 @@ const typeBadge = (type) => {
   );
 };
 
-const CardMissedTable = ({ items, isLoading, onDelete }) => {
+const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
   if (isLoading) {
     return <div className="text-center py-8 text-gray-500">Loading...</div>;
   }
 
   if (!items?.length) {
     return (
-      <div className="text-center py-8 text-gray-500">No missed or damaged cards found</div>
+      <TableEmptyState
+        icon={faCircleExclamation}
+        title="No missed or damaged cards found"
+        hasActiveFilters={hasActiveFilters}
+      />
     );
   }
 

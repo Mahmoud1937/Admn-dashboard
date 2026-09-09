@@ -1,13 +1,19 @@
+import { faCreditCard } from "@fortawesome/free-solid-svg-icons";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
+import TableEmptyState from "../../../shared/components/TableEmptyState";
 
-const SoldCardsTable = ({ items, isLoading }) => {
+const SoldCardsTable = ({ items, isLoading, hasActiveFilters = false }) => {
   if (isLoading) {
     return <div className="text-center py-8 text-gray-500">Loading...</div>;
   }
 
   if (!items?.length) {
     return (
-      <div className="text-center py-8 text-gray-500">No sold cards found</div>
+      <TableEmptyState
+        icon={faCreditCard}
+        title="No sold cards found"
+        hasActiveFilters={hasActiveFilters}
+      />
     );
   }
 

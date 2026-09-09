@@ -30,6 +30,14 @@ export const getClientById = async (id) => {
   return data;
 };
 
+// Converts a plain date string ("2026-09-08") to ISO 8601 UTC datetime.
+// isEndOfDay=true pushes ToDate to the end of that day so the range is inclusive.
+const toIsoDateTime = (dateStr, isEndOfDay = false) => {
+  if (!dateStr) return undefined;
+  const time = isEndOfDay ? "23:59:59.999Z" : "00:00:00.000Z";
+  return `${dateStr}T${time}`;
+};
+
 export async function getOrderHistory({
   userId,
   providerId,
@@ -44,8 +52,8 @@ export async function getOrderHistory({
       UserId: userId,
       ProviderId: providerId || undefined,
       Status: status || undefined,
-      FromDate: fromDate || undefined,
-      ToDate: toDate || undefined,
+      FromDate: toIsoDateTime(fromDate),
+      ToDate: toIsoDateTime(toDate, true),
       PageNumber: pageNumber,
       PageSize: pageSize,
     },
@@ -54,5 +62,19 @@ export async function getOrderHistory({
   return data;
 }
 
-export const clientsService = { getClients, getClientById, blockClient, getOrderHistory };
+export const getInvoiceDetails = async (invoiceId) => {
+  const { data } = await axiosInstance.get(
+    `/ProviderBranchView/invoices/${invoiceId}/details`
+  );
+
+  return data;
+};
+
+export const clientsService = {
+  getClients,
+  getClientById,
+  blockClient,
+  getOrderHistory,
+  getInvoiceDetails,
+};
 export default clientsService;

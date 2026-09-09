@@ -7,7 +7,7 @@ import CardMissedFilters from "../components/CardMissedFilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { emptyFilters, useCardMissedQuery } from "../hooks/useCardMissedQuery";
 import { useCardMissedMutations } from "../hooks/useCardMissedMutations";
-import CardMissedSearchBar from "../components/CardMissedSearchBar";
+import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilters";
 import CardMissedTable from "../components/CardMissedTable";
 import Pagination from "../../../shared/components/Pagination";
 import CardMissedCreateModal from "../components/CardMissedCreateModal";
@@ -158,11 +158,13 @@ export default function CardMissedPage() {
 
       <div className="rounded-xl border border-slate-200 bg-white">
         <div className="relative">
-          <CardMissedSearchBar
+          <SearchBarWithFilters
             value={search}
             onChange={setSearch}
+            placeholder="Search by card number..."
             onFilterClick={openFilters}
             activeFilterCount={countActiveMissedFilters(filters)}
+            stacked={false}
           />
 
           {isFilterOpen && (

@@ -6,7 +6,7 @@ import CardPoolFilters from "../components/Cardpoolfilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useCardPoolMutations } from "../hooks/useCardPoolMutations";
 import { emptyFilters, useCardPoolQuery } from "../hooks/useCardPoolQuery";
-import CardPoolSearchBar from "../components/Cardpoolsearchbar";
+import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilters";
 import CardPoolTable from "../components/Cardpooltable";
 import Pagination from "../../../shared/components/Pagination";
 import CardPoolCreateModal from "../components/Cardpoolcreatemodal";
@@ -138,9 +138,10 @@ export default function CardPoolPage() {
 
       <div className="rounded-xl border border-slate-200 bg-white">
         <div className="relative">
-          <CardPoolSearchBar
+          <SearchBarWithFilters
             value={search}
             onChange={setSearch}
+            placeholder="Search Card Pool No..."
             onFilterClick={openFilters}
             activeFilterCount={countActivePoolFilters(filters)}
           />

@@ -4,18 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faBan, faCheck, faUsers } from "@fortawesome/free-solid-svg-icons";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
-
-const formatDate = (value) => (value ? new Date(value).toLocaleDateString("en-GB") : "-");
-
-const StatusBadge = ({ isBlocked }) => (
-  <span
-    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-      isBlocked ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"
-    }`}
-  >
-    {isBlocked ? "Blocked" : "Active"}
-  </span>
-);
+import StatusBadge from "../../../shared/components/StatusBadge";
+import { formatDate } from "../../../utils/formatDate";
 
 const ImagePreviewModal = ({ src, name, onClose }) => (
   <div
@@ -128,7 +118,9 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   <div className="flex items-center justify-center gap-2">
-                    <StatusBadge isBlocked={client.isBlocked} />
+                    <StatusBadge tone={client.isBlocked ? "danger" : "success"}>
+                      {client.isBlocked ? "Blocked" : "Active"}
+                    </StatusBadge>
                     <button
                       onClick={() => onToggleBlock?.(client)}
                       title={client.isBlocked ? "Activate" : "Block"}

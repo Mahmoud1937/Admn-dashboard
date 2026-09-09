@@ -23,10 +23,11 @@ import ContactUsPage from "../features/contactUs/pages/ContactUsPage";
 import CardPoolPage from "../features/cardPool/pages/Cardpoolpage";
 import CardSoldPage from "../features/sold-card/pages/CardSoldPage";
 import CardMissedPage from "../features/missedCard/pages/CardMissedPage";
-import CardActivationPage from "../features/cardActivtion/pages/CardActivationPage";
+
 import SoldCardsByPoolPage from "../features/cardPool/pages/SoldCardsByPoolPage";
 import ClientsPage from "../features/clients/pages/ClientsPage";
 import ClientDetailsPage from "../features/clients/pages/ClientDetailsPage";
+
 
 
 
@@ -49,7 +50,7 @@ const router = createBrowserRouter([
       { path: "providers/:id", element: <ProviderDetailsPage /> },
 
       { path: "clients", element: <ClientsPage title="Clients" /> },
-
+//  { path: "invoice-preview", element: <InvoiceDetailsPreviewPage /> }, // TEMP - remove after review
       // View Client Details
       { path: "clients/:clientId", element: <ClientDetailsPage/> },
 
@@ -74,7 +75,7 @@ const router = createBrowserRouter([
       },
       { path: "services", element: <ServicesPage title="Services" /> },
       { path: "medicines", element: <MedicinesPage title="Medicine" /> },
-    { path: "card-activation", element: <CardActivationPage /> },
+    // { path: "card-activation", element: <CardActivationPage /> },
       { path: "governorates", element: <GovernoratesPage /> },
       { path: "cities", element: <CitiesPage /> },
       // { path: "card-pools", element: <PagePlaceholder title="Card Pools" /> },

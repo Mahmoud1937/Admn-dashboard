@@ -20,6 +20,7 @@ import { useContactUsQuery } from "../hooks/useContactUsQuery";
 import { useContactUsMutations } from "../hooks/useContactUsMutations";
 import { contactUsSchema } from "../schema/contactUsSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 const defaultValues = {
   phoneNumber: "",
@@ -43,7 +44,7 @@ const SOCIAL_FIELDS = [
 ];
 
 export default function ContactUsPage() {
-  const { contactUs, isLoading, isError, error } = useContactUsQuery();
+  const { contactUs, isLoading, isError, error ,refetch} = useContactUsQuery();
   const [isEditing, setIsEditing] = useState(false);
 
   const {
@@ -110,14 +111,15 @@ export default function ContactUsPage() {
     );
   }
 
-  if (isError) {
-    return (
-      <p className="p-8 text-center text-sm text-red-500">
-        {error?.message || "Failed to load contact information."}
-      </p>
-    );
-  }
-
+if (isError) {
+  return (
+    <QueryErrorState
+      title="Unable to load contact information"
+      error={error}
+      onRetry={refetch}
+    />
+  );
+}
   const hasFieldErrors = Object.keys(errors).length > 0;
 
   return (
