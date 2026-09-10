@@ -21,6 +21,8 @@ const SliderFormModal = ({
 
   const [enImageFile, setEnImageFile] = useState(null);
   const [arImageFile, setArImageFile] = useState(null);
+  const [enPreviewUrl, setEnPreviewUrl] = useState(null);
+  const [arPreviewUrl, setArPreviewUrl] = useState(null);
   const [imageErrors, setImageErrors] = useState(null);
 
   const {
@@ -63,6 +65,33 @@ const SliderFormModal = ({
       applyServerErrors(serverErrors, setError);
     }
   }, [serverErrors, setError]);
+
+  useEffect(() => {
+    if (!enImageFile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setEnPreviewUrl(null);
+      return;
+    }
+
+    const url = URL.createObjectURL(enImageFile);
+    setEnPreviewUrl(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [enImageFile]);
+
+  
+  useEffect(() => {
+    if (!arImageFile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setArPreviewUrl(null);
+      return;
+    }
+
+    const url = URL.createObjectURL(arImageFile);
+    setArPreviewUrl(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [arImageFile]);
 
   if (!isOpen) return null;
 
@@ -152,8 +181,8 @@ const SliderFormModal = ({
               <ImageUploadField
                 label="English Image"
                 preview={
-                  enImageFile
-                    ? URL.createObjectURL(enImageFile)
+                  enPreviewUrl
+                    ? enPreviewUrl
                     : isEditMode
                       ? sliderToEdit.enImageUrl
                       : null
@@ -184,8 +213,8 @@ const SliderFormModal = ({
               <ImageUploadField
                 label="Arabic Image"
                 preview={
-                  arImageFile
-                    ? URL.createObjectURL(arImageFile)
+                  arPreviewUrl
+                    ? arPreviewUrl
                     : isEditMode
                       ? sliderToEdit.arImageUrl
                       : null

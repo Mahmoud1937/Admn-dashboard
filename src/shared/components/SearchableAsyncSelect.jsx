@@ -1,20 +1,24 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faSpinner, faSearch, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 
 const PAGE_SIZE = 20;
 
 /**
- * Generic searchable, paginated, async select.
+ * Generic searchable, paginated, async select — combobox style.
+ * A single input doubles as the display field and the search field:
+ * closed, it shows the selected label; on focus it clears and becomes
+ * a live search box, reverting back on blur if nothing new was picked.
+ *
  * Controlled component: pass `value` + `onChange` (works directly with
  * react-hook-form's <Controller field={...} />).
  *
  * fetchItems: (pageNumber, pageSize, searchTerm) => Promise<{ data: { items, pageNumber, totalPages } }>
- *   (matches the getCategories / getSpecialists service signature already in the project)
  */
-export default function SearchableAsyncSelect({  queryKey,
+export default function SearchableAsyncSelect({
+  queryKey,
   fetchItems,
   value,
   onChange,
@@ -25,19 +29,16 @@ export default function SearchableAsyncSelect({  queryKey,
   disabled = false,
   clearable = true,
   error,
-  // Both default to the component's original styling, so every existing
-  // usage elsewhere in the project renders exactly as before. Only a caller
-  // that explicitly passes new values (e.g. to clear a map's zoom controls,
-  // or show a translucent panel) gets different behavior.
   panelZIndexClassName = "z-30",
-  panelBgClassName = "bg-white",}) {
+  panelBgClassName = "bg-white",
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 300);
   const containerRef = useRef(null);
   const listRef = useRef(null);
+  const inputRef = useRef(null);
 
-  // ⬇️ moved up, before useInfiniteQuery
   const [selectedLabel, setSelectedLabel] = useState(null);
 
   const {
@@ -60,7 +61,6 @@ export default function SearchableAsyncSelect({  queryKey,
 
   const items = data?.pages.flatMap((page) => page?.data?.items ?? []) ?? [];
 
-  // ⬇️ this useEffect stays here, just remove the duplicate useState line above it
   useEffect(() => {
     if (value === "" || value === null || value === undefined) {
       setSelectedLabel(null);
@@ -78,10 +78,7 @@ export default function SearchableAsyncSelect({  queryKey,
     fetchNextPage();
   }, [isOpen, value, selectedLabel, isFetchingNextPage, hasNextPage, fetchNextPage]);
 
-  // ...rest stays the same
-
-  
-  // Close on outside click
+  // Close (and revert any un-picked search text) on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -106,57 +103,64 @@ export default function SearchableAsyncSelect({  queryKey,
     setSelectedLabel(getOptionLabel(item));
     setIsOpen(false);
     setSearchInput("");
+    inputRef.current?.blur();
   };
 
   const handleClear = (e) => {
     e.stopPropagation();
     onChange("");
     setSelectedLabel(null);
+    setSearchInput("");
   };
+
+  const handleFocus = () => {
+    if (disabled) return;
+    setIsOpen(true);
+    // Start the search box empty so typing immediately filters,
+    // instead of requiring the user to clear the current label first.
+    setSearchInput("");
+  };
+
+  // While open, the input is a live search box; while closed, it just
+  // displays the selected label (or the placeholder via the placeholder prop).
+  const displayValue = isOpen ? searchInput : (selectedLabel || "");
 
   return (
     <div className="relative" ref={containerRef}>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => setIsOpen((o) => !o)}
-        className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:text-slate-400 ${
-          error ? "border-red-400" : "border-slate-200"
-        }`}
+      <div
+        className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-2 text-sm outline-none focus-within:border-blue-400 ${
+          disabled ? "bg-slate-50 text-slate-400" : ""
+        } ${error ? "border-red-400" : "border-slate-200"}`}
       >
-        <span className={`truncate ${selectedLabel ? "text-slate-900" : "text-slate-400"}`}>
-          {selectedLabel || placeholder}
-        </span>
+        <input
+          ref={inputRef}
+          type="text"
+          disabled={disabled}
+          value={displayValue}
+          onFocus={handleFocus}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder={isOpen ? searchPlaceholder : placeholder}
+          className="w-full min-w-0 truncate bg-transparent outline-none placeholder:text-slate-400 disabled:text-slate-400"
+        />
         <span className="flex shrink-0 items-center gap-2">
           {clearable && selectedLabel && !disabled && (
             <FontAwesomeIcon
               icon={faXmark}
               onClick={handleClear}
-              className="text-xs text-slate-400 hover:text-slate-600"
+              className="cursor-pointer text-xs text-slate-400 hover:text-slate-600"
             />
           )}
-          <FontAwesomeIcon icon={faChevronDown} className="text-xs text-slate-400" />
+          <FontAwesomeIcon
+            icon={faChevronDown}
+            className={`text-xs text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          />
         </span>
-      </button>
+      </div>
 
       {isOpen && (
         <div
           className={`absolute ${panelZIndexClassName} mt-1 w-full rounded-lg border border-slate-200 ${panelBgClassName} shadow-lg`}
         >
-          <div className="relative border-b border-slate-100 p-2">
-            <FontAwesomeIcon
-              icon={faSearch}
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-slate-400"
-            />
-            <input
-              autoFocus
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder={searchPlaceholder}
-              className="w-full rounded-md border border-slate-200 py-1.5 pl-8 pr-2 text-sm outline-none focus:border-blue-400"
-            />
-          </div>
-
           <div ref={listRef} onScroll={handleScroll} className="max-h-56 overflow-y-auto py-1">
             {isLoading ? (
               <div className="flex items-center justify-center gap-2 py-4 text-xs text-slate-400">
@@ -171,6 +175,9 @@ export default function SearchableAsyncSelect({  queryKey,
                   <button
                     type="button"
                     key={getOptionValue(item)}
+                    // onMouseDown fires before the input's onBlur/outside-click
+                    // handler, so the click still registers as a selection.
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleSelect(item)}
                     className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
                       String(getOptionValue(item)) === String(value)

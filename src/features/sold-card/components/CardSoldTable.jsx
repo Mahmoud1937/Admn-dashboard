@@ -98,6 +98,8 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
                         <img
                           src={sold.proofPayment}
                           alt="Proof of payment"
+                          loading="lazy"
+                          decoding="async"
                           className="mx-auto h-9 w-9 rounded-full border border-gray-200 object-cover hover:opacity-80"
                         />
                       </button>

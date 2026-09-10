@@ -3,6 +3,7 @@ import SpecialistSelect from "../../services-admin/components/SpecialistSelect";
 import FilterPanel from "../../../shared/components/FilterPanel";
 import FilterPanelHeader from "../../../shared/components/FilterPanelHeader";
 import FilterPanelFooter from "../../../shared/components/FilterPanelFooter";
+import DateRangeFilterFields from "../../../shared/components/DateRangeFilterFields";
 
 
 export const emptyFilters = {
@@ -14,9 +15,6 @@ export const emptyFilters = {
 };
 
 export default function ProvidersFilters({ draft, onChange, onApply, onClear, onClose, panelRef }) {
-  const set = (field) => (e) =>
-    onChange((prev) => ({ ...prev, [field]: e.target.value }));
-
   // SpecialistSelect is a controlled component: onChange receives the raw
   // value directly (not an input change event).
   const setValue = (field) => (val) =>
@@ -44,29 +42,18 @@ export default function ProvidersFilters({ draft, onChange, onApply, onClear, on
           </select>
         </div>
 
-        <div className="mb-4 grid grid-cols-1 gap-3">
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-slate-500">
-              Join Date From
-            </label>
-            <input
-              type="date"
-              value={draft.joinDateFrom}
-              onChange={set("joinDateFrom")}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-slate-500">
-              Join Date To
-            </label>
-            <input
-              type="date"
-              value={draft.joinDateTo}
-              onChange={set("joinDateTo")}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400"
-            />
-          </div>
+        <div className="mb-4">
+          <label className="mb-1.5 block text-xs font-medium text-slate-500">
+            Join Date
+          </label>
+          <DateRangeFilterFields
+            draft={draft}
+            onDraftChange={onChange}
+            fromField="joinDateFrom"
+            toField="joinDateTo"
+            fromLabel="From"
+            toLabel="To"
+          />
         </div>
 
         <div className="mb-4">

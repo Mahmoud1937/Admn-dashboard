@@ -21,44 +21,31 @@ export const useSliderMutations = () => {
       queryClient.invalidateQueries({ queryKey: ["sliders"] });
     },
     onError: (error) => {
-      handleMutationError(
-        error,
-        setServerErrors,
-        "Failed to add slider"
-      );
+      handleMutationError(error, "Failed to add slider", setServerErrors);
     },
-  });
+});
 
-  const updateMutation = useMutation({
+const updateMutation = useMutation({
     mutationFn: (payload) => updateSlider(payload),
     onSuccess: () => {
       toast.success("Slider updated successfully");
       queryClient.invalidateQueries({ queryKey: ["sliders"] });
     },
     onError: (error) => {
-      handleMutationError(
-        error,
-        setServerErrors,
-        "Failed to update slider"
-      );
+      handleMutationError(error, "Failed to update slider", setServerErrors);
     },
-  });
+});
 
-  const deleteMutation = useMutation({
+const deleteMutation = useMutation({
     mutationFn: (id) => deleteSlider(id),
     onSuccess: () => {
       toast.success("Slider deleted successfully");
       queryClient.invalidateQueries({ queryKey: ["sliders"] });
     },
     onError: (error) => {
-      handleMutationError(
-        error,
-        setServerErrors,
-        "Failed to delete slider"
-      );
+      handleMutationError(error, "Failed to delete slider", setServerErrors);
     },
-  });
-
+});
   return {
     createMutation,
     updateMutation,

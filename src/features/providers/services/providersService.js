@@ -90,3 +90,33 @@ export async function activateProvider(id) {
   const { data } = await axiosInstance.patch(`/admin/providers/make-active/${id}`);
   return data;
 }
+export async function getProviderLookup({
+  pageNumber = 1,
+  pageSize,
+  searchTerm = "",
+} = {}) {
+  const { data } = await axiosInstance.get("/AdminLookup/provider", {
+    params: {
+      PageNumber: pageNumber,
+      PageSize: pageSize || undefined,
+      SearchTerm: searchTerm || undefined,
+    },
+  });
+
+  // Backend currently returns a flat array in `data`. Normalize it into the
+  // { items, pageNumber, totalPages } shape SearchableAsyncSelect expects,
+  // so this keeps working unchanged once the backend adds real pagination
+  // (i.e. once `data.data` is already an object with `items`, this is a no-op).
+  if (Array.isArray(data?.data)) {
+    return {
+      ...data,
+      data: {
+        items: data.data,
+        pageNumber: 1,
+        totalPages: 1,
+      },
+    };
+  }
+
+  return data;
+}

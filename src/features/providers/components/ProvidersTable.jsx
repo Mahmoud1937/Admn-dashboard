@@ -32,6 +32,8 @@ function ProviderAvatar({ imageUrl, name, size = "h-10 w-10" }) {
       <img
         src={imageUrl}
         alt={name}
+        loading="lazy"
+        decoding="async"
         className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-110"
         onError={() => setHasError(true)}
       />

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage } from "@fortawesome/free-solid-svg-icons";
+import { prepareUploadFile } from "../../../shared/utils/compressImage";
 
 function ProviderLogoUpload({
   currentImageUrl,
@@ -13,6 +14,23 @@ function ProviderLogoUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [, setDragCounter] = useState(0);
 
+  const processFile = async (file) => {
+    if (!file) return;
+
+    let finalFile = file;
+
+    try {
+      finalFile = await prepareUploadFile(file, { mimeType: file.type });
+    } catch (err) {
+      console.error("Image compression failed, using original file:", err);
+    }
+
+    const dt = new DataTransfer();
+    dt.items.add(finalFile);
+
+    onImageChange({ target: { files: dt.files } });
+  };
+
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -21,10 +39,10 @@ function ProviderLogoUpload({
 
     if (disabled) return;
 
-    const files = e.dataTransfer.files;
-    if (!files?.[0]) return;
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
 
-    onImageChange({ target: { files } });
+    processFile(file);
   };
 
   const handleDragEnter = (e) => {
@@ -112,7 +130,7 @@ function ProviderLogoUpload({
         type="file"
         accept="image/png,image/jpeg"
         className="hidden"
-        onChange={onImageChange}
+        onChange={(e) => processFile(e.target.files?.[0])}
         disabled={disabled}
       />
 

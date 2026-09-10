@@ -27,6 +27,7 @@ import CardMissedPage from "../features/missedCard/pages/CardMissedPage";
 import SoldCardsByPoolPage from "../features/cardPool/pages/SoldCardsByPoolPage";
 import ClientsPage from "../features/clients/pages/ClientsPage";
 import ClientDetailsPage from "../features/clients/pages/ClientDetailsPage";
+import CardActivationPage from "../features/cardActivtion/pages/CardActivationPage";
 
 
 
@@ -75,7 +76,7 @@ const router = createBrowserRouter([
       },
       { path: "services", element: <ServicesPage title="Services" /> },
       { path: "medicines", element: <MedicinesPage title="Medicine" /> },
-    // { path: "card-activation", element: <CardActivationPage /> },
+    { path: "card-activation", element: <CardActivationPage/> },
       { path: "governorates", element: <GovernoratesPage /> },
       { path: "cities", element: <CitiesPage /> },
       // { path: "card-pools", element: <PagePlaceholder title="Card Pools" /> },

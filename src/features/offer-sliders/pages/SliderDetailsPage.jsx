@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
@@ -5,6 +6,10 @@ import {
   faArrowLeft,
   faPen,
   faImage,
+  faIdCard,
+  faBuilding,
+  faCalendarDays,
+  faGlobe,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -12,46 +17,63 @@ import { useSliderMutations } from "../hooks/useSliderMutations";
 import { useSliderQuery } from "../hooks/useSlidersQuery";
 import SliderFormModal from "../components/SliderFormModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import { formatDate } from "../../../utils/formatDate";
 
-const formatDate = (dateStr) => {
-  if (!dateStr || dateStr.startsWith("0001")) return "-";
+const DetailItem = ({ icon, label, value }) => (
+  <div className="rounded-lg border border-gray-100 bg-gray-50/70 p-4">
+    <div className="mb-2 flex items-center gap-2">
+      <FontAwesomeIcon
+        icon={icon}
+        className="text-xs text-blue-800"
+      />
 
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-};
+      <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+        {label}
+      </span>
+    </div>
 
-const DetailRow = ({ label, value }) => (
-  <div className="flex items-center justify-between border-b border-gray-100 py-3 last:border-0">
-    <span className="text-sm text-gray-400">{label}</span>
-
-    <span className="text-sm font-medium text-gray-900">
+    <p className="truncate text-sm font-semibold text-gray-900">
       {value ?? "-"}
-    </span>
+    </p>
   </div>
 );
 
-const BannerPanel = ({ title, url }) => (
-  <div className="flex flex-col">
-    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-      {title}
-    </p>
+const BannerCard = ({ title, language, url }) => (
+  <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900">
+          {title}
+        </h3>
 
-    <div className="flex min-h-[260px] flex-1 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 sm:min-h-[360px]">
-      {url ? (
-        <img
-          src={url}
-          alt={title}
-          className="max-h-[70vh] max-w-full object-contain"
-        />
-      ) : (
-        <div className="flex flex-col items-center gap-2 text-gray-300">
-          <FontAwesomeIcon icon={faImage} className="text-3xl" />
-          <span className="text-sm">No image</span>
-        </div>
-      )}
+        <p className="mt-0.5 text-xs text-gray-400">
+          {language} banner
+        </p>
+      </div>
+
+      <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-800">
+        {language}
+      </span>
+    </div>
+
+    <div className="bg-gray-50 p-4">
+      <div className="flex aspect-[16/7] items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white">
+        {url ? (
+          <img
+            src={url}
+            alt={title}
+            className="h-full w-full object-contain"
+          />
+        ) : (
+          <div className="flex flex-col items-center gap-2 text-gray-300">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+              <FontAwesomeIcon icon={faImage} className="text-xl" />
+            </div>
+
+            <span className="text-sm">No image available</span>
+          </div>
+        )}
+      </div>
     </div>
   </div>
 );
@@ -91,8 +113,10 @@ const SliderDetailsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="p-10 text-center text-sm text-gray-400">
-        Loading slider...
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="text-sm text-gray-400">
+          Loading slider...
+        </div>
       </div>
     );
   }
@@ -109,93 +133,164 @@ const SliderDetailsPage = () => {
 
   if (!slider) {
     return (
-      <div className="p-10 text-center text-sm text-gray-400">
-        Slider not found.
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="text-sm text-gray-400">
+          Slider not found.
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900"
-        >
-          <FontAwesomeIcon icon={faArrowLeft} />
-          Back to Sliders
-        </button>
 
-        <button
-          type="button"
-          onClick={() => setIsFormOpen(true)}
-          className="inline-flex items-center gap-2 rounded-md bg-blue-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-800"
-        >
-          <FontAwesomeIcon icon={faPen} />
-          Update Slider
-        </button>
-      </div>
+  <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="group inline-flex w-fit items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-gray-900"
+          >
+            <FontAwesomeIcon
+              icon={faArrowLeft}
+              className="transition-transform group-hover:-translate-x-0.5"
+            />
 
-      {/* Provider Name */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {slider.providerNameEn}
-        </h1>
+            <span>Back to Sliders</span>
+          </button>
 
-        <p
-          className="text-sm text-gray-400"
-          style={{ unicodeBidi: "plaintext" }}
-        >
-          {slider.providerNameAr}
-        </p>
-      </div>
+          <button
+            type="button"
+            onClick={() => setIsFormOpen(true)}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-900/20"
+          >
+            <FontAwesomeIcon icon={faPen} />
+            Update Slider
+          </button>
+        </div>
 
-      {/* Banners */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <BannerPanel
-          title="English Banner"
-          url={slider.enImageUrl}
-        />
+        {/* Provider Header */}
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="p-5 sm:p-6">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-900">
+                  <FontAwesomeIcon icon={faBuilding} className="text-lg" />
+                </div>
 
-        <BannerPanel
-          title="Arabic Banner"
-          url={slider.arImageUrl}
-        />
-      </div>
+                <div className="min-w-0">
+                  <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">
+                    Provider
+                  </p>
 
-      {/* Details */}
-      <div className="rounded-xl border border-gray-100 bg-white p-5">
-        <h2 className="mb-2 text-sm font-semibold text-gray-900">
-          Slider Details
-        </h2>
+                  <h1 className="truncate text-xl font-bold text-gray-900 sm:text-2xl">
+                    {slider.providerNameEn}
+                  </h1>
 
-        <DetailRow
-          label="Slider ID"
-          value={slider.id}
-        />
+                  <p className="mt-1 text-sm text-gray-400">
+                    {slider.providerNameAr}
+                  </p>
+                </div>
+              </div>
 
-        <DetailRow
-          label="Provider ID"
-          value={slider.providerId}
-        />
+              <div className="flex w-fit items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
+                <FontAwesomeIcon
+                  icon={faIdCard}
+                  className="text-xs text-gray-400"
+                />
 
-        <DetailRow
-          label="Provider (EN)"
-          value={slider.providerNameEn}
-        />
+                <span className="text-xs font-medium text-gray-400">
+                  Slider ID
+                </span>
 
-        <DetailRow
-          label="Provider (AR)"
-          value={slider.providerNameAr}
-        />
+                <span className="text-sm font-semibold text-gray-900 text-center">
+                  {slider.id}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <DetailRow
-          label="Created"
-          value={formatDate(slider.createdAt)}
-        />
-      </div>
+        {/* Banner Section */}
+        <section>
+          <div className="mb-4">
+            <h2 className="text-lg font-bold text-gray-900">
+              Banner Preview
+            </h2>
+
+            <p className="mt-1 text-sm text-gray-400">
+              Preview the English and Arabic slider banners.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+            <BannerCard
+              title="English Banner"
+              language="EN"
+              url={slider.enImageUrl}
+            />
+
+            <BannerCard
+              title="Arabic Banner"
+              language="AR"
+              url={slider.arImageUrl}
+            />
+          </div>
+        </section>
+
+        {/* Details */}
+        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="border-b border-gray-100 px-5 py-4 sm:px-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
+                <FontAwesomeIcon icon={faGlobe} className="text-sm" />
+              </div>
+
+              <div>
+                <h2 className="text-sm font-bold text-gray-900">
+                  Slider Information
+                </h2>
+
+                <p className="mt-0.5 text-xs text-gray-400">
+                  General information about this slider.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 sm:p-6">
+            <DetailItem
+              icon={faIdCard}
+              label="Slider ID"
+              value={slider.id}
+            />
+
+            <DetailItem
+              icon={faBuilding}
+              label="Provider ID"
+              value={slider.providerId}
+            />
+
+            <DetailItem
+              icon={faCalendarDays}
+              label="Created"
+              value={formatDate(slider.createdAt)}
+            />
+
+            <DetailItem
+              icon={faGlobe}
+              label="Provider (EN)"
+              value={slider.providerNameEn}
+            />
+
+            <DetailItem
+              icon={faGlobe}
+              label="Provider (AR)"
+              value={slider.providerNameAr}
+            />
+          </div>
+        </section>
+      
 
       {/* Update Modal */}
       <SliderFormModal
@@ -215,3 +310,4 @@ const SliderDetailsPage = () => {
 };
 
 export default SliderDetailsPage;
+

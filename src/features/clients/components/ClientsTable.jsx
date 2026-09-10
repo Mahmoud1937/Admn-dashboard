@@ -94,6 +94,8 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
                         <img
                           src={client.clientImage}
                           alt={fullName}
+                          loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-cover"
                         />
                       </button>
