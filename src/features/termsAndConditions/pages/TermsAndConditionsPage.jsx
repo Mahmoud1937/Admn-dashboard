@@ -5,7 +5,6 @@ export default function TermsAndConditionsPage() {
   const {
     data,
     isLoading,
-    isFetching,
   } = useTermsAndConditionsQuery();
 
   const {
@@ -28,7 +27,7 @@ export default function TermsAndConditionsPage() {
       }
       onSave={handleSave}
       saving={isPending}
-      loading={isLoading || isFetching}
+      loading={isLoading}
       serverErrors={serverErrors}
     />
   );

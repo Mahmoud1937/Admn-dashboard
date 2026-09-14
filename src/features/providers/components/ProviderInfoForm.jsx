@@ -12,7 +12,7 @@ import { getProviderSchema } from "../schema/providerSchema";
 import ProviderLogoUpload from "../components/ProviderLogoUpload";
 import ProviderCategorySelect from "./ProviderCategorySelect";
 
-const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg"];
+const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export default function ProviderInfoForm({
@@ -48,6 +48,7 @@ export default function ProviderInfoForm({
   // Image preview
   useEffect(() => {
     if (!imageFile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPreviewImage(provider?.imageUrl || "");
       return;
     }

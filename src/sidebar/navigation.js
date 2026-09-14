@@ -16,6 +16,7 @@ import {
   faAddressBook,
   faIdCard,
   faTriangleExclamation,
+  faFileInvoiceDollar,
 } from "@fortawesome/free-solid-svg-icons";
 
 export const navigation = [
@@ -102,6 +103,11 @@ export const navigation = [
   path: "/card-missed",
   icon: faTriangleExclamation,
 },
+  {
+    title: "Invoices",
+    path: "/invoices",
+    icon: faFileInvoiceDollar,
+  },
   {
     title: "Terms & Conditions",
     path: "/terms-and-conditions",

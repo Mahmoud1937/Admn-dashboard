@@ -38,10 +38,37 @@ const PRIMARY_FIELDS = [
 ];
 
 const SOCIAL_FIELDS = [
-  { key: "faceBook", label: "Facebook", icon: faFacebook, required: false },
-  { key: "instagram", label: "Instagram", icon: faInstagram, required: false },
-  { key: "tikTok", label: "TikTok", icon: faTiktok, required: false },
+  { key: "faceBook", label: "Facebook", icon: faFacebook, required: false, baseUrl: "https://facebook.com" },
+  { key: "instagram", label: "Instagram", icon: faInstagram, required: false, baseUrl: "https://instagram.com" },
+  { key: "tikTok", label: "TikTok", icon: faTiktok, required: false, baseUrl: "https://tiktok.com" },
 ];
+
+function getSocialPath(url) {
+  if (!url) return "";
+
+  try {
+    const { pathname, search, hash } = new URL(url);
+    return `${pathname === "/" ? "" : pathname}${search}${hash}`;
+  } catch {
+    return url.startsWith("/") ? url : "";
+  }
+}
+
+function getFormValues(contactUs) {
+  return {
+    phoneNumber: contactUs?.phoneNumber || "",
+    email: contactUs?.email || "",
+    whatsApp: contactUs?.whatsApp || "",
+    faceBook: getSocialPath(contactUs?.faceBook),
+    instagram: getSocialPath(contactUs?.instagram),
+    tikTok: getSocialPath(contactUs?.tikTok),
+  };
+}
+
+function buildSocialUrl(baseUrl, path) {
+  if (!path) return "";
+  return `${baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
+}
 
 export default function ContactUsPage() {
   const { contactUs, isLoading, isError, error ,refetch} = useContactUsQuery();
@@ -60,14 +87,7 @@ export default function ContactUsPage() {
 
   useEffect(() => {
     if (contactUs) {
-      reset({
-        phoneNumber: contactUs.phoneNumber || "",
-        email: contactUs.email || "",
-        whatsApp: contactUs.whatsApp || "",
-        faceBook: contactUs.faceBook || "",
-        instagram: contactUs.instagram || "",
-        tikTok: contactUs.tikTok || "",
-      });
+      reset(getFormValues(contactUs));
     }
   }, [contactUs, reset]);
 
@@ -85,19 +105,17 @@ export default function ContactUsPage() {
   }, [serverErrors, setError]);
 
   const onSubmit = (values) => {
-    updateMutation.mutate(values);
+    updateMutation.mutate({
+      ...values,
+      faceBook: buildSocialUrl(SOCIAL_FIELDS[0].baseUrl, values.faceBook),
+      instagram: buildSocialUrl(SOCIAL_FIELDS[1].baseUrl, values.instagram),
+      tikTok: buildSocialUrl(SOCIAL_FIELDS[2].baseUrl, values.tikTok),
+    });
   };
 
   const handleCancel = () => {
     if (contactUs) {
-      reset({
-        phoneNumber: contactUs.phoneNumber || "",
-        email: contactUs.email || "",
-        whatsApp: contactUs.whatsApp || "",
-        faceBook: contactUs.faceBook || "",
-        instagram: contactUs.instagram || "",
-        tikTok: contactUs.tikTok || "",
-      });
+      reset(getFormValues(contactUs));
     }
     closeEdit();
   };
@@ -240,14 +258,30 @@ function FieldRow({ field, isEditing, register, error, value }) {
 
       {isEditing ? (
         <>
-          <input
-            type={field.type || "text"}
-            placeholder={field.label}
-            {...register(field.key)}
-            className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-blue-400/30 ${
-              error ? "border-red-300 focus:border-red-400" : "border-slate-200 focus:border-blue-400"
-            }`}
-          />
+          {field.baseUrl ? (
+            <div className={`flex overflow-hidden rounded-lg border text-sm outline-none transition focus-within:ring-2 focus-within:ring-blue-400/30 ${
+              error ? "border-red-300 focus-within:border-red-400" : "border-slate-200 focus-within:border-blue-400"
+            }`}>
+              <span className="flex items-center border-r border-slate-200 bg-slate-50 px-3 text-slate-500">
+                {field.baseUrl}
+              </span>
+              <input
+                type="text"
+                placeholder="/medicard"
+                {...register(field.key)}
+                className="min-w-0 flex-1 px-3 py-2 outline-none"
+              />
+            </div>
+          ) : (
+            <input
+              type={field.type || "text"}
+              placeholder={field.label}
+              {...register(field.key)}
+              className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-blue-400/30 ${
+                error ? "border-red-300 focus:border-red-400" : "border-slate-200 focus:border-blue-400"
+              }`}
+            />
+          )}
           {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
         </>
       ) : (

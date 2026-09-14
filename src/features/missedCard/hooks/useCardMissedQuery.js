@@ -2,7 +2,7 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getCardMisseds } from "../services/cardMissedService";
 
 
-export const emptyFilters = { fromDate: "", toDate: "" };
+export const emptyFilters = { fromDate: "", toDate: "", missingType: "" };
 
 export const useCardMissedQuery = ({ cardPoolId, searchTerm, filters, pageNumber, pageSize }) => {
   const { data, isLoading, isError, error, isPlaceholderData, refetch } = useQuery({
@@ -13,6 +13,7 @@ export const useCardMissedQuery = ({ cardPoolId, searchTerm, filters, pageNumber
         searchTerm,
         fromDate: filters?.fromDate,
         toDate: filters?.toDate,
+        missingType: filters?.missingType,
         pageNumber,
         pageSize,
       }),

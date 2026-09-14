@@ -1,6 +1,7 @@
 import { faUserDoctor } from "@fortawesome/free-solid-svg-icons";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
 
 export default function SpecialistsTable({ specialists, hasActiveFilters, onEdit, onDeleteRequest }) {
   if (specialists.length === 0) {
@@ -15,7 +16,7 @@ export default function SpecialistsTable({ specialists, hasActiveFilters, onEdit
   }
 
   return (
-  <div className="overflow-x-auto">
+  <ScrollableTable maxHeight="60vh">
       <table className="w-full min-w-[500px] text-left text-sm">
       <thead>
         <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -37,6 +38,6 @@ export default function SpecialistsTable({ specialists, hasActiveFilters, onEdit
         ))}
       </tbody>
     </table>
-  </div>
+  </ScrollableTable>
   );
 }

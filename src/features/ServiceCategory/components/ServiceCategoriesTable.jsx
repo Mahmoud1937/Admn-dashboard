@@ -2,6 +2,7 @@ import { faLayerGroup } from "@fortawesome/free-solid-svg-icons";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import AvatarImage from "../../../shared/components/AvatarImage";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
 
 export default function ServiceCategoriesTable({ categories, hasActiveFilters, onEdit, onDeleteRequest }) {
   if (categories.length === 0) {
@@ -16,7 +17,7 @@ export default function ServiceCategoriesTable({ categories, hasActiveFilters, o
   }
 
   return (
-    <div className="overflow-x-auto">
+    <ScrollableTable maxHeight="60vh">
 
     <table className="w-full text-left text-sm">
       <thead>
@@ -32,7 +33,7 @@ export default function ServiceCategoriesTable({ categories, hasActiveFilters, o
         {categories.map((category) => (
           <tr key={category.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60">
             <td className="px-6 py-3">
-              <AvatarImage src={category.imageUrl} alt={category.enName} />
+              <AvatarImage src={category.imageUrl} alt={category.enName} loading="lazy" />
             </td>
             <td className="px-6 py-3 font-medium text-slate-900">{category.enName}</td>
             <td className="px-6 py-3 text-slate-600">{category.arName}</td>
@@ -43,6 +44,6 @@ export default function ServiceCategoriesTable({ categories, hasActiveFilters, o
         ))}
       </tbody>
     </table>
-    </div>
+    </ScrollableTable>
   );
 }

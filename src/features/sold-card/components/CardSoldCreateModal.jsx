@@ -7,6 +7,7 @@ import { cardSoldSchema } from "../schema/cardSoldSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
+import ImageUploadField from "../../../shared/components/ImageUploadField";
 
 const defaultValues = (mode) => ({
   mode,
@@ -27,7 +28,6 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
     reset,
     setError,
     setValue,
-    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(cardSoldSchema),
@@ -39,11 +39,13 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
     name: "cardNumbers",
   });
 
-  const proofPayment = watch("proofPayment");
+  const [proofPreview, setProofPreview] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMode("count");
+      setProofPreview(null);
       reset(defaultValues("count"));
     }
   }, [isOpen, reset]);
@@ -54,7 +56,18 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
 
   const switchMode = (newMode) => {
     setMode(newMode);
+    setProofPreview(null);
     reset(defaultValues(newMode));
+    clearServerErrors?.();
+  };
+
+  const handleProofChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (proofPreview) URL.revokeObjectURL(proofPreview);
+    setProofPreview(URL.createObjectURL(file));
+    setValue("proofPayment", file, { shouldValidate: true });
     clearServerErrors?.();
   };
 
@@ -228,22 +241,14 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Proof of Payment <span className="text-red-500">*</span>
         </label>
-        <input
-          key={mode}
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            setValue("proofPayment", e.target.files?.[0], { shouldValidate: true });
-            clearServerErrors?.();
-          }}
-          className="w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-sm file:text-blue-700 hover:file:bg-blue-100"
+        <ImageUploadField
+          preview={proofPreview}
+          onImageChange={handleProofChange}
+          label="Upload Proof of Payment"
+          alt="Proof of payment"
+          error={errors.proofPayment?.message}
+          disabled={isSaving}
         />
-        {proofPayment && (
-          <p className="mt-1 text-xs text-gray-500">{proofPayment.name}</p>
-        )}
-        {errors.proofPayment && (
-          <p className="text-red-500 text-sm mt-1">{errors.proofPayment.message}</p>
-        )}
       </div>
 
       {serverErrors && Object.keys(errors).length === 0 && (

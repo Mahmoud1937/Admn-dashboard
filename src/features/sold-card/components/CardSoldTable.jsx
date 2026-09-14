@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { faFileExcel, faSpinner, faTrash, faXmark, faCreditCard } from "@fortawesome/free-solid-svg-icons";
+import { faFileExcel, faSpinner, faTrash, faCreditCard } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate } from "../../../utils/formatDate";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
+import LazyImageCell from "../../../shared/components/LazyImageCell";
+import ImageLightbox from "../../../shared/components/ImageLightbox";
 
 const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exportingId, onDelete }) => {
   const isArabic = (text) => /[\u0600-\u06FF]/.test(text || "");
@@ -89,20 +91,12 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
 
                   <td className="px-4 py-3 text-sm text-center">
                     {sold.proofPayment ? (
-                      <button
-                        type="button"
-                        onClick={() => setPreviewImage(sold.proofPayment)}
-                        className="inline-block cursor-pointer"
-                        title="View proof of payment"
-                      >
-                        <img
-                          src={sold.proofPayment}
-                          alt="Proof of payment"
-                          loading="lazy"
-                          decoding="async"
-                          className="mx-auto h-9 w-9 rounded-full border border-gray-200 object-cover hover:opacity-80"
-                        />
-                      </button>
+                      <LazyImageCell
+                        url={sold.proofPayment}
+                        label="Proof of payment"
+                        onPreview={(url, label) => setPreviewImage({ url, label })}
+                        size="h-9 w-9"
+                      />
                     ) : (
                       "-"
                     )}
@@ -141,28 +135,10 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
         </ScrollableTable>
       </div>
 
-      {previewImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-          onClick={() => setPreviewImage(null)}
-        >
-          <div className="relative max-h-[85vh] max-w-2xl" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              onClick={() => setPreviewImage(null)}
-              className="absolute -top-10 right-0 text-white hover:text-gray-300"
-              title="Close"
-            >
-              <FontAwesomeIcon icon={faXmark} size="lg" />
-            </button>
-            <img
-              src={previewImage}
-              alt="Proof of payment preview"
-              className="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl"
-            />
-          </div>
-        </div>
-      )}
+      <ImageLightbox
+        image={previewImage}
+        onClose={() => setPreviewImage(null)}
+      />
     </>
   );
 };

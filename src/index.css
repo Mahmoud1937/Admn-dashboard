@@ -9,6 +9,20 @@
   --color-heading: #1a202c;
 }
 
+@layer base {
+  button:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  summary,
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled),
+  [role="button"],
+  [role="tab"] {
+    cursor: pointer;
+  }
+}
+
 @layer components {
   .scroll-table,
   .scroll-form {

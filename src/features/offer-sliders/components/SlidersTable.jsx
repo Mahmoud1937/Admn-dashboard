@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import TableEmptyState from '../../../shared/components/TableEmptyState'
 import LazyImageCell from '../../../shared/components/LazyImageCell'
 import ImageLightbox from '../../../shared/components/ImageLightbox'
+import ScrollableTable from '../../../shared/components/ScrollableTable'
 import { formatDate } from '../../../utils/formatDate'
 
 // const formatDate = (dateStr) => {
@@ -59,7 +60,7 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
 
   return (
     <>
-      <div className="overflow-x-auto min-w-0">
+      <ScrollableTable maxHeight="60vh" className="min-w-0">
         <table className="w-full min-w-[720px] text-sm">
           <thead>
             <tr className="text-center text-xs font-semibold text-gray-400 uppercase tracking-wide">
@@ -154,7 +155,7 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollableTable>
 
       <ImageLightbox
         image={previewImage}

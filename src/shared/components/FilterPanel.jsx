@@ -10,7 +10,7 @@ export default function FilterPanel({
       {/* Mobile-only backdrop, closes the panel on outside tap */}
       <div
         onClick={onClose}
-        className="fixed inset-0 z-50 bg-slate-900/30 sm:hidden"
+        className="fixed inset-0 z-50 cursor-pointer bg-slate-900/30 sm:hidden"
       />
 
       <div

@@ -8,6 +8,7 @@ export const getCardMisseds = async ({
   searchTerm,
   fromDate,
   toDate,
+  missingType,
   pageNumber,
   pageSize,
 }) => {
@@ -17,6 +18,7 @@ export const getCardMisseds = async ({
       SearchTerm: searchTerm || undefined,
       FromDate: fromDate || undefined,
       ToDate: toDate || undefined,
+      MissingType: missingType === "" || missingType === undefined ? undefined : missingType,
       PageNumber: pageNumber,
       PageSize: pageSize,
     },

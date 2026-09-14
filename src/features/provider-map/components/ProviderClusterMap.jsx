@@ -18,6 +18,7 @@ import { getLocationFromCoords } from "../utils/Reversegeocode";
 
 const EGYPT_CENTER = [26.8, 30.8];
 const DEFAULT_ZOOM = 6;
+const MAP_FLY_DURATION = 0.8;
 // Below this zoom level: show governorate bubbles. At/above it: show individual pins.
 const INDIVIDUAL_PIN_ZOOM = 8;
 // Minimum gap (px) enforced between two bubble edges once they're pushed apart.
@@ -285,9 +286,11 @@ function FlyToGovernorate({ selectedGovernorate }) {
       return;
     }
     if (selectedGovernorate) {
-      map.flyTo([selectedGovernorate.centerLat, selectedGovernorate.centerLng], INDIVIDUAL_PIN_ZOOM);
+      map.flyTo([selectedGovernorate.centerLat, selectedGovernorate.centerLng], INDIVIDUAL_PIN_ZOOM, {
+        duration: MAP_FLY_DURATION,
+      });
     } else if (map.getZoom() > DEFAULT_ZOOM) {
-      map.flyTo(EGYPT_CENTER, DEFAULT_ZOOM);
+      map.flyTo(EGYPT_CENTER, DEFAULT_ZOOM, { duration: MAP_FLY_DURATION });
     }
   }, [selectedGovernorate, map]);
 
@@ -419,7 +422,7 @@ function CountryBubble({ bubble }) {
       position={[bubble.centerLat, bubble.centerLng]}
       icon={createBubbleIcon(bubble.count)}
       eventHandlers={{
-        click: () => map.flyTo(EGYPT_CENTER, DEFAULT_ZOOM),
+        click: () => map.flyTo(EGYPT_CENTER, DEFAULT_ZOOM, { duration: MAP_FLY_DURATION }),
       }}
     >
       <Tooltip direction="top" offset={[0, -6]} opacity={1}>
@@ -590,18 +593,20 @@ function ClusterClickFlyer({ children, ...clusterProps }) {
         if (!e.layer) return;
 
         const bounds = e.layer.getBounds();
-
-        const boundsZoom = map.getBoundsZoom(bounds.pad(0.2));
-
-        const targetZoom = Math.min(
-          Math.max(boundsZoom, DISABLE_CLUSTERING_AT_ZOOM),
-          CLUSTER_FLY_MAX_ZOOM
-        );
+        const isSingleCoordinateCluster = bounds
+          .getSouthWest()
+          .equals(bounds.getNorthEast());
+        const targetZoom = isSingleCoordinateCluster
+          ? DISABLE_CLUSTERING_AT_ZOOM
+          : Math.min(
+            Math.max(map.getBoundsZoom(bounds.pad(0.2)), DISABLE_CLUSTERING_AT_ZOOM),
+            CLUSTER_FLY_MAX_ZOOM
+          );
 
         map.flyTo(
           bounds.getCenter(),
           targetZoom,
-          { duration: 0.6 }
+          { duration: MAP_FLY_DURATION }
         );
       }}
     >
@@ -609,6 +614,101 @@ function ClusterClickFlyer({ children, ...clusterProps }) {
     </MarkerClusterGroup>
   );
 }
+
+function ProviderMarkerLayer({ providers, zoom }) {
+  const map = useMap();
+
+  const markerProviders = useMemo(() => {
+    const groups = new Map();
+
+    for (const provider of providers) {
+      const key = `${provider.lat},${provider.lng}`;
+      const group = groups.get(key) ?? [];
+      group.push(provider);
+      groups.set(key, group);
+    }
+
+    const shouldOffsetDuplicates = zoom >= DISABLE_CLUSTERING_AT_ZOOM;
+    const positionedProviders = [];
+
+    for (const group of groups.values()) {
+      if (!shouldOffsetDuplicates || group.length === 1) {
+        for (const provider of group) {
+          positionedProviders.push({
+            provider,
+            position: [provider.lat, provider.lng],
+          });
+        }
+        continue;
+      }
+
+      const radius = Math.max(22, 18 / Math.sin(Math.PI / group.length));
+      const center = map.project([group[0].lat, group[0].lng], zoom);
+
+      group.forEach((provider, index) => {
+        const angle = -Math.PI / 2 + (index * 2 * Math.PI) / group.length;
+        const point = center.add(L.point(Math.cos(angle) * radius, Math.sin(angle) * radius));
+        const position = map.unproject(point, zoom);
+
+        positionedProviders.push({
+          provider,
+          position: [position.lat, position.lng],
+        });
+      });
+    }
+
+    return positionedProviders;
+  }, [map, providers, zoom]);
+
+  const providerByKey = useMemo(() => {
+    const providersByPosition = new Map();
+    for (const { provider, position } of markerProviders) {
+      providersByPosition.set(`${position[0]},${position[1]}`, provider);
+    }
+    return providersByPosition;
+  }, [markerProviders]);
+
+  const createClusterIcon = useCallback((cluster) => {
+    const count = cluster.getChildCount();
+    const markers = cluster.getAllChildMarkers();
+    const latlng = markers[0]?.getLatLng();
+    const resolved = latlng ? resolveGovernorateFromCoords(latlng.lat, latlng.lng) : null;
+    const color = resolved ? governorateColor(resolved.nameAr) : FALLBACK_GOVERNORATE_COLOR;
+    const size = bubbleSize(count);
+    const providersInCluster = markers
+      .map((marker) => {
+        const position = marker.getLatLng();
+        return providerByKey.get(`${position.lat},${position.lng}`);
+      })
+      .filter(Boolean);
+
+    return L.divIcon({
+      html: buildClusterIconHtml(count, color, size, providersInCluster),
+      className: "",
+      iconSize: [size, size],
+    });
+  }, [providerByKey]);
+
+  return (
+    <ClusterClickFlyer
+      chunkedLoading
+      maxClusterRadius={40}
+      spiderfyOnMaxZoom
+      showCoverageOnHover={false}
+      disableClusteringAtZoom={DISABLE_CLUSTERING_AT_ZOOM}
+      iconCreateFunction={createClusterIcon}
+    >
+      {markerProviders.map(({ provider, position }) => (
+        <Marker key={provider.branchId} position={position} icon={createProviderIcon(provider.type, provider.imageUrl)}>
+          <Popup minWidth={256} maxWidth={280} className="branch-popup">
+            <BranchPopupCard p={provider} />
+          </Popup>
+        </Marker>
+      ))}
+    </ClusterClickFlyer>
+  );
+}
+
 function createClientBubbleIcon(count) {
   const size = bubbleSize(count);
   const innerStyle = bubbleCircleStyle(size, count, "#fff", {
@@ -645,34 +745,6 @@ export default function ProviderClusterMap({
     !selectedGovernorate;
 
   const handleZoomChange = useCallback((z) => setZoom(z), []);
-
-  const providerByKey = useMemo(() => {
-    const map = new Map();
-    for (const p of providers) {
-      map.set(`${p.lat},${p.lng}`, p);
-    }
-    return map;
-  }, [providers]);
-
-  const createClusterIcon = useCallback((cluster) => {
-    const count = cluster.getChildCount();
-    const markers = cluster.getAllChildMarkers();
-    const latlng = markers[0]?.getLatLng();
-    const resolved = latlng ? resolveGovernorateFromCoords(latlng.lat, latlng.lng) : null;
-    const color = resolved ? governorateColor(resolved.nameAr) : FALLBACK_GOVERNORATE_COLOR;
-    const size = bubbleSize(count);
-    const providersInCluster = markers
-      .map((m) => {
-        const ll = m.getLatLng();
-        return providerByKey.get(`${ll.lat},${ll.lng}`);
-      })
-      .filter(Boolean);
-    return L.divIcon({
-      html: buildClusterIconHtml(count, color, size, providersInCluster),
-      className: "",
-      iconSize: [size, size],
-    });
-  }, [providerByKey]);
 
   return (
     <div className="relative h-full w-full">
@@ -738,22 +810,7 @@ export default function ProviderClusterMap({
         )}
 
         {showIndividualPins && (
-          <ClusterClickFlyer
-            chunkedLoading
-            maxClusterRadius={40}
-            spiderfyOnMaxZoom
-            showCoverageOnHover={false}
-            disableClusteringAtZoom={DISABLE_CLUSTERING_AT_ZOOM}
-            iconCreateFunction={createClusterIcon}
-          >
-            {providers.map((p) => (
-              <Marker key={p.branchId} position={[p.lat, p.lng]} icon={createProviderIcon(p.type, p.imageUrl)}>
-                <Popup minWidth={256} maxWidth={280} className="branch-popup">
-                  <BranchPopupCard p={p} />
-                </Popup>
-              </Marker>
-            ))}
-          </ClusterClickFlyer>
+          <ProviderMarkerLayer providers={providers} zoom={zoom} />
         )}
 
       </MapContainer>

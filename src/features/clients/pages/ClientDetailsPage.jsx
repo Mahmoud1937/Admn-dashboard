@@ -144,8 +144,6 @@ const ClientDetailsPage = () => {
                   <img
                     src={client.clientImage}
                     alt={fullName}
-                    loading="lazy"
-                    decoding="async"
                     className="h-16 w-16 rounded-full object-cover"
                   />
                 ) : (

@@ -140,7 +140,7 @@ const handleEdit = (provider) => {
             className={`overflow-hidden rounded-b-xl transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"
               }`}
           >
-            <ScrollableTable maxHeight="600px">
+            <ScrollableTable maxHeight="60vh">
               <ProvidersTable
                 providers={providers}
                 onEdit={handleEdit}

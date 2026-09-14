@@ -2,6 +2,7 @@ import { faPills } from "@fortawesome/free-solid-svg-icons";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import AvatarImage from "../../../shared/components/AvatarImage";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
 
 export default function MedicinesTable({ medicines, hasActiveFilters, onEdit, onDeleteRequest }) {
   if (medicines.length === 0) {
@@ -16,7 +17,7 @@ export default function MedicinesTable({ medicines, hasActiveFilters, onEdit, on
   }
 
   return (
-  <div className="overflow-x-auto">
+  <ScrollableTable maxHeight="60vh">
       <table className="w-full text-left text-sm">
       <thead>
         <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -33,7 +34,7 @@ export default function MedicinesTable({ medicines, hasActiveFilters, onEdit, on
         {medicines.map((medicine) => (
           <tr key={medicine.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60">
             <td className="px-6 py-3">
-              <AvatarImage src={medicine.medicineImageUrl} alt={medicine.enName} />
+              <AvatarImage src={medicine.medicineImageUrl} alt={medicine.enName} loading="lazy" />
             </td>
             <td className="px-6 py-3 font-medium text-slate-900">{medicine.enName}</td>
             <td className="px-6 py-3 text-slate-600">{medicine.arName}</td>
@@ -48,6 +49,6 @@ export default function MedicinesTable({ medicines, hasActiveFilters, onEdit, on
         ))}
       </tbody>
     </table>
-  </div>
+  </ScrollableTable>
   );
 }

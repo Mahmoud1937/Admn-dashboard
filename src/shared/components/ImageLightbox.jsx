@@ -8,7 +8,7 @@ const ImageLightbox = ({ image, onClose }) => {
 
     return (
         <div
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-6"
+            className="fixed inset-0 z-[60] flex cursor-pointer items-center justify-center bg-black/70 p-6"
             onClick={onClose}
         >
             <button
@@ -22,7 +22,7 @@ const ImageLightbox = ({ image, onClose }) => {
             <img
                 src={image.url}
                 alt={image.label}
-                className="max-h-[80vh] max-w-[90vw] rounded-lg shadow-2xl"
+                className="max-h-[80vh] max-w-[90vw] cursor-default rounded-lg shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             />
 

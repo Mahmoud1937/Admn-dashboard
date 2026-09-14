@@ -2,7 +2,7 @@ import TermsAndConditionsEditor from "../../termsAndConditions/components/Termsa
 import { useRefundPolicyMutation, useRefundPolicyQuery } from "../hooks/useRefundPolicy";
 
 export default function RefundPolicyPage() {
-  const { data, isLoading, isFetching } = useRefundPolicyQuery();
+  const { data, isLoading } = useRefundPolicyQuery();
   const { mutate, isPending, serverErrors } = useRefundPolicyMutation();
 
   return (
@@ -10,7 +10,7 @@ export default function RefundPolicyPage() {
       initialValue={data || { en: "", ar: "" }}
       onSave={(payload) => mutate(payload)}
       saving={isPending}
-      loading={isLoading || isFetching}
+      loading={isLoading}
       serverErrors={serverErrors}
       title="Refund Policy"
       subtitle="Manage bilingual refund policy content"

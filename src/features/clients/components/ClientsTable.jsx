@@ -1,36 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark, faBan, faCheck, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faBan, faCheck, faUsers } from "@fortawesome/free-solid-svg-icons";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import StatusBadge from "../../../shared/components/StatusBadge";
+import LazyImageCell from "../../../shared/components/LazyImageCell";
+import ImageLightbox from "../../../shared/components/ImageLightbox";
 import { formatDate } from "../../../utils/formatDate";
-
-const ImagePreviewModal = ({ src, name, onClose }) => (
-  <div
-    onClick={onClose}
-    className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4"
-  >
-    <div className="relative max-h-[85vh] max-w-lg" onClick={(e) => e.stopPropagation()}>
-      <button
-        onClick={onClose}
-        className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-600 shadow hover:text-slate-900"
-      >
-        <FontAwesomeIcon icon={faXmark} />
-      </button>
-      <img
-        src={src}
-        alt={name}
-        className="max-h-[85vh] max-w-lg rounded-xl object-contain shadow-lg"
-      />
-    </div>
-  </div>
-);
 
 export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
   const navigate = useNavigate();
-  const [previewClient, setPreviewClient] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
 
   if (isLoading) {
     return <div className="py-10 text-center text-sm text-slate-400">Loading clients...</div>;
@@ -83,22 +64,14 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
                     className="flex cursor-pointer items-center gap-3 whitespace-nowrap rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-white/70"
                   >
                     {hasImage ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPreviewClient(client);
-                        }}
-                        title="View photo"
-                        className="h-8 w-8 shrink-0 overflow-hidden rounded-full ring-offset-2 hover:ring-2 hover:ring-blue-400"
-                      >
-                        <img
-                          src={client.clientImage}
-                          alt={fullName}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-full w-full object-cover"
-                        />
-                      </button>
+                      <LazyImageCell
+                        url={client.clientImage}
+                        label={fullName}
+                        onPreview={(url, label) =>
+                          setPreviewImage({ url, label })
+                        }
+                        size="h-8 w-8"
+                      />
                     ) : (
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-500">
                         {fullName.charAt(0).toUpperCase() || "?"}
@@ -140,13 +113,10 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
         </tbody>
       </table>
 
-      {previewClient && (
-        <ImagePreviewModal
-          src={previewClient.clientImage}
-          name={previewClient.userName ?? ""}
-          onClose={() => setPreviewClient(null)}
-        />
-      )}
+      <ImageLightbox
+        image={previewImage}
+        onClose={() => setPreviewImage(null)}
+      />
     </ScrollableTable>
   );
 }

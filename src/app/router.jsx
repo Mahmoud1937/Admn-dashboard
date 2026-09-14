@@ -28,6 +28,7 @@ import SoldCardsByPoolPage from "../features/cardPool/pages/SoldCardsByPoolPage"
 import ClientsPage from "../features/clients/pages/ClientsPage";
 import ClientDetailsPage from "../features/clients/pages/ClientDetailsPage";
 import CardActivationPage from "../features/cardActivtion/pages/CardActivationPage";
+import InvoicesPage from "../features/invoices/pages/InvoicesPage";
 
 
 
@@ -74,6 +75,7 @@ const router = createBrowserRouter([
         path: "contact-us",
         element: <ContactUsPage />,
       },
+       { path: "invoices", element: <InvoicesPage/> },
       { path: "services", element: <ServicesPage title="Services" /> },
       { path: "medicines", element: <MedicinesPage title="Medicine" /> },
     { path: "card-activation", element: <CardActivationPage/> },

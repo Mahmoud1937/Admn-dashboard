@@ -12,6 +12,7 @@ import DateRangeFilterFields from '../../../shared/components/DateRangeFilterFie
 import FilterPanelFooter from '../../../shared/components/FilterPanelFooter'
 import QueryErrorState from '../../../shared/components/QueryErrorState'
 import TableEmptyState from '../../../shared/components/TableEmptyState'
+import ScrollableTable from '../../../shared/components/ScrollableTable'
 import StatusBadge from '../../../shared/components/StatusBadge'
 import { formatDate } from '../../../utils/formatDate'
 import Pagination from '../../../shared/components/Pagination'
@@ -171,7 +172,7 @@ export default function OrderHistorySection({ userId }) {
         />
       ) : (
         <>
-          <div className="overflow-x-auto">
+          <ScrollableTable maxHeight="60vh">
             <table className="w-full min-w-[900px] text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -227,7 +228,7 @@ export default function OrderHistorySection({ userId }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </ScrollableTable>
 
           <Pagination
             pageNumber={pageNumber}

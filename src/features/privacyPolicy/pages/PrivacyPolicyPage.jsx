@@ -2,7 +2,7 @@ import TermsAndConditionsEditor from "../../termsAndConditions/components/Termsa
 import { usePrivacyPolicyMutation, usePrivacyPolicyQuery } from "../hooks/usePrivacyPolicy";
 
 export default function PrivacyPolicyPage() {
-  const { data, isLoading, isFetching } = usePrivacyPolicyQuery();
+  const { data, isLoading } = usePrivacyPolicyQuery();
   const { mutate, isPending, serverErrors } = usePrivacyPolicyMutation();
 
   return (
@@ -10,7 +10,7 @@ export default function PrivacyPolicyPage() {
       initialValue={data || { en: "", ar: "" }}
       onSave={(payload) => mutate(payload)}
       saving={isPending}
-      loading={isLoading || isFetching}
+      loading={isLoading}
       serverErrors={serverErrors}
       title="Privacy Policy"
       subtitle="Manage bilingual privacy policy content"
