@@ -28,6 +28,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
     reset,
     setError,
     setValue,
+    clearErrors,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(cardSoldSchema),
@@ -69,6 +70,22 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
     setProofPreview(URL.createObjectURL(file));
     setValue("proofPayment", file, { shouldValidate: true });
     clearServerErrors?.();
+  };
+
+  const clearCardNumberErrors = () => {
+    clearServerErrors?.();
+    clearErrors("cardNumbers");
+  };
+
+  const handleAddCardNumber = () => {
+    append({ value: "" });
+    clearCardNumberErrors();
+  };
+
+  const handleRemoveCardNumber = (index) => {
+    if (fields.length <= 1) return;
+    remove(index);
+    clearCardNumberErrors();
   };
 
   if (!isOpen) return null;
@@ -166,13 +183,15 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
                   type="text"
                   inputMode="numeric"
                   maxLength={12}
-                  {...register(`cardNumbers.${index}.value`)}
+                  {...register(`cardNumbers.${index}.value`, {
+                    onChange: clearCardNumberErrors,
+                  })}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder={`Card number ${index + 1} (12 digits)`}
                 />
                 <button
                   type="button"
-                  onClick={() => fields.length > 1 && remove(index)}
+                  onClick={() => handleRemoveCardNumber(index)}
                   disabled={fields.length === 1}
                   className="text-red-500 hover:text-red-700 disabled:opacity-30 disabled:cursor-not-allowed px-2"
                   title="Remove"
@@ -185,7 +204,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
 
           <button
             type="button"
-            onClick={() => append({ value: "" })}
+            onClick={handleAddCardNumber}
             className="mt-2 inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
           >
             <FontAwesomeIcon icon={faPlus} />

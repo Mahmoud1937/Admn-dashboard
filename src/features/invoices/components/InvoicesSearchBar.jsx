@@ -20,7 +20,7 @@ const InvoicesSearchBar = ({
       <SearchBarWithFilters
         value={search}
         onChange={setSearch}
-        placeholder="Search by client name, mobile, or card number"
+        placeholder="Search by Invoice ID, Phone, or Card Number..."
         onFilterClick={() => setShowFilters((prev) => !prev)}
         activeFilterCount={activeFilterCount}
         stacked={false}

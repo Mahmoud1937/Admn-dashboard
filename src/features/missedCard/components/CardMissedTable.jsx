@@ -36,8 +36,8 @@ const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
     <div className="min-w-0 border border-gray-200 rounded-lg">
       <ScrollableTable maxHeight="60vh">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50 sticky top-0 z-10">
-            <tr>
+          <thead className=" sticky top-0 z-10 bg-slate-100 ">
+         <tr className="border-b border-slate-200">
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Card Number</th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Type</th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Created By</th>

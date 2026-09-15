@@ -157,7 +157,7 @@ if (isError) {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPen} />
-            Edit
+            Update
           </button>
         )}
       </div>

@@ -61,7 +61,10 @@ export async function getOrderHistory({
 
   return data;
 }
-
+export async function getFamilyMembers(clientId) {
+  const { data } = await axiosInstance.get(`/ClientAdmin/${clientId}/family-members`);
+  return data;
+}
 export const getInvoiceDetails = async (invoiceId) => {
   const { data } = await axiosInstance.get(
     `/ProviderBranchView/invoices/${invoiceId}/details`
@@ -77,4 +80,5 @@ export const clientsService = {
   getOrderHistory,
   getInvoiceDetails,
 };
+
 export default clientsService;

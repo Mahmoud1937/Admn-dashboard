@@ -62,8 +62,8 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
     <>
       <ScrollableTable maxHeight="60vh" className="min-w-0">
         <table className="w-full min-w-[720px] text-sm">
-          <thead>
-            <tr className="text-center text-xs font-semibold text-gray-400 uppercase tracking-wide">
+       <thead className="bg-slate-100 sticky top-0 z-10">
+        <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
               <th className="px-4 py-3 w-10">#</th>
               <th className="px-4 py-3">EN Image</th>
               <th className="px-4 py-3">AR Image</th>

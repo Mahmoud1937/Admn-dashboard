@@ -12,23 +12,24 @@ export default function ProviderSelect({
 }) {
   return (
     <div className={className}>
-      <SearchableAsyncSelect
-        queryKey={queryKey}
-        fetchItems={(pageNumber, pageSize, searchTerm) =>
-          getProviderLookup({ pageNumber, pageSize, searchTerm })
-        }
-        value={value}
-        onChange={onChange}
-        getOptionLabel={(item) =>
-          item.arName && item.enName
-            ? `${item.enName} - ${item.arName}`
-            : item.arName || item.enName || ''
-        }
-        placeholder={placeholder}
-        searchPlaceholder="Search providers..."
-        disabled={disabled}
-        error={error}
-      />
+     <SearchableAsyncSelect
+  queryKey={queryKey}
+  fetchItems={(pageNumber, pageSize, searchTerm) =>
+    getProviderLookup({ pageNumber, pageSize, searchTerm })
+  }
+  value={value}
+  onChange={onChange}
+  getOptionLabel={(item) =>
+    item.arName && item.enName
+      ? `${item.enName} - ${item.arName}`
+      : item.arName || item.enName || ''
+  }
+  getOptionValue={(item) => item.id}
+  placeholder={placeholder}
+  searchPlaceholder="Search providers..."
+  disabled={disabled}
+  error={error}
+/>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
-import { getProviderBranches } from "../../branches/services/providerBranchesService";
+import { getBranchesLookup } from "../../branches/services/providerBranchesService";
+
 
 export default function ProviderBranchSelect({
   value,
@@ -15,13 +16,12 @@ export default function ProviderBranchSelect({
       <SearchableAsyncSelect
         queryKey={["provider-branches", "lookup", providerId]}
         fetchItems={(pageNumber, pageSize, searchTerm) =>
-          getProviderBranches({ providerId, pageNumber, pageSize, search: searchTerm })
-            .then((res) => ({ data: res })) // <-- الفرق هنا: نلف الرد في { data: ... }
+          getBranchesLookup({ providerId, pageNumber, pageSize, searchTerm })
         }
         value={value}
         onChange={onChange}
         getOptionLabel={(item) => item.branchName || ""}
-        getOptionValue={(item) => item.id}
+        getOptionValue={(item) => item.providerBranchId}
         placeholder={providerId ? placeholder : "Select a provider first"}
         searchPlaceholder="Search branches..."
         disabled={disabled || !providerId}

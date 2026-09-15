@@ -2,7 +2,8 @@ import FilterPanel from "../../../shared/components/FilterPanel";
 import FilterPanelFooter from "../../../shared/components/FilterPanelFooter";
 import FilterPanelHeader from "../../../shared/components/FilterPanelHeader";
 import DateRangeFilterFields from "../../../shared/components/DateRangeFilterFields";
-import ProviderSelect from "../../clients/components/Providerselect";
+import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
+import { getProviders } from "../../providers/services/providersService";
 import { INVOICE_STATUS } from "../constants/InvoiceStatus";
 import ProviderBranchSelect from "./ProviderBranchSelect";
 
@@ -34,11 +35,21 @@ export default function InvoicesFiltersPanel({ draft, onChange, onApply, onClear
 
       <div className="mb-4">
         <label className="mb-1.5 block text-xs font-medium text-slate-500">Provider</label>
-        <ProviderSelect
+        <SearchableAsyncSelect
+          queryKey={["invoices", "providers"]}
+          fetchItems={(pageNumber, pageSize, searchTerm) =>
+            getProviders({ pageNumber, pageSize, searchTerm })
+          }
           value={draft.providerId}
           onChange={setProvider}
+          getOptionLabel={(item) =>
+            item.arName && item.enName
+              ? `${item.enName} - ${item.arName}`
+              : item.arName || item.enName || ""
+          }
+          getOptionValue={(item) => item.id}
           placeholder="All providers"
-          className="w-full"
+          searchPlaceholder="Search providers..."
         />
       </div>
 
@@ -72,7 +83,7 @@ export default function InvoicesFiltersPanel({ draft, onChange, onApply, onClear
           placeholder: "All",
           items: [
             { value: "true", label: "Cash" },
-            { value: "false", label: "Card" },
+            { value: "false", label: "Visa" },
           ],
         })}
       </div>

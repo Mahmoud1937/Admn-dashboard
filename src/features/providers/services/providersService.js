@@ -103,20 +103,5 @@ export async function getProviderLookup({
     },
   });
 
-  // Backend currently returns a flat array in `data`. Normalize it into the
-  // { items, pageNumber, totalPages } shape SearchableAsyncSelect expects,
-  // so this keeps working unchanged once the backend adds real pagination
-  // (i.e. once `data.data` is already an object with `items`, this is a no-op).
-  if (Array.isArray(data?.data)) {
-    return {
-      ...data,
-      data: {
-        items: data.data,
-        pageNumber: 1,
-        totalPages: 1,
-      },
-    };
-  }
-
   return data;
 }

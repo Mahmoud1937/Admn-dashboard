@@ -7,9 +7,11 @@ import {
   faStar,
   faClockRotateLeft,
   faIdCard,
+  faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import useClientDetailsQuery from "../hooks/useClientDetailsQuery";
 import OrderHistorySection from "../components/OrderHistorySection";
+import FamilyMembersSection from "../components/FamilyMembersSection";
 import StatusBadge from "../../../shared/components/StatusBadge";
 import { formatDate } from "../../../utils/formatDate";
 
@@ -66,10 +68,12 @@ const AddressCard = ({ address }) => (
 
 const TAB_DETAILS = "details";
 const TAB_ORDERS = "orders";
+const TAB_FAMILY = "family";
 
 const TABS = [
   { key: TAB_DETAILS, label: "Client Details", icon: faIdCard },
   { key: TAB_ORDERS, label: "Order History", icon: faClockRotateLeft },
+  { key: TAB_FAMILY, label: "Family Members", icon: faUsers },
 ];
 
 const ClientDetailsPage = () => {
@@ -203,8 +207,10 @@ const ClientDetailsPage = () => {
               )}
             </div>
           </div>
-        ) : (
+        ) : activeTab === TAB_ORDERS ? (
           <OrderHistorySection userId={client.clientId} />
+        ) : (
+          <FamilyMembersSection clientId={client.clientId} />
         )}
       </div>
     </div>

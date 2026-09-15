@@ -31,8 +31,8 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
   return (
     <ScrollableTable maxHeight="60vh">
       <table className="min-w-[1300px] w-full">
-        <thead>
-          <tr className="border-b border-slate-100">
+    <thead className="bg-slate-100 sticky top-0 z-10">
+            <tr className="border-b border-slate-200">
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">Client</th>
             <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">Phone</th>
             <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">Gender</th>

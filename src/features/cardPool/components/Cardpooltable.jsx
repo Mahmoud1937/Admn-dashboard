@@ -31,8 +31,8 @@ const CardPoolTable = ({
     <div className="min-w-0 border border-gray-200 rounded-lg">
       <ScrollableTable maxHeight="60vh">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="sticky top-0 z-10 bg-gray-50">
-            <tr>
+           <thead className="bg-slate-100 sticky top-0 z-10">
+            <tr className="border-b border-slate-200">
               <th className="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-500">
                 From
               </th>

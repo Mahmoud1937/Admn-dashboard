@@ -24,7 +24,23 @@ export async function getProviderBranches({
 
   return data;
 }
+export async function getBranchesLookup({
+  providerId,
+  pageNumber = 1,
+  pageSize,
+  searchTerm = "",
+} = {}) {
+  const { data } = await axiosInstance.get("AdminLookup/provider-branches", {
+    params: {
+      ProviderId: providerId || undefined,
+      SearchTerm: searchTerm || undefined,
+      PageNumber: pageNumber,
+      PageSize: pageSize || undefined,
+    },
+  });
 
+  return data;
+}
 export async function createBranch(payload) {
   const { data } = await axiosInstance.post("/ProviderBranchesAdmin/provider-branches", {
     providerId: payload.providerId,
