@@ -14,6 +14,21 @@ export const getClients = async (params = {}) => {
   return data;
 };
 
+export const exportClients = async (params = {}) => {
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(
+      ([, value]) => value !== undefined && value !== null && value !== ""
+    )
+  );
+
+  const response = await axiosInstance.get("/ClientAdmin/export", {
+    params: cleanParams,
+    responseType: "blob",
+  });
+
+  return response.data;
+};
+
 export const blockClient = async ({ userId, isBlocked }) => {
   // NOTE: assumed PUT since this updates a resource's state — swap to
   // axiosInstance.post(...) if your backend actually expects POST here.
@@ -75,6 +90,7 @@ export const getInvoiceDetails = async (invoiceId) => {
 
 export const clientsService = {
   getClients,
+  exportClients,
   getClientById,
   blockClient,
   getOrderHistory,

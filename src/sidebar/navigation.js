@@ -17,6 +17,8 @@ import {
   faIdCard,
   faTriangleExclamation,
   faFileInvoiceDollar,
+  faTicket,
+  faMoneyBillWave,
 } from "@fortawesome/free-solid-svg-icons";
 
 export const navigation = [
@@ -107,6 +109,16 @@ export const navigation = [
     title: "Invoices",
     path: "/invoices",
     icon: faFileInvoiceDollar,
+  },
+  {
+    title: "Ticket Types",
+    path: "/ticket-types",
+    icon: faTicket,
+  },
+  {
+    title: "Subscription Types",
+    path: "/plan-types",
+    icon: faMoneyBillWave,
   },
   {
     title: "Terms & Conditions",

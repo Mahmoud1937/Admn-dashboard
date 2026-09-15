@@ -97,12 +97,31 @@ export default function InvoicesTable({ invoices, isLoading, hasActiveFilters })
                       >
                         {clientName}
                       </p>
-                      {inv.relation && (
-                        <span className="inline-block mt-0.5 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
-                          {inv.relation}
-                        </span>
+                      {inv.familyMemberRelation && (
+                      <p className="mt-0.5 text-[11px] font-normal text-slate-400">
+      {inv.familyMemberRelation}
+    </p>
                       )}
                     </div>
+
+
+
+                               {/* <div className="min-w-0 flex-1">
+  <p
+    title={clientName}
+    className="truncate text-sm font-medium text-slate-700"
+    dir="ltr"
+  >
+    {clientName}
+  </p>
+
+  {inv.familyMemberRelation && (
+    <p className="mt-0.5 text-[11px] font-normal text-slate-400">
+      {inv.familyMemberRelation}
+    </p>
+  )}
+</div> */}
+         
                   </div>
                 </td>
                 <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">

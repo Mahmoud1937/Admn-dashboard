@@ -154,10 +154,7 @@ export default function InvoiceDetailsModal({ isOpen, onClose, invoice, isLoadin
               <span>Total Before Discount</span>
               <span className="whitespace-nowrap">{formatMoney(invoice.totalBefore)} EGP</span>
             </div>
-            <div className="flex items-center justify-between text-sm text-slate-400">
-              <span>Discount</span>
-              <span>{Number(invoice.discountPercentage ?? 0).toFixed(0)}%</span>
-            </div>
+    
             <div className="flex items-center justify-between border-t border-slate-100 pt-3">
               <div className="flex items-center gap-1.5 text-base text-slate-500">
                 <Tag size={16} />

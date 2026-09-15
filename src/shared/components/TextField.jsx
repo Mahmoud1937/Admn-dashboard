@@ -2,7 +2,19 @@ import { forwardRef } from "react";
 import { sanitizeNameInput } from "../utils/sanitizeInput";
 
 const TextField = forwardRef(function TextField(
-  { label, required, autoFocus, error, onChange, maxLength = 255, sanitize = true, dir = "ltr", readOnly, ...rest },
+  {
+    label,
+    required,
+    autoFocus,
+    error,
+    onChange,
+    maxLength = 255,
+    sanitize = true,
+    dir = "ltr",
+    readOnly,
+    disabled,
+    ...rest
+  },
   ref
 ) {
   const handleChange = (e) => {
@@ -25,10 +37,15 @@ const TextField = forwardRef(function TextField(
         onChange={handleChange}
         maxLength={maxLength}
         readOnly={readOnly}
+        disabled={disabled}
         {...rest}
         className={`w-full rounded-lg border px-3 py-2 text-sm text-left outline-none focus:border-blue-400 ${
           error ? "border-red-400" : "border-slate-200"
-        } ${readOnly ? "bg-slate-50 text-slate-500 cursor-not-allowed" : ""}`}
+        } ${
+          readOnly || disabled
+            ? "cursor-not-allowed bg-slate-50 text-slate-500"
+            : ""
+        }`}
       />
       {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
     </div>

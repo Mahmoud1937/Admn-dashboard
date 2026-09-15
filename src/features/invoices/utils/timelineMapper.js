@@ -11,6 +11,8 @@ const STATUS_CONFIG = {
   "مستخدم": { icon: "check", tagColor: "green" },
 
   paid: { icon: "check", tagColor: "blue" },
+  canceled: { icon: "file", tagColor: "red" },
+  cancelled: { icon: "file", tagColor: "red" },
   "مدفوع": { icon: "check", tagColor: "blue" },
 };
 

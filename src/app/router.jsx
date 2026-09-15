@@ -29,6 +29,8 @@ import ClientsPage from "../features/clients/pages/ClientsPage";
 import ClientDetailsPage from "../features/clients/pages/ClientDetailsPage";
 import CardActivationPage from "../features/cardActivtion/pages/CardActivationPage";
 import InvoicesPage from "../features/invoices/pages/InvoicesPage";
+import TicketTypesPage from "../features/ticket-types/pages/TicketTypesPage";
+import SubscriptionTypesPage from "../features/subscription-types/pages/SubscriptionTypesPage";
 
 
 
@@ -90,10 +92,11 @@ const router = createBrowserRouter([
       { path:"/card-pool/sold-cards", element:<SoldCardsByPoolPage />},
       { path: "sold-card", element: <CardSoldPage /> },
       { path: "card-missed", element: <CardMissedPage /> },
+      { path: "ticket-types", element: <TicketTypesPage /> },
       // View / Update Slider details (full-size images + edit)
       { path: "offer-sliders/:id", element: <SliderDetailsPage /> },
 
-      { path: "plan-types", element: <PagePlaceholder title="Plan Types" /> },
+      { path: "plan-types", element: <SubscriptionTypesPage /> },
       // { path: "offer-sliders", element: <SlidersPage title="Plan Types" /> },
       { path: "offers", element: <PagePlaceholder title="Offers" /> },
 

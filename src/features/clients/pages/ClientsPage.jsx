@@ -1,8 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faUndo } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowLeft,
+  faFileExcel,
+  faSpinner,
+  faUndo,
+} from "@fortawesome/free-solid-svg-icons";
 import { emptyFilters, useClientsQuery } from "../hooks/useClientsQuery";
+import { useExportClients } from "../hooks/useExportClients";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilters";
 import ClientsFiltersPanel from "../components/ClientsFiltersPanel";
@@ -50,6 +56,7 @@ const ClientsPage = () => {
     handlePageSizeChange,
     getPageNumbers,
   } = useClientsQuery(poolSource);
+  const { exportToExcel, isExporting } = useExportClients();
 
   // --- search box (debounced, applied straight to filters.searchTerm) ---
   const [searchInput, setSearchInput] = useState(filters.searchTerm);
@@ -162,6 +169,25 @@ const ClientsPage = () => {
             )}
           </p>
         </div>
+
+        <button
+          type="button"
+          onClick={() =>
+            exportToExcel({
+              filters,
+              poolSource,
+            })
+          }
+          disabled={isExporting}
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-600 shadow-sm transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+          title="Export clients to Excel"
+        >
+          <FontAwesomeIcon
+            icon={isExporting ? faSpinner : faFileExcel}
+            spin={isExporting}
+          />
+          {isExporting ? "Exporting..." : "Export"}
+        </button>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white">

@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { faTrash, faImage, faPen } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faImage } from '@fortawesome/free-solid-svg-icons'
 import TableEmptyState from '../../../shared/components/TableEmptyState'
 import LazyImageCell from '../../../shared/components/LazyImageCell'
 import ImageLightbox from '../../../shared/components/ImageLightbox'
 import ScrollableTable from '../../../shared/components/ScrollableTable'
+import RowActions from '../../../shared/components/RowActions'
 import { formatDate } from '../../../utils/formatDate'
 
 // const formatDate = (dateStr) => {
@@ -18,24 +18,6 @@ import { formatDate } from '../../../utils/formatDate'
 //     year: 'numeric',
 //   })
 // }
-
-const ActionButton = ({ icon, onClick, title, variant }) => {
-  const colors =
-    variant === 'danger'
-      ? 'text-gray-400 hover:text-red-600 hover:bg-red-50'
-      : 'text-gray-400 hover:text-blue-700 hover:bg-blue-50'
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title}
-      className={`h-8 w-8 inline-flex items-center justify-center rounded-full transition-colors ${colors}`}
-    >
-      <FontAwesomeIcon icon={icon} className="text-sm" />
-    </button>
-  )
-}
 
 const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
   const [previewImage, setPreviewImage] = useState(null)
@@ -131,20 +113,12 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
 
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-                    <ActionButton
-                      icon={faPen}
-                      title="Edit slider"
-                      onClick={(e) => {
+                    <RowActions
+                      onEdit={(e) => {
                         e.stopPropagation()
                         onEdit(slider)
                       }}
-                    />
-
-                    <ActionButton
-                      icon={faTrash}
-                      title="Delete slider"
-                      variant="danger"
-                      onClick={(e) => {
+                      onDelete={(e) => {
                         e.stopPropagation()
                         onDelete(slider)
                       }}
