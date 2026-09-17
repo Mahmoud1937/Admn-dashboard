@@ -8,7 +8,8 @@ export const subscriptionTypeSchema = z.object({
     .string()
     .min(1, "Price before is required")
     .refine((value) => !Number.isNaN(Number(value)), "Price before must be a valid number")
-    .refine((value) => Number(value) > 0, "Price before must be greater than 0"),
+    .refine((value) => Number(value) > 0, "Price before must be greater than 0")
+    .refine((value) => Number(value) <= 1000000, "Price before must be 1,000,000 or less"),
   discountPercentage: z
     .string()
     .min(1, "Discount percentage is required")

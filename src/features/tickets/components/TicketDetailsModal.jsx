@@ -448,7 +448,7 @@ export default function TicketDetailsModal({
                 ) : (
                   <div className="relative rounded-xl border border-slate-200 px-4 py-4">
                     {timelines.map((item, i) => {
-                      const author = item.createdByName || "-";
+                      const author = item.createdByName || item.createdBy || "-";
                       const isLastTimelineItem = i === timelines.length - 1;
                       const statusInfo = getTicketStatus(item.status);
                       const statusLabel = item.statusName || statusInfo.label;
