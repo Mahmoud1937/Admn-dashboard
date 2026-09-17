@@ -32,6 +32,7 @@ const TAG_STYLES = {
   green: "bg-green-100 text-green-700",
   red: "bg-red-100 text-red-700",
   blue: "bg-blue-100 text-blue-600",
+  purple: "bg-violet-100 text-violet-700",
 };
 
 const CIRCLE_STYLES = {
@@ -39,15 +40,18 @@ const CIRCLE_STYLES = {
   green: "bg-emerald-100 text-emerald-600",
   red: "bg-red-100 text-red-600",
   blue: "bg-blue-100 text-blue-600",
+  purple: "bg-violet-100 text-violet-600",
 };
 
-// Maps a timeline step to a tag color: closed => green, otherwise by status
-const stepTagColor = (item, isClosed) => {
-  if (isClosed) return "green";
-  if (item.status === 2) return "red";
-  if (item.status === 1) return "blue";
-  return "amber";
+const TICKET_STATUS = {
+  1: { label: "Created", color: "blue" },
+  2: { label: "Closed", color: "green" },
+  3: { label: "Assigned", color: "purple" },
+  4: { label: "Reply", color: "amber" },
 };
+
+const getTicketStatus = (status) =>
+  TICKET_STATUS[status] || { label: `Status ${status}`, color: "amber" };
 
 const namePair = (item) => {
   if (!item) return "-";
@@ -111,6 +115,7 @@ export default function TicketDetailsModal({
   const { data, isLoading, isError } = useTicketDetailsQuery(ticketId, !!ticketId);
   const ticket = data?.data;
   const timelines = ticket?.ticketTimelines ?? [];
+  const currentStatus = getTicketStatus(timelines.at(-1)?.status ?? 1);
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState(null);
   const [replyError, setReplyError] = useState("");
@@ -124,6 +129,7 @@ export default function TicketDetailsModal({
     setEditValues((current) => ({
       ...current,
       [name]: value,
+      ...(name === "isClosed" && value === "true" ? { status: "2" } : {}),
     }));
   };
 
@@ -151,7 +157,7 @@ export default function TicketDetailsModal({
 
     const payload = {
       reply: editValues.reply.trim(),
-      status: Number(editValues.status ?? 1),
+      status: editValues.isClosed === "true" ? 2 : Number(editValues.status ?? 1),
       isClosed: editValues.isClosed === "true",
       ticketTypeId: editValues.ticketTypeId === "" ? null : Number(editValues.ticketTypeId),
       userId: editValues.userId === "" ? null : Number(editValues.userId),
@@ -201,6 +207,33 @@ export default function TicketDetailsModal({
                 >
                   <option value="false">Open</option>
                   <option value="true">Closed</option>
+                </select>
+              )}
+              {ticket && !isEditing && (
+                <span
+                  className={`rounded-md px-2 py-0.5 text-xs font-semibold ${
+                    TAG_STYLES[currentStatus.color]
+                  }`}
+                >
+                  {currentStatus.label}
+                </span>
+              )}
+              {ticket && isEditing && editValues && (
+                <select
+                  value={editValues.status}
+                  onChange={(e) => setEditValue("status", e.target.value)}
+                  disabled={editValues.isClosed === "true"}
+                  title={
+                    editValues.isClosed === "true"
+                      ? "Closed tickets must use the Closed status"
+                      : undefined
+                  }
+                  className="rounded-md border border-white/20 bg-white px-2 py-0.5 text-xs font-semibold text-blue-900 outline-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                >
+                  <option value="1">Created</option>
+                  <option value="2">Closed</option>
+                  <option value="3">Assigned</option>
+                  <option value="4">Reply</option>
                 </select>
               )}
             </p>
@@ -415,10 +448,12 @@ export default function TicketDetailsModal({
                 ) : (
                   <div className="relative rounded-xl border border-slate-200 px-4 py-4">
                     {timelines.map((item, i) => {
-                      const author = item.createdByName || item.createdBy || "-";
-                      const tagColor = stepTagColor(item, ticket.isClosed);
-                      const isUsed = tagColor === "green" || tagColor === "blue";
+                      const author = item.createdByName || "-";
                       const isLastTimelineItem = i === timelines.length - 1;
+                      const statusInfo = getTicketStatus(item.status);
+                      const statusLabel = item.statusName || statusInfo.label;
+                      const tagColor = statusInfo.color;
+                      const isUsed = tagColor === "green" || tagColor === "blue";
 
                       return (
                         <div key={item.id} className="relative pb-4 last:pb-0 pl-9">
@@ -435,7 +470,7 @@ export default function TicketDetailsModal({
                           </div>
 
                           <p className="text-[15px] font-semibold text-slate-900">
-                            {item.statusName || `Status ${item.status}`}
+                            {statusLabel}
                           </p>
 
                           {isEditing && editValues && isLastTimelineItem ? (
@@ -477,7 +512,7 @@ export default function TicketDetailsModal({
                                 TAG_STYLES[tagColor] || TAG_STYLES.blue
                               }`}
                             >
-                              {item.statusName || `Status ${item.status}`}
+                              {statusLabel}
                             </span>
                           </div>
                         </div>
