@@ -99,30 +99,30 @@ const CardNotActivatedTable = ({
           No not-activated cards found
         </div>
       ) : (
-        <div className="min-w-0 overflow-hidden rounded-lg border border-slate-200">
+        <div className="min-w-0">
           <ScrollableTable maxHeight="60vh">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="sticky top-0 z-10 bg-slate-50">
-                <tr>
-                  <th className="w-20 px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <table className="min-w-full text-center text-sm">
+              <thead className="sticky top-0 z-10 bg-slate-100">
+                <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
+                  <th className="w-20 px-4 py-3 text-center">
                     #
                   </th>
 
-                  <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <th className="px-4 py-3 text-center">
                     Card Number
                   </th>
 
-                  <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <th className="px-4 py-3 text-center">
                     Status
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-100 bg-white">
+              <tbody className="bg-white">
                 {items.map((card, index) => (
                   <tr
                     key={card.id ?? card.cardNumber}
-                    className="transition-colors hover:bg-slate-50"
+                    className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60"
                   >
                     <td className="px-4 py-3 text-center text-sm font-medium text-slate-400">
                       {index + 1}

@@ -119,9 +119,9 @@ const SlidersPage = () => {
       </div>
 
       {/* Sliders Card */}
-      <div className="overflow-hidden rounded-lg border border-gray-100 bg-white">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         {/* Filters */}
-        <div className="border-b border-gray-100 p-4">
+        <div className="border-b border-slate-200 p-4">
           <SlidersFilters
             search={search}
             onSearchChange={setSearch}
@@ -148,7 +148,7 @@ const SlidersPage = () => {
 
         {/* Pagination */}
         {!isError && (data?.totalPages ?? 0) > 1 && (
-          <div className="border-t border-gray-100 p-4">
+          <div className="border-t border-slate-200 p-4">
             <Pagination
               pageNumber={pageNumber}
               totalPages={data.totalPages}

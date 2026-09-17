@@ -33,21 +33,21 @@ const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
   }
 
   return (
-    <div className="min-w-0 border border-gray-200 rounded-lg">
+    <div className="min-w-0">
       <ScrollableTable maxHeight="60vh">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className=" sticky top-0 z-10 bg-slate-100 ">
-         <tr className="border-b border-slate-200">
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Card Number</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Type</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Created By</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Created At</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Delete</th>
+        <table className="min-w-full text-center text-sm">
+          <thead className="sticky top-0 z-10 bg-slate-100">
+            <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
+              <th className="px-4 py-3 text-center">Card Number</th>
+              <th className="px-4 py-3 text-center">Type</th>
+              <th className="px-4 py-3 text-center">Created By</th>
+              <th className="px-4 py-3 text-center">Created At</th>
+              <th className="px-4 py-3 text-center">Delete</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 bg-white">
+          <tbody>
             {items.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
+              <tr key={item.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60">
                 <td className="px-4 py-3 text-sm text-center text-gray-700 font-mono">{item.cardNumber}</td>
                 <td className="px-4 py-3 text-sm text-center">{typeBadge(item.missingType)}</td>
                 <td className="px-4 py-3 text-sm text-center text-gray-700">{item.createdBy}</td>
@@ -56,7 +56,7 @@ const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
                   <button
                     type="button"
                     onClick={() => onDelete(item)}
-                    className="text-red-600 hover:text-red-800 cursor-pointer"
+                    className="cursor-pointer rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
                     title="Delete record"
                   >
                     <FontAwesomeIcon icon={faTrash} />

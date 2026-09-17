@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faArrowLeft,
-  faFileExcel,
-  faSpinner,
-  faUndo,
-} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft,faFileExcel,faSpinner,faUndo,} from "@fortawesome/free-solid-svg-icons";
 import { emptyFilters, useClientsQuery } from "../hooks/useClientsQuery";
 import { useExportClients } from "../hooks/useExportClients";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
@@ -29,7 +24,6 @@ const ClientsPage = () => {
     poolId && sourceType
       ? { id: Number(poolId), sourceType: Number(sourceType) }
       : undefined;
-
   // Data passed from CardPoolTable's "Activated" link
   const from = location.state?.from;
   const to = location.state?.to;
@@ -38,7 +32,6 @@ const ClientsPage = () => {
   const handleResetPoolFilter = () => {
     setSearchParams({});
   };
-
   const {
     clients,
     totalCount,
@@ -123,7 +116,7 @@ const ClientsPage = () => {
   };
 
   return (
-    <div className="p-4 md:p-6">
+    <div className=" ">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           {poolSource && (
@@ -179,7 +172,7 @@ const ClientsPage = () => {
             })
           }
           disabled={isExporting}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-600 shadow-sm transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
           title="Export clients to Excel"
         >
           <FontAwesomeIcon

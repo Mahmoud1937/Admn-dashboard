@@ -27,8 +27,8 @@ export default function TicketTypesTable({
         <thead className="sticky top-0 z-10 bg-slate-100">
           <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
 
-            <th className="px-6 py-3 text-left">English Name</th>
-            <th className="px-6 py-3 text-left">Arabic Name</th>
+            <th className="px-6 py-3 text-center">English Name</th>
+            <th className="px-6 py-3 text-center">Arabic Name</th>
             <th className="px-6 py-3 text-center">Created At</th>
             <th className="px-6 py-3 text-center">Created By</th>
             <th className="px-6 py-3 text-center">Actions</th>
@@ -39,13 +39,13 @@ export default function TicketTypesTable({
           {ticketTypes.map((ticketType) => (
             <tr
               key={ticketType.id}
-              className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60"
+              className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60"
             >
 
-              <td className="px-6 py-3 text-left font-medium text-slate-900">
+              <td className="px-6 py-3 text-center font-medium text-slate-900">
                 {ticketType.enName || "-"}
               </td>
-              <td className="px-6 py-3 text-left text-slate-600" dir="rtl">
+              <td className="px-6 py-3 text-center text-slate-600" dir="rtl">
                 {ticketType.arName || "-"}
               </td>
               <td className="px-6 py-3 text-center text-slate-600">

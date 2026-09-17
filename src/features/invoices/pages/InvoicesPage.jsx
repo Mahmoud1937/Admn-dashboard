@@ -60,10 +60,10 @@ const InvoicesPage = () => {
   const totalPages = data?.totalPages ?? 1;
 
   return (
-    <div className="p-6">
+    <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-slate-800">Invoices</h1>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">Invoices</h1>
           <p className="mt-1 text-sm text-slate-500">
             Manage and export invoices
           </p>
@@ -78,7 +78,7 @@ const InvoicesPage = () => {
             })
           }
           disabled={isExporting}
-          className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-600 shadow-sm transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-600  transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
           title="Export invoices to Excel"
         >
           <FontAwesomeIcon
@@ -90,32 +90,34 @@ const InvoicesPage = () => {
         </button>
       </div>
 
-      <InvoicesSearchBar
-        search={search}
-        setSearch={setSearch}
-        draftFilters={draftFilters}
-        setDraftFilters={setDraftFilters}
-        onApplyFilters={handleApplyFilters}
-        onClearFilters={handleClearFilters}
-        activeFilterCount={countActiveInvoiceFilters(filters)}
-      />
+      <div className="rounded-xl border border-slate-200 bg-white">
+        <InvoicesSearchBar
+          search={search}
+          setSearch={setSearch}
+          draftFilters={draftFilters}
+          setDraftFilters={setDraftFilters}
+          onApplyFilters={handleApplyFilters}
+          onClearFilters={handleClearFilters}
+          activeFilterCount={countActiveInvoiceFilters(filters)}
+        />
 
-      <InvoicesTable
-        invoices={data?.items ?? []}
-        isLoading={isLoading}
-        hasActiveFilters={countActiveInvoiceFilters(filters) > 0}
-      />
+        <InvoicesTable
+          invoices={data?.items ?? []}
+          isLoading={isLoading}
+          hasActiveFilters={countActiveInvoiceFilters(filters) > 0}
+        />
 
-      <Pagination
-        pageNumber={pageNumber}
-        totalPages={totalPages}
-        totalCount={data?.totalCount ?? 0}
-        pageSize={pageSize}
-        itemLabel="invoices"
-        onGoToPage={(page) => goToPage(page, totalPages)}
-        onPageSizeChange={handlePageSizeChange}
-        getPageNumbers={getPageNumbers}
-      />
+        <Pagination
+          pageNumber={pageNumber}
+          totalPages={totalPages}
+          totalCount={data?.totalCount ?? 0}
+          pageSize={pageSize}
+          itemLabel="invoices"
+          onGoToPage={(page) => goToPage(page, totalPages)}
+          onPageSizeChange={handlePageSizeChange}
+          getPageNumbers={getPageNumbers}
+        />
+      </div>
     </div>
   );
 };

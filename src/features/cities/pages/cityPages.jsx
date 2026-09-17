@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 
 import { useCitiesQuery } from "../hooks/useCitiesQuery";
@@ -14,8 +13,6 @@ import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 export default function CitiesPage() {
-  const [search, setSearch] = useState("");
-  const debouncedSearch = useDebouncedValue(search, 400);
   const [governorateFilter, setGovernorateFilter] = useState("");
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -28,7 +25,7 @@ export default function CitiesPage() {
     goToPage,
     handlePageSizeChange,
     getPageNumbers,
-  } = useServerPagination({ resetKey: `${debouncedSearch}-${governorateFilter}` });
+  } = useServerPagination({ resetKey: governorateFilter });
 
   const {
     cities,
@@ -39,7 +36,7 @@ export default function CitiesPage() {
     error,
     isPlaceholderData,
     refetch,
-  } = useCitiesQuery({ pageNumber, pageSize, search: debouncedSearch, governorateFilter });
+  } = useCitiesQuery({ pageNumber, pageSize, search: "", governorateFilter });
 
   const closeForm = () => {
     setIsFormOpen(false);
@@ -84,7 +81,7 @@ export default function CitiesPage() {
     }
   };
 
-  const hasActiveFilters = !!(search || governorateFilter);
+  const hasActiveFilters = !!governorateFilter;
 
   return (
     <div>
@@ -107,8 +104,6 @@ export default function CitiesPage() {
 
       <div className="rounded-xl border border-slate-200 bg-white">
         <CitiesFilters
-          search={search}
-          onSearchChange={setSearch}
           governorateFilter={governorateFilter}
           onGovernorateFilterChange={setGovernorateFilter}
         />

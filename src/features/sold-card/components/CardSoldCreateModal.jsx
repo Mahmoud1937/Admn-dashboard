@@ -193,7 +193,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
                   type="button"
                   onClick={() => handleRemoveCardNumber(index)}
                   disabled={fields.length === 1}
-                  className="text-red-500 hover:text-red-700 disabled:opacity-30 disabled:cursor-not-allowed px-2"
+                  className="cursor-pointer rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30"
                   title="Remove"
                 >
                   <FontAwesomeIcon icon={faTrash} />

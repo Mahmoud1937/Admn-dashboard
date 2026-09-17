@@ -30,33 +30,31 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
 
   return (
     <ScrollableTable maxHeight="60vh">
-      <table className="min-w-[1300px] w-full">
-    <thead className="bg-slate-100 sticky top-0 z-10">
-            <tr className="border-b border-slate-200">
-            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">Client</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">Phone</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">Gender</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">National ID</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">Passport No.</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">Card Number</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">Card Expires</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">Birth Date</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">Join Date</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">Activated At</th>
-            <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">Status</th>
+      <table className="min-w-[1300px] w-full text-center text-sm">
+        <thead className="sticky top-0 z-10 bg-slate-100">
+          <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
+            <th className="px-4 py-3 text-center">Client</th>
+            <th className="px-4 py-3 text-center">Phone</th>
+            <th className="px-4 py-3 text-center">Gender</th>
+            <th className="px-4 py-3 text-center">National ID</th>
+            <th className="px-4 py-3 text-center">Passport No.</th>
+            <th className="px-4 py-3 text-center">Card Number</th>
+            <th className="px-4 py-3 text-center">Card Expires</th>
+            <th className="px-4 py-3 text-center">Birth Date</th>
+            <th className="px-4 py-3 text-center">Join Date</th>
+            <th className="px-4 py-3 text-center">Activated At</th>
+            <th className="px-4 py-3 text-center">Status</th>
           </tr>
         </thead>
         <tbody>
-          {clients.map((client, idx) => {
+          {clients.map((client) => {
             const fullName = client.userName ?? "";
             const hasImage = client.clientImage && !client.clientImage.endsWith("medicardeg.com/");
 
             return (
               <tr
                 key={client.clientId}
-                className={`border-b border-slate-50 last:border-0 transition-all hover:bg-primary-600/10 hover:text-primary-600 ${
-                  idx % 2 === 1 ? "bg-slate-50/40" : ""
-                }`}
+                className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60"
               >
                 <td className="px-4 py-3">
                   <div

@@ -28,28 +28,28 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
 
   return (
     <>
-      <div className="min-w-0 border border-gray-200 rounded-lg">
+      <div className="min-w-0">
         <ScrollableTable maxHeight="60vh">
-          <table className="min-w-full divide-y divide-gray-200">
-             <thead className="bg-slate-100 sticky top-0 z-10">
-        <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">From</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">To</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Count</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Client Name</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Client Phone</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Active</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Non Active</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Proof</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Created By</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Created At</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Export</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Delete</th>
+          <table className="min-w-full text-center text-sm">
+            <thead className="sticky top-0 z-10 bg-slate-100">
+              <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
+                <th className="px-4 py-3 text-center">From</th>
+                <th className="px-4 py-3 text-center">To</th>
+                <th className="px-4 py-3 text-center">Count</th>
+                <th className="px-4 py-3 text-center">Client Name</th>
+                <th className="px-4 py-3 text-center">Client Phone</th>
+                <th className="px-4 py-3 text-center">Active</th>
+                <th className="px-4 py-3 text-center">Non Active</th>
+                <th className="px-4 py-3 text-center">Proof</th>
+                <th className="px-4 py-3 text-center">Created By</th>
+                <th className="px-4 py-3 text-center">Created At</th>
+                <th className="px-4 py-3 text-center">Export</th>
+                <th className="px-4 py-3 text-center">Delete</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
+            <tbody>
               {items.map((sold) => (
-                <tr key={sold.id} className="hover:bg-gray-50">
+                <tr key={sold.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60">
                   <td className="px-4 py-3 text-sm text-center text-gray-700 font-mono">{sold.from}</td>
                   <td className="px-4 py-3 text-sm text-center text-gray-700 font-mono">{sold.to}</td>
                   <td className="px-4 py-3 text-sm text-center text-gray-700">{sold.count}</td>
@@ -122,7 +122,7 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
                     <button
                       type="button"
                       onClick={() => onDelete(sold)}
-                      className="text-red-600 hover:text-red-800 cursor-pointer"
+                      className="cursor-pointer rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
                       title="Delete sold card"
                     >
                       <FontAwesomeIcon icon={faTrash} />

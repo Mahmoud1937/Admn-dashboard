@@ -31,6 +31,7 @@ import CardActivationPage from "../features/cardActivtion/pages/CardActivationPa
 import InvoicesPage from "../features/invoices/pages/InvoicesPage";
 import TicketTypesPage from "../features/ticket-types/pages/TicketTypesPage";
 import SubscriptionTypesPage from "../features/subscription-types/pages/SubscriptionTypesPage";
+import TicketsPage from "../features/tickets/pages/TicketsPage";
 
 
 
@@ -85,7 +86,7 @@ const router = createBrowserRouter([
       { path: "cities", element: <CitiesPage /> },
       // { path: "card-pools", element: <PagePlaceholder title="Card Pools" /> },
       { path: "speialist", element: <SpecialistsPage /> },
-      { path: "support-tickets", element: <PagePlaceholder title="Support Tickets" /> },
+      { path: "support-tickets", element: <TicketsPage /> },
       { path: "activity", element: <PagePlaceholder title="Activity" /> },
       { path: "offer-sliders", element: <SlidersPage title="Sliders" /> },
       { path: "card-pools", element: <CardPoolPage /> },
