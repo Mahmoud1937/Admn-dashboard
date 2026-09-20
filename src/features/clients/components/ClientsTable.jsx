@@ -33,7 +33,7 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
       <table className="min-w-[1300px] w-full text-center text-sm">
         <thead className="sticky top-0 z-10 bg-slate-100">
           <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
-            <th className="px-4 py-3 text-center">Client</th>
+            <th className="px-4 py-3 text-center me-[15px]">Client</th>
             <th className="px-4 py-3 text-center">Phone</th>
             <th className="px-4 py-3 text-center">Gender</th>
             <th className="px-4 py-3 text-center">National ID</th>
@@ -59,7 +59,7 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
                 <td className="px-4 py-3">
                   <div
                     onClick={() => navigate(`/clients/${client.clientId}`)}
-                    className="flex cursor-pointer items-center gap-3 whitespace-nowrap rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-white/70"
+                    className="flex cursor-pointer items-center ms-[48px] gap-3 whitespace-nowrap rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-white/70"
                   >
                     {hasImage ? (
                       <LazyImageCell
@@ -71,7 +71,7 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
                         size="h-8 w-8"
                       />
                     ) : (
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-500">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-500 ">
                         {fullName.charAt(0).toUpperCase() || "?"}
                       </div>
                     )}

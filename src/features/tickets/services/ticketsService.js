@@ -36,19 +36,15 @@ export async function createTicket(payload) {
   return data;
 }
 
+const hasPayloadValue = (value) =>
+  value !== "" && value !== null && value !== undefined;
+
 export async function updateTicket({ id, payload }) {
-  const { data } = await axiosInstance.put(`/admin/tickets/${id}`, {
-    reply: payload.reply ?? "",
-    status: payload.status ?? 1,
-    isClosed: payload.isClosed ?? false,
-    ticketTypeId: payload.ticketTypeId ?? null,
-    userId: payload.userId ?? null,
-    providerId: payload.providerId ?? null,
-    assignedToGroupId: payload.assignedToGroupId ?? null,
-    userPhoneNumber: payload.userPhoneNumber ?? "",
-    priority: payload.priority ?? 1,
-    description: payload.description ?? "",
-  });
+  const cleanPayload = Object.fromEntries(
+    Object.entries(payload).filter(([, value]) => hasPayloadValue(value))
+  );
+
+  const { data } = await axiosInstance.put(`/admin/tickets/${id}`, cleanPayload);
 
   return data;
 }

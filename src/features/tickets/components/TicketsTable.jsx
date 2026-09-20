@@ -4,12 +4,7 @@ import ScrollableTable from "../../../shared/components/ScrollableTable";
 import StatusBadge from "../../../shared/components/StatusBadge";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import { formatDate } from "../../../utils/formatDate";
-
-const PRIORITY_TONE = {
-  0: "neutral",
-  1: "warning",
-  2: "danger",
-};
+import { PRIORITY_TONE } from "../utils/ticketDetailsUtils";
 
 export default function TicketsTable({
   tickets,
@@ -37,7 +32,7 @@ export default function TicketsTable({
       <table className="w-full min-w-[1500px] text-center text-sm">
         <thead className="sticky top-0 z-10 bg-slate-100">
           <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
-            <th className="px-4 py-3 text-center">ID</th>
+        
             <th className="px-4 py-3 text-center">Client</th>
             <th className="px-4 py-3 text-center">Phone</th>
             <th className="px-4 py-3 text-center">Card Number</th>
@@ -63,7 +58,7 @@ export default function TicketsTable({
                 key={ticket.id}
                 className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60"
               >
-              <td className="px-4 py-3 font-medium text-slate-500">#{ticket.id}</td>
+            
               <td className="w-[300px] max-w-[300px] px-4 py-3">
                 <div className="mx-auto flex max-w-[240px] items-center gap-3 whitespace-nowrap rounded-[7px] px-2 py-1.5">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-500">

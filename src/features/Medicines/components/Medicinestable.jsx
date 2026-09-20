@@ -21,7 +21,7 @@ export default function MedicinesTable({ medicines, hasActiveFilters, onEdit, on
       <table className="w-full text-center text-sm">
    <thead className="sticky top-0 z-10 bg-slate-100">
         <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
-          <th className="px-6 py-3">Image</th>
+          <th className="px-6 py-3 text-left">Image</th>
           <th className="px-6 py-3">English Name</th>
           <th className="px-6 py-3">Arabic Name</th>
           <th className="px-6 py-3">Form</th>
