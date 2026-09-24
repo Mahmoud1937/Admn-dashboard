@@ -17,7 +17,10 @@ export const ticketSchema = z.object({
     .string()
     .trim()
     .min(1, "Phone number is required")
-    .regex(/^[0-9]+$/, "Phone number should contain digits only"),
+    .regex(
+      /^01[0125][0-9]{8}$/,
+      "Please enter a valid Egyptian mobile number"
+    ),
   priority: z
     .string()
     .min(1, "Priority is required")

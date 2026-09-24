@@ -65,8 +65,23 @@ export const clientLabel = (client) => client?.userName || "";
 export const fieldClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400";
 
+const normalizeFieldKey = (fieldName) =>
+  String(fieldName || "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toLowerCase();
+
+const FIELD_NAME_BY_KEY = new Map(
+  [...KNOWN_ERROR_FIELDS].map((fieldName) => [
+    normalizeFieldKey(fieldName),
+    fieldName,
+  ])
+);
+
 const toFieldName = (fieldName) =>
-  fieldName ? fieldName.charAt(0).toLowerCase() + fieldName.slice(1) : "";
+  FIELD_NAME_BY_KEY.get(normalizeFieldKey(fieldName)) ||
+  (fieldName
+    ? fieldName.charAt(0).toLowerCase() + fieldName.slice(1)
+    : "");
 
 export const getServerFieldErrors = (serverErrors, dismissedFields) => {
   if (!serverErrors || typeof serverErrors !== "object") return {};
@@ -84,15 +99,13 @@ export const getServerFieldErrors = (serverErrors, dismissedFields) => {
   );
 };
 
-export const getGeneralServerErrorMessage = (serverErrors, fieldErrors) => {
+export const getGeneralServerErrorMessage = (serverErrors) => {
   if (!serverErrors || typeof serverErrors !== "object") return "";
 
   return Object.entries(serverErrors)
     .filter(([fieldName]) => {
       const localFieldName = toFieldName(fieldName);
-      return (
-        !KNOWN_ERROR_FIELDS.has(localFieldName) || !fieldErrors[localFieldName]
-      );
+      return !KNOWN_ERROR_FIELDS.has(localFieldName);
     })
     .flatMap(([, messages]) =>
       Array.isArray(messages) ? messages : [messages]

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTicketDetailsQuery } from "../hooks/useTicketDetailsQuery";
 import {
   buildTicketUpdatePayload,
@@ -36,14 +36,22 @@ export default function TicketDetailsModal({
   const [editValues, setEditValues] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [dismissedServerFields, setDismissedServerFields] = useState(new Set());
-  const serverFieldErrors = isEditing
+  const previousServerErrors = useRef(serverErrors);
+  const isTicketClosed = ticket?.isClosed === true;
+  const canEditTicket = Boolean(ticket) && !isTicketClosed;
+  const isEditingView = isEditing && canEditTicket;
+
+  useEffect(() => {
+    if (serverErrors !== previousServerErrors.current) {
+      setDismissedServerFields(new Set());
+      previousServerErrors.current = serverErrors;
+    }
+  }, [serverErrors]);
+  const serverFieldErrors = isEditingView
     ? getServerFieldErrors(serverErrors, dismissedServerFields)
     : {};
   const visibleFieldErrors = { ...serverFieldErrors, ...fieldErrors };
-  const serverErrorMessage = getGeneralServerErrorMessage(
-    serverErrors,
-    visibleFieldErrors
-  );
+  const serverErrorMessage = getGeneralServerErrorMessage(serverErrors);
 
   const setEditValue = (name, value) => {
     const fieldsToClear =
@@ -75,7 +83,7 @@ export default function TicketDetailsModal({
   };
 
   const startEditing = () => {
-    if (!ticket) return;
+    if (!ticket || isTicketClosed) return;
 
     setEditValues(getEditValues(ticket, timelines));
     setFieldErrors({});
@@ -91,7 +99,7 @@ export default function TicketDetailsModal({
   };
 
   const handleUpdate = () => {
-    if (!ticket || !editValues) return;
+    if (!ticket || isTicketClosed || !editValues) return;
 
     const errors = validateEditValues(editValues);
     if (Object.keys(errors).length > 0) {
@@ -109,7 +117,7 @@ export default function TicketDetailsModal({
         <TicketDetailsHeader
           ticketId={ticketId}
           ticket={ticket}
-          isEditing={isEditing}
+          isEditing={isEditingView}
           editValues={editValues}
           currentStatus={currentStatus}
           visibleFieldErrors={visibleFieldErrors}
@@ -134,13 +142,13 @@ export default function TicketDetailsModal({
             <div className="space-y-6">
               <TicketDetailsOverview
                 ticket={ticket}
-                isEditing={isEditing}
+                isEditing={isEditingView}
                 editValues={editValues}
                 visibleFieldErrors={visibleFieldErrors}
                 onEditValueChange={setEditValue}
               />
 
-              {isEditing && editValues && (
+              {isEditingView && editValues && (
                 <div>
                   <div className="mb-2 flex items-center justify-between">
                     <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
@@ -174,13 +182,13 @@ export default function TicketDetailsModal({
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                     Description
                   </p>
-                  {isEditing && editValues && (
+                  {isEditingView && editValues && (
                     <span className="text-[11px] text-slate-400">
                       {editValues.description.length} / 500
                     </span>
                   )}
                 </div>
-                {isEditing && editValues ? (
+                {isEditingView && editValues ? (
                   <>
                     <textarea
                       value={editValues.description}
@@ -213,7 +221,7 @@ export default function TicketDetailsModal({
                 timelines={timelines}
               />
 
-              {isEditing && serverErrorMessage && (
+              {isEditingView && serverErrorMessage && (
                 <p className="text-xs text-red-500">{serverErrorMessage}</p>
               )}
             </div>
@@ -228,7 +236,7 @@ export default function TicketDetailsModal({
           >
             Close
           </button>
-          {ticket && !isEditing && (
+          {ticket && canEditTicket && !isEditingView && (
             <button
               type="button"
               onClick={startEditing}
@@ -237,7 +245,7 @@ export default function TicketDetailsModal({
               Update
             </button>
           )}
-          {ticket && isEditing && (
+          {ticket && canEditTicket && isEditingView && (
             <>
               <button
                 type="button"

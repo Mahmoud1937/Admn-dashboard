@@ -7,6 +7,8 @@ import { formatDate } from '../../../utils/formatDate'
 import { PRIORITY_TONE } from '../utils/ticketDetailsUtils'
 import ClientAvatar from '../../../shared/components/ClientAvatar'
 
+const RTL_TEXT_PATTERN = /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/
+
 export default function TicketsTable({
   tickets,
   isLoading,
@@ -46,7 +48,7 @@ export default function TicketsTable({
             <th className="px-4 py-3 text-center">Priority</th>
             <th className="px-4 py-3 text-center">Status</th>
             <th className="px-4 py-3 text-center">Created By</th>
-            <th className="px-4 py-3 text-center">Closed By</th>
+
             <th className="px-4 py-3 text-center">Created At</th>
             <th className="px-4 py-3 text-center">Description</th>
             <th className="px-4 py-3 text-center">Action</th>
@@ -56,6 +58,10 @@ export default function TicketsTable({
         <tbody>
           {tickets.map((ticket) => {
             const clientName = ticket.userName || '-'
+            const description = ticket.description || '-'
+            const descriptionDirection = RTL_TEXT_PATTERN.test(description)
+              ? 'rtl'
+              : 'ltr'
 
             return (
               <tr
@@ -140,17 +146,18 @@ export default function TicketsTable({
                     {ticket.createdByName || '-'}
                   </p>
                 </td>
-                <td className="max-w-[220px] px-4 py-3 text-slate-600">
-                  <p className="truncate" title={ticket.closedByName || ''}>
-                    {ticket.closedByName || '-'}
-                  </p>
-                </td>
+
                 <td className="px-4 py-3 text-slate-600">
                   {formatDate(ticket.createdAt)}
                 </td>
                 <td className="max-w-[260px] px-4 py-3 text-slate-600">
-                  <p className="truncate" title={ticket.description || ''}>
-                    {ticket.description || '-'}
+                  <p
+                    className="truncate"
+                    title={ticket.description || ''}
+                    dir={descriptionDirection}
+                    style={{ direction: descriptionDirection }}
+                  >
+                    {description}
                   </p>
                 </td>
                 <td className="px-4 py-3">

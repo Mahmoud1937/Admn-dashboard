@@ -174,7 +174,11 @@ export default function TicketDetailsOverview({
       <DetailItem label="Closed By" value={ticket.closedByName} />
       <DetailItem
         label="Closed By Employee"
-        value={namePair(ticket.closedByEmployee)}
+        value={
+          ticket.isClosed && !ticket.closedByEmployee
+            ? ticket.createdByName || "-"
+            : namePair(ticket.closedByEmployee)
+        }
       />
     </div>
   );
