@@ -128,6 +128,7 @@ export const getEditValues = (ticket, timelines) => {
     providerId: ticket.provider?.id ?? "",
     assignedToGroupId: ticket.assignedToGroup?.id ?? "",
     userPhoneNumber: ticket.userPhoneNumber ?? "",
+    cardNumber: ticket.cardNumber ?? "",
     priority: String(ticket.priority ?? 1),
     description: ticket.description ?? "",
     reply: timelines.at(-1)?.reply ?? "",

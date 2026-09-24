@@ -29,6 +29,7 @@ export default function SearchableAsyncSelect({
   disabled = false,
   clearable = true,
   error,
+  fallbackLabel = "",
   panelZIndexClassName = "z-30",
   panelBgClassName = "bg-white",
 }) {
@@ -39,7 +40,7 @@ export default function SearchableAsyncSelect({
   const listRef = useRef(null);
   const inputRef = useRef(null);
 
-  const [selectedLabel, setSelectedLabel] = useState(null);
+  const [selectedLabel, setSelectedLabel] = useState(fallbackLabel || null);
 
   const {
     data,
@@ -69,8 +70,9 @@ export default function SearchableAsyncSelect({
     }
     const match = items.find((item) => String(getOptionValue(item)) === String(value));
     if (match) setSelectedLabel(getOptionLabel(match));
+    else if (fallbackLabel) setSelectedLabel(fallbackLabel);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, items]);
+  }, [value, items, fallbackLabel]);
 
   useEffect(() => {
     if (isOpen) return;
@@ -100,7 +102,7 @@ export default function SearchableAsyncSelect({
   }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
 
   const handleSelect = (item) => {
-    onChange(getOptionValue(item));
+    onChange(getOptionValue(item), item);
     setSelectedLabel(getOptionLabel(item));
     setIsOpen(false);
     setSearchInput("");
@@ -109,7 +111,7 @@ export default function SearchableAsyncSelect({
 
   const handleClear = (e) => {
     e.stopPropagation();
-    onChange("");
+    onChange("", null);
     setSelectedLabel(null);
     setSearchInput("");
   };

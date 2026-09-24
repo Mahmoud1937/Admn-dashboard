@@ -45,8 +45,6 @@ export const getClientById = async (id) => {
   return data;
 };
 
-// Converts a plain date string ("2026-09-08") to ISO 8601 UTC datetime.
-// isEndOfDay=true pushes ToDate to the end of that day so the range is inclusive.
 const toIsoDateTime = (dateStr, isEndOfDay = false) => {
   if (!dateStr) return undefined;
   const time = isEndOfDay ? "23:59:59.999Z" : "00:00:00.000Z";
@@ -96,5 +94,16 @@ export const clientsService = {
   getOrderHistory,
   getInvoiceDetails,
 };
-
+export const getClientsLookup = async ({ pageNumber = 1, pageSize = 20, searchTerm = "" } = {}) => {
+  const res = await axiosInstance.get("/AdminLookup/clients", {
+    params: {
+      SearchTerm: searchTerm,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    },
+  });
+  // Keep the same response shape expected by SearchableAsyncSelect:
+  // { data: { items, pageNumber, pageSize, totalCount, totalPages } }.
+  return res.data;
+};
 export default clientsService;

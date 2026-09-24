@@ -155,7 +155,13 @@ export default function TicketsTable({
                     className="truncate"
                     title={ticket.description || ''}
                     dir={descriptionDirection}
-                    style={{ direction: descriptionDirection }}
+                    style={{
+                      direction: descriptionDirection,
+                      textOverflow:
+                        descriptionDirection === 'rtl'
+                          ? 'ellipsis clip'
+                          : 'clip ellipsis',
+                    }}
                   >
                     {description}
                   </p>

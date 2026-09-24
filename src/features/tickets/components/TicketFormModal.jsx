@@ -35,6 +35,7 @@ export default function TicketFormModal({
     handleSubmit,
     reset,
     setError,
+    setValue,
     control,
     formState: { errors },
   } = useForm({
@@ -111,7 +112,14 @@ export default function TicketFormModal({
             <ClientSelect
               queryKey={["ticket-form", "clients"]}
               value={field.value}
-              onChange={field.onChange}
+              onChange={(value, client) => {
+                field.onChange(value);
+                setValue(
+                  "userPhoneNumber",
+                  client?.phoneNumber ?? client?.userPhoneNumber ?? "",
+                  { shouldValidate: true }
+                );
+              }}
               placeholder="Select client"
               error={errors.userId?.message}
             />

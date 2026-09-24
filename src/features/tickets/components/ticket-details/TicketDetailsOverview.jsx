@@ -35,7 +35,15 @@ export default function TicketDetailsOverview({
           <ClientSelect
             queryKey={["ticket-details", "clients"]}
             value={editValues.userId}
-            onChange={(value) => onEditValueChange("userId", value)}
+            onChange={(value, client) => {
+              onEditValueChange("userId", value);
+              onEditValueChange(
+                "userPhoneNumber",
+                client?.phoneNumber ?? client?.userPhoneNumber ?? ""
+              );
+              onEditValueChange("cardNumber", client?.cardNumber ?? "");
+            }}
+            fallbackLabel={ticket.userName || ""}
             placeholder={
               editValues.userId
                 ? ticket.userName || "Select client"
@@ -77,7 +85,13 @@ export default function TicketDetailsOverview({
       <DetailItem
         icon={CreditCard}
         label="Card Number"
-        value={<span className="font-mono tracking-wide">{ticket.cardNumber}</span>}
+        value={
+          <span className="font-mono tracking-wide">
+            {isEditing && editValues
+              ? editValues.cardNumber || "-"
+              : ticket.cardNumber || "-"}
+          </span>
+        }
       />
 
       <DetailItem icon={MessageSquare} label="Ticket Type">
