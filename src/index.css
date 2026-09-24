@@ -1,4 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap');
 @import "tailwindcss";
+
+@layer base {
+  html,
+  body {
+    font-family: "cairo", sans-serif !important;
+  }
+}
 
 @theme {
   --color-primary-50: #f0f5fa;

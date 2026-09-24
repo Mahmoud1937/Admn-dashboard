@@ -18,8 +18,9 @@ export function useProviderMutation({ id, isCreateMode, onUpdateSuccess }) {
       queryClient.invalidateQueries({ queryKey: ["providers"] });
 
       if (isCreateMode) {
+        const providerId = response?.data?.id ?? response?.id;
         toast.success("Provider created successfully.");
-        navigate(`/providers/${response.data.id}`);
+        navigate(providerId ? `/providers/${providerId}` : "/providers");
         return;
       }
 

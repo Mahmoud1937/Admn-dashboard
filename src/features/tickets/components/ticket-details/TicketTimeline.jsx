@@ -8,10 +8,6 @@ import {
 
 export default function TicketTimeline({
   timelines,
-  isEditing,
-  editValues,
-  visibleFieldErrors,
-  onEditValueChange,
 }) {
   return (
     <div>
@@ -27,7 +23,6 @@ export default function TicketTimeline({
         <div className="relative rounded-xl border border-slate-200 px-4 py-4">
           {timelines.map((item, i) => {
             const author = item.createdByName || item.createdBy || "-";
-            const isLastTimelineItem = i === timelines.length - 1;
             const statusInfo = getTicketStatus(item.status);
             const statusLabel = item.statusName || statusInfo.label;
             const tagColor = statusInfo.color;
@@ -51,31 +46,9 @@ export default function TicketTimeline({
                   {statusLabel}
                 </p>
 
-                {isEditing && editValues && isLastTimelineItem ? (
-                  <>
-                    <textarea
-                      value={editValues.reply}
-                      onChange={(e) =>
-                        onEditValueChange("reply", e.target.value)
-                      }
-                      rows={3}
-                      className={`mt-1.5 w-full rounded-lg border bg-white px-3 py-2 text-sm leading-6 text-slate-700 outline-none focus:border-blue-400 ${
-                        visibleFieldErrors.reply
-                          ? "border-red-400"
-                          : "border-slate-200"
-                      }`}
-                    />
-                    {visibleFieldErrors.reply && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {visibleFieldErrors.reply}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <p className="mt-1.5 text-sm leading-6 text-slate-700">
-                    {item.reply || "-"}
-                  </p>
-                )}
+                <p className="mt-1.5 text-sm leading-6 text-slate-700">
+                  {item.reply || "-"}
+                </p>
 
                 <div className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
                   <Clock size={12} />

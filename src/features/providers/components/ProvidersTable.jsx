@@ -19,6 +19,10 @@ function getInitials(name = "") {
 }
 
 function ProviderAvatar({ imageUrl, name, size = "h-10 w-10", onPreview }) {
+  const imageAlt = typeof name === "string" && name.trim()
+    ? name.trim()
+    : "Provider image";
+
   if (!imageUrl) {
     return (
       <div className={`flex-shrink-0 ${size} overflow-hidden rounded-lg`}>
@@ -32,7 +36,7 @@ function ProviderAvatar({ imageUrl, name, size = "h-10 w-10", onPreview }) {
   return (
     <LazyImageCell
       url={imageUrl}
-      label={name}
+      label={imageAlt}
       onPreview={onPreview}
       size={size}
     />

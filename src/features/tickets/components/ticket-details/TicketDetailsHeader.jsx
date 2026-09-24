@@ -46,25 +46,29 @@ export default function TicketDetailsHeader({
               {currentStatus.label}
             </span>
           )}
-          {ticket && isEditing && editValues && (
-            <select
-              value={editValues.status}
-              onChange={(e) => onEditValueChange("status", e.target.value)}
-              disabled={editValues.isClosed === "true"}
-              title={
-                editValues.isClosed === "true"
-                  ? "Closed tickets must use the Closed status"
-                  : undefined
-              }
-              className="rounded-md border border-white/20 bg-white px-2 py-0.5 text-xs font-semibold text-blue-900 outline-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-            >
-              {STATUS_OPTIONS.map(({ value, label }) => (
-                <option key={value} value={value}>
-                  {label}
+          {ticket && isEditing && editValues &&
+            (editValues.isClosed === "true" ? (
+              <span
+                className={`rounded-md px-2 py-0.5 text-xs font-semibold ${TAG_STYLES.green}`}
+              >
+                Closed
+              </span>
+            ) : (
+              <select
+                value={editValues.status}
+                onChange={(e) => onEditValueChange("status", e.target.value)}
+                className="rounded-md border border-white/20 bg-white px-2 py-0.5 text-xs font-semibold text-blue-900 outline-none"
+              >
+                <option value="" disabled>
+                  Select status
                 </option>
-              ))}
-            </select>
-          )}
+                {STATUS_OPTIONS.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            ))}
         </p>
         {isEditing &&
           (visibleFieldErrors.isClosed || visibleFieldErrors.status) && (

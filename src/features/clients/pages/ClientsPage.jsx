@@ -85,7 +85,6 @@ const ClientsPage = () => {
     setDraft(emptyFilters);
     setSearchInput("");
     resetFilters();
-    setPanelOpen(false);
   };
 
   useEffect(() => {

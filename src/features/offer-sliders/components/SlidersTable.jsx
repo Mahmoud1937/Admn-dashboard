@@ -60,7 +60,7 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
               <tr
                 key={slider.id}
                 onClick={() => onView(slider)}
-                className="group cursor-pointer border-b border-slate-100 text-center transition-colors last:border-0 hover:bg-slate-50/60"
+                className="group cursor-pointer border-b border-slate-100 text-center transition-colors last:border-0 hover:bg-primary-600/10"
               >
                 <td className="px-4 py-3 text-gray-400 font-medium">
                   {index + 1}

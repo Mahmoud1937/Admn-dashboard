@@ -7,6 +7,7 @@ import ScrollableTable from "../../../shared/components/ScrollableTable";
 import StatusBadge from "../../../shared/components/StatusBadge";
 import LazyImageCell from "../../../shared/components/LazyImageCell";
 import ImageLightbox from "../../../shared/components/ImageLightbox";
+import ClientAvatar from "../../../shared/components/ClientAvatar";
 import { formatDate } from "../../../utils/formatDate";
 
 export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
@@ -54,12 +55,12 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
             return (
               <tr
                 key={client.clientId}
-                className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60"
+                className="border-b border-slate-100 transition-colors last:border-0"
               >
                 <td className="px-4 py-3">
                   <div
                     onClick={() => navigate(`/clients/${client.clientId}`)}
-                    className="flex cursor-pointer items-center ms-[48px] gap-3 whitespace-nowrap rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-white/70"
+                    className="group flex cursor-pointer items-center ms-[48px] gap-3 whitespace-nowrap rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-slate-100"
                   >
                     {hasImage ? (
                       <LazyImageCell
@@ -71,9 +72,11 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
                         size="h-8 w-8"
                       />
                     ) : (
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-500 ">
-                        {fullName.charAt(0).toUpperCase() || "?"}
-                      </div>
+                      <ClientAvatar
+                        name={fullName}
+                        colorSeed={client.clientId}
+                        textClass="text-md"
+                      />
                     )}
                     <p className="text-sm font-medium text-slate-700">{fullName || "-"}</p>
                   </div>

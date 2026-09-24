@@ -32,6 +32,7 @@ export default function ProviderInfoForm({
     register,
     handleSubmit,
     control,
+    subscribe,
     reset,
     setError,
     setValue,
@@ -64,6 +65,21 @@ export default function ProviderInfoForm({
     if (!provider) return;
     reset(buildProviderFormValues(provider));
   }, [provider, reset]);
+
+  useEffect(() => {
+    if (!mutation.isError) return undefined;
+
+    const unsubscribe = subscribe({
+      formState: { values: true },
+      callback: () => {
+      // Reset only the mutation result. RHF field errors are intentionally
+      // preserved so relevant server/validation messages remain visible.
+      mutation.reset();
+      },
+    });
+
+    return unsubscribe;
+  }, [mutation, subscribe]);
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];

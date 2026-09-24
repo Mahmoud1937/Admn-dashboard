@@ -12,6 +12,7 @@ import {
 import useClientDetailsQuery from "../hooks/useClientDetailsQuery";
 import OrderHistorySection from "../components/OrderHistorySection";
 import FamilyMembersSection from "../components/FamilyMembersSection";
+import ClientAvatar from "../../../shared/components/ClientAvatar";
 import StatusBadge from "../../../shared/components/StatusBadge";
 import { formatDate } from "../../../utils/formatDate";
 
@@ -31,7 +32,11 @@ const AddressCard = ({ address }) => (
   <div className="rounded-xl border border-slate-200 p-4">
     <div className="mb-2 flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <FontAwesomeIcon icon={faLocationDot} className="text-slate-400" />
+        <span
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600"
+        >
+          <FontAwesomeIcon icon={faLocationDot} />
+        </span>
         <span className="text-sm font-semibold text-slate-700">
           {address.mainAddress}
         </span>
@@ -54,9 +59,15 @@ const AddressCard = ({ address }) => (
     </p>
 
     <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-slate-500">
-      <span>Floor: {address.floor ?? "-"}</span>
-      <span>Building: {address.buildingNumber ?? "-"}</span>
-      <span>Apartment: {address.apartmentNumber ?? "-"}</span>
+      <span className="rounded-lg bg-slate-50 px-2 py-1">
+        Floor: {address.floor ?? "-"}
+      </span>
+      <span className="rounded-lg bg-slate-50 px-2 py-1">
+        Building: {address.buildingNumber ?? "-"}
+      </span>
+      <span className="rounded-lg bg-slate-50 px-2 py-1">
+        Apartment: {address.apartmentNumber ?? "-"}
+      </span>
     </div>
   </div>
 );
@@ -151,9 +162,12 @@ const ClientDetailsPage = () => {
                     className="h-16 w-16 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-xl font-medium text-slate-500">
-                    {fullName.charAt(0).toUpperCase() || "?"}
-                  </div>
+                  <ClientAvatar
+                    name={fullName}
+                    colorSeed={client.clientId}
+                    sizeClass="h-16 w-16"
+                    textClass="text-xl"
+                  />
                 )}
 
                 <div>

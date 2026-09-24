@@ -44,7 +44,6 @@ const KNOWN_ERROR_FIELDS = new Set([
 
 const REQUIRED_UPDATE_MESSAGES = {
   reply: "Reply is required",
-  status: "Status is required",
   isClosed: "Ticket state is required",
 };
 
@@ -102,18 +101,25 @@ export const getGeneralServerErrorMessage = (serverErrors, fieldErrors) => {
     .join(" ");
 };
 
-export const getEditValues = (ticket, timelines) => ({
-  status: String(timelines.at(-1)?.status ?? 1),
-  isClosed: String(Boolean(ticket.isClosed)),
-  userId: ticket.userId ?? "",
-  ticketTypeId: ticket.ticketType?.id ?? "",
-  providerId: ticket.provider?.id ?? "",
-  assignedToGroupId: ticket.assignedToGroup?.id ?? "",
-  userPhoneNumber: ticket.userPhoneNumber ?? "",
-  priority: String(ticket.priority ?? 1),
-  description: ticket.description ?? "",
-  reply: timelines.at(-1)?.reply ?? "",
-});
+export const getEditValues = (ticket, timelines) => {
+  const currentStatus = timelines.at(-1)?.status;
+
+  return {
+    status:
+      Number(currentStatus) === 1
+        ? ""
+        : String(currentStatus ?? 3),
+    isClosed: String(Boolean(ticket.isClosed)),
+    userId: ticket.userId ?? "",
+    ticketTypeId: ticket.ticketType?.id ?? "",
+    providerId: ticket.provider?.id ?? "",
+    assignedToGroupId: ticket.assignedToGroup?.id ?? "",
+    userPhoneNumber: ticket.userPhoneNumber ?? "",
+    priority: String(ticket.priority ?? 1),
+    description: ticket.description ?? "",
+    reply: timelines.at(-1)?.reply ?? "",
+  };
+};
 
 const hasPayloadValue = (value) =>
   value !== "" && value !== null && value !== undefined;
@@ -158,8 +164,8 @@ export const validateEditValues = (values) => {
   });
 
   if (
-    hasPayloadValue(values.status) &&
-    !["1", "2", "3", "4"].includes(String(values.status))
+    values.isClosed !== "true" &&
+    !["3", "4"].includes(String(values.status))
   ) {
     errors.status = "Please select a valid status";
   }
@@ -182,7 +188,10 @@ const removeEmptyPayloadValues = (payload) =>
 export const buildTicketUpdatePayload = (editValues) =>
   removeEmptyPayloadValues({
     reply: editValues.reply.trim(),
-    status: editValues.isClosed === "true" ? 2 : Number(editValues.status ?? 1),
+    status:
+      editValues.isClosed === "true"
+        ? 2
+        : Number(editValues.status ?? 3),
     isClosed: editValues.isClosed === "true",
     ticketTypeId: Number(editValues.ticketTypeId),
     userId: Number(editValues.userId),

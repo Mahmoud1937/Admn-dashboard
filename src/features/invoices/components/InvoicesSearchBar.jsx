@@ -37,7 +37,6 @@ const InvoicesSearchBar = ({
           }}
           onClear={() => {
             onClearFilters();
-            setShowFilters(false);
           }}
           onClose={() => setShowFilters(false)}
         />

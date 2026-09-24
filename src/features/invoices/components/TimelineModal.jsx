@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, FileText, X } from "lucide-react";
 import { useInvoiceTimeline } from "../hooks/useInvoiceTimeline";
+import ClientAvatar from "../../../shared/components/ClientAvatar";
 
 const TAG_STYLES = {
   amber: "bg-amber-100 text-amber-700",
@@ -80,6 +81,12 @@ export default function TimelineModal({ orderNo, onClose }) {
 
                       <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1 min-w-0">
                         <span className="text-slate-400 shrink-0">by</span>
+                        <ClientAvatar
+                          name={step.by}
+                          colorSeed={i}
+                          sizeClass="h-6 w-6"
+                          textClass="text-[9px] font-semibold"
+                        />
                         <span className="text-slate-700 truncate" title={step.by}>{step.by}</span>
                         <span
                           className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap shrink-0 ${

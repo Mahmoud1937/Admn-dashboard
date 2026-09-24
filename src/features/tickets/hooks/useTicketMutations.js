@@ -24,11 +24,11 @@ export function useTicketMutations({ onCreateSuccess, onUpdateSuccess }) {
 
   const updateMutation = useMutation({
     mutationFn: updateTicket,
-    onSuccess: () => {
+    onSuccess: async () => {
       setServerErrors(null);
       toast.success("Ticket updated successfully.");
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
-      queryClient.invalidateQueries({ queryKey: ["ticket-details"] });
+      await queryClient.invalidateQueries({ queryKey: ["ticket-details"] });
       onUpdateSuccess?.();
     },
     onError: (err) =>

@@ -94,7 +94,6 @@ export default function TicketsPage() {
   const handleClearFilters = () => {
     setFilters(emptyFilters);
     setDraftFilters(emptyFilters);
-    setPanelOpen(false);
   };
 
   const activeFilterCount = countActiveTicketFilters(filters);

@@ -39,7 +39,6 @@ export default function useFilterPanel({ emptyFilters }) {
   const clear = () => {
     setDraft(emptyFilters);
     setFilters(emptyFilters);
-    setIsOpen(false);
   };
 
   useEffect(() => {

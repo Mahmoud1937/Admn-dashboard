@@ -25,7 +25,13 @@ export default function TicketDetailsModal({
   );
   const ticket = data?.data;
   const timelines = ticket?.ticketTimelines ?? [];
-  const currentStatus = getTicketStatus(timelines.at(-1)?.status ?? 1);
+  const latestTimeline = timelines.at(-1);
+  const currentStatusInfo = getTicketStatus(latestTimeline?.status ?? 3);
+  const currentStatus = ticket?.isClosed
+    ? { ...currentStatusInfo, label: "Closed", color: "green" }
+    : latestTimeline?.statusName
+    ? { ...currentStatusInfo, label: latestTimeline.statusName }
+    : currentStatusInfo;
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -40,17 +46,31 @@ export default function TicketDetailsModal({
   );
 
   const setEditValue = (name, value) => {
-    setFieldErrors((current) => ({ ...current, [name]: "" }));
+    const fieldsToClear =
+      name === "isClosed"
+        ? ["isClosed", "status"]
+        : [name];
+
+    setFieldErrors((current) =>
+      fieldsToClear.reduce(
+        (next, fieldName) => ({ ...next, [fieldName]: "" }),
+        current
+      )
+    );
     setDismissedServerFields((current) => {
       const next = new Set(current);
-      next.add(name);
+      fieldsToClear.forEach((fieldName) => next.add(fieldName));
       return next;
     });
 
     setEditValues((current) => ({
       ...current,
       [name]: value,
-      ...(name === "isClosed" && value === "true" ? { status: "2" } : {}),
+      ...(name === "isClosed" &&
+      value === "false" &&
+      current?.isClosed === "true"
+        ? { status: "" }
+        : {}),
     }));
   };
 
@@ -83,16 +103,6 @@ export default function TicketDetailsModal({
       onSuccess: cancelEditing,
     });
   };
-
-  // NOTE: This modal intentionally does NOT reuse FormModalShell.
-  // FormModalShell is form-shaped: it always renders a title string, a single
-  // close button, a <form onSubmit> wrapper, and relies on FormActions for the
-  // footer. This modal instead needs a rich custom header (TicketDetailsHeader
-  // with a status badge and its own X button), a non-form scrollable body, and
-  // a footer that swaps between Close/Update and Cancel/Save based on
-  // `isEditing`. Supporting those in the shared shell would require adding
-  // header/footer slots and making the <form> optional, complicating every
-  // other consumer — so the manual shell is kept here instead.
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/50 p-3 backdrop-blur-[2px] sm:p-4">
       <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5">
@@ -130,10 +140,46 @@ export default function TicketDetailsModal({
                 onEditValueChange={setEditValue}
               />
 
+              {isEditing && editValues && (
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                      Reply
+                    </p>
+                    <span className="text-[11px] text-slate-400">
+                      {editValues.reply.length} / 500
+                    </span>
+                  </div>
+                  <textarea
+                    value={editValues.reply}
+                    onChange={(e) => setEditValue("reply", e.target.value)}
+                    maxLength={500}
+                    rows={5}
+                    className={`h-36 w-full resize-none rounded-xl border bg-white p-4 text-sm leading-6 text-slate-700 shadow-sm outline-none transition focus:border-blue-400 focus:ring-1 focus:ring-blue-100 ${
+                      visibleFieldErrors.reply
+                        ? "border-red-400"
+                        : "border-slate-100"
+                    }`}
+                  />
+                  {visibleFieldErrors.reply && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {visibleFieldErrors.reply}
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div>
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                  Description
-                </p>
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                    Description
+                  </p>
+                  {isEditing && editValues && (
+                    <span className="text-[11px] text-slate-400">
+                      {editValues.description.length} / 500
+                    </span>
+                  )}
+                </div>
                 {isEditing && editValues ? (
                   <>
                     <textarea
@@ -141,8 +187,9 @@ export default function TicketDetailsModal({
                       onChange={(e) =>
                         setEditValue("description", e.target.value)
                       }
-                      rows={4}
-                      className={`w-full rounded-xl border bg-white p-4 text-sm leading-6 text-slate-700 shadow-sm outline-none focus:border-blue-400 ${
+                      maxLength={500}
+                      rows={5}
+                      className={`h-36 w-full resize-none rounded-xl border bg-white p-4 text-sm leading-6 text-slate-700 shadow-sm outline-none transition focus:border-blue-400 focus:ring-1 focus:ring-blue-100 ${
                         visibleFieldErrors.description
                           ? "border-red-400"
                           : "border-slate-100"
@@ -164,10 +211,6 @@ export default function TicketDetailsModal({
               <TicketTimeline
                 key={`${ticket.id}-${ticket.isClosed}-${timelines.length}`}
                 timelines={timelines}
-                isEditing={isEditing}
-                editValues={editValues}
-                visibleFieldErrors={visibleFieldErrors}
-                onEditValueChange={setEditValue}
               />
 
               {isEditing && serverErrorMessage && (

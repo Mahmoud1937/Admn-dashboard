@@ -5,8 +5,7 @@ export const PRIORITY_OPTIONS = [
 ];
 
 export const STATUS_OPTIONS = [
-  { value: "1", label: "Created" },
-  { value: "2", label: "Closed" },
+
   { value: "3", label: "Assigned" },
   { value: "4", label: "Reply" },
 ];

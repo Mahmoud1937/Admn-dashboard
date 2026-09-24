@@ -31,18 +31,12 @@ const ICON_BY_NAME = {
   dental: faTooth,
 };
 const FALLBACK_ICON = faStethoscope;
-
-// Deterministic color per category so a given category always renders with
-// the same tab color across renders/sessions.
 const COLOR_PALETTE = ["#dc2626", "#16a34a", "#7c3aed", "#2563eb", "#ea580c", "#0891b2", "#db2777", "#65a30d"];
 function colorForId(id) {
   const n = Number(id) || 0;
   return COLOR_PALETTE[n % COLOR_PALETTE.length];
 }
 
-// provider.branches[].type / provider.type on the map data is a plain string
-// (e.g. "Doctors"), not the categoryId used for filtering — this lookup is
-// what map pins use to pick a color/icon for a given type string.
 export const CATEGORY_COLOR_BY_NAME = {
   doctors: "#0891b2",
   pharmacy: "#dc2626",
@@ -57,13 +51,9 @@ export const FALLBACK_CATEGORY_COLOR = "#6b7280";
 
 const ALL_TAB = { id: null, label: "All", icon: null };
 const PAGE_SIZE = 8;
-// Start loading the next page once the scroll position is this many pixels
-// from the bottom of the list.
 const SCROLL_THRESHOLD_PX = 40;
 
 function toTab(c) {
-  // NOTE: backend casing for this endpoint hasn't been confirmed yet —
-  // supporting both arName/enName and nameAr/nameEn until we see a real response.
   const enName = c.enName ?? c.nameEn ?? "";
   const arName = c.arName ?? c.nameAr ?? "";
   const label = enName && arName ? `${enName} - ${arName}` : enName || arName;
@@ -79,13 +69,8 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
-  // Accumulated across pages as the user scrolls, reset whenever the search
-  // term changes.
   const [items, setItems] = useState([]);
-  // Remembers the label/icon of whatever was last picked so the closed
-  // control still shows it even once that item scrolls out of the loaded list.
   const [selectedTab, setSelectedTab] = useState(ALL_TAB);
-
   const containerRef = useRef(null);
   const listRef = useRef(null);
   const loadedPageRef = useRef(0);
@@ -115,9 +100,6 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
     search: debouncedSearch,
   });
 
-  // Append (or, for page 1, replace) once a page's real data has arrived -
-  // guarded by loadedPageRef so placeholderData from react-query doesn't
-  // cause the same page to be appended twice while it refetches.
   useEffect(() => {
     if (isFetching || loadedPageRef.current === pageNumber) return;
     loadedPageRef.current = pageNumber;
@@ -157,12 +139,6 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
       </button>
 
       {isOpen && (
-        // z-[1100]: Leaflet's own controls (zoom +/-, attribution, etc.) sit at
-        // z-index 1000, so this needs to clear that or the map's zoom control
-        // renders on top of the dropdown. bg-white/90 + backdrop-blur instead of
-        // a plain opacity on the whole panel: only the background is translucent
-        // (map shows through behind it) while text/icons stay fully opaque and
-        // readable.
         <div className="absolute z-[1100] mt-1 w-full sm:w-64 rounded-lg border border-gray-200 bg-white/90 shadow-lg backdrop-blur-sm">
           <div className="relative border-b border-gray-100 p-2">
             <FontAwesomeIcon
