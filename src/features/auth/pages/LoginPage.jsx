@@ -33,7 +33,7 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(loginSchema),
-    defaultValues: { identifier: '', password: '', rememberMe: false },
+    defaultValues: { identifier: '', password: '' },
   })
 
   // Same wiring as ServiceFormModal/GovernorateFormModal/CityFormModal:
@@ -51,7 +51,7 @@ export default function LoginPage() {
     login({
       identifier: values.identifier.trim(),
       password: values.password,
-    }, values.rememberMe)
+    })
   }
 
   const identifierError = errors.identifier?.message
@@ -95,7 +95,7 @@ export default function LoginPage() {
         </section>
 
         <section className="flex min-h-screen flex-col bg-[#f4f6f9] px-5 py-7 sm:px-10 sm:py-10 lg:px-12 lg:py-12 xl:px-16 xl:py-16">
-          <header className="mx-auto flex w-full max-w-[430px] items-center justify-between gap-4">
+          <header className="mx-auto flex w-full max-w-[600px] items-center justify-between gap-4">
             <img
               src={Logo}
               alt="Medicard"
@@ -106,7 +106,7 @@ export default function LoginPage() {
             </span>
           </header>
 
-          <div className="mx-auto flex w-full max-w-[430px] flex-1 flex-col justify-center py-10 sm:py-14">
+          <div className="mx-auto flex w-full max-w-[600px] flex-1 flex-col justify-center py-10 sm:py-14">
             <div className="border border-slate-200 bg-white p-6 shadow-[0_18px_45px_-32px_rgba(10,45,110,0.38)] sm:p-8">
               <div className="mb-8">
                 <div className="mb-5 h-1 w-11 bg-[#0056d2]" />
@@ -132,7 +132,7 @@ export default function LoginPage() {
                       aria-describedby={identifierError ? 'login-identifier-error' : undefined}
                       disabled={isLoggingIn}
                       className={`h-12 w-full border bg-white pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0056d2] focus:ring-4 focus:ring-blue-50 disabled:opacity-60 ${identifierError ? 'border-red-400 focus:border-red-500 focus:ring-red-50' : 'border-slate-300'}`}
-                      placeholder="name@company.com"
+                      placeholder="shafeey@gmail.com"
                     />
                   </div>
                   {identifierError && <p id="login-identifier-error" className="mt-1.5 text-xs font-medium text-red-600">{identifierError}</p>}
@@ -160,11 +160,6 @@ export default function LoginPage() {
                   {passwordError && <p id="login-password-error" className="mt-1.5 text-xs font-medium text-red-600">{passwordError}</p>}
                 </div>
 
-                <label className="flex cursor-pointer items-center gap-2.5 text-sm text-slate-600">
-                  <input type="checkbox" {...register('rememberMe')} className="h-4 w-4 rounded border-slate-300 accent-[#0056d2] focus:ring-[#0056d2]" />
-                  Remember me
-                </label>
-
                 <button type="submit" disabled={isLoggingIn} className="flex h-12 w-full items-center justify-center gap-2 bg-[#0056d2] px-5 text-sm font-semibold text-white transition hover:bg-[#0a2d6e] focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-100 disabled:cursor-not-allowed disabled:bg-blue-300">
                   {isLoggingIn ? 'Signing in…' : 'Sign in'}
                   {!isLoggingIn && <ArrowRight size={18} aria-hidden="true" />}
@@ -187,274 +182,6 @@ export default function LoginPage() {
     </main>
   )
 }
-
-
-
-
-
-
-
-
-// import { useState } from 'react'
-// import {
-//   ArrowRight,
-//   Eye,
-//   EyeOff,
-//   LockKeyhole,
-//   Mail,
-//   ShieldCheck,
-// } from 'lucide-react'
-// import Logo from '../../../assets/Logo.svg'
-
-// const initialValues = {
-//   identifier: '',
-//   password: '',
-//   rememberMe: false,
-// }
-
-// export default function LoginPage() {
-//   const [values, setValues] = useState(initialValues)
-//   const [errors, setErrors] = useState({})
-//   const [showPassword, setShowPassword] = useState(false)
-//   const [isSubmitting, setIsSubmitting] = useState(false)
-
-//   const updateValue = (field, value) => {
-//     setValues((current) => ({ ...current, [field]: value }))
-//     setErrors((current) => ({ ...current, [field]: '' }))
-//   }
-
-//   const handleSubmit = async (event) => {
-//     event.preventDefault()
-
-//     const nextErrors = {}
-//     if (!values.identifier.trim()) {
-//       nextErrors.identifier = 'Enter your email address or username.'
-//     }
-//     if (!values.password) {
-//       nextErrors.password = 'Enter your password.'
-//     }
-
-//     if (Object.keys(nextErrors).length) {
-//       setErrors(nextErrors)
-//       return
-//     }
-
-//     setIsSubmitting(true)
-
-//     // TODO: Replace this UI-only transition with the real authentication mutation.
-//     await new Promise((resolve) => window.setTimeout(resolve, 500))
-//     setIsSubmitting(false)
-//   }
-
-//   return (
-//     <main className="min-h-screen w-full bg-[#f4f6f9]">
-//       <div className="grid min-h-screen w-full lg:grid-cols-2">
-//         <section className="relative hidden overflow-hidden bg-[#0a2d6e] px-12 py-12 text-white lg:flex lg:flex-col xl:px-16 xl:py-16">
-//           <div className="absolute inset-0 opacity-[0.12] [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.16)_1px,transparent_1px)] [background-size:52px_52px]" />
-//           <div className="absolute inset-y-0 right-0 w-px bg-white/15" />
-//           <div className="absolute left-0 top-0 h-1 w-36 bg-[#2baba2]" />
-
-//           <div className="relative flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-blue-100">
-//             <span className="h-px w-8 bg-[#2baba2]" />
-//             Medicard operations
-//           </div>
-
-//           <div className="relative my-auto max-w-xl py-20">
-//             <div className="mb-7 flex h-12 w-12 items-center justify-center border border-white/20 bg-white/10 text-[#8bd9d3]">
-//               <ShieldCheck size={23} aria-hidden="true" />
-//             </div>
-//             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">
-//               Administration platform
-//             </p>
-//             <h1 className="mt-5 text-4xl font-semibold leading-[1.12] tracking-tight xl:text-5xl">
-//               Built for the people behind better care.
-//             </h1>
-//             <p className="mt-6 max-w-md text-base leading-7 text-blue-100/85">
-//               A secure workspace for managing Medicard members, providers, and
-//               everyday operations with confidence.
-//             </p>
-//           </div>
-
-//           <div className="relative max-w-xl border-l border-[#2baba2] pl-5">
-//             <p className="text-sm font-medium text-white">Protected access</p>
-//             <p className="mt-1 text-sm leading-6 text-blue-100/75">
-//               Role-based administration designed for trusted healthcare teams.
-//             </p>
-//           </div>
-//         </section>
-
-//         <section className="flex min-h-screen flex-col bg-[#f4f6f9] px-5 py-7 sm:px-10 sm:py-10 lg:px-12 lg:py-12 xl:px-16 xl:py-16">
-//           <header className="mx-auto flex w-full max-w-[430px] items-center justify-between gap-4">
-//             <img
-//               src={Logo}
-//               alt="Medicard"
-//               className="h-9 w-auto max-w-[175px] object-contain object-left sm:h-10"
-//             />
-//             <span className="border border-[#0056d2]/15 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0056d2] shadow-sm">
-//               Admin Panel
-//             </span>
-//           </header>
-
-//           <div className="mx-auto flex w-full max-w-[430px] flex-1 flex-col justify-center py-10 sm:py-14">
-//             <div className="border border-slate-200 bg-white p-6 shadow-[0_18px_45px_-32px_rgba(10,45,110,0.38)] sm:p-8">
-//               <div className="mb-8">
-//                 <div className="mb-5 h-1 w-11 bg-[#0056d2]" />
-//                 <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
-//                   Welcome back
-//                 </h2>
-//                 <p className="mt-3 text-sm leading-6 text-slate-500">
-//                   Sign in to continue to your Medicard administration workspace.
-//                 </p>
-//               </div>
-
-//               <form noValidate onSubmit={handleSubmit} className="space-y-5">
-//                 <div>
-//                   <label
-//                     htmlFor="login-identifier"
-//                     className="mb-2 block text-sm font-medium text-slate-700"
-//                   >
-//                     Email or username
-//                   </label>
-//                   <div className="relative">
-//                     <Mail
-//                       size={18}
-//                       aria-hidden="true"
-//                       className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-//                     />
-//                     <input
-//                       id="login-identifier"
-//                       type="text"
-//                       autoComplete="username"
-//                       value={values.identifier}
-//                       onChange={(event) =>
-//                         updateValue('identifier', event.target.value)
-//                       }
-//                       aria-invalid={Boolean(errors.identifier)}
-//                       aria-describedby={
-//                         errors.identifier ? 'login-identifier-error' : undefined
-//                       }
-//                       className={`h-12 w-full border bg-white pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0056d2] focus:ring-4 focus:ring-blue-50 ${
-//                         errors.identifier
-//                           ? 'border-red-400 focus:border-red-500 focus:ring-red-50'
-//                           : 'border-slate-300'
-//                       }`}
-//                       placeholder="name@company.com"
-//                     />
-//                   </div>
-//                   {errors.identifier && (
-//                     <p
-//                       id="login-identifier-error"
-//                       className="mt-1.5 text-xs font-medium text-red-600"
-//                     >
-//                       {errors.identifier}
-//                     </p>
-//                   )}
-//                 </div>
-
-//                 <div>
-//                   <label
-//                     htmlFor="login-password"
-//                     className="mb-2 block text-sm font-medium text-slate-700"
-//                   >
-//                     Password
-//                   </label>
-//                   <div className="relative">
-//                     <LockKeyhole
-//                       size={18}
-//                       aria-hidden="true"
-//                       className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-//                     />
-//                     <input
-//                       id="login-password"
-//                       type={showPassword ? 'text' : 'password'}
-//                       autoComplete="current-password"
-//                       value={values.password}
-//                       onChange={(event) =>
-//                         updateValue('password', event.target.value)
-//                       }
-//                       aria-invalid={Boolean(errors.password)}
-//                       aria-describedby={
-//                         errors.password ? 'login-password-error' : undefined
-//                       }
-//                       className={`h-12 w-full border bg-white pl-11 pr-12 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0056d2] focus:ring-4 focus:ring-blue-50 ${
-//                         errors.password
-//                           ? 'border-red-400 focus:border-red-500 focus:ring-red-50'
-//                           : 'border-slate-300'
-//                       }`}
-//                       placeholder="Enter your password"
-//                     />
-//                     <button
-//                       type="button"
-//                       onClick={() => setShowPassword((visible) => !visible)}
-//                       className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-slate-400 transition hover:text-[#0056d2] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0056d2]"
-//                       aria-label={showPassword ? 'Hide password' : 'Show password'}
-//                     >
-//                       {showPassword ? (
-//                         <EyeOff size={18} aria-hidden="true" />
-//                       ) : (
-//                         <Eye size={18} aria-hidden="true" />
-//                       )}
-//                     </button>
-//                   </div>
-//                   {errors.password && (
-//                     <p
-//                       id="login-password-error"
-//                       className="mt-1.5 text-xs font-medium text-red-600"
-//                     >
-//                       {errors.password}
-//                     </p>
-//                   )}
-//                 </div>
-
-//                 <div className="flex items-center justify-between gap-4 pt-0.5">
-//                   <label className="flex cursor-pointer items-center gap-2.5 text-sm text-slate-600">
-//                     <input
-//                       type="checkbox"
-//                       checked={values.rememberMe}
-//                       onChange={(event) =>
-//                         updateValue('rememberMe', event.target.checked)
-//                       }
-//                       className="h-4 w-4 rounded border-slate-300 accent-[#0056d2] focus:ring-[#0056d2]"
-//                     />
-//                     Remember me
-//                   </label>
-//                   <button
-//                     type="button"
-//                     className="text-sm font-semibold text-[#0056d2] transition hover:text-[#0a2d6e] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0056d2]"
-//                   >
-//                     Forgot password?
-//                   </button>
-//                 </div>
-
-//                 <button
-//                   type="submit"
-//                   disabled={isSubmitting}
-//                   className="flex h-12 w-full items-center justify-center gap-2 bg-[#0056d2] px-5 text-sm font-semibold text-white transition hover:bg-[#0a2d6e] focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-100 disabled:cursor-not-allowed disabled:bg-blue-300"
-//                 >
-//                   {isSubmitting ? 'Signing in...' : 'Sign in'}
-//                   {!isSubmitting && <ArrowRight size={18} aria-hidden="true" />}
-//                 </button>
-//               </form>
-//             </div>
-
-//             <p className="mt-5 flex items-center gap-2 text-xs leading-5 text-slate-500">
-//               <LockKeyhole size={14} aria-hidden="true" className="text-[#0056d2]" />
-//               Your access is protected with secure administration controls.
-//             </p>
-//           </div>
-
-//           <footer className="mx-auto flex w-full max-w-[430px] flex-col gap-2 border-t border-slate-200 pt-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between">
-//             <span>&copy; {new Date().getFullYear()} Medicard. All rights reserved.</span>
-//             <span>
-//               Powered by{' '}
-//               <span className="font-semibold text-[#2baba2]">Khusm</span>
-//             </span>
-//           </footer>
-//         </section>
-//       </div>
-//     </main>
-//   )
-// }
 
 
 
@@ -494,7 +221,7 @@ export default function LoginPage() {
 //     formState: { errors },
 //   } = useForm({
 //     resolver: zodResolver(loginSchema),
-//     defaultValues: { identifier: '', password: '', rememberMe: false },
+//     defaultValues: { identifier: '', password: '' },
 //   })
 
 //   // Same wiring as ServiceFormModal/GovernorateFormModal/CityFormModal:
@@ -512,7 +239,7 @@ export default function LoginPage() {
 //     login({
 //       identifier: values.identifier.trim(),
 //       password: values.password,
-//     }, values.rememberMe)
+//     })
 //   }
 
 //   const identifierError = errors.identifier?.message
@@ -653,7 +380,6 @@ export default function LoginPage() {
 //                 <label className="flex cursor-pointer items-center gap-2.5 text-[13px] text-[#5A6478]">
 //                   <input
 //                     type="checkbox"
-//                     {...register('rememberMe')}
 //                     className="h-4 w-4 border-[#D8D3C7] accent-[#1F6F62] focus:ring-[#1F6F62]"
 //                   />
 //                   Remember me
@@ -688,8 +414,6 @@ export default function LoginPage() {
 //     </main>
 //   )
 // }
-
-
 
 
 

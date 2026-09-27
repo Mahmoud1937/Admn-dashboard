@@ -6,9 +6,7 @@ import {
   getTicketStatus,
 } from "../../utils/ticketDetailsUtils";
 
-export default function TicketTimeline({
-  timelines,
-}) {
+export default function TicketTimeline({ timelines }) {
   return (
     <div>
       <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
@@ -22,7 +20,6 @@ export default function TicketTimeline({
       ) : (
         <div className="relative rounded-xl border border-slate-200 px-4 py-4">
           {timelines.map((item, i) => {
-            const author = item.createdByName || item.createdBy || "-";
             const statusInfo = getTicketStatus(item.status);
             const statusLabel = item.statusName || statusInfo.label;
             const tagColor = statusInfo.color;
@@ -56,10 +53,6 @@ export default function TicketTimeline({
                 </div>
 
                 <div className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-slate-500">
-                  <span className="shrink-0 text-slate-400">by</span>
-                  <span className="truncate text-slate-700" title={author}>
-                    {author}
-                  </span>
                   <span
                     className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
                       TAG_STYLES[tagColor] || TAG_STYLES.blue

@@ -11,6 +11,7 @@ export async function getProviders({
       PageNumber: pageNumber,
       PageSize: pageSize || undefined,
       SearchTerm: searchTerm || undefined,
+      Search: searchTerm || undefined,
       Status: filters.status && filters.status !== 0 ? filters.status : undefined,
       FromDate: filters.joinDateFrom || undefined,
       ToDate: filters.joinDateTo || undefined,
@@ -99,7 +100,7 @@ export async function getProviderLookup({
     params: {
       PageNumber: pageNumber,
       PageSize: pageSize || undefined,
-      SearchTerm: searchTerm || undefined,
+      SearchTrem: searchTerm || undefined,
     },
   });
 

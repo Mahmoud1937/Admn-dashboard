@@ -120,6 +120,7 @@ export default function ImageUploadField({
         <p className="text-[11px] text-slate-400">
           {isCompressing ? "Compressing image..." : "or drag and drop an image here"}
         </p>
+        <p className="text-[10px] text-slate-400">PNG, JPEG, or WebP only</p>
       </div>
 
       {dropError && <p className="text-xs text-red-500">{dropError}</p>}

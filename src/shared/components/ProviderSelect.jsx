@@ -7,14 +7,15 @@ const optionLabel = (item) =>
     : item?.enName || item?.arName || "";
 
 export default function ProviderSelect({
-  queryKey,
+  queryKey = ["providers", "lookup"],
   value,
   onChange,
   placeholder = "Select provider",
   error,
   disabled,
+  className,
 }) {
-  return (
+  const select = (
     <SearchableAsyncSelect
       queryKey={queryKey}
       fetchItems={(pageNumber, pageSize, searchTerm) =>
@@ -30,4 +31,6 @@ export default function ProviderSelect({
       error={error}
     />
   );
+
+  return className ? <div className={className}>{select}</div> : select;
 }

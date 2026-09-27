@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { buildSliderSchema, validateImages } from "../schema/sliderSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
-import ProviderSelect from "../../clients/components/Providerselect";
+import ProviderSelect from "../../../shared/components/ProviderSelect";
 import ImageUploadField from "../../../shared/components/ImageUploadField";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";

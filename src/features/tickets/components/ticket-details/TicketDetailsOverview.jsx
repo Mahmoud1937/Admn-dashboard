@@ -7,6 +7,7 @@ import {
   Clock,
   MessageSquare,
   Flag,
+  UserCheck,
 } from "lucide-react";
 import StatusBadge from "../../../../shared/components/StatusBadge";
 import ClientSelect from "../../../../shared/components/ClientSelect";
@@ -21,6 +22,30 @@ import {
 import { PRIORITY_OPTIONS } from "../../constants/ticketOptions";
 import DetailItem from "./DetailItem";
 
+const employeeName = (employee, fallback = "-") => {
+  if (!employee) return fallback;
+
+  const englishName = employee.enName?.trim();
+  const arabicName = employee.arName?.trim();
+
+  if (!englishName && !arabicName) return fallback;
+
+  return (
+    <span className="block w-full text-left" dir="ltr">
+      <span className="block truncate">{englishName || arabicName}</span>
+      {englishName && arabicName && (
+        <span
+          className="mt-0.5 block truncate text-xs font-normal text-slate-500"
+          dir="rtl"
+          style={{ direction: "rtl", textAlign: "left", unicodeBidi: "isolate" }}
+        >
+          {arabicName}
+        </span>
+      )}
+    </span>
+  );
+};
+
 export default function TicketDetailsOverview({
   ticket,
   isEditing,
@@ -28,6 +53,12 @@ export default function TicketDetailsOverview({
   visibleFieldErrors,
   onEditValueChange,
 }) {
+  const closedByEmployee =
+    ticket.closedByEmployee || (ticket.isClosed ? ticket.createdByEmployee : null);
+  const closedByEmployeeGroup =
+    ticket.closedByEmployeeGroup ||
+    (ticket.isClosed ? ticket.createdByEmployeeGroup : null);
+
   return (
     <div className="grid gap-x-6 gap-y-4 rounded-xl border border-slate-100 bg-slate-50/70 p-5 sm:grid-cols-2">
       <DetailItem icon={User} label="Client">
@@ -184,16 +215,34 @@ export default function TicketDetailsOverview({
         label="Created At"
         value={formatDateTimeShort(ticket.createdAt)}
       />
-      <DetailItem label="Created By" value={ticket.createdByName} />
-      <DetailItem label="Closed By" value={ticket.closedByName} />
       <DetailItem
-        label="Closed By Employee"
-        value={
-          ticket.isClosed && !ticket.closedByEmployee
-            ? ticket.createdByName || "-"
-            : namePair(ticket.closedByEmployee)
-        }
+        icon={User}
+        label="Created By"
+        value={employeeName(ticket.createdByEmployee, ticket.createdByName)}
       />
+      <DetailItem
+        icon={Users}
+        label="Created By Group"
+        value={employeeName(ticket.createdByEmployeeGroup)}
+      />
+
+      <section className="sm:col-span-2 border-t border-slate-200 pt-4">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+          Closed
+        </p>
+        <div className="mt-3 grid gap-x-6 gap-y-4 sm:grid-cols-2">
+          <DetailItem
+            icon={UserCheck}
+            label="Closed By"
+            value={employeeName(closedByEmployee)}
+          />
+          <DetailItem
+            icon={Users}
+            label="Closed By Group"
+            value={employeeName(closedByEmployeeGroup)}
+          />
+        </div>
+      </section>
     </div>
   );
 }
