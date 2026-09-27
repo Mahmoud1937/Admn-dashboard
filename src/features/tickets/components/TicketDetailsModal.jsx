@@ -192,12 +192,10 @@ export default function TicketDetailsModal({
                   <>
                     <textarea
                       value={editValues.description}
-                      onChange={(e) =>
-                        setEditValue("description", e.target.value)
-                      }
+                      readOnly
                       maxLength={500}
                       rows={5}
-                      className={`h-36 w-full resize-none rounded-xl border bg-white p-4 text-sm leading-6 text-slate-700 shadow-sm outline-none transition focus:border-blue-400 focus:ring-1 focus:ring-blue-100 ${
+                      className={`h-36 w-full resize-none rounded-xl border bg-slate-50 p-4 text-sm leading-6 text-slate-700 shadow-sm outline-none ${
                         visibleFieldErrors.description
                           ? "border-red-400"
                           : "border-slate-100"
