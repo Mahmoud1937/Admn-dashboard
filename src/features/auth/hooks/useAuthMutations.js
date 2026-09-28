@@ -33,7 +33,6 @@ export default function useAuthMutations() {
 
       setAuthToken(token, refreshToken)
       clearServerErrors()
-      toast.success(response.message || 'Signed in successfully')
       navigate('/', { replace: true })
     },
 

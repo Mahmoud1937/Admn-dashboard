@@ -13,6 +13,7 @@ export default function TicketTypeSelect({
   placeholder = "Select ticket type",
   error,
   disabled,
+  highlighted,
 }) {
   return (
     <SearchableAsyncSelect
@@ -27,6 +28,7 @@ export default function TicketTypeSelect({
       placeholder={placeholder}
       searchPlaceholder="Search ticket types..."
       disabled={disabled}
+      highlighted={highlighted}
       error={error}
     />
   );

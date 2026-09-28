@@ -1,87 +1,57 @@
 import { X } from "lucide-react";
 import StatusBadge from "../../../../shared/components/StatusBadge";
-import { TAG_STYLES } from "../../utils/ticketDetailsUtils";
-import { STATUS_OPTIONS } from "../../constants/ticketOptions";
 
 export default function TicketDetailsHeader({
   ticketId,
-  ticket,
-  isEditing,
-  editValues,
-  currentStatus,
-  visibleFieldErrors,
+  isClosed,
+  colorStyle,
   onClose,
-  onEditValueChange,
 }) {
+  const hasColor = Boolean(colorStyle);
+
   return (
-    <div className="flex items-start justify-between bg-blue-900 px-6 py-5">
+    <div
+      className={`flex items-start justify-between px-6 py-5 ${
+        hasColor ? colorStyle.header : "bg-blue-900"
+      }`}
+    >
       <div>
-        <h3 className="text-lg font-semibold text-white">Ticket Details</h3>
-        <p className="mt-1 flex items-center gap-2 text-sm text-slate-300">
+        <h3
+          className={`text-lg font-semibold ${
+            hasColor ? colorStyle.title : "text-white"
+          }`}
+        >
+          Ticket Details
+        </h3>
+        <p
+          className={`mt-1 flex items-center gap-2 text-sm ${
+            hasColor ? `${colorStyle.title} opacity-80` : "text-slate-300"
+          }`}
+        >
           <span>Ticket ID</span>
-          <span className="rounded-md bg-white  px-2 py-0.5 font-mono text-xs font-semibold text-blue-900">
+          <span
+            className={`rounded-md bg-white px-2 py-0.5 font-mono text-xs font-semibold ${
+              hasColor ? colorStyle.title : "text-blue-900"
+            }`}
+          >
             #{ticketId}
           </span>
-          {ticket && !isEditing && (
-            <StatusBadge tone={ticket.isClosed ? "success" : "warning"}>
-              {ticket.isClosed ? "Closed" : "Open"}
+          {typeof isClosed === "boolean" && (
+            <StatusBadge tone={isClosed ? "success" : "warning"}>
+              {isClosed ? "Closed" : "Open"}
             </StatusBadge>
           )}
-          {ticket && isEditing && editValues && (
-            <select
-              value={editValues.isClosed}
-              onChange={(e) => onEditValueChange("isClosed", e.target.value)}
-              className="rounded-md border border-white/20 bg-white px-2 py-0.5 text-xs font-semibold text-blue-900 outline-none"
-            >
-              <option value="false">Open</option>
-              <option value="true">Closed</option>
-            </select>
-          )}
-          {ticket && !isEditing && (
-            <span
-              className={`rounded-md px-2 py-0.5 text-xs font-semibold ${
-                TAG_STYLES[currentStatus.color]
-              }`}
-            >
-              {currentStatus.label}
-            </span>
-          )}
-          {ticket && isEditing && editValues &&
-            (editValues.isClosed === "true" ? (
-              <span
-                className={`rounded-md px-2 py-0.5 text-xs font-semibold ${TAG_STYLES.green}`}
-              >
-                Closed
-              </span>
-            ) : (
-              <select
-                value={editValues.status}
-                onChange={(e) => onEditValueChange("status", e.target.value)}
-                className="rounded-md border border-white/20 bg-white px-2 py-0.5 text-xs font-semibold text-blue-900 outline-none"
-              >
-                <option value="" disabled>
-                  Select status
-                </option>
-                {STATUS_OPTIONS.map(({ value, label }) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            ))}
         </p>
-        {isEditing &&
-          (visibleFieldErrors.isClosed || visibleFieldErrors.status) && (
-            <p className="mt-1 text-xs text-red-200">
-              {visibleFieldErrors.isClosed || visibleFieldErrors.status}
-            </p>
-          )}
       </div>
 
       <button
         type="button"
         onClick={onClose}
-        className="cursor-pointer rounded-full p-1.5 text-slate-300 transition hover:bg-white/10 hover:text-white"
+        className={`cursor-pointer rounded-full p-1.5 transition ${
+          hasColor
+            ? `${colorStyle.title} hover:bg-black/5`
+            : "text-slate-300 hover:bg-white/10 hover:text-white"
+        }`}
       >
         <X size={18} />
       </button>

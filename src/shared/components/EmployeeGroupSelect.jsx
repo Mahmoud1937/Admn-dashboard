@@ -13,6 +13,7 @@ export default function EmployeeGroupSelect({
   placeholder = "Select employee group",
   error,
   disabled,
+  highlighted,
 }) {
   return (
     <SearchableAsyncSelect
@@ -27,6 +28,7 @@ export default function EmployeeGroupSelect({
       placeholder={placeholder}
       searchPlaceholder="Search employee groups..."
       disabled={disabled}
+      highlighted={highlighted}
       error={error}
     />
   );

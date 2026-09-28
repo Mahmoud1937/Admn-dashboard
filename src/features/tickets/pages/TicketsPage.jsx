@@ -9,7 +9,7 @@ import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilter
 import TicketDetailsModal from "../components/TicketDetailsModal";
 import TicketFormModal from "../components/TicketFormModal";
 import TicketsFiltersPanel from "../components/TicketsFiltersPanel";
-import TicketsTable from "../components/TicketsTable";
+import TicketsBoard from "../components/TicketsBoard";
 import { useTicketMutations } from "../hooks/useTicketMutations";
 import { useTicketsQuery } from "../hooks/useTicketsQuery";
 import { countActiveTicketFilters } from "../utils/countActiveTicketFilters";
@@ -30,6 +30,7 @@ export default function TicketsPage() {
   const [panelOpen, setPanelOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [detailsTicketId, setDetailsTicketId] = useState(null);
+  const [detailsColor, setDetailsColor] = useState(null);
   const panelRef = useRef(null);
 
   const {
@@ -40,6 +41,7 @@ export default function TicketsPage() {
     getPageNumbers,
   } = useServerPagination({
     resetKey: `${debouncedSearch}-${JSON.stringify(filters)}`,
+    initialPageSize: 50,
   });
 
   const {
@@ -76,13 +78,15 @@ export default function TicketsPage() {
     updateMutation.mutate({ id: detailsTicketId, payload }, options);
   };
 
-  const openDetails = (ticketId) => {
+  const openDetails = (ticketId, colorName) => {
     clearServerErrors();
+    setDetailsColor(colorName ?? null);
     setDetailsTicketId(ticketId);
   };
 
   const closeDetails = () => {
     setDetailsTicketId(null);
+    setDetailsColor(null);
     clearServerErrors();
   };
 
@@ -157,7 +161,7 @@ export default function TicketsPage() {
               isPlaceholderData ? "opacity-60" : "opacity-100"
             }`}
           >
-            <TicketsTable
+            <TicketsBoard
               tickets={tickets}
               isLoading={isLoading}
               hasActiveFilters={!!debouncedSearch || activeFilterCount > 0}
@@ -191,6 +195,7 @@ export default function TicketsPage() {
       {detailsTicketId && (
         <TicketDetailsModal
           ticketId={detailsTicketId}
+          headerColor={detailsColor}
           onClose={closeDetails}
           onUpdate={handleUpdateTicket}
           isSaving={isSaving}

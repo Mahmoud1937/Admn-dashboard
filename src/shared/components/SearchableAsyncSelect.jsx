@@ -32,6 +32,7 @@ export default function SearchableAsyncSelect({
   fallbackLabel = "",
   panelZIndexClassName = "z-30",
   panelBgClassName = "bg-white",
+  highlighted = false,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -131,8 +132,12 @@ export default function SearchableAsyncSelect({
   return (
     <div className="relative" ref={containerRef}>
       <div
-        className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-2 text-sm outline-none focus-within:border-blue-400 ${
-          disabled ? "cursor-not-allowed bg-slate-50 text-slate-500" : ""
+        className={`flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm outline-none focus-within:border-blue-400 ${
+          disabled
+            ? "cursor-not-allowed bg-slate-50 text-slate-500"
+            : highlighted
+              ? "bg-blue-50"
+              : "bg-white"
         } ${error ? "border-red-400" : "border-slate-200"}`}
       >
         <input

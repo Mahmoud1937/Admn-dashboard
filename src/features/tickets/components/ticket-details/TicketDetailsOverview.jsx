@@ -10,7 +10,6 @@ import {
   UserCheck,
 } from "lucide-react";
 import StatusBadge from "../../../../shared/components/StatusBadge";
-import ClientSelect from "../../../../shared/components/ClientSelect";
 import ProviderSelect from "../../../../shared/components/ProviderSelect";
 import TicketTypeSelect from "../../../../shared/components/TicketTypeSelect";
 import EmployeeGroupSelect from "../../../../shared/components/EmployeeGroupSelect";
@@ -21,6 +20,8 @@ import {
 } from "../../utils/ticketDetailsUtils";
 import { PRIORITY_OPTIONS } from "../../constants/ticketOptions";
 import DetailItem from "./DetailItem";
+
+const RTL_TEXT_PATTERN = /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/;
 
 const employeeName = (employee, fallback = "-") => {
   if (!employee) return fallback;
@@ -58,59 +59,25 @@ export default function TicketDetailsOverview({
   const closedByEmployeeGroup =
     ticket.closedByEmployeeGroup ||
     (ticket.isClosed ? ticket.createdByEmployeeGroup : null);
+  const clientName = ticket.userName || "-";
+  const clientNameDirection = RTL_TEXT_PATTERN.test(clientName)
+    ? "rtl"
+    : "ltr";
 
   return (
-    <div className="grid gap-x-6 gap-y-4 rounded-xl border border-slate-100 bg-slate-50/70 p-5 sm:grid-cols-2">
+    <div className="grid gap-x-6 gap-y-4 text-[9px] sm:grid-cols-2">
       <DetailItem icon={User} label="Client">
-        {isEditing && editValues ? (
-          <ClientSelect
-            queryKey={["ticket-details", "clients"]}
-            value={editValues.userId}
-            onChange={(value, client) => {
-              onEditValueChange("userId", value);
-              onEditValueChange(
-                "userPhoneNumber",
-                client?.phoneNumber ?? client?.userPhoneNumber ?? ""
-              );
-              onEditValueChange("cardNumber", client?.cardNumber ?? "");
-            }}
-            fallbackLabel={ticket.userName || ""}
-            placeholder={
-              editValues.userId
-                ? ticket.userName || "Select client"
-                : "Select client"
-            }
-            error={visibleFieldErrors.userId}
-          />
-        ) : (
-          <span className="block truncate">{ticket.userName || "-"}</span>
-        )}
+        <span
+          className="block truncate text-sm"
+          dir={clientNameDirection}
+          title={clientName}
+        >
+          {clientName}
+        </span>
       </DetailItem>
 
       <DetailItem icon={Phone} label="Phone">
-        {isEditing && editValues ? (
-          <>
-            <input
-              type="text"
-              value={editValues.userPhoneNumber}
-              onChange={(e) =>
-                onEditValueChange("userPhoneNumber", e.target.value)
-              }
-              className={`w-full rounded-lg border bg-white px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:border-blue-400 ${
-                visibleFieldErrors.userPhoneNumber
-                  ? "border-red-400"
-                  : "border-slate-200"
-              }`}
-            />
-            {visibleFieldErrors.userPhoneNumber && (
-              <p className="mt-1 text-xs text-red-500">
-                {visibleFieldErrors.userPhoneNumber}
-              </p>
-            )}
-          </>
-        ) : (
-          <span className="block truncate">{ticket.userPhoneNumber || "-"}</span>
-        )}
+        <span className="block truncate">{ticket.userPhoneNumber || "-"}</span>
       </DetailItem>
 
       <DetailItem
@@ -137,6 +104,7 @@ export default function TicketDetailsOverview({
                 : "Select ticket type"
             }
             error={visibleFieldErrors.ticketTypeId}
+            highlighted
           />
         ) : (
           <span className="block truncate">{namePair(ticket.ticketType)}</span>
@@ -153,6 +121,7 @@ export default function TicketDetailsOverview({
               editValues.providerId ? namePair(ticket.provider) : "No provider"
             }
             error={visibleFieldErrors.providerId}
+            highlighted
           />
         ) : (
           <span className="block truncate">{namePair(ticket.provider)}</span>
@@ -171,6 +140,7 @@ export default function TicketDetailsOverview({
                 : "No assigned group"
             }
             error={visibleFieldErrors.assignedToGroupId}
+            highlighted
           />
         ) : (
           <span className="block truncate">
@@ -185,7 +155,7 @@ export default function TicketDetailsOverview({
             <select
               value={editValues.priority}
               onChange={(e) => onEditValueChange("priority", e.target.value)}
-              className={`w-full rounded-lg border bg-white px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:border-blue-400 ${
+              className={`w-full rounded-lg border bg-blue-50 px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:border-blue-400 ${
                 visibleFieldErrors.priority
                   ? "border-red-400"
                   : "border-slate-200"
@@ -226,7 +196,7 @@ export default function TicketDetailsOverview({
         value={employeeName(ticket.createdByEmployeeGroup)}
       />
 
-      <section className="sm:col-span-2 border-t border-slate-200 pt-4">
+      <section className="border-t border-slate-200 pt-4 sm:col-span-2">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
           Closed
         </p>

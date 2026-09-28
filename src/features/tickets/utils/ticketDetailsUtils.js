@@ -43,7 +43,6 @@ const KNOWN_ERROR_FIELDS = new Set([
 ]);
 
 const REQUIRED_UPDATE_MESSAGES = {
-  reply: "Reply is required",
   isClosed: "Ticket state is required",
 };
 
@@ -118,10 +117,7 @@ export const getEditValues = (ticket, timelines) => {
   const currentStatus = timelines.at(-1)?.status;
 
   return {
-    status:
-      Number(currentStatus) === 1
-        ? ""
-        : String(currentStatus ?? 3),
+    status: String(currentStatus ?? (ticket.isClosed ? 2 : 1)),
     isClosed: String(Boolean(ticket.isClosed)),
     userId: ticket.userId ?? "",
     ticketTypeId: ticket.ticketType?.id ?? "",
@@ -131,7 +127,7 @@ export const getEditValues = (ticket, timelines) => {
     cardNumber: ticket.cardNumber ?? "",
     priority: String(ticket.priority ?? 1),
     description: ticket.description ?? "",
-    reply: timelines.at(-1)?.reply ?? "",
+    reply: "",
   };
 };
 
@@ -176,13 +172,6 @@ export const validateEditValues = (values) => {
       errors[fieldName] = message;
     }
   });
-
-  if (
-    values.isClosed !== "true" &&
-    !["3", "4"].includes(String(values.status))
-  ) {
-    errors.status = "Please select a valid status";
-  }
 
   if (
     hasPayloadValue(values.isClosed) &&

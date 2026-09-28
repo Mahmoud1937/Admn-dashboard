@@ -14,6 +14,7 @@ export default function ProviderSelect({
   error,
   disabled,
   className,
+  highlighted,
 }) {
   const select = (
     <SearchableAsyncSelect
@@ -28,6 +29,7 @@ export default function ProviderSelect({
       placeholder={placeholder}
       searchPlaceholder="Search providers..."
       disabled={disabled}
+      highlighted={highlighted}
       error={error}
     />
   );
