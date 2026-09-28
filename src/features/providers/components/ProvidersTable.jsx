@@ -111,10 +111,11 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
                     />
                     <div
                       onClick={() => navigate(`/providers/${provider.id}`)}
-                      className="min-w-0 cursor-pointer"
+                      className="min-w-0 cursor-pointer text-left"
+                      dir="ltr"
                     >
-                      <p className="truncate font-semibold text-slate-900">{provider.enName}</p>
-                      <p className="truncate text-xs text-slate-400">{provider.arName}</p>
+                      <p className="truncate text-left font-semibold text-slate-900">{provider.enName}</p>
+                      <p className="truncate text-left text-xs text-slate-400" dir="rtl">{provider.arName}</p>
                     </div>
                   </div>
 
@@ -189,7 +190,7 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
                     <div className="mx-auto w-full max-w-[220px]">
                       <div
                         onClick={() => navigate(`/providers/${provider.id}`)}
-                        className="relative flex cursor-pointer items-center justify-between gap-3 rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-white/70"
+                        className="group relative flex cursor-pointer items-center gap-3 rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-slate-100"
                       >
                         <ProviderAvatar
                           imageUrl={provider.imageUrl}
@@ -198,10 +199,11 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
                         />
                         <div
                           onClick={() => navigate(`/providers/${provider.id}`)}
-                          className="min-w-0 cursor-pointer"
+                          className="min-w-0 flex-1 cursor-pointer text-left"
+                          dir="ltr"
                         >
-                          <p className="truncate font-semibold text-slate-900 text-end">{provider.enName}</p>
-                          <p className="truncate text-xs text-slate-400 text-end">{provider.arName}</p>
+                          <p className="truncate text-left font-semibold text-slate-900">{provider.enName}</p>
+                          <p className="truncate text-left text-xs text-slate-400" dir="rtl">{provider.arName}</p>
                         </div>
                       </div>
                     </div>

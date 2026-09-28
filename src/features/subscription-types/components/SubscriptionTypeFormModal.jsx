@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import FormActions from "../../../shared/components/FormActions";
@@ -31,11 +31,15 @@ export default function SubscriptionTypeFormModal({
     handleSubmit,
     reset,
     setError,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(subscriptionTypeSchema),
     defaultValues: EMPTY_VALUES,
   });
+
+  const descriptionEn = useWatch({ control, name: "descriptionEn" }) || "";
+  const descriptionAr = useWatch({ control, name: "descriptionAr" }) || "";
 
   useEffect(() => {
     if (isOpen) {
@@ -123,13 +127,20 @@ export default function SubscriptionTypeFormModal({
       </div>
 
       <div className="mb-4">
-        <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          English Description <span className="text-red-500">*</span>
-        </label>
+        <div className="mb-1.5 flex items-center justify-between">
+          <label className="block text-sm font-medium text-slate-700">
+            English Description <span className="text-red-500">*</span>
+          </label>
+          <span className="text-[11px] text-slate-400">
+            {descriptionEn.length} / 500
+          </span>
+        </div>
         <textarea
+          dir="ltr"
           {...register("descriptionEn")}
-          rows={3}
-          className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-400 ${
+          maxLength={500}
+          rows={5}
+          className={`h-36 w-full resize-none rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-blue-400 focus:ring-1 focus:ring-blue-100 ${
             errors.descriptionEn ? "border-red-400" : "border-slate-200"
           }`}
         />
@@ -141,14 +152,20 @@ export default function SubscriptionTypeFormModal({
       </div>
 
       <div className="mb-4">
-        <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Arabic Description <span className="text-red-500">*</span>
-        </label>
+        <div className="mb-1.5 flex items-center justify-between">
+          <label className="block text-sm font-medium text-slate-700">
+            Arabic Description <span className="text-red-500">*</span>
+          </label>
+          <span className="text-[11px] text-slate-400">
+            {descriptionAr.length} / 500
+          </span>
+        </div>
         <textarea
           dir="rtl"
           {...register("descriptionAr")}
-          rows={3}
-          className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-400 ${
+          maxLength={500}
+          rows={5}
+          className={`h-36 w-full resize-none rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-blue-400 focus:ring-1 focus:ring-blue-100 ${
             errors.descriptionAr ? "border-red-400" : "border-slate-200"
           }`}
         />

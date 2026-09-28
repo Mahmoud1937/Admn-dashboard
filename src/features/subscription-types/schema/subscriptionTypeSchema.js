@@ -18,6 +18,16 @@ export const subscriptionTypeSchema = z.object({
       (value) => Number(value) > 0 && Number(value) <= 100,
       "Discount must be between 1 and 100"
     ),
-  descriptionAr: z.string().trim().min(1, "Arabic description is required"),
-  descriptionEn: z.string().trim().min(1, "English description is required"),
+  descriptionAr: z
+    .string()
+    .trim()
+    .min(1, "Arabic description is required")
+    .min(5, "Arabic description must be between 5 and 500 characters")
+    .max(500, "Arabic description must be between 5 and 500 characters"),
+  descriptionEn: z
+    .string()
+    .trim()
+    .min(1, "English description is required")
+    .min(5, "English description must be between 5 and 500 characters")
+    .max(500, "English description must be between 5 and 500 characters"),
 });

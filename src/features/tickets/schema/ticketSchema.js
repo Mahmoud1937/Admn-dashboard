@@ -27,5 +27,10 @@ export const ticketSchema = z.object({
     .refine((value) => ["0", "1", "2"].includes(value), {
       message: "Please select a valid priority",
     }),
-  description: z.string().trim().min(1, "Description is required"),
+  description: z
+    .string()
+    .trim()
+    .min(1, "Description is required")
+    .min(5, "Description must be between 5 and 500 characters")
+    .max(500, "Description must be between 5 and 500 characters"),
 });

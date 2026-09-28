@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { faTicket } from '@fortawesome/free-solid-svg-icons'
 import { Eye } from 'lucide-react'
 import ScrollableTable from '../../../shared/components/ScrollableTable'
 import StatusBadge from '../../../shared/components/StatusBadge'
 import TableEmptyState from '../../../shared/components/TableEmptyState'
+import LazyImageCell from '../../../shared/components/LazyImageCell'
+import ImageLightbox from '../../../shared/components/ImageLightbox'
 import { formatDate } from '../../../utils/formatDate'
 import { PRIORITY_TONE } from '../utils/ticketDetailsUtils'
 import ClientAvatar from '../../../shared/components/ClientAvatar'
@@ -15,6 +18,8 @@ export default function TicketsTable({
   hasActiveFilters,
   onViewTicket,
 }) {
+  const [previewImage, setPreviewImage] = useState(null)
+
   if (isLoading) {
     return (
       <p className="p-8 text-center text-sm text-slate-400">
@@ -57,7 +62,11 @@ export default function TicketsTable({
 
         <tbody>
           {tickets.map((ticket) => {
-            const clientName = ticket.userName || '-'
+            const clientName = ticket.userName || ''
+            const hasImage =
+              typeof ticket.clientImage === 'string' &&
+              ticket.clientImage.trim() &&
+              !ticket.clientImage.endsWith('medicardeg.com/')
             const description = ticket.description || '-'
             const descriptionDirection = RTL_TEXT_PATTERN.test(description)
               ? 'rtl'
@@ -70,19 +79,29 @@ export default function TicketsTable({
               >
                 <td className="w-[300px] max-w-[300px] px-4 py-3">
                   <div className="mx-auto flex max-w-[240px] items-center gap-3 whitespace-nowrap rounded-[7px] px-2 py-1.5">
-                    <ClientAvatar
-                      name={ticket.userName}
-                      colorSeed={ticket.userId || ticket.id}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p
-                        title={clientName}
-                        className="block truncate text-sm font-medium text-slate-700"
-                        dir="auto"
-                      >
-                        {clientName}
-                      </p>
-                    </div>
+                    {hasImage ? (
+                      <LazyImageCell
+                        url={ticket.clientImage}
+                        label={clientName}
+                        onPreview={(url, label) =>
+                          setPreviewImage({ url, label })
+                        }
+                        size="h-8 w-8"
+                      />
+                    ) : (
+                      <ClientAvatar
+                        name={clientName}
+                        colorSeed={ticket.userId || ticket.id}
+                        textClass="text-md"
+                      />
+                    )}
+                    <p
+                      title={clientName}
+                      className="text-sm font-medium text-slate-700"
+                      dir="auto"
+                    >
+                      {clientName || '-'}
+                    </p>
                   </div>
                 </td>
                 <td className="px-4 py-3 text-slate-600">
@@ -181,6 +200,11 @@ export default function TicketsTable({
           })}
         </tbody>
       </table>
+
+      <ImageLightbox
+        image={previewImage}
+        onClose={() => setPreviewImage(null)}
+      />
     </ScrollableTable>
   )
 }

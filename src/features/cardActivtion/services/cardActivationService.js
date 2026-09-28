@@ -1,21 +1,6 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
 
 const BASE_URL = "/CardAdmin";
-
-// GET /api/CardAdmin/activated?Id=&SourceType=&PageNumber=&PageSize=
-// export const getActivatedCards = async ({ id, sourceType, pageNumber, pageSize }) => {
-//   const response = await axiosInstance.get(`${BASE_URL}/activated`, {
-//     params: {
-//       Id: id,
-//       SourceType: sourceType,
-//       PageNumber: pageNumber,
-//       PageSize: pageSize,
-//     },
-//   });
-//   return response.data.data;
-// };
-
-// GET /api/CardAdmin/not-activated?Id=&SourceType=&SearchTerm=&PageNumber=&PageSize=
 export const getNotActivatedCards = async ({ id, sourceType, searchTerm, pageNumber, pageSize }) => {
   const response = await axiosInstance.get(`${BASE_URL}/not-activated`, {
     params: {
