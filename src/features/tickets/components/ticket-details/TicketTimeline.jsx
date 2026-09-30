@@ -18,7 +18,7 @@ export default function TicketTimeline({ timelines }) {
   return (
     <div className="relative rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
       {timelines.map((item, i) => {
-        const statusInfo = getTicketStatus(item.status);
+        const statusInfo = getTicketStatus(item.status, item.statusName);
         const statusLabel = item.statusName || statusInfo.label;
         const tagColor = statusInfo.color;
         const isUsed = tagColor === "green" || tagColor === "blue";

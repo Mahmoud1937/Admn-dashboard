@@ -15,6 +15,7 @@ import { useTicketsQuery } from "../hooks/useTicketsQuery";
 import { countActiveTicketFilters } from "../utils/countActiveTicketFilters";
 
 const emptyFilters = {
+  userId: "",
   ticketTypeId: "",
   providerId: "",
   employeeGroupId: "",

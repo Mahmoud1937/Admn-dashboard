@@ -12,6 +12,7 @@ export const TAG_STYLES = {
   red: "bg-red-100 text-red-700",
   blue: "bg-blue-100 text-blue-600",
   purple: "bg-violet-100 text-violet-700",
+  teal: "bg-teal-100 text-teal-700",
 };
 
 export const CIRCLE_STYLES = {
@@ -20,6 +21,7 @@ export const CIRCLE_STYLES = {
   red: "bg-red-100 text-red-600",
   blue: "bg-blue-100 text-blue-600",
   purple: "bg-violet-100 text-violet-600",
+  teal: "bg-teal-100 text-teal-600",
 };
 
 const TICKET_STATUS = {
@@ -46,8 +48,13 @@ const REQUIRED_UPDATE_MESSAGES = {
   isClosed: "Ticket state is required",
 };
 
-export const getTicketStatus = (status) =>
-  TICKET_STATUS[status] || { label: `Status ${status}`, color: "amber" };
+export const getTicketStatus = (status, statusName) => {
+  if (String(statusName || "").trim().toLowerCase() === "modified") {
+    return { label: statusName, color: "teal" };
+  }
+
+  return TICKET_STATUS[status] || { label: `Status ${status}`, color: "amber" };
+};
 
 export const namePair = (item) => {
   if (!item) return "-";

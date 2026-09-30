@@ -70,8 +70,8 @@ export default function InvoicesTable({
               <th className={`w-[220px] ${HEADER_CELL_CLASS}`}>Provider</th>
               <th className={HEADER_CELL_CLASS}>Branch</th>
               <th className={HEADER_CELL_CLASS}>Payment</th>
-              <th className={HEADER_CELL_CLASS}>Price Before</th>
-              <th className={HEADER_CELL_CLASS}>Price After</th>
+              <th className={HEADER_CELL_CLASS}>Price Before Discount</th>
+              <th className={HEADER_CELL_CLASS}>Price After Discount</th>
               <th className={HEADER_CELL_CLASS}>Total</th>
               <th className={HEADER_CELL_CLASS}>Services</th>
               <th className={HEADER_CELL_CLASS}>Status</th>

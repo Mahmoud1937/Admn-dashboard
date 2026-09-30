@@ -1,6 +1,7 @@
 import FilterPanel from "../../../shared/components/FilterPanel";
 import FilterPanelFooter from "../../../shared/components/FilterPanelFooter";
 import FilterPanelHeader from "../../../shared/components/FilterPanelHeader";
+import ClientSelect from "../../../shared/components/ClientSelect";
 import ProviderSelect from "../../../shared/components/ProviderSelect";
 import TicketTypeSelect from "../../../shared/components/TicketTypeSelect";
 import EmployeeGroupSelect from "../../../shared/components/EmployeeGroupSelect";
@@ -23,6 +24,18 @@ export default function TicketsFiltersPanel({
   return (
     <FilterPanel panelRef={panelRef} onClose={onClose} className="sm:w-96">
       <FilterPanelHeader onClose={onClose} />
+
+      <div className="mb-4">
+        <label className="mb-1.5 block text-xs font-medium text-slate-500">
+          Client
+        </label>
+        <ClientSelect
+          queryKey={["tickets", "clients"]}
+          value={draft.userId}
+          onChange={setValue("userId")}
+          placeholder="All clients"
+        />
+      </div>
 
       <div className="mb-4">
         <label className="mb-1.5 block text-xs font-medium text-slate-500">

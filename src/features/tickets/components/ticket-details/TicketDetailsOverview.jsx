@@ -26,7 +26,11 @@ const RTL_TEXT_PATTERN = /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/;
 const employeeName = (employee, fallback = "-") => {
   if (!employee) return fallback;
 
-  const englishName = employee.enName?.trim();
+  const firstLastName = [employee.firstName, employee.lastName]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  const englishName = firstLastName || employee.enName?.trim();
   const arabicName = employee.arName?.trim();
 
   if (!englishName && !arabicName) return fallback;

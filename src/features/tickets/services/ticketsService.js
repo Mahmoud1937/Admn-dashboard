@@ -9,6 +9,7 @@ export async function getTickets({
   const { data } = await axiosInstance.get("/admin/tickets", {
     params: {
       SearchTerm: searchTerm || undefined,
+      ClientId: filters.userId || undefined,
       TicketTypeId: filters.ticketTypeId || undefined,
       ProviderId: filters.providerId || undefined,
       EmployeeGroupId: filters.employeeGroupId || undefined,

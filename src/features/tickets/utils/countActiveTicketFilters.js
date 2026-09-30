@@ -1,5 +1,6 @@
 export function countActiveTicketFilters(filters) {
   return [
+    filters.userId,
     filters.ticketTypeId,
     filters.providerId,
     filters.employeeGroupId,
