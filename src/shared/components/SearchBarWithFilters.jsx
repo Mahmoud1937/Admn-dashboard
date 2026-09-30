@@ -10,6 +10,8 @@ export default function SearchBarWithFilters({
   filterButtonRef,
   stacked = true,
   alignEnd = false,
+  showFilterButton = true,
+  children,
 }) {
   return (
     <div
@@ -33,20 +35,24 @@ export default function SearchBarWithFilters({
         </div>
       )}
 
-      <button
-        ref={filterButtonRef}
-        type="button"
-        onClick={onFilterClick}
-        className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-      >
-        <FontAwesomeIcon icon={faFilter} />
-        <span>Filters</span>
-        {activeFilterCount > 0 && (
-          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-xs font-semibold text-white">
-            {activeFilterCount}
-          </span>
-        )}
-      </button>
+      {children}
+
+      {showFilterButton && (
+        <button
+          ref={filterButtonRef}
+          type="button"
+          onClick={onFilterClick}
+          className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          <FontAwesomeIcon icon={faFilter} />
+          <span>Filters</span>
+          {activeFilterCount > 0 && (
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-xs font-semibold text-white">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
+      )}
     </div>
   );
 }

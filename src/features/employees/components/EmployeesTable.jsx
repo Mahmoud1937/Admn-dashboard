@@ -1,0 +1,230 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPhone,
+  faEnvelope,
+  faUsers,
+  faUserSlash,
+  faBan,
+  faCheck,
+  faPenToSquare,
+} from "@fortawesome/free-solid-svg-icons";
+import ClientAvatar from "../../../shared/components/ClientAvatar";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
+import StatusBadge from "../../../shared/components/StatusBadge";
+
+/* ---------- helpers ---------- */
+const isPlaceholder = (v) =>
+  !v || v.startsWith("EMP-") || v.endsWith("@invalid.local");
+
+const getEmployeeName = (e) =>
+  [e.firstName, e.lastName].filter(Boolean).join(" ").trim() ||
+  e.employeeName?.trim() ||
+  "";
+
+const timeAgo = (date) => {
+  const diff = Date.now() - new Date(date).getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "Just now";
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day}d ago`;
+  return new Date(date).toLocaleDateString("en-GB");
+};
+
+const fullDate = (d) => new Date(d).toLocaleString("en-GB");
+
+/* ---------- small pieces ---------- */
+function GroupBadge({ name }) {
+  if (!name) return <span className="text-slate-400">-</span>;
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+      <FontAwesomeIcon icon={faUsers} className="text-[10px] text-slate-400" />
+      {name}
+    </span>
+  );
+}
+
+function ContactLine({ icon, value }) {
+  if (isPlaceholder(value)) return null;
+  return (
+    <div className="flex items-center gap-2 text-slate-600">
+      <FontAwesomeIcon icon={icon} className="w-3 text-xs text-slate-400" />
+      <span className="truncate">{value}</span>
+    </div>
+  );
+}
+
+function SkeletonRow() {
+  return (
+    <tr className="animate-pulse border-b border-slate-200 last:border-b-0">
+      <td className="px-4 py-4"><div className="h-4 w-8 rounded bg-slate-200" /></td>
+      <td className="px-4 py-4">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-slate-200" />
+          <div className="space-y-2">
+            <div className="h-3.5 w-32 rounded bg-slate-200" />
+            <div className="h-3 w-24 rounded bg-slate-100" />
+          </div>
+        </div>
+      </td>
+      <td className="px-4 py-4"><div className="h-3.5 w-28 rounded bg-slate-200" /></td>
+      <td className="px-4 py-4"><div className="h-6 w-28 rounded-md bg-slate-200" /></td>
+      <td className="px-4 py-4"><div className="h-3.5 w-16 rounded bg-slate-200" /></td>
+      <td className="px-4 py-4"><div className="h-6 w-20 rounded-full bg-slate-200" /></td>
+    </tr>
+  );
+}
+
+const TH = "px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider";
+
+/* ---------- table ---------- */
+export default function EmployeesTable({
+  employees = [],
+  isLoading,
+  onToggleStatus,
+  onEdit,
+  togglingEmployeeId,
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <ScrollableTable maxHeight="70vh">
+        <table className="min-w-full text-sm">
+          <thead className="sticky top-0 z-10 bg-slate-100 text-left text-slate-600 shadow-[0_1px_0_0_rgb(226,232,240)]">
+            <tr>
+              <th className={`${TH} w-16`}>ID</th>
+              <th className={`${TH} text-left`}>Employee</th>
+              <th  className={`${TH} text-left`}>Contact</th>
+              <th className={TH}>Group</th>
+              <th className={TH}>Last Login</th>
+              <th className={TH}>Status</th>
+              <th className={TH}>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody className="bg-white">
+            {isLoading &&
+              Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} />)}
+
+            {!isLoading && employees.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-4 py-16">
+                  <div className="flex flex-col items-center gap-2 text-slate-400">
+                    <FontAwesomeIcon icon={faUserSlash} className="text-3xl" />
+                    <p className="text-sm font-medium text-slate-500">No employees found</p>
+                    <p className="text-xs">Try changing your search or filter</p>
+                  </div>
+                </td>
+              </tr>
+            )}
+
+            {!isLoading &&
+              employees.map((e) => {
+                const id = e.employeeId ?? e.id;
+                const name = getEmployeeName(e);
+                const hasContact = !isPlaceholder(e.phoneNumber) || !isPlaceholder(e.email);
+
+                return (
+                  <tr
+                    key={id}
+                    className={`border-b border-slate-200 transition-colors last:border-b-0 ${
+                      e.isBlocked
+                        ? "bg-red-50/40 hover:bg-red-100/60"
+                        : "hover:bg-blue-50/60"
+                    }`}
+                  >
+                    <td className="px-4 py-3.5 text-slate-400">#{id ?? "-"}</td>
+
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <ClientAvatar
+                          name={name}
+                          colorSeed={id}
+                          sizeClass="h-10 w-10"
+                          textClass="text-sm font-semibold"
+                        />
+                        <div className="min-w-0">
+                          <p dir="auto" className="truncate font-medium text-slate-900">
+                            {name || <span className="text-slate-400">Unnamed</span>}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="px-4 py-3.5 text-center">
+                      {hasContact ? (
+                        <div className="max-w-[260px] space-y-1 ">
+                          <ContactLine icon={faPhone} value={e.phoneNumber} />
+                          <ContactLine icon={faEnvelope} value={e.email} />
+                        </div>
+                      ) : (
+                        <span className="text-slate-400">-</span>
+                      )}
+                    </td>
+
+                    <td className="px-4 py-3.5 text-center">
+                      <GroupBadge name={e.groupName || e.employeeGroupName} />
+                    </td>
+
+                    <td className="px-4 py-3.5 text-center">
+                      {e.lastLoginDate ? (
+                        <span title={fullDate(e.lastLoginDate)} className="text-slate-600">
+                          {timeAgo(e.lastLoginDate)}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400">Never</span>
+                      )}
+                    </td>
+
+                    <td className="px-4 py-3.5 text-center">
+                      <StatusBadge
+                        tone={e.isBlocked ? "danger" : "emerald"}
+                        size="sm"
+                      >
+                        <span
+                          className={`mr-1.5 h-1.5 w-1.5 rounded-full ${
+                            e.isBlocked ? "bg-red-500" : "bg-emerald-500"
+                          }`}
+                        />
+                        {e.isBlocked ? "Blocked" : "Active"}
+                      </StatusBadge>
+                    </td>
+
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => onEdit?.(e)}
+                          title="Edit employee"
+                          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <FontAwesomeIcon icon={faPenToSquare} size="sm" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onToggleStatus?.(e)}
+                          disabled={togglingEmployeeId === id}
+                          title={e.isBlocked ? "Activate" : "Block"}
+                          className={`rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 ${
+                            e.isBlocked
+                              ? "hover:text-green-700"
+                              : "hover:text-red-700"
+                          }`}
+                        >
+                          <FontAwesomeIcon
+                            icon={e.isBlocked ? faCheck : faBan}
+                            size="sm"
+                          />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </table>
+      </ScrollableTable>
+    </div>
+  );
+}

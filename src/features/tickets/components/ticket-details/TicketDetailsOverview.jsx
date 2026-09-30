@@ -138,6 +138,7 @@ export default function TicketDetailsOverview({
             queryKey={["ticket-details", "employee-groups"]}
             value={editValues.assignedToGroupId}
             onChange={(value) => onEditValueChange("assignedToGroupId", value)}
+                clearable
             placeholder={
               editValues.assignedToGroupId
                 ? namePair(ticket.assignedToGroup)

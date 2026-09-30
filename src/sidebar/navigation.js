@@ -20,6 +20,7 @@ import {
   faTicket,
   faMoneyBillWave,
   faHeadset,
+  faUserTie,
 } from "@fortawesome/free-solid-svg-icons";
 
 export const navigation = [
@@ -120,6 +121,11 @@ export const navigation = [
     title: "Tickets",
     path: "/support-tickets",
     icon: faHeadset,
+  },
+  {
+    title: "Employees",
+    path: "/employees",
+    icon: faUserTie,
   },
   {
     title: "Subscription Types",

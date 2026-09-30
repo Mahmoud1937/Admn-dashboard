@@ -169,6 +169,7 @@ export default function TicketFormModal({
               onChange={field.onChange}
               placeholder="No assigned group"
               error={errors.assignedToGroupId?.message}
+                  clearable
             />
           )}
         />

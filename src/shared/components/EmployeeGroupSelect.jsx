@@ -14,6 +14,7 @@ export default function EmployeeGroupSelect({
   error,
   disabled,
   highlighted,
+  clearable = false, // جديد
 }) {
   return (
     <SearchableAsyncSelect
@@ -30,6 +31,7 @@ export default function EmployeeGroupSelect({
       disabled={disabled}
       highlighted={highlighted}
       error={error}
+      clearable={clearable}
     />
   );
 }

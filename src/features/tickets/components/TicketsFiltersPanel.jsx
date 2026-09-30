@@ -70,6 +70,7 @@ export default function TicketsFiltersPanel({
           value={draft.employeeGroupId}
           onChange={setValue("employeeGroupId")}
           placeholder="All employee groups"
+              clearable
         />
       </div>
 

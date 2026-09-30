@@ -6,6 +6,7 @@ import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSel
 import { getProviders } from "../../providers/services/providersService";
 import { INVOICE_STATUS } from "../constants/InvoiceStatus";
 import ProviderBranchSelect from "./ProviderBranchSelect";
+import ClientSelect from "../../../shared/components/ClientSelect";
 
 
 const fieldClass = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400";
@@ -32,6 +33,18 @@ export default function InvoicesFiltersPanel({ draft, onChange, onApply, onClear
   return (
     <FilterPanel panelRef={panelRef} onClose={onClose} className="sm:w-80">
       <FilterPanelHeader onClose={onClose} />
+
+      <div className="mb-4">
+        <label className="mb-1.5 block text-xs font-medium text-slate-500">Client</label>
+        <ClientSelect
+          queryKey={["invoices", "clients"]}
+          value={draft.clientId}
+          onChange={(value) =>
+            onChange((prev) => ({ ...prev, clientId: value ?? "" }))
+          }
+          placeholder="All clients"
+        />
+      </div>
 
       <div className="mb-4">
         <label className="mb-1.5 block text-xs font-medium text-slate-500">Provider</label>

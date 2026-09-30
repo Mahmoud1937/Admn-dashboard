@@ -14,6 +14,7 @@ export const useInvoicesQuery = ({ pageNumber, pageSize, searchTerm, filters }) 
         PageNumber: pageNumber,
         PageSize: pageSize,
         SearchTerm: searchTerm || undefined,
+        ClientId: filters.clientId || undefined,
         ProviderId: filters.providerId || undefined,
         ProviderBranchId: filters.providerBranchId || undefined,
         Status: filters.status || undefined,

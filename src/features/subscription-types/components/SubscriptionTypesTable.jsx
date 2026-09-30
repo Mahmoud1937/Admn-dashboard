@@ -2,6 +2,7 @@ import { faCreditCard } from "@fortawesome/free-solid-svg-icons";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
+import StatusBadge from "../../../shared/components/StatusBadge";
 import { formatDate } from "../../../utils/formatDate";
 
 const formatMoney = (value) => `${Number(value || 0).toFixed(2)} EGP`;
@@ -38,6 +39,7 @@ export default function SubscriptionTypesTable({
             <th className="px-6 py-3 text-center">Description</th>
             <th className="px-6 py-3 text-center">Created At</th>
             <th className="px-6 py-3 text-center">Subscriptions</th>
+            <th className="px-6 py-3 text-center">Status</th>
             <th className="px-6 py-3 text-center">Actions</th>
           </tr>
         </thead>
@@ -92,6 +94,13 @@ export default function SubscriptionTypesTable({
               </td>
               <td className="px-6 py-3 text-slate-600">
                 {subscriptionType.totalUserSubscriptions ?? 0}
+              </td>
+              <td className="px-6 py-3">
+                <StatusBadge
+                  tone={subscriptionType.isActive ? "success" : "inactive"}
+                >
+                  {subscriptionType.isActive ? "Active" : "Inactive"}
+                </StatusBadge>
               </td>
               <td className="px-6 py-3">
                 <RowActions

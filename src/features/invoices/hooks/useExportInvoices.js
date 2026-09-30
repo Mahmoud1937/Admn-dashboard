@@ -14,6 +14,7 @@ export function useExportInvoices() {
     try {
       const blob = await exportInvoices({
         SearchTerm: searchTerm || undefined,
+        ClientId: filters.clientId || undefined,
         ProviderId: filters.providerId || undefined,
         ProviderBranchId: filters.providerBranchId || undefined,
         Status: filters.status || undefined,

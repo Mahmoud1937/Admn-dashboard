@@ -34,6 +34,7 @@ const InvoicesPage = lazy(() => import("../features/invoices/pages/InvoicesPage"
 const TicketTypesPage = lazy(() => import("../features/ticket-types/pages/TicketTypesPage"));
 const SubscriptionTypesPage = lazy(() => import("../features/subscription-types/pages/SubscriptionTypesPage"));
 const TicketsPage = lazy(() => import("../features/tickets/pages/TicketsPage"));
+const EmployeesPage = lazy(() => import("../features/employees/pages/EmployeesPage"));
 const LoginPage = lazy(() => import("../features/auth/pages/LoginPage"));
 
 const router = createBrowserRouter([
@@ -100,6 +101,7 @@ const router = createBrowserRouter([
           { path: "sold-card", element: <CardSoldPage /> },
           { path: "card-missed", element: <CardMissedPage /> },
           { path: "ticket-types", element: <TicketTypesPage /> },
+          { path: "employees", element: <EmployeesPage /> },
           // View / Update Slider details (full-size images + edit)
           { path: "offer-sliders/:id", element: <SliderDetailsPage /> },
 

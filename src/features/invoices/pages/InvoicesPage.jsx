@@ -14,6 +14,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const emptyFilters = {
+  clientId: "",
   providerId: "",
   providerBranchId: "",
   status: "",
