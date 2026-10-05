@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faPlus } from "@fortawesome/free-solid-svg-icons";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import CardMissedFilters from "../components/CardMissedFilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
@@ -18,6 +21,7 @@ const countActiveMissedFilters = (filters) =>
   Object.values(filters).filter((value) => value !== "" && value !== null && value !== undefined).length;
 
 export default function CardMissedPage() {
+  const canDelete = usePermission(PERMISSION_CODES.MISSED_CARDS_DELETE);
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -147,13 +151,15 @@ export default function CardMissedPage() {
 </p>
         </div>
 
-        <button
-          onClick={openAddForm}
-          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Report Card
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.MISSED_CARDS_CREATE}>
+          <button
+            onClick={openAddForm}
+            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Report Card
+          </button>
+        </PermissionGuard>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white">
@@ -196,7 +202,7 @@ export default function CardMissedPage() {
             <CardMissedTable
               items={cardMisseds}
               hasActiveFilters={hasActiveFilters}
-              onDelete={(item) => setItemToDelete(item)}
+              onDelete={canDelete ? (item) => setItemToDelete(item) : undefined}
             />
 
             {(cardMisseds?.length ?? 0) > 0 && (
@@ -223,7 +229,7 @@ export default function CardMissedPage() {
         serverErrors={serverErrors}
       />
 
-      <ConfirmDeleteModal
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!itemToDelete}
         title="Delete Record"
         message={`Are you sure you want to delete the record for card "${itemToDelete?.cardNumber}"? This action cannot be undone.`}
@@ -232,7 +238,7 @@ export default function CardMissedPage() {
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setItemToDelete(null)}
-      />
+      />}
     </div>
   );
 }

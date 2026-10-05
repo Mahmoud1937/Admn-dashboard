@@ -726,6 +726,7 @@ export default function TermsAndConditionsEditor({
   arEditorPlaceholder = "اكتب الشروط والأحكام بالعربية...",
   minLength = 150,
   minLengthMessage = (min) => `Please enter at least ${min} characters.`,
+  canUpdate = false,
 }) {
   const [activeLang, setActiveLang] = useState("en");
   const [content, setContent] = useState({ en: initialValue?.en ?? "", ar: initialValue?.ar ?? "" });
@@ -752,7 +753,7 @@ export default function TermsAndConditionsEditor({
   const saveDisabled = saving || loading || !isInitialized;
 
   const handleSave = () => {
-    if (saveDisabled) return;
+    if (saveDisabled || !canUpdate) return;
 
     const nextErrors = { en: "", ar: "" };
     if (minLength > 0) {
@@ -811,7 +812,7 @@ export default function TermsAndConditionsEditor({
           </div>
         </div>
 
-        {isEditing ? (
+        {isEditing && canUpdate ? (
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -832,7 +833,7 @@ export default function TermsAndConditionsEditor({
               {loading ? "Loading..." : saving ? "Saving..." : "Save changes"}
             </button>
           </div>
-        ) : (
+        ) : canUpdate ? (
           <button
             type="button"
             onClick={() => setIsEditing(true)}
@@ -842,7 +843,7 @@ export default function TermsAndConditionsEditor({
           >
             <Pencil className="w-4 h-4" /> {loading ? "Loading..." : "Update"}
           </button>
-        )}
+        ) : null}
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">

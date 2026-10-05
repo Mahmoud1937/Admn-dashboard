@@ -33,7 +33,7 @@ export default function GovernoratesTable({ governorates, hasActiveFilters, onEd
             <td className="px-6 py-3 font-medium text-slate-900">{governorate.enName}</td>
             <td className="px-6 py-3 text-slate-600">{governorate.arName}</td>
             <td className="px-6 py-3">
-              <RowActions onEdit={() => onEdit(governorate)} onDelete={() => onDeleteRequest(governorate)} />
+              <RowActions onEdit={onEdit ? () => onEdit(governorate) : undefined} onDelete={onDeleteRequest ? () => onDeleteRequest(governorate) : undefined} />
             </td>
           </tr>
         ))}

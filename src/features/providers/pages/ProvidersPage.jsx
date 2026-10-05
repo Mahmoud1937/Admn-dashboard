@@ -14,10 +14,13 @@ import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilter
 import { countActiveFilters } from "../utils/countActiveFilters";
 import ProvidersFilters, { emptyFilters } from "../components/ProvidersFilters";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import usePermission from "../../auth/hooks/usePermission";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 
 
 
 export default function ProvidersPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.PROVIDERS_UPDATE);
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
@@ -143,8 +146,8 @@ const handleEdit = (provider) => {
             <ScrollableTable maxHeight="60vh">
               <ProvidersTable
                 providers={providers}
-                onEdit={handleEdit}
-                onToggleStatus={handleToggleClick}
+                onEdit={canUpdate ? handleEdit : undefined}
+                onToggleStatus={canUpdate ? handleToggleClick : undefined}
               />
             </ScrollableTable>
 
@@ -171,7 +174,7 @@ const handleEdit = (provider) => {
           </div>
         )}
 
-        <ConfirmDeleteModal
+        {canUpdate && <ConfirmDeleteModal
           isOpen={!!providerToToggle}
           title={isDeactivating ? "Deactivate Provider" : "Activate Provider"}
           message={
@@ -184,7 +187,7 @@ const handleEdit = (provider) => {
           isLoading={toggleMutation.isPending}
           onConfirm={confirmToggle}
           onCancel={() => setProviderToToggle(null)}
-        />
+        />}
 
         {toggleMutation.isError && (
           <p className="mt-3 px-6 text-sm text-red-500">

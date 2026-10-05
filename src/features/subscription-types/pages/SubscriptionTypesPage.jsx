@@ -9,10 +9,15 @@ import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import SubscriptionTypesFilters from "../components/SubscriptionTypesFilters";
 import SubscriptionTypesTable from "../components/SubscriptionTypesTable";
 import SubscriptionTypeFormModal from "../components/SubscriptionTypeFormModal";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 import { useSubscriptionTypeMutations } from "../hooks/useSubscriptionTypeMutations";
 import { useSubscriptionTypesQuery } from "../hooks/useSubscriptionTypesQuery";
 
 export default function SubscriptionTypesPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.PLAN_TYPES_UPDATE);
+  const canDelete = usePermission(PERMISSION_CODES.PLAN_TYPES_DELETE);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 400);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -52,6 +57,7 @@ export default function SubscriptionTypesPage() {
     createMutation,
     updateMutation,
     deleteMutation,
+    toggleMutation,
     isSaving,
     serverErrors,
     clearServerErrors,
@@ -99,13 +105,15 @@ export default function SubscriptionTypesPage() {
           </p>
         </div>
 
-        <button
-          onClick={openAddForm}
-          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add Subscription Type
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.PLAN_TYPES_CREATE}>
+          <button
+            onClick={openAddForm}
+            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add Subscription Type
+          </button>
+        </PermissionGuard>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -134,8 +142,14 @@ export default function SubscriptionTypesPage() {
             <SubscriptionTypesTable
               subscriptionTypes={subscriptionTypes}
               hasActiveFilters={!!debouncedSearch}
-              onEdit={openEditForm}
-              onDeleteRequest={setSubscriptionTypeToDelete}
+              onEdit={canUpdate ? openEditForm : undefined}
+              onDeleteRequest={canDelete ? setSubscriptionTypeToDelete : undefined}
+              onToggleStatus={
+                canUpdate
+                  ? (subscriptionType) => toggleMutation.mutate(subscriptionType.id)
+                  : undefined
+              }
+              togglingId={toggleMutation.isPending ? toggleMutation.variables : null}
             />
 
             {subscriptionTypes.length > 0 && (
@@ -163,7 +177,7 @@ export default function SubscriptionTypesPage() {
         serverErrors={serverErrors}
       />
 
-      <ConfirmDeleteModal
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!subscriptionTypeToDelete}
         title="Delete Subscription Type"
         message={`Are you sure you want to delete "${subscriptionTypeToDelete?.nameEn}"? This action cannot be undone.`}
@@ -172,7 +186,7 @@ export default function SubscriptionTypesPage() {
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setSubscriptionTypeToDelete(null)}
-      />
+      />}
     </div>
   );
 }

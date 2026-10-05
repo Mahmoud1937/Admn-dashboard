@@ -1,34 +1,31 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronDown,
+  faKey,
   faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../features/auth/context/Authcontext";
+
+import useAuthMutations from "../features/auth/hooks/useAuthMutations";
 import { splitEmployeeName } from "../shared/utils/jwt";
+import ChangePasswordModal from "../features/auth/components/ChangePasswordModal";
 
 const getDisplayValue = (value, fallback) =>
   typeof value === "string" && value.trim() ? value.trim() : fallback;
 
 export default function UserMenu() {
   const [open, setOpen] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const menuRef = useRef(null);
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { logout, isLoggingOut } = useAuthMutations();
+
   const { englishName, arabicName } = splitEmployeeName(user?.employeeName);
   const employeeNameEn = getDisplayValue(englishName, "Admin");
   const employeeNameAr = getDisplayValue(arabicName, "");
-  const accountType = getDisplayValue(
-    user?.accountType,
-    "Account type unavailable"
-  );
-  const employeeGroupName = getDisplayValue(
-    user?.employeeGroupName,
-    "Group unavailable"
-  );
+  const accountType = getDisplayValue(user?.accountType, "Account type unavailable");
+  const employeeGroupName = getDisplayValue(user?.employeeGroupName, "Group unavailable");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -41,12 +38,14 @@ export default function UserMenu() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    queryClient.cancelQueries();
-    queryClient.clear();
-    logout();
+  const handleOpenChangePassword = () => {
     setOpen(false);
-    navigate("/login", { replace: true });
+    setShowChangePassword(true);
+  };
+
+  const handleLogout = () => {
+    setOpen(false);
+    logout();
   };
 
   return (
@@ -82,9 +81,7 @@ export default function UserMenu() {
 
         <FontAwesomeIcon
           icon={faChevronDown}
-          className={`text-xs text-slate-400 transition ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`text-xs text-slate-400 transition ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -112,17 +109,31 @@ export default function UserMenu() {
             </p>
           </div>
 
+          <button
+            type="button"
+            onClick={handleOpenChangePassword}
+            className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            <FontAwesomeIcon icon={faKey} />
+            Change Password
+          </button>
+
           <div className="border-t" />
 
           <button
             type="button"
             onClick={handleLogout}
-            className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50"
+            disabled={isLoggingOut}
+            className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-60"
           >
             <FontAwesomeIcon icon={faRightFromBracket} />
-            Logout
+            {isLoggingOut ? "Logging out..." : "Logout"}
           </button>
         </div>
+      )}
+
+      {showChangePassword && (
+        <ChangePasswordModal onClose={() => setShowChangePassword(false)} />
       )}
     </div>
   );

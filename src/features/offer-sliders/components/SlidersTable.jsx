@@ -114,14 +114,14 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
                     <RowActions
-                      onEdit={(e) => {
+                      onEdit={onEdit ? (e) => {
                         e.stopPropagation()
                         onEdit(slider)
-                      }}
-                      onDelete={(e) => {
+                      } : undefined}
+                      onDelete={onDelete ? (e) => {
                         e.stopPropagation()
                         onDelete(slider)
-                      }}
+                      } : undefined}
                     />
                   </div>
                 </td>

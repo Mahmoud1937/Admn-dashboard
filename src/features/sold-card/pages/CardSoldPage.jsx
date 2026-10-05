@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import CardSoldFilters from "../components/CardSoldFilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
@@ -15,6 +18,7 @@ import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 export default function CardSoldPage() {
+  const canDelete = usePermission(PERMISSION_CODES.CARD_SALES_DELETE);
   const countActiveSoldFilters = (filters) =>
   Object.values(filters).filter((value) => value !== "" && value !== null && value !== undefined).length;
   const [search, setSearch] = useState("");
@@ -131,13 +135,15 @@ export default function CardSoldPage() {
           </p>
         </div>
 
-        <button
-          onClick={openAddForm}
-          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Sell Cards
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.CARD_SALES_CREATE}>
+          <button
+            onClick={openAddForm}
+            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Sell Cards
+          </button>
+        </PermissionGuard>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white">
@@ -182,7 +188,7 @@ export default function CardSoldPage() {
               hasActiveFilters={hasActiveFilters}
               onExport={(id) => exportMutation.mutate(id)}
               exportingId={exportingId}
-              onDelete={(sold) => setSoldToDelete(sold)}
+              onDelete={canDelete ? (sold) => setSoldToDelete(sold) : undefined}
             />
 
             {(cardSolds?.length ?? 0) > 0 && (
@@ -210,7 +216,7 @@ export default function CardSoldPage() {
         clearServerErrors={clearServerErrors}
       />
 
-      <ConfirmDeleteModal
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!soldToDelete}
         title="Delete Sold Card"
         message={`Are you sure you want to delete sold card record "${soldToDelete?.from} - ${soldToDelete?.to}"? This action cannot be undone.`}
@@ -219,7 +225,7 @@ export default function CardSoldPage() {
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setSoldToDelete(null)}
-      />
+      />}
     </div>
   );
 }

@@ -21,6 +21,7 @@ export default function ProviderInfoForm({
   isEditMode,
   mutation,
   onCancelToList,
+  canUpdate = false,
 }) {
   const [isEditing, setIsEditing] = useState(isCreateMode || isEditMode);
   const canEdit = isCreateMode || isEditing;
@@ -113,6 +114,7 @@ export default function ProviderInfoForm({
   };
 
   const onSubmit = (formValues) => {
+    if (!isCreateMode && !canUpdate) return;
     const payload = {
       providerCategoryId: formValues.providerCategoryId,
       specialistId: formValues.specialistId || null,
@@ -164,7 +166,7 @@ export default function ProviderInfoForm({
           {isCreateMode ? "Create Provider" : "Provider Information"}
         </h2>
 
-        {!isCreateMode && !isEditing && (
+        {!isCreateMode && !isEditing && canUpdate && (
           <button
             type="button"
             onClick={() => setIsEditing(true)}

@@ -1,4 +1,5 @@
-import { faCreditCard } from "@fortawesome/free-solid-svg-icons";
+import { faBan, faCheck, faCreditCard } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
@@ -13,6 +14,8 @@ export default function SubscriptionTypesTable({
   hasActiveFilters,
   onEdit,
   onDeleteRequest,
+  onToggleStatus,
+  togglingId,
 }) {
   if (subscriptionTypes.length === 0) {
     return (
@@ -96,16 +99,36 @@ export default function SubscriptionTypesTable({
                 {subscriptionType.totalUserSubscriptions ?? 0}
               </td>
               <td className="px-6 py-3">
-                <StatusBadge
-                  tone={subscriptionType.isActive ? "success" : "inactive"}
-                >
-                  {subscriptionType.isActive ? "Active" : "Inactive"}
-                </StatusBadge>
+                <div className="flex items-center justify-center gap-2">
+                  <StatusBadge
+                    tone={subscriptionType.isActive ? "success" : "inactive"}
+                  >
+                    {subscriptionType.isActive ? "Active" : "Inactive"}
+                  </StatusBadge>
+                  {onToggleStatus && (
+                    <button
+                      type="button"
+                      onClick={() => onToggleStatus(subscriptionType)}
+                      disabled={togglingId === subscriptionType.id}
+                      title={subscriptionType.isActive ? "Deactivate" : "Activate"}
+                      className={`rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 ${
+                        subscriptionType.isActive
+                          ? "hover:text-red-700"
+                          : "hover:text-green-700"
+                      }`}
+                    >
+                      <FontAwesomeIcon
+                        icon={subscriptionType.isActive ? faBan : faCheck}
+                        size="sm"
+                      />
+                    </button>
+                  )}
+                </div>
               </td>
               <td className="px-6 py-3">
                 <RowActions
-                  onEdit={() => onEdit(subscriptionType)}
-                  onDelete={() => onDeleteRequest(subscriptionType)}
+                  onEdit={onEdit ? () => onEdit(subscriptionType) : undefined}
+                  onDelete={onDeleteRequest ? () => onDeleteRequest(subscriptionType) : undefined}
                 />
               </td>
             </tr>

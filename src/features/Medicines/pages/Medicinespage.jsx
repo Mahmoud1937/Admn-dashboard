@@ -10,9 +10,14 @@ import Pagination from "../../../shared/components/Pagination";
 import MedicineFormModal from "../components/Medicineformmodal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 
 export default function MedicinesPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.MEDICINES_UPDATE);
+  const canDelete = usePermission(PERMISSION_CODES.MEDICINES_DELETE);
   const [search, setSearch] = useState("");
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -112,13 +117,15 @@ export default function MedicinesPage() {
           </p>
         </div>
 
-        <button
-          onClick={openAddForm}
-          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add Medicine
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.MEDICINES_CREATE}>
+          <button
+            onClick={openAddForm}
+            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add Medicine
+          </button>
+        </PermissionGuard>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -143,8 +150,8 @@ export default function MedicinesPage() {
             <MedicinesTable
               medicines={medicines}
               hasActiveFilters={!!search}
-              onEdit={openEditForm}
-              onDeleteRequest={setMedicineToDelete}
+              onEdit={canUpdate ? openEditForm : undefined}
+              onDeleteRequest={canDelete ? setMedicineToDelete : undefined}
             />
 
             {medicines.length > 0 && (
@@ -172,7 +179,7 @@ export default function MedicinesPage() {
         serverErrors={serverErrors}
       />
 
-      <ConfirmDeleteModal
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!medicineToDelete}
         title="Delete Medicine"
         message={`Are you sure you want to delete "${medicineToDelete?.enName}"? This action cannot be undone.`}
@@ -181,7 +188,7 @@ export default function MedicinesPage() {
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setMedicineToDelete(null)}
-      />
+      />}
     </div>
   );
 }

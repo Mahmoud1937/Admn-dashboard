@@ -4,10 +4,12 @@ import { lazy } from "react";
 
 import DashboardLayout from "../layout/DashboardLayout";
 import ProtectedRoute from "../shared/components/Protectedroute";
-
+import PermissionRoute from "../features/auth/components/PermissionRoute";
+import { PERMISSION_CODES } from "../features/auth/constants/permissionCodes";
 const DashboardPage = lazy(() => import("../features/dashboard/pages/DashboardPage"));
 const NotFoundPage = lazy(() => import("../shared/components/NotFoundPage"));
 const ProvidersPage = lazy(() => import("../features/providers/pages/ProvidersPage"));
+const BranchesPage = lazy(() => import("../features/branches/pages/BranchesPage"));
 const ProviderDetailsPage = lazy(() => import("../features/providers/pages/ProviderDetailsPage"));
 const GovernoratesPage = lazy(() => import("../features/governorates/pages/GovernoratesPage"));
 const CategoriesPage = lazy(() => import("../features/categoreis/pages/CategoryPage"));
@@ -36,11 +38,22 @@ const SubscriptionTypesPage = lazy(() => import("../features/subscription-types/
 const TicketsPage = lazy(() => import("../features/tickets/pages/TicketsPage"));
 const EmployeesPage = lazy(() => import("../features/employees/pages/EmployeesPage"));
 const LoginPage = lazy(() => import("../features/auth/pages/LoginPage"));
+const ForceChangePasswordPage = lazy(() =>
+  import("../features/auth/pages/ForceChangePasswordPage")
+);
+
+const withPermission = (permission, element) => (
+  <PermissionRoute permission={permission}>{element}</PermissionRoute>
+);
 
 const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginPage />,
+  },
+  {
+    path: "/change-password",
+    element: <ForceChangePasswordPage />,
   },
   {
     // Layout route: nothing under "/" renders unless AuthContext has a
@@ -51,61 +64,213 @@ const router = createBrowserRouter([
       {
         element: <DashboardLayout />,
         children: [
-          { index: true, element: <DashboardPage /> },
+          {
+            index: true,
+            element: withPermission(
+              PERMISSION_CODES.DASHBOARD_READ,
+              <DashboardPage />
+            ),
+          },
 
-          { path: "providers", element: <ProvidersPage /> },
+          {
+            path: "providers",
+            element: withPermission(
+              PERMISSION_CODES.PROVIDERS_READ,
+              <ProvidersPage />
+            ),
+          },
+
+          {
+            path: "branches",
+            element: withPermission(
+              PERMISSION_CODES.PROVIDER_BRANCHES_READ,
+              <BranchesPage />
+            ),
+          },
 
           // Add Provider
-          { path: "providers/new", element: <ProviderDetailsPage /> },
+          {
+            path: "providers/new",
+            element: withPermission(
+              PERMISSION_CODES.PROVIDERS_CREATE,
+              <ProviderDetailsPage />
+            ),
+          },
 
           // Edit / View Provider
-          { path: "providers/:id", element: <ProviderDetailsPage /> },
+          {
+            path: "providers/:id",
+            element: withPermission(
+              PERMISSION_CODES.PROVIDERS_READ,
+              <ProviderDetailsPage />
+            ),
+          },
 
-          { path: "clients", element: <ClientsPage title="Clients" /> },
+          {
+            path: "clients",
+            element: withPermission(
+              PERMISSION_CODES.CLIENTS_READ,
+              <ClientsPage title="Clients" />
+            ),
+          },
           //  { path: "invoice-preview", element: <InvoiceDetailsPreviewPage /> }, // TEMP - remove after review
           // View Client Details
-          { path: "clients/:clientId", element: <ClientDetailsPage /> },
+          {
+            path: "clients/:clientId",
+            element: withPermission(
+              PERMISSION_CODES.CLIENTS_READ,
+              <ClientDetailsPage />
+            ),
+          },
 
-          { path: "provider-map", element: <ProviderMapPage /> },
-          { path: "/provider-category", element: <CategoriesPage /> },
-          { path: "/service-category", element: <ServiceCategoriesPage /> },
+          {
+            path: "provider-map",
+            element: withPermission(PERMISSION_CODES.MAP_READ, <ProviderMapPage />),
+          },
+          {
+            path: "/provider-category",
+            element: withPermission(
+              PERMISSION_CODES.PROVIDER_CATEGORIES_READ,
+              <CategoriesPage />
+            ),
+          },
+          {
+            path: "/service-category",
+            element: withPermission(
+              PERMISSION_CODES.SERVICE_CATEGORIES_READ,
+              <ServiceCategoriesPage />
+            ),
+          },
           {
             path: "terms-and-conditions",
-            element: <TermsAndConditionsPage />,
+            element: withPermission(
+              PERMISSION_CODES.TERMS_AND_CONDITIONS_READ,
+              <TermsAndConditionsPage />
+            ),
           },
           {
             path: "refund-policy",
-            element: <RefundPolicyPage />,
+            element: withPermission(
+              PERMISSION_CODES.REFUND_POLICY_READ,
+              <RefundPolicyPage />
+            ),
           },
           {
             path: "privacy-policy",
-            element: <PrivacyPolicyPage />,
+            element: withPermission(
+              PERMISSION_CODES.PRIVACY_POLICY_READ,
+              <PrivacyPolicyPage />
+            ),
           },
           {
             path: "contact-us",
-            element: <ContactUsPage />,
+            element: withPermission(
+              PERMISSION_CODES.CONTACT_US_READ,
+              <ContactUsPage />
+            ),
           },
-          { path: "invoices", element: <InvoicesPage /> },
-          { path: "services", element: <ServicesPage title="Services" /> },
-          { path: "medicines", element: <MedicinesPage title="Medicine" /> },
-          { path: "card-activation", element: <CardActivationPage /> },
-          { path: "governorates", element: <GovernoratesPage /> },
-          { path: "cities", element: <CitiesPage /> },
+          {
+            path: "invoices",
+            element: withPermission(PERMISSION_CODES.INVOICES_READ, <InvoicesPage />),
+          },
+          {
+            path: "services",
+            element: withPermission(
+              PERMISSION_CODES.SERVICES_READ,
+              <ServicesPage title="Services" />
+            ),
+          },
+          {
+            path: "medicines",
+            element: withPermission(
+              PERMISSION_CODES.MEDICINES_READ,
+              <MedicinesPage title="Medicine" />
+            ),
+          },
+          {
+            path: "card-activation",
+            element: withPermission(PERMISSION_CODES.CARDS_READ, <CardActivationPage />),
+          },
+          {
+            path: "governorates",
+            element: withPermission(
+              PERMISSION_CODES.GOVERNORATES_READ,
+              <GovernoratesPage />
+            ),
+          },
+          {
+            path: "cities",
+            element: withPermission(PERMISSION_CODES.CITIES_READ, <CitiesPage />),
+          },
           // { path: "card-pools", element: <PagePlaceholder title="Card Pools" /> },
-          { path: "speialist", element: <SpecialistsPage /> },
-          { path: "support-tickets", element: <TicketsPage /> },
+          {
+            path: "speialist",
+            element: withPermission(
+              PERMISSION_CODES.SPECIALISTS_READ,
+              <SpecialistsPage />
+            ),
+          },
+          {
+            path: "support-tickets",
+            element: withPermission(PERMISSION_CODES.TICKETS_READ, <TicketsPage />),
+          },
           // { path: "activity", element: <PagePlaceholder title="Activity" /> },
-          { path: "offer-sliders", element: <SlidersPage title="Sliders" /> },
-          { path: "card-pools", element: <CardPoolPage /> },
-          { path: "/card-pool/sold-cards", element: <SoldCardsByPoolPage /> },
-          { path: "sold-card", element: <CardSoldPage /> },
-          { path: "card-missed", element: <CardMissedPage /> },
-          { path: "ticket-types", element: <TicketTypesPage /> },
-          { path: "employees", element: <EmployeesPage /> },
+          {
+            path: "offer-sliders",
+            element: withPermission(
+              PERMISSION_CODES.SLIDERS_READ,
+              <SlidersPage title="Sliders" />
+            ),
+          },
+          {
+            path: "card-pools",
+            element: withPermission(PERMISSION_CODES.CARD_POOLS_READ, <CardPoolPage />),
+          },
+          {
+            path: "/card-pool/sold-cards",
+            element: withPermission(
+              PERMISSION_CODES.CARD_SALES_READ,
+              <SoldCardsByPoolPage />
+            ),
+          },
+          {
+            path: "sold-card",
+            element: withPermission(PERMISSION_CODES.CARD_SALES_READ, <CardSoldPage />),
+          },
+          {
+            path: "card-missed",
+            element: withPermission(
+              PERMISSION_CODES.MISSED_CARDS_READ,
+              <CardMissedPage />
+            ),
+          },
+          {
+            path: "ticket-types",
+            element: withPermission(
+              PERMISSION_CODES.TICKET_TYPES_READ,
+              <TicketTypesPage />
+            ),
+          },
+          {
+            path: "employees",
+            element: withPermission(PERMISSION_CODES.EMPLOYEES_READ, <EmployeesPage />),
+          },
           // View / Update Slider details (full-size images + edit)
-          { path: "offer-sliders/:id", element: <SliderDetailsPage /> },
+          {
+            path: "offer-sliders/:id",
+            element: withPermission(
+              PERMISSION_CODES.SLIDERS_READ,
+              <SliderDetailsPage />
+            ),
+          },
 
-          { path: "plan-types", element: <SubscriptionTypesPage /> },
+          {
+            path: "plan-types",
+            element: withPermission(
+              PERMISSION_CODES.PLAN_TYPES_READ,
+              <SubscriptionTypesPage />
+            ),
+          },
           // { path: "offer-sliders", element: <SlidersPage title="Plan Types" /> },
           // { path: "offers", element: <PagePlaceholder title="Offers" /> },
 

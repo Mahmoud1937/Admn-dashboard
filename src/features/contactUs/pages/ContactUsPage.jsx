@@ -21,6 +21,8 @@ import { useContactUsMutations } from "../hooks/useContactUsMutations";
 import { contactUsSchema } from "../schema/contactUsSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 const defaultValues = {
   phoneNumber: "",
@@ -71,6 +73,7 @@ function buildSocialUrl(baseUrl, path) {
 }
 
 export default function ContactUsPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.CONTACT_US_UPDATE);
   const { contactUs, isLoading, isError, error ,refetch} = useContactUsQuery();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -105,6 +108,7 @@ export default function ContactUsPage() {
   }, [serverErrors, setError]);
 
   const onSubmit = (values) => {
+    if (!canUpdate) return;
     updateMutation.mutate({
       ...values,
       faceBook: buildSocialUrl(SOCIAL_FIELDS[0].baseUrl, values.faceBook),
@@ -150,7 +154,7 @@ if (isError) {
           </p>
         </div>
 
-        {!isEditing && (
+        {!isEditing && canUpdate && (
           <button
             type="button"
             onClick={() => setIsEditing(true)}

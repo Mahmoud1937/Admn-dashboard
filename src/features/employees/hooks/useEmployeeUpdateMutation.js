@@ -10,9 +10,22 @@ export default function useEmployeeUpdateMutation({ onSuccess } = {}) {
 
   const updateMutation = useMutation({
     mutationFn: updateEmployee,
-    onSuccess: (response) => {
+    onSuccess: (response, variables) => {
       setServerErrors(null);
       toast.success(response?.message || "Employee updated successfully.");
+      queryClient.setQueriesData({ queryKey: ["employees"] }, (current) => {
+        if (!current?.items) return current;
+
+        return {
+          ...current,
+          items: current.items.map((employee) => {
+            const id = employee.employeeId ?? employee.id;
+            return String(id) === String(variables.employeeId)
+              ? { ...employee, ...variables.payload, employeeId: id }
+              : employee;
+          }),
+        };
+      });
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       onSuccess?.();
     },

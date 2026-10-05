@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import CardPoolFilters from "../components/Cardpoolfilters";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
@@ -16,6 +19,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 
 export default function CardPoolPage() {
+  const canDelete = usePermission(PERMISSION_CODES.CARD_POOLS_DELETE);
   const countActivePoolFilters = (filters) =>
     Object.values(filters).filter((value) => value !== "" && value !== null && value !== undefined).length;
 
@@ -127,13 +131,15 @@ export default function CardPoolPage() {
           </p>
         </div>
 
-        <button
-          onClick={openAddForm}
-          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Create Pool
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.CARD_POOLS_CREATE}>
+          <button
+            onClick={openAddForm}
+            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Create Pool
+          </button>
+        </PermissionGuard>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white">
@@ -177,7 +183,7 @@ export default function CardPoolPage() {
               hasActiveFilters={hasActiveFilters}
               onExport={(id) => exportMutation.mutate(id)}
               exportingId={exportingId}
-              onDelete={(pool) => setPoolToDelete(pool)}
+              onDelete={canDelete ? (pool) => setPoolToDelete(pool) : undefined}
             />
 
             {(cardPools?.length ?? 0) > 0 && (
@@ -204,7 +210,7 @@ export default function CardPoolPage() {
         serverErrors={serverErrors}
       />
 
-      <ConfirmDeleteModal
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!poolToDelete}
         title="Delete Card Pool"
         message={`Are you sure you want to delete card pool "${poolToDelete?.from} - ${poolToDelete?.to}"? This action cannot be undone.`}
@@ -213,7 +219,7 @@ export default function CardPoolPage() {
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setPoolToDelete(null)}
-      />
+      />}
     </div>
   );
 }

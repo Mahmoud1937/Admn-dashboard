@@ -55,17 +55,19 @@ function formatDateNumeric(dateString) {
 function RowActions({ provider, onEdit, onToggleStatus }) {
   return (
     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-      <button
-        onClick={() => onEdit?.(provider)}
-        className="rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
-        title="Edit"
-      >
-        <FontAwesomeIcon icon={faPenToSquare} />
-      </button>
-
-      {provider.isActive ? (
+      {onEdit && (
         <button
-          onClick={() => onToggleStatus?.(provider)}
+          onClick={() => onEdit(provider)}
+          className="rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
+          title="Edit"
+        >
+          <FontAwesomeIcon icon={faPenToSquare} />
+        </button>
+      )}
+
+      {onToggleStatus && (provider.isActive ? (
+        <button
+          onClick={() => onToggleStatus(provider)}
           className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
           title="Deactivate"
         >
@@ -73,13 +75,13 @@ function RowActions({ provider, onEdit, onToggleStatus }) {
         </button>
       ) : (
         <button
-          onClick={() => onToggleStatus?.(provider)}
+          onClick={() => onToggleStatus(provider)}
           className="rounded-lg p-2 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600"
           title="Activate"
         >
           <FontAwesomeIcon icon={faCheck} />
         </button>
-      )}
+      ))}
     </div>
   );
 }

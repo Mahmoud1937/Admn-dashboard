@@ -3,7 +3,36 @@ import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 
-export default function ServicesTable({ services, hasActiveFilters, onEdit, onDeleteRequest }) {
+function BilingualName({ en, ar, primary = false }) {
+  return (
+    <div className="min-w-0 max-w-[280px] leading-tight">
+      <p
+        className={`truncate ${
+          primary ? "font-semibold text-slate-900" : "font-medium text-slate-800"
+        }`}
+      >
+        {en || "—"}
+      </p>
+      {ar && (
+        <p
+          dir="rtl"
+          lang="ar"
+          style={{ textAlign: "left" }}
+          className="mt-0.5 truncate text-xs text-slate-500"
+        >
+          {ar}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default function ServicesTable({
+  services,
+  hasActiveFilters,
+  onEdit,
+  onDeleteRequest,
+}) {
   if (services.length === 0) {
     return (
       <TableEmptyState
@@ -15,39 +44,73 @@ export default function ServicesTable({ services, hasActiveFilters, onEdit, onDe
     );
   }
 
+  const showActions = !!(onEdit || onDeleteRequest);
+
   return (
     <ScrollableTable maxHeight="60vh">
-      <table className="w-full text-center text-sm">
-   <thead className="sticky top-0 z-10 bg-slate-100">
-        <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
-            <th className="px-6 py-3">English Name</th>
-            <th className="px-6 py-3">Arabic Name</th>
-            <th className="px-6 py-3">Category</th>
-            <th className="px-6 py-3">CPT</th>
-            <th className="px-6 py-3">Instructions</th>
-            <th className="px-6 py-3 text-center">Actions</th>
+      <table className="w-full min-w-[820px] text-left text-sm">
+        <thead className="sticky top-0 z-10 bg-slate-50">
+          <tr className="border-b border-slate-200 text-xs font-medium text-slate-500">
+            <th className="px-6 py-3">Service</th>
+            <th className="px-4 py-3">Category</th>
+            <th className="px-4 py-3">CPT</th>
+            <th className="px-4 py-3">Instructions</th>
+            {showActions && <th className="px-6 py-3 text-center">Actions</th>}
           </tr>
         </thead>
 
-        <tbody>
+        <tbody className="divide-y divide-slate-100">
           {services.map((service) => (
-            <tr key={service.id} className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60">
-              <td className="px-6 py-3 font-medium text-slate-900">{service.enName}</td>
-              <td className="px-6 py-3 text-slate-600">{service.arName}</td>
-             <td className="px-6 py-3 text-slate-600">
-  <p className="truncate font-semibold text-slate-900">{service.categoryNameEn || "—"}</p>
-  <p className="truncate text-xs text-slate-400">{service.categoryNameAr || ""}</p>
-</td>
-              <td className="px-6 py-3 text-slate-600">{service.cpt || "—"}</td>
+            <tr
+              key={service.id}
+              className="transition-colors hover:bg-slate-50"
+            >
+              <td className="px-6 py-3.5">
+                <BilingualName
+                  en={service.enName}
+                  ar={service.arName}
+                  primary
+                />
+              </td>
+
+              <td className="px-4 py-3.5">
+                <BilingualName
+                  en={service.categoryNameEn}
+                  ar={service.categoryNameAr}
+                />
+              </td>
+
+              <td className="whitespace-nowrap px-4 py-3.5">
+                {service.cpt ? (
+                  <span className="inline-flex rounded-md bg-slate-100 px-2 py-1 font-mono text-xs tabular-nums text-slate-700">
+                    {service.cpt}
+                  </span>
+                ) : (
+                  <span className="text-slate-400">—</span>
+                )}
+              </td>
+
               <td
-                className="max-w-xs truncate px-6 py-3 text-slate-600"
+                className="max-w-xs truncate px-4 py-3.5 text-slate-600"
                 title={service.serviceInstruction || ""}
               >
-                {service.serviceInstruction || "—"}
+                {service.serviceInstruction || (
+                  <span className="text-slate-400">—</span>
+                )}
               </td>
-              <td className="px-6 py-3">
-                <RowActions onEdit={() => onEdit(service)} onDelete={() => onDeleteRequest(service)} />
-              </td>
+
+              {showActions && (
+                <td className="px-6 py-3.5">
+                  <RowActions
+                    onEdit={onEdit ? () => onEdit(service) : undefined}
+                    onDelete={
+                      onDeleteRequest
+                        ? () => onDeleteRequest(service)
+                        : undefined
+                    }
+                  />
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -55,20 +118,3 @@ export default function ServicesTable({ services, hasActiveFilters, onEdit, onDe
     </ScrollableTable>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

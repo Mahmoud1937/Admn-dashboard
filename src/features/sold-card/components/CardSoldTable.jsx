@@ -104,7 +104,7 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
                   <td className="px-4 py-3 text-sm text-center text-gray-700">{sold.createdBy}</td>
                   <td className="px-4 py-3 text-sm text-center text-gray-700">{formatDate(sold.createdAt)}</td>
                   <td className="px-4 py-3 text-sm text-center">
-                    <button
+                    {onDelete && <button
                       type="button"
                       onClick={() => onExport(sold.id)}
                       disabled={exportingId === sold.id}
@@ -116,7 +116,7 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
                         spin={exportingId === sold.id}
                       />
                       Export
-                    </button>
+                    </button>}
                   </td>
                   <td className="px-4 py-3 text-sm text-center">
                     <button

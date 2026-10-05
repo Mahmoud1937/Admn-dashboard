@@ -43,3 +43,15 @@ export async function deleteSubscriptionType(id) {
 
   return data;
 }
+
+export async function toggleSubscriptionType(id) {
+  const { data } = await axiosInstance.patch(
+    `/PlanTypeAdmin/${id}/toggle-active`
+  );
+
+  if (!data?.succeeded) {
+    throw new Error(data?.message || "Failed to update plan type status.");
+  }
+
+  return data;
+}

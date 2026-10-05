@@ -38,7 +38,7 @@ export default function CitiesTable({ cities, hasActiveFilters, onEdit, onDelete
               <p className="truncate text-xs text-slate-400">{city.governorateArName || ""}</p>
             </td>
             <td className="px-6 py-3">
-              <RowActions onEdit={() => onEdit(city)} onDelete={() => onDeleteRequest(city)} />
+              <RowActions onEdit={onEdit ? () => onEdit(city) : undefined} onDelete={onDeleteRequest ? () => onDeleteRequest(city) : undefined} />
             </td>
           </tr>
         ))}

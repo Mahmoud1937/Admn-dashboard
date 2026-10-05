@@ -38,7 +38,7 @@ export default function ServiceCategoriesTable({ categories, hasActiveFilters, o
             <td className="px-6 py-3 font-medium text-slate-900">{category.enName}</td>
             <td className="px-6 py-3 text-slate-600">{category.arName}</td>
             <td className="px-6 py-3">
-              <RowActions onEdit={() => onEdit(category)} onDelete={() => onDeleteRequest(category)} />
+              <RowActions onEdit={onEdit ? () => onEdit(category) : undefined} onDelete={onDeleteRequest ? () => onDeleteRequest(category) : undefined} />
             </td>
           </tr>
         ))}

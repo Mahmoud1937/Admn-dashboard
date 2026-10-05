@@ -8,18 +8,39 @@ const typeBadge = (type) => {
   const isDamaged = type === "Damaged" || type === 1;
   return (
     <span
-      className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${
-        isDamaged ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+        isDamaged ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"
       }`}
     >
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${
+          isDamaged ? "bg-red-500" : "bg-amber-500"
+        }`}
+        aria-hidden="true"
+      />
       {isDamaged ? "Damaged" : "Missed"}
     </span>
   );
 };
 
+function TableSkeleton({ rows = 6 }) {
+  return (
+    <div className="divide-y divide-slate-100" aria-busy="true">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-center gap-6 px-6 py-4">
+          <div className="h-3 w-36 animate-pulse rounded bg-slate-100" />
+          <div className="h-6 w-20 animate-pulse rounded-full bg-slate-100" />
+          <div className="hidden h-3 w-28 animate-pulse rounded bg-slate-100 sm:block" />
+          <div className="ml-auto h-3 w-24 animate-pulse rounded bg-slate-100" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
   if (isLoading) {
-    return <div className="text-center py-8 text-gray-500">Loading...</div>;
+    return <TableSkeleton />;
   }
 
   if (!items?.length) {
@@ -35,33 +56,45 @@ const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
   return (
     <div className="min-w-0">
       <ScrollableTable maxHeight="60vh">
-        <table className="min-w-full text-center text-sm">
-          <thead className="sticky top-0 z-10 bg-slate-100">
-            <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
-              <th className="px-4 py-3 text-center">Card Number</th>
-              <th className="px-4 py-3 text-center">Type</th>
-              <th className="px-4 py-3 text-center">Created By</th>
-              <th className="px-4 py-3 text-center">Created At</th>
-              <th className="px-4 py-3 text-center">Delete</th>
+        <table className="w-full min-w-[640px] text-left text-sm">
+          <thead className="sticky top-0 z-10 bg-slate-50">
+            <tr className="border-b border-slate-200 text-xs font-medium text-slate-500">
+              <th className="px-6 py-3">Card number</th>
+              <th className="px-4 py-3">Type</th>
+              <th className="px-4 py-3">Reported by</th>
+              <th className="px-4 py-3">Reported on</th>
+              {onDelete && <th className="px-6 py-3 text-center">Actions</th>}
             </tr>
           </thead>
-          <tbody>
+
+          <tbody className="divide-y divide-slate-100">
             {items.map((item) => (
-              <tr key={item.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60">
-                <td className="px-4 py-3 text-sm text-center text-gray-700 font-mono">{item.cardNumber}</td>
-                <td className="px-4 py-3 text-sm text-center">{typeBadge(item.missingType)}</td>
-                <td className="px-4 py-3 text-sm text-center text-gray-700">{item.createdBy}</td>
-                <td className="px-4 py-3 text-sm text-center text-gray-700">{formatDate(item.createdAt)}</td>
-                <td className="px-4 py-3 text-sm text-center">
-                  <button
-                    type="button"
-                    onClick={() => onDelete(item)}
-                    className="cursor-pointer rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                    title="Delete record"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
+              <tr key={item.id} className="transition-colors hover:bg-slate-50">
+                <td className="px-6 py-3.5 font-mono font-medium tabular-nums text-slate-900">
+                  {item.cardNumber}
                 </td>
+                <td className="px-4 py-3.5">{typeBadge(item.missingType)}</td>
+                <td className="px-4 py-3.5 text-slate-700">
+                  {item.createdBy || "—"}
+                </td>
+                <td className="whitespace-nowrap px-4 py-3.5 text-slate-600">
+                  {formatDate(item.createdAt)}
+                </td>
+                {onDelete && (
+                  <td className="px-6 py-3.5">
+                    <div className="flex justify-center">
+                      <button
+                        type="button"
+                        onClick={() => onDelete(item)}
+                        className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+                        title="Delete record"
+                        aria-label="Delete record"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

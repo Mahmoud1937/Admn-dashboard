@@ -6,6 +6,7 @@ import {
   createSubscriptionType,
   deleteSubscriptionType,
   updateSubscriptionType,
+  toggleSubscriptionType,
 } from "../services/subscriptionTypesService";
 
 export function useSubscriptionTypeMutations({
@@ -62,10 +63,24 @@ export function useSubscriptionTypeMutations({
     },
   });
 
+  const toggleMutation = useMutation({
+    mutationFn: toggleSubscriptionType,
+    onSuccess: (response) => {
+      toast.success(response?.message || "Plan type status updated successfully.");
+      queryClient.invalidateQueries({ queryKey: ["subscription-types"] });
+    },
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to update plan type status."
+      );
+    },
+  });
+
   return {
     createMutation,
     updateMutation,
     deleteMutation,
+    toggleMutation,
     isSaving: createMutation.isPending || updateMutation.isPending,
     serverErrors,
     clearServerErrors,

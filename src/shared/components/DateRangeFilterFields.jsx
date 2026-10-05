@@ -128,7 +128,15 @@ const buildMonthGrid = (viewDate) => {
   return cells
 }
 
-function Calendar({ viewDate, selectedIso, minIso, onSelect, onPrev, onNext }) {
+function Calendar({
+  viewDate,
+  selectedIso,
+  minIso,
+  maxIso,
+  onSelect,
+  onPrev,
+  onNext,
+}) {
   const cells = buildMonthGrid(viewDate)
 
   return (
@@ -171,7 +179,9 @@ function Calendar({ viewDate, selectedIso, minIso, onSelect, onPrev, onNext }) {
           if (!cell) return <span key={`empty-${index}`} />
 
           const isSelected = cell.iso === selectedIso
-          const isDisabled = minIso ? cell.iso < minIso : false
+          const isDisabled =
+            (minIso ? cell.iso < minIso : false) ||
+            (maxIso ? cell.iso > maxIso : false)
 
           return (
             <button
@@ -197,7 +207,13 @@ function Calendar({ viewDate, selectedIso, minIso, onSelect, onPrev, onNext }) {
   )
 }
 
-function DatePicker({ value, onChange, minDate, className = '' }) {
+export function DatePicker({
+  value,
+  onChange,
+  minDate,
+  maxDate,
+  className = '',
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const [text, setText] = useState(() => isoToDisplay(value))
   const [prevValue, setPrevValue] = useState(value)
@@ -234,6 +250,9 @@ function DatePicker({ value, onChange, minDate, className = '' }) {
     }
   }
 
+  const isWithinRange = (iso) =>
+    (!minDate || iso >= minDate) && (!maxDate || iso <= maxDate)
+
   const handleTextChange = (e) => {
     const digits = e.target.value.replace(/\D/g, '').slice(0, 8)
     const formatted = buildMasked(digits)
@@ -247,7 +266,7 @@ function DatePicker({ value, onChange, minDate, className = '' }) {
 
     if (formatted.length === 10) {
       const iso = displayToIso(formatted)
-      if (iso && (!minDate || iso >= minDate)) {
+      if (iso && isWithinRange(iso)) {
         commit(iso)
       }
     }
@@ -255,7 +274,7 @@ function DatePicker({ value, onChange, minDate, className = '' }) {
 
   const handleBlur = () => {
     const iso = displayToIso(text)
-    if (iso && (!minDate || iso >= minDate)) {
+    if (iso && isWithinRange(iso)) {
       commit(iso)
     } else {
       setText(isoToDisplay(value))
@@ -311,6 +330,7 @@ function DatePicker({ value, onChange, minDate, className = '' }) {
             viewDate={viewDate}
             selectedIso={value}
             minIso={minDate}
+            maxIso={maxDate}
             onSelect={handleSelect}
             onPrev={() =>
               setViewDate(

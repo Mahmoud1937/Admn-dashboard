@@ -6,10 +6,13 @@ import {
   faPenToSquare,
   faPlus,
   faBuilding,
+  faLocationDot,
+  faArrowUpRightFromSquare,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams } from "react-router-dom";
 
 import { useBranchesQuery } from "../hooks/useBranchesQuery";
+import { useAllBranchesQuery } from "../hooks/useAllBranchesQuery";
 import { useBranchMutations } from "../hooks/useBranchMutations";
 import { useBranchToggleMutation } from "../hooks/useBranchToggleMutation";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
@@ -22,13 +25,55 @@ import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import Pagination from "../../../shared/components/Pagination";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
+import QueryErrorState from "../../../shared/components/QueryErrorState";
 import StatusBadge from "../../providers/components/StatusBadge";
 
 import { formatDate } from "../../../utils/formatDate";
-import QueryErrorState from "../../../shared/components/QueryErrorState";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
+function TableSkeleton({ rows = 6 }) {
+  return (
+    <div className="divide-y divide-slate-100" aria-busy="true">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-center gap-4 px-6 py-4">
+          <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-slate-100" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3 w-40 animate-pulse rounded bg-slate-100" />
+            <div className="h-3 w-56 animate-pulse rounded bg-slate-100" />
+          </div>
+          <div className="hidden h-3 w-32 animate-pulse rounded bg-slate-100 md:block" />
+          <div className="h-6 w-16 animate-pulse rounded-full bg-slate-100" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
-export default function ProviderBranchesTab() {
+function IconButton({ title, onClick, tone = "blue", children }) {
+  const tones = {
+    blue: "hover:bg-blue-50 hover:text-blue-700 focus-visible:ring-blue-300",
+    red: "hover:bg-red-50 hover:text-red-600 focus-visible:ring-red-300",
+    green:
+      "hover:bg-emerald-50 hover:text-emerald-600 focus-visible:ring-emerald-300",
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      aria-label={title}
+      className={`flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors focus:outline-none focus-visible:ring-2 ${tones[tone]}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+export default function ProviderBranchesTab({ readOnly = false }) {
+  const canUpdate = usePermission(PERMISSION_CODES.PROVIDER_BRANCHES_UPDATE);
   const { id: providerId } = useParams();
 
   const [searchInput, setSearchInput] = useState("");
@@ -42,8 +87,6 @@ export default function ProviderBranchesTab() {
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [branchToToggle, setBranchToToggle] = useState(null);
 
-
-
   const {
     pageNumber,
     pageSize,
@@ -54,15 +97,7 @@ export default function ProviderBranchesTab() {
     resetKey: `${search}|${governorateFilter}|${cityFilter}|${statusFilter}`,
   });
 
-  const {
-    branches,
-    totalPages,
-    totalCount,
-    isLoading,
-    isError,
-    error,
-    refetch
-  } = useBranchesQuery({
+  const providerQuery = useBranchesQuery({
     providerId,
     pageNumber,
     pageSize,
@@ -71,6 +106,24 @@ export default function ProviderBranchesTab() {
     cityFilter,
     statusFilter,
   });
+  const globalQuery = useAllBranchesQuery({
+    governorateFilter,
+    cityFilter,
+    search,
+    statusFilter,
+    pageNumber,
+    pageSize,
+    enabled: readOnly,
+  });
+  const {
+    branches,
+    totalPages,
+    totalCount,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = readOnly ? globalQuery : providerQuery;
 
   const { createMutation, updateMutation } = useBranchMutations({
     onCreateSuccess: () => setIsModalOpen(false),
@@ -104,50 +157,64 @@ export default function ProviderBranchesTab() {
     }
   };
 
-  return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Branches</h2>
+  const showActions = !readOnly && canUpdate;
 
-        <button
-          onClick={handleOpenAdd}
-          className="flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add Branch
-        </button>
+  return (
+    <div className="min-w-0 space-y-5">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900">Branches</h2>
+          <p className="text-sm text-slate-500">
+            {isLoading || isError
+              ? "Manage locations and contact details."
+              : `${totalCount ?? branches.length} ${
+                  (totalCount ?? branches.length) === 1 ? "branch" : "branches"
+                }${hasActiveFilters ? " match your filters" : " in total"}`}
+          </p>
+        </div>
+
+        {!readOnly && (
+          <PermissionGuard permission={PERMISSION_CODES.PROVIDER_BRANCHES_CREATE}>
+            <button
+              type="button"
+              onClick={handleOpenAdd}
+              className="flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+            >
+              <FontAwesomeIcon icon={faPlus} />
+              Add branch
+            </button>
+          </PermissionGuard>
+        )}
       </div>
 
-      {/* Card: Filters + Table */}
-      <div className="rounded-xl border border-slate-100 bg-white shadow-sm">
-        {/* Filters */}
-        <BranchesFilters
-          search={searchInput}
-          onSearchChange={setSearchInput}
-          governorateFilter={governorateFilter}
-          onGovernorateFilterChange={(value) => {
-            setGovernorateFilter(value);
-            setCityFilter("");
-          }}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-        />
+      {/* Filters + Table */}
+      <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100">
+          <BranchesFilters
+            search={searchInput}
+            onSearchChange={setSearchInput}
+            governorateFilter={governorateFilter}
+            onGovernorateFilterChange={(value) => {
+              setGovernorateFilter(value);
+              setCityFilter("");
+            }}
+            cityFilter={cityFilter}
+            onCityFilterChange={setCityFilter}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+          />
+        </div>
 
-        {/* Table Content */}
         {isLoading ? (
-          <p className="py-8 text-center text-sm text-slate-400">
-            Loading branches...
-          </p>
-        ) : 
-        
-isError ? (
-  <QueryErrorState
-    title="Unable to load branches"
-    error={error}
-    onRetry={refetch}
-  />
-) : branches.length === 0 ? (
+          <TableSkeleton />
+        ) : isError ? (
+          <QueryErrorState
+            title="Unable to load branches"
+            error={error}
+            onRetry={refetch}
+          />
+        ) : branches.length === 0 ? (
           <TableEmptyState
             icon={faBuilding}
             title="No branches found"
@@ -156,166 +223,195 @@ isError ? (
           />
         ) : (
           <>
-            <ScrollableTable className="p-6 scroll-table">
-              <table className="w-full min-w-[1400px] text-left text-sm">
+            <ScrollableTable className="scroll-table">
+              <table className="w-full min-w-[960px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
-                    <th className="px-4 py-2.5 text-center">Branch Name</th>
-                    <th className="px-6 py-2.5 text-center">Government</th>
-                    <th className="px-6 py-2.5 text-center">City</th>
-                    <th className="px-6 py-2.5 text-center">Email</th>
-                    <th className="px-6 py-2.5 text-center">Full Address</th>
-                    <th className="px-6 py-2.5 text-center">Map URL</th>
-                    <th className="px-6 py-2.5 text-center">Latitude</th>
-                    <th className="px-6 py-2.5 text-center">Longitude</th>
-                    <th className="px-6 py-2.5 text-center">Status</th>
-                    <th className="px-6 py-2.5 text-center">Join Date</th>
-                    <th className="px-6 py-2.5 text-center">Actions</th>
+                  <tr className="border-b border-slate-100 bg-slate-50/70 text-xs font-medium text-slate-500">
+                    <th className="px-6 py-3">Branch</th>
+                    <th className="px-4 py-3">Location</th>
+                    <th className="px-4 py-3">Coordinates</th>
+                    <th className="px-4 py-3 text-center">Status</th>
+                    <th className="px-4 py-3">Joined</th>
+                    {showActions && (
+                      <th className="px-6 py-3 text-center">Actions</th>
+                    )}
                   </tr>
                 </thead>
 
-                <tbody>
-                  {branches.map((branch) => (
-                    <tr
-                      key={branch.id}
-                      className="border-b border-slate-100 last:border-0 transition-all hover:bg-primary-600/10 hover:text-primary-600"
-                    >
-                      <td className="px-4 py-2 text-center font-semibold text-slate-900">
-                        {branch.branchName}
-                      </td>
+                <tbody className="divide-y divide-slate-100">
+                  {branches.map((branch) => {
+                    const hasCoords =
+                      branch.latitude != null && branch.longitude != null;
 
-                      <td className="px-6 py-2 text-center text-slate-600">
-                        {branch.governorateName}
-                      </td>
+                    return (
+                      <tr
+                        key={branch.id}
+                        className="transition-colors hover:bg-slate-50"
+                      >
+                        {/* Branch */}
+                        <td className="px-6 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-900">
+                              <FontAwesomeIcon icon={faBuilding} />
+                            </span>
+                            <div className="min-w-0">
+                              <p className="truncate font-semibold text-slate-900">
+                                {branch.branchName}
+                              </p>
+                              <p className="truncate text-xs text-slate-500">
+                                {branch.email || "No email"}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
 
-                      <td className="px-6 py-2 text-center text-slate-600">
-                        {branch.cityName}
-                      </td>
+                        {/* Location */}
+                        <td className="px-4 py-3.5">
+                          <p className="font-medium text-slate-800">
+                            {[branch.cityName, branch.governorateName]
+                              .filter(Boolean)
+                              .join(", ") || "-"}
+                          </p>
+                          <p
+                            className="max-w-[280px] truncate text-xs text-slate-500"
+                            title={branch.fullAddress}
+                          >
+                            {branch.fullAddress || "No address"}
+                          </p>
+                        </td>
 
-                      <td className="px-6 py-2 text-center text-slate-600">
-                        {branch.email}
-                      </td>
+                        {/* Coordinates + map link */}
+                        <td className="px-4 py-3.5">
+                          {hasCoords || branch.mapUrl ? (
+                            <div className="flex flex-col items-start gap-1">
+                              {hasCoords && (
+                                <span className="text-xs tabular-nums text-slate-600">
+                                  {branch.latitude}, {branch.longitude}
+                                </span>
+                              )}
+                              {branch.mapUrl && (
+                                <a
+                                  href={branch.mapUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 hover:text-blue-900 hover:underline"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <FontAwesomeIcon
+                                    icon={faLocationDot}
+                                    className="text-[11px]"
+                                  />
+                                  Open in maps
+                                  <FontAwesomeIcon
+                                    icon={faArrowUpRightFromSquare}
+                                    className="text-[9px]"
+                                  />
+                                </a>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
 
-                      <td className="px-6 py-2 text-center text-slate-600">
-                        {branch.fullAddress}
-                      </td>
+                        {/* Status */}
+                        <td className="px-4 py-3.5 text-center">
+                          <StatusBadge isActive={branch.isActive} />
+                        </td>
 
-                      <td className="px-6 py-2 text-center">
-                        {branch.mapUrl ? (
-                          <a
-                            href={branch.mapUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
+                        {/* Joined */}
+                        <td className="whitespace-nowrap px-4 py-3.5 text-slate-600">
+                          {formatDate(branch.createdAt)}
+                        </td>
+
+                        {/* Actions */}
+                        {showActions && (
+                          <td
+                            className="px-6 py-3.5"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            View
-                          </a>
-                        ) : (
-                          <span className="text-slate-400">-</span>
+                            <div className="flex items-center justify-center gap-1">
+                              <IconButton
+                                title="Edit branch"
+                                onClick={() => handleOpenEdit(branch)}
+                              >
+                                <FontAwesomeIcon icon={faPenToSquare} />
+                              </IconButton>
+
+                              {branch.isActive ? (
+                                <IconButton
+                                  title="Deactivate branch"
+                                  tone="red"
+                                  onClick={() => setBranchToToggle(branch)}
+                                >
+                                  <FontAwesomeIcon icon={faBan} />
+                                </IconButton>
+                              ) : (
+                                <IconButton
+                                  title="Activate branch"
+                                  tone="green"
+                                  onClick={() => setBranchToToggle(branch)}
+                                >
+                                  <FontAwesomeIcon icon={faCheck} />
+                                </IconButton>
+                              )}
+                            </div>
+                          </td>
                         )}
-                      </td>
-
-                      <td className="px-6 py-2 text-center text-slate-600">
-                        {branch.latitude ?? "-"}
-                      </td>
-
-                      <td className="px-6 py-2 text-center text-slate-600">
-                        {branch.longitude ?? "-"}
-                      </td>
-
-                      <td className="px-6 py-2 text-center">
-                        <StatusBadge isActive={branch.isActive} />
-                      </td>
-
-                      <td className="px-6 py-2 text-center text-slate-600">
-                        {formatDate(branch.createdAt)}
-                      </td>
-
-                      <td
-                        className="px-6 py-2"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleOpenEdit(branch)}
-                            className="rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
-                            title="Edit"
-                          >
-                            <FontAwesomeIcon icon={faPenToSquare} />
-                          </button>
-
-                          {branch.isActive ? (
-                            <button
-                              onClick={() => setBranchToToggle(branch)}
-                              className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                              title="Deactivate"
-                            >
-                              <FontAwesomeIcon icon={faBan} />
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => setBranchToToggle(branch)}
-                              className="rounded-lg p-2 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600"
-                              title="Activate"
-                            >
-                              <FontAwesomeIcon icon={faCheck} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </ScrollableTable>
 
-            <Pagination
-              pageNumber={pageNumber}
-              totalPages={totalPages}
-              totalCount={totalCount}
-              pageSize={pageSize}
-              itemLabel="branches"
-              getPageNumbers={getPageNumbers}
-              onGoToPage={(page) => goToPage(page, totalPages)}
-              onPageSizeChange={handlePageSizeChange}
-            />
+            <div className="border-t border-slate-100">
+              <Pagination
+                pageNumber={pageNumber}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                pageSize={pageSize}
+                itemLabel="branches"
+                getPageNumbers={getPageNumbers}
+                onGoToPage={(page) => goToPage(page, totalPages)}
+                onPageSizeChange={handlePageSizeChange}
+              />
+            </div>
           </>
         )}
       </div>
 
       {/* Branch Modal */}
-      <BranchFormModal
-        isOpen={isModalOpen}
-        branch={selectedBranch}
-        providerId={providerId}
- 
-        createMutation={createMutation}
-        updateMutation={updateMutation}
-        onClose={() => setIsModalOpen(false)}
-      />
+      {!readOnly && (
+        <BranchFormModal
+          isOpen={isModalOpen}
+          branch={selectedBranch}
+          providerId={providerId}
+          createMutation={createMutation}
+          updateMutation={updateMutation}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
 
       {/* Activate / Deactivate Confirmation */}
-      <ConfirmDeleteModal
-        isOpen={!!branchToToggle}
-        variant={branchToToggle?.isActive ? "danger" : "success"}
-        title={
-          branchToToggle?.isActive
-            ? "Deactivate Branch"
-            : "Activate Branch"
-        }
-        message={
-          branchToToggle?.isActive
-            ? `Are you sure you want to deactivate "${branchToToggle?.branchName}"? You can reactivate it later.`
-            : `Are you sure you want to activate "${branchToToggle?.branchName}"?`
-        }
-        confirmLabel={
-          branchToToggle?.isActive ? "Deactivate" : "Activate"
-        }
-        onConfirm={handleConfirmToggle}
-        onCancel={() => setBranchToToggle(null)}
-        isLoading={toggleMutation.isPending}
-      />
+      {showActions && (
+        <ConfirmDeleteModal
+          isOpen={!!branchToToggle}
+          variant={branchToToggle?.isActive ? "danger" : "success"}
+          title={
+            branchToToggle?.isActive ? "Deactivate branch" : "Activate branch"
+          }
+          message={
+            branchToToggle?.isActive
+              ? `Are you sure you want to deactivate "${branchToToggle?.branchName}"? You can reactivate it later.`
+              : `Are you sure you want to activate "${branchToToggle?.branchName}"?`
+          }
+          confirmLabel={branchToToggle?.isActive ? "Deactivate" : "Activate"}
+          onConfirm={handleConfirmToggle}
+          onCancel={() => setBranchToToggle(null)}
+          isLoading={toggleMutation.isPending}
+        />
+      )}
     </div>
   );
 }

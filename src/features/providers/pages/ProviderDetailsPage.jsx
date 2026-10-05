@@ -8,11 +8,24 @@ import ProviderInfoForm from "../components/ProviderInfoForm";
 import ProviderBranchesTab from "../../branches/components/ProviderBranchesTab";
 import ProviderServicesTab from "../../providerServices/components/ProviderServicesTab";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import AccessDeniedPage from "../../../shared/components/AccessDeniedPage";
+import usePermission from "../../auth/hooks/usePermission";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 
 const TABS = [
   { key: "info", label: "Provider Info", icon: faBuilding },
-  { key: "branches", label: "Branches", icon: faListCheck },
-  { key: "Services", label: "Services", icon: faTag },
+  {
+    key: "branches",
+    label: "Branches",
+    icon: faListCheck,
+    permission: PERMISSION_CODES.PROVIDER_BRANCHES_READ,
+  },
+  {
+    key: "Services",
+    label: "Services",
+    icon: faTag,
+    permission: PERMISSION_CODES.PROVIDER_SERVICES_READ,
+  },
 ];
 
 export default function ProviderDetailsPage() {
@@ -21,7 +34,18 @@ export default function ProviderDetailsPage() {
   const [searchParams] = useSearchParams();
   const isCreateMode = !id;
 
-  const isEditMode = isCreateMode || searchParams.get("mode") === "edit";
+  const isUpdateRequested = !isCreateMode && searchParams.get("mode") === "edit";
+  const canUpdate = usePermission(PERMISSION_CODES.PROVIDERS_UPDATE);
+  const canViewBranches = usePermission(PERMISSION_CODES.PROVIDER_BRANCHES_READ);
+  const canViewServices = usePermission(PERMISSION_CODES.PROVIDER_SERVICES_READ);
+  const isEditMode = isCreateMode || (isUpdateRequested && canUpdate);
+  const visibleTabs = TABS.filter((tab) => {
+    if (!tab.permission) return true;
+    if (tab.permission === PERMISSION_CODES.PROVIDER_BRANCHES_READ) {
+      return canViewBranches;
+    }
+    return canViewServices;
+  });
 
   const [activeTab, setActiveTab] = useState("info");
 
@@ -29,6 +53,10 @@ export default function ProviderDetailsPage() {
     useProviderQuery(id, isCreateMode);
 
   const { mutation } = useProviderMutation({ id, isCreateMode });
+
+  if (isUpdateRequested && !canUpdate) {
+    return <AccessDeniedPage />;
+  }
 
   if (!isCreateMode && isLoading) {
     return (
@@ -56,7 +84,7 @@ export default function ProviderDetailsPage() {
     <div>
       {!isCreateMode && (
         <div className="mb-6 flex gap-2 border-b border-slate-200 sm:gap-6">
-          {TABS.map((tab) => (
+          {visibleTabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
@@ -79,13 +107,14 @@ export default function ProviderDetailsPage() {
           isEditMode={isEditMode}
           provider={provider}
           mutation={mutation}
+          canUpdate={canUpdate}
           onCancelToList={() => navigate("/providers")}
         />
       )}
 
-      {activeTab === "branches" && <ProviderBranchesTab />}
+      {activeTab === "branches" && canViewBranches && <ProviderBranchesTab />}
 
-      {activeTab === "Services" && <ProviderServicesTab />}
+      {activeTab === "Services" && canViewServices && <ProviderServicesTab />}
     </div>
   );
 }

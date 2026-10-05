@@ -3,7 +3,14 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
-export default function SidebarGroup({ title, path, icon, children, collapsed }) {
+export default function SidebarGroup({
+  title,
+  path,
+  icon,
+  children,
+  collapsed,
+  canAccessParent = true,
+}) {
   const location = useLocation();
   const navigate = useNavigate();
   const isChildActive = children.some((child) =>
@@ -14,6 +21,8 @@ export default function SidebarGroup({ title, path, icon, children, collapsed })
   const [open, setOpen] = useState(isChildActive);
 
   useEffect(() => {
+    // Keep the active nested route visible when navigation happens externally.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isChildActive) setOpen(true);
   }, [isChildActive]);
 
@@ -26,7 +35,7 @@ export default function SidebarGroup({ title, path, icon, children, collapsed })
         <button
           type="button"
           onClick={() => {
-            navigate(path);
+            if (canAccessParent) navigate(path);
             setOpen((prev) => !prev);
           }}
           title={title}
@@ -75,14 +84,25 @@ export default function SidebarGroup({ title, path, icon, children, collapsed })
             : "text-muted hover:bg-slate-50 hover:text-heading"
         }`}
       >
-        <NavLink
-          to={path}
-          end
-          className="flex flex-1 cursor-pointer items-center gap-3 px-4 py-3"
-        >
-          <FontAwesomeIcon icon={icon} className="w-5 shrink-0" />
-          <span>{title}</span>
-        </NavLink>
+        {canAccessParent ? (
+          <NavLink
+            to={path}
+            end
+            className="flex flex-1 cursor-pointer items-center gap-3 px-4 py-3"
+          >
+            <FontAwesomeIcon icon={icon} className="w-5 shrink-0" />
+            <span>{title}</span>
+          </NavLink>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setOpen((prev) => !prev)}
+            className="flex flex-1 cursor-pointer items-center gap-3 px-4 py-3 text-left"
+          >
+            <FontAwesomeIcon icon={icon} className="w-5 shrink-0" />
+            <span>{title}</span>
+          </button>
+        )}
 
         <button
           type="button"

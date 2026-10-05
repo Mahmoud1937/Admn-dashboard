@@ -1,5 +1,13 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
 
+async function requestBranches(params) {
+  const { data } = await axiosInstance.get(
+    "/ProviderBranchesAdmin",
+    params ? { params } : undefined
+  );
+
+  return data;
+}
 
 export async function getProviderBranches({
   providerId,
@@ -10,8 +18,7 @@ export async function getProviderBranches({
   pageNumber = 1,
   pageSize,
 } = {}) {
-  const { data } = await axiosInstance.get("/ProviderBranchesAdmin", {
-    params: {
+  return requestBranches({
       ProviderId: providerId,
       GovernorateId: governorateId || undefined,
       CityId: cityId || undefined,
@@ -19,10 +26,25 @@ export async function getProviderBranches({
       Status: status === "" || status === undefined ? undefined : status,
       PageNumber: pageNumber,
       PageSize: pageSize || undefined,
-    },
   });
+}
 
-  return data;
+export async function getAllBranches({
+  governorateId,
+  cityId,
+  search = "",
+  status,
+  pageNumber = 1,
+  pageSize,
+} = {}) {
+  return requestBranches({
+    GovernorateId: governorateId || undefined,
+    CityId: cityId || undefined,
+    Search: search || undefined,
+    Status: status === "" || status === undefined ? undefined : status,
+    PageNumber: pageNumber,
+    PageSize: pageSize || undefined,
+  });
 }
 export async function getBranchesLookup({
   providerId,

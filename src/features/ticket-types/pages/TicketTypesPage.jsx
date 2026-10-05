@@ -9,10 +9,15 @@ import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import TicketTypesFilters from "../components/TicketTypesFilters";
 import TicketTypesTable from "../components/TicketTypesTable";
 import TicketTypeFormModal from "../components/TicketTypeFormModal";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 import { useTicketTypeMutations } from "../hooks/useTicketTypeMutations";
 import { useTicketTypesQuery } from "../hooks/useTicketTypesQuery";
 
 export default function TicketTypesPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.TICKET_TYPES_UPDATE);
+  const canDelete = usePermission(PERMISSION_CODES.TICKET_TYPES_DELETE);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 400);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -95,13 +100,15 @@ export default function TicketTypesPage() {
           </p>
         </div>
 
-        <button
-          onClick={openAddForm}
-          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add Ticket Type
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.TICKET_TYPES_CREATE}>
+          <button
+            onClick={openAddForm}
+            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add Ticket Type
+          </button>
+        </PermissionGuard>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -130,8 +137,8 @@ export default function TicketTypesPage() {
             <TicketTypesTable
               ticketTypes={ticketTypes}
               hasActiveFilters={!!debouncedSearch}
-              onEdit={openEditForm}
-              onDeleteRequest={setTicketTypeToDelete}
+              onEdit={canUpdate ? openEditForm : undefined}
+              onDeleteRequest={canDelete ? setTicketTypeToDelete : undefined}
             />
 
             {ticketTypes.length > 0 && (
@@ -159,7 +166,7 @@ export default function TicketTypesPage() {
         serverErrors={serverErrors}
       />
 
-      <ConfirmDeleteModal
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!ticketTypeToDelete}
         title="Delete Ticket Type"
         message={`Are you sure you want to delete "${ticketTypeToDelete?.enName}"? This action cannot be undone.`}
@@ -168,7 +175,7 @@ export default function TicketTypesPage() {
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setTicketTypeToDelete(null)}
-      />
+      />}
     </div>
   );
 }

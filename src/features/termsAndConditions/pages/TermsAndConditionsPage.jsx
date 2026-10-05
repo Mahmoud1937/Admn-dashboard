@@ -1,7 +1,10 @@
 import TermsAndConditionsEditor from "../components/Termsandconditionseditor";
 import { useTermsAndConditionsMutation, useTermsAndConditionsQuery } from "../hooks/Usetermsandconditions";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 export default function TermsAndConditionsPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.TERMS_AND_CONDITIONS_UPDATE);
   const {
     data,
     isLoading,
@@ -29,6 +32,7 @@ export default function TermsAndConditionsPage() {
       saving={isPending}
       loading={isLoading}
       serverErrors={serverErrors}
+      canUpdate={canUpdate}
     />
   );
 }

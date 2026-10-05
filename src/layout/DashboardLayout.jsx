@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom';
 import Navbar from '../navbar/Navbar';
 import Sidebar from '../sidebar/Sidebar';
 
-
 // Matches the `lg:hidden` breakpoint used for the Navbar's hamburger button.
 const MOBILE_QUERY = "(max-width: 1023px)";
 
@@ -28,7 +27,12 @@ const Layout = () => {
       <div className="flex min-w-0 flex-1 flex-col">
         <Navbar onToggleSidebar={() => setCollapsed((prev) => !prev)} />
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <Outlet />
+          <Outlet
+            context={{
+              sidebarCollapsed: collapsed,
+              setSidebarCollapsed: setCollapsed,
+            }}
+          />
         </main>
       </div>
     </div>

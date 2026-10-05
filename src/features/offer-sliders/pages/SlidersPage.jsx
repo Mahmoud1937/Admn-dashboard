@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useSliderMutations } from "../hooks/useSliderMutations";
@@ -16,6 +19,8 @@ import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 const SlidersPage = () => {
+  const canUpdate = usePermission(PERMISSION_CODES.SLIDERS_UPDATE);
+  const canDelete = usePermission(PERMISSION_CODES.SLIDERS_DELETE);
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
@@ -108,14 +113,16 @@ const SlidersPage = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleOpenAdd}
-          className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add Slider
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.SLIDERS_CREATE}>
+          <button
+            type="button"
+            onClick={handleOpenAdd}
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add Slider
+          </button>
+        </PermissionGuard>
       </div>
 
       {/* Sliders Card */}
@@ -141,8 +148,8 @@ const SlidersPage = () => {
             sliders={data?.items ?? []}
             isLoading={isLoading}
             onView={handleView}
-            onEdit={handleOpenEdit}
-            onDelete={setSliderToDelete}
+            onEdit={canUpdate ? handleOpenEdit : undefined}
+            onDelete={canDelete ? setSliderToDelete : undefined}
           />
         )}
 
@@ -180,14 +187,14 @@ const SlidersPage = () => {
       />
 
       {/* Delete Confirmation */}
-      <ConfirmDeleteModal
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!sliderToDelete}
         onCancel={() => setSliderToDelete(null)}
         onConfirm={confirmDelete}
         isLoading={deleteMutation.isPending}
         title="Delete Slider"
         message={`Are you sure you want to delete the slider for "${sliderToDelete?.providerNameEn}"?`}
-      />
+      />}
     </div>
   );
 };

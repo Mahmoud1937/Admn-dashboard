@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -13,6 +14,7 @@ import Logo from '../../../assets/Logo.svg'
 import useAuthMutations from '../hooks/useAuthMutations'
 import { loginSchema } from '../schema/loginSchema'
 import { applyServerErrors } from '../../../shared/utils/applyServerErrors'
+import { useAuth } from '../context/Authcontext'
 
 export default function LoginPage() {
   // const exp = 1792758806;
@@ -22,6 +24,7 @@ export default function LoginPage() {
 
 // console.log(expirationDate);
   const [showPassword, setShowPassword] = useState(false)
+  const { isAuthenticated, mustChangePassword, isAuthInitializing } = useAuth()
 
   const { login, isLoggingIn, serverErrors, clearServerErrors } =
     useAuthMutations()
@@ -56,6 +59,16 @@ export default function LoginPage() {
 
   const identifierError = errors.identifier?.message
   const passwordError = errors.password?.message
+
+  if (isAuthInitializing) return null
+  if (isAuthenticated) {
+    return (
+      <Navigate
+        to={mustChangePassword ? '/change-password' : '/'}
+        replace
+      />
+    )
+  }
 
   return (
     <main className="min-h-screen w-full bg-[#f4f6f9] text-slate-900 antialiased">
@@ -414,6 +427,5 @@ export default function LoginPage() {
 //     </main>
 //   )
 // }
-
 
 

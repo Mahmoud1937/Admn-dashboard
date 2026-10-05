@@ -10,8 +10,13 @@ import ServiceFormModal from "../components/ServiceFormModal";
 import ServicesFilters from "../components/ServicesFilters";
 import ServicesTable from "../components/ServicesTable";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 export default function ServicesPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.SERVICES_UPDATE);
+  const canDelete = usePermission(PERMISSION_CODES.SERVICES_DELETE);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -86,13 +91,15 @@ export default function ServicesPage() {
           </p>
         </div>
 
-        <button
-          onClick={openAddForm}
-          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add Service
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.SERVICES_CREATE}>
+          <button
+            onClick={openAddForm}
+            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add Service
+          </button>
+        </PermissionGuard>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -120,8 +127,8 @@ export default function ServicesPage() {
             <ServicesTable
               services={services}
               hasActiveFilters={hasActiveFilters}
-              onEdit={openEditForm}
-              onDeleteRequest={setServiceToDelete}
+              onEdit={canUpdate ? openEditForm : undefined}
+              onDeleteRequest={canDelete ? setServiceToDelete : undefined}
             />
 
             {services.length > 0 && (
@@ -149,7 +156,7 @@ export default function ServicesPage() {
         serverErrors={serverErrors}
       />
 
-      <ConfirmDeleteModal
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!serviceToDelete}
         title="Delete Service"
         message={`Are you sure you want to delete "${serviceToDelete?.enName}"? This action cannot be undone.`}
@@ -158,7 +165,7 @@ export default function ServicesPage() {
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setServiceToDelete(null)}
-      />
+      />}
     </div>
   );
 }

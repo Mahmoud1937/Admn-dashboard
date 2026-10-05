@@ -10,8 +10,13 @@ import SpecialistFormModal from "../components/SpecialistFormModal";
 import SpecialistsFilters from "../components/SpecialistsFilters";
 import SpecialistsTable from "../components/SpecialistsTable";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 export default function SpecialistsPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.SPECIALISTS_UPDATE);
+  const canDelete = usePermission(PERMISSION_CODES.SPECIALISTS_DELETE);
   const [search, setSearch] = useState("");
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -93,13 +98,15 @@ export default function SpecialistsPage() {
           </p>
         </div>
 
-        <button
-          onClick={openAddForm}
-          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add Specialist
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.SPECIALISTS_CREATE}>
+          <button
+            onClick={openAddForm}
+            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add Specialist
+          </button>
+        </PermissionGuard>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -122,8 +129,8 @@ export default function SpecialistsPage() {
             <SpecialistsTable
               specialists={specialists}
               hasActiveFilters={!!search}
-              onEdit={openEditForm}
-              onDeleteRequest={setSpecialistToDelete}
+              onEdit={canUpdate ? openEditForm : undefined}
+              onDeleteRequest={canDelete ? setSpecialistToDelete : undefined}
             />
 
             {specialists.length > 0 && (
@@ -151,7 +158,7 @@ export default function SpecialistsPage() {
         serverErrors={serverErrors}
       />
 
-      <ConfirmDeleteModal
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!specialistToDelete}
         title="Delete Specialist"
         message={`Are you sure you want to delete "${specialistToDelete?.enName}"? This action cannot be undone.`}
@@ -160,7 +167,7 @@ export default function SpecialistsPage() {
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setSpecialistToDelete(null)}
-      />
+      />}
     </div>
   );
 }

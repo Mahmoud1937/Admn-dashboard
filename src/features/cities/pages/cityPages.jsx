@@ -11,8 +11,13 @@ import Pagination from "../../../shared/components/Pagination";
 import CityFormModal from "../components/CityFormModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 export default function CitiesPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.CITIES_UPDATE);
+  const canDelete = usePermission(PERMISSION_CODES.CITIES_DELETE);
   const [governorateFilter, setGovernorateFilter] = useState("");
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -93,13 +98,15 @@ export default function CitiesPage() {
           </p>
         </div>
 
-        <button
-          onClick={openAddForm}
-          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add City
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.CITIES_CREATE}>
+          <button
+            onClick={openAddForm}
+            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add City
+          </button>
+        </PermissionGuard>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white">
@@ -125,8 +132,8 @@ export default function CitiesPage() {
             <CitiesTable
               cities={cities}
               hasActiveFilters={hasActiveFilters}
-              onEdit={openEditForm}
-              onDeleteRequest={setCityToDelete}
+                onEdit={canUpdate ? openEditForm : undefined}
+              onDeleteRequest={canDelete ? setCityToDelete : undefined}
             />
 
             {cities.length > 0 && (
@@ -154,7 +161,7 @@ export default function CitiesPage() {
         serverErrors={serverErrors}
       />
 
-      <ConfirmDeleteModal
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!cityToDelete}
         title="Delete City"
         message={`Are you sure you want to delete "${cityToDelete?.enName}"? This action cannot be undone.`}
@@ -163,7 +170,7 @@ export default function CitiesPage() {
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setCityToDelete(null)}
-      />
+      />}
     </div>
   );
 }

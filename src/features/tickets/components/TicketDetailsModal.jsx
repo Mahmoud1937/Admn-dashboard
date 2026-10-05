@@ -57,7 +57,7 @@ export default function TicketDetailsModal({
   const [isVisible, setIsVisible] = useState(false);
   const previousServerErrors = useRef(serverErrors);
   const isTicketClosed = ticket?.isClosed === true;
-  const canEditTicket = Boolean(ticket) && !isTicketClosed;
+  const canEditTicket = Boolean(ticket) && !isTicketClosed && Boolean(onUpdate);
   const isEditingView = isEditing && canEditTicket;
   const headerStyle = headerColor ? COLOR_STYLES[headerColor] : null;
 
@@ -126,7 +126,7 @@ export default function TicketDetailsModal({
   };
 
   const handleUpdate = () => {
-    if (!ticket || isTicketClosed || !editValues) return;
+    if (!ticket || isTicketClosed || !editValues || !onUpdate) return;
 
     const errors = validateEditValues(editValues);
     if (Object.keys(errors).length > 0) {

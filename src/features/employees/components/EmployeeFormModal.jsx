@@ -8,6 +8,17 @@ import TextField from "../../../shared/components/TextField";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import { employeeSchema } from "../schema/employeeSchema";
 
+const getEmployeeNameParts = (employee) => {
+  const firstName = employee?.firstName ?? employee?.employeeFirstName ?? "";
+  const lastName = employee?.lastName ?? employee?.employeeLastName ?? "";
+
+  if (firstName || lastName) return { firstName, lastName };
+
+  const fullName = employee?.fullName || employee?.name || employee?.employeeName || "";
+  const [derivedFirstName = "", ...rest] = fullName.trim().split(/\s+/);
+  return { firstName: derivedFirstName, lastName: rest.join(" ") };
+};
+
 export default function EmployeeFormModal({
   isOpen,
   employee,
@@ -39,9 +50,11 @@ export default function EmployeeFormModal({
   useEffect(() => {
     if (!isOpen) return;
 
+    const nameParts = getEmployeeNameParts(employee);
+
     reset({
-      firstName: employee?.firstName ?? "",
-      lastName: employee?.lastName ?? "",
+      firstName: nameParts.firstName,
+      lastName: nameParts.lastName,
       email: employee?.email ?? "",
       phoneNumber: employee?.phoneNumber ?? "",
       employeeGroupId:

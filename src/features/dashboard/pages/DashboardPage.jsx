@@ -1,16 +1,22 @@
-const DashboardPage = () => {
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Dashboard Overview</h1>
-      <p className="mt-1 text-sm text-slate-500">
-        Welcome back! Here is what&apos;s happening with MediCard today.
-      </p>
+import DashboardCharts from "../components/DashboardCharts";
+import StatCards from "../components/StatCards";
 
-      <div className="mt-6 grid place-items-center rounded-xl border border-dashed border-slate-300 bg-white py-24 text-sm text-slate-400">
-        Stat cards go here next
-      </div>
+export default function DashboardPage() {
+  return (
+    <div className="space-y-8">
+      <header>
+        <p className="text-sm font-medium text-primary-600">Overview</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          Dashboard
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          Monitor card activity, invoices, providers, and operational trends
+          from one place.
+        </p>
+      </header>
+
+      <StatCards />
+      <DashboardCharts />
     </div>
   );
-};
-
-export default DashboardPage;
+}

@@ -7,6 +7,8 @@ import {
   faBan,
   faCheck,
   faPenToSquare,
+  faKey,
+  faUserShield
 } from "@fortawesome/free-solid-svg-icons";
 import ClientAvatar from "../../../shared/components/ClientAvatar";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
@@ -17,7 +19,12 @@ const isPlaceholder = (v) =>
   !v || v.startsWith("EMP-") || v.endsWith("@invalid.local");
 
 const getEmployeeName = (e) =>
-  [e.firstName, e.lastName].filter(Boolean).join(" ").trim() ||
+  [e.firstName ?? e.employeeFirstName, e.lastName ?? e.employeeLastName]
+    .filter(Boolean)
+    .join(" ")
+    .trim() ||
+  e.fullName?.trim() ||
+  e.name?.trim() ||
   e.employeeName?.trim() ||
   "";
 
@@ -56,7 +63,7 @@ function ContactLine({ icon, value }) {
   );
 }
 
-function SkeletonRow() {
+function SkeletonRow({ showActions }) {
   return (
     <tr className="animate-pulse border-b border-slate-200 last:border-b-0">
       <td className="px-4 py-4"><div className="h-4 w-8 rounded bg-slate-200" /></td>
@@ -73,6 +80,11 @@ function SkeletonRow() {
       <td className="px-4 py-4"><div className="h-6 w-28 rounded-md bg-slate-200" /></td>
       <td className="px-4 py-4"><div className="h-3.5 w-16 rounded bg-slate-200" /></td>
       <td className="px-4 py-4"><div className="h-6 w-20 rounded-full bg-slate-200" /></td>
+      {showActions && (
+        <td className="px-4 py-4">
+          <div className="mx-auto h-6 w-20 rounded bg-slate-200" />
+        </td>
+      )}
     </tr>
   );
 }
@@ -85,8 +97,14 @@ export default function EmployeesTable({
   isLoading,
   onToggleStatus,
   onEdit,
+  onResetPassword,
   togglingEmployeeId,
+  onManagePermissions,
+  canUpdate = false,
+  canManagePermissions = false,
 }) {
+  const showActions = canUpdate || canManagePermissions;
+
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <ScrollableTable maxHeight="70vh">
@@ -95,21 +113,23 @@ export default function EmployeesTable({
             <tr>
               <th className={`${TH} w-16`}>ID</th>
               <th className={`${TH} text-left`}>Employee</th>
-              <th  className={`${TH} text-left`}>Contact</th>
+              <th className={`${TH} text-left`}>Contact</th>
               <th className={TH}>Group</th>
               <th className={TH}>Last Login</th>
               <th className={TH}>Status</th>
-              <th className={TH}>Actions</th>
+              {showActions && <th className={TH}>Actions</th>}
             </tr>
           </thead>
 
           <tbody className="bg-white">
             {isLoading &&
-              Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} />)}
+              Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonRow key={i} showActions={showActions} />
+              ))}
 
             {!isLoading && employees.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-16">
+                <td colSpan={showActions ? 7 : 6} className="px-4 py-16">
                   <div className="flex flex-col items-center gap-2 text-slate-400">
                     <FontAwesomeIcon icon={faUserSlash} className="text-3xl" />
                     <p className="text-sm font-medium text-slate-500">No employees found</p>
@@ -191,34 +211,60 @@ export default function EmployeesTable({
                       </StatusBadge>
                     </td>
 
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => onEdit?.(e)}
-                          title="Edit employee"
-                          className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600"
-                        >
-                          <FontAwesomeIcon icon={faPenToSquare} size="sm" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => onToggleStatus?.(e)}
-                          disabled={togglingEmployeeId === id}
-                          title={e.isBlocked ? "Activate" : "Block"}
-                          className={`rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 ${
-                            e.isBlocked
-                              ? "hover:text-green-700"
-                              : "hover:text-red-700"
-                          }`}
-                        >
-                          <FontAwesomeIcon
-                            icon={e.isBlocked ? faCheck : faBan}
-                            size="sm"
-                          />
-                        </button>
-                      </div>
-                    </td>
+                    {showActions && (
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center justify-center gap-1">
+                          {canUpdate && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => onEdit?.(e)}
+                                title="Edit employee"
+                                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600"
+                              >
+                                <FontAwesomeIcon icon={faPenToSquare} size="sm" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => onResetPassword?.(e)}
+                                title="Reset password"
+                                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-amber-50 hover:text-amber-600"
+                              >
+                                <FontAwesomeIcon icon={faKey} size="sm" />
+                              </button>
+                            </>
+                          )}
+                          {canManagePermissions && (
+                            <button
+                              type="button"
+                              onClick={() => onManagePermissions?.(e)}
+                              title="Manage permissions"
+                              className="rounded-lg p-1.5 text-slate-400 transition hover:bg-indigo-50 hover:text-indigo-600"
+                            >
+                              <FontAwesomeIcon icon={faUserShield} size="sm" />
+                            </button>
+                          )}
+                          {canUpdate && (
+                            <button
+                              type="button"
+                              onClick={() => onToggleStatus?.(e)}
+                              disabled={togglingEmployeeId === id}
+                              title={e.isBlocked ? "Activate" : "Block"}
+                              className={`rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 ${
+                                e.isBlocked
+                                  ? "hover:text-green-700"
+                                  : "hover:text-red-700"
+                              }`}
+                            >
+                              <FontAwesomeIcon
+                                icon={e.isBlocked ? faCheck : faBan}
+                                size="sm"
+                              />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 );
               })}

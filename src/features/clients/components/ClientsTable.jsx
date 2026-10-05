@@ -10,12 +10,40 @@ import ImageLightbox from "../../../shared/components/ImageLightbox";
 import ClientAvatar from "../../../shared/components/ClientAvatar";
 import { formatDate } from "../../../utils/formatDate";
 
-export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
+function TableSkeleton({ rows = 7 }) {
+  return (
+    <div className="divide-y divide-slate-100" aria-busy="true">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-center gap-5 px-6 py-4">
+          <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-slate-100" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3 w-40 animate-pulse rounded bg-slate-100" />
+            <div className="h-3 w-28 animate-pulse rounded bg-slate-100" />
+          </div>
+          <div className="hidden h-3 w-32 animate-pulse rounded bg-slate-100 md:block" />
+          <div className="hidden h-3 w-28 animate-pulse rounded bg-slate-100 md:block" />
+          <div className="h-6 w-16 animate-pulse rounded-full bg-slate-100" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const Muted = ({ children = "-" }) => (
+  <span className="text-slate-400">{children}</span>
+);
+
+export default function ClientsTable({
+  clients,
+  isLoading,
+  onToggleBlock,
+  togglingClientId,
+}) {
   const navigate = useNavigate();
   const [previewImage, setPreviewImage] = useState(null);
 
   if (isLoading) {
-    return <div className="py-10 text-center text-sm text-slate-400">Loading clients...</div>;
+    return <TableSkeleton />;
   }
 
   if (!clients.length) {
@@ -31,36 +59,40 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
 
   return (
     <ScrollableTable maxHeight="60vh">
-      <table className="min-w-[1300px] w-full text-center text-sm">
-        <thead className="sticky top-0 z-10 bg-slate-100">
-          <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
-            <th className="px-4 py-3 text-center me-[15px]">Client</th>
-            <th className="px-4 py-3 text-center">Phone</th>
-            <th className="px-4 py-3 text-center">Gender</th>
-            <th className="px-4 py-3 text-center">National ID</th>
-            <th className="px-4 py-3 text-center">Passport No.</th>
-            <th className="px-4 py-3 text-center">Card Number</th>
-            <th className="px-4 py-3 text-center">Card Expires</th>
-            <th className="px-4 py-3 text-center">Birth Date</th>
-            <th className="px-4 py-3 text-center">Join Date</th>
-            <th className="px-4 py-3 text-center">Activated At</th>
-            <th className="px-4 py-3 text-center">Status</th>
+      <table className="w-full min-w-[1100px] text-left text-sm">
+        <thead className="sticky top-0 z-10 bg-slate-50">
+          <tr className="border-b border-slate-200 text-xs font-medium text-slate-500">
+            <th className="px-6 py-3">Client</th>
+            <th className="px-4 py-3">Gender</th>
+            <th className="px-4 py-3">ID documents</th>
+            <th className="px-4 py-3">Card</th>
+            <th className="px-4 py-3">Birth date</th>
+            <th className="px-4 py-3">Joined</th>
+            <th className="px-6 py-3 text-center">Status</th>
           </tr>
         </thead>
-        <tbody>
+
+        <tbody className="divide-y divide-slate-100">
           {clients.map((client) => {
             const fullName = client.userName ?? "";
-            const hasImage = client.clientImage && !client.clientImage.endsWith("medicardeg.com/");
+            const hasImage =
+              client.clientImage &&
+              !client.clientImage.endsWith("medicardeg.com/");
+            const openClient = () => navigate(`/clients/${client.clientId}`);
 
             return (
               <tr
                 key={client.clientId}
-                className="border-b border-slate-100 transition-colors last:border-0"
+                className="transition-colors hover:bg-slate-50"
               >
-                <td className="px-4 py-3">
+                {/* Client + phone */}
+                <td className="px-6 py-3">
                   <div
-                    onClick={() => navigate(`/clients/${client.clientId}`)}
-                    className="group flex cursor-pointer items-center ms-[48px] gap-3 whitespace-nowrap rounded-[7px] px-2 py-1.5 transition-colors duration-200 hover:bg-slate-100"
+                    role="link"
+                    tabIndex={0}
+                    onClick={openClient}
+                    onKeyDown={(e) => e.key === "Enter" && openClient()}
+                    className="flex max-w-[300px] cursor-pointer items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
                   >
                     {hasImage ? (
                       <LazyImageCell
@@ -69,7 +101,7 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
                         onPreview={(url, label) =>
                           setPreviewImage({ url, label })
                         }
-                        size="h-8 w-8"
+                        size="h-9 w-9"
                       />
                     ) : (
                       <ClientAvatar
@@ -78,34 +110,105 @@ export default function ClientsTable({ clients, isLoading, onToggleBlock }) {
                         textClass="text-md"
                       />
                     )}
-                    <p className="text-sm font-medium text-slate-700">{fullName || "-"}</p>
+                    <div className="min-w-0">
+                      <p
+                        dir="auto"
+                        title={fullName}
+                        className="truncate text-left font-semibold text-slate-900 hover:text-blue-800"
+                      >
+                        {fullName || "-"}
+                      </p>
+                      <p className="text-xs tabular-nums text-slate-500">
+                        {client.phoneNumber || "No phone"}
+                      </p>
+                    </div>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">{client.phoneNumber || "-"}</td>
-                <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">{client.isMale ? "Male" : "Female"}</td>
-                <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">{client.nationalId || "-"}</td>
-                <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">{client.passportNumber || "-"}</td>
-                <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">{client.cardNumber || "No Card"}</td>
-                <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">{formatDate(client.expiredAt)}</td>
-                <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">{formatDate(client.birthDate)}</td>
-                <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">{formatDate(client.joinDate)}</td>
-                <td className="px-4 py-3 text-sm text-slate-500 text-center">
-                  {client.activatedAt ? formatDate(client.activatedAt) : "-"}
+
+                {/* Gender */}
+                <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                  {client.isMale ? "Male" : "Female"}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="flex items-center justify-center gap-2">
-                    <StatusBadge tone={client.isBlocked ? "danger" : "success"}>
+
+                {/* National ID + passport */}
+                <td className="whitespace-nowrap px-4 py-3">
+                  <p className="tabular-nums text-slate-800">
+                    {client.nationalId || <Muted />}
+                  </p>
+                  {client.passportNumber && (
+                    <p className="text-xs text-slate-500">
+                      Passport {client.passportNumber}
+                    </p>
+                  )}
+                </td>
+
+                {/* Card + expiry */}
+                <td className="whitespace-nowrap px-4 py-3">
+                  {client.cardNumber ? (
+                    <>
+                      <p className="font-mono text-xs font-medium tabular-nums text-slate-800">
+                        {client.cardNumber}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Expires {formatDate(client.expiredAt)}
+                      </p>
+                    </>
+                  ) : (
+                    <Muted>No card</Muted>
+                  )}
+                </td>
+
+                {/* Birth date */}
+                <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                  {formatDate(client.birthDate)}
+                </td>
+
+                {/* Joined + activated */}
+                <td className="whitespace-nowrap px-4 py-3">
+                  <p className="text-slate-700">{formatDate(client.joinDate)}</p>
+                  <p className="text-xs text-slate-500">
+                    {client.activatedAt
+                      ? `Activated ${formatDate(client.activatedAt)}`
+                      : "Not activated"}
+                  </p>
+                </td>
+
+                {/* Status + block toggle */}
+                <td className="whitespace-nowrap px-6 py-3">
+                  <div className="flex items-center justify-center gap-1.5">
+                    <StatusBadge
+                      tone={client.isBlocked ? "danger" : "emerald"}
+                      size="sm"
+                    >
+                      <span
+                        className={`mr-1.5 h-1.5 w-1.5 rounded-full ${
+                          client.isBlocked ? "bg-red-500" : "bg-emerald-500"
+                        }`}
+                      />
                       {client.isBlocked ? "Blocked" : "Active"}
                     </StatusBadge>
-                    <button
-                      onClick={() => onToggleBlock?.(client)}
-                      title={client.isBlocked ? "Activate" : "Block"}
-                      className={`rounded-lg p-1.5 hover:bg-slate-100 ${
-                        client.isBlocked ? "text-slate-400 hover:text-green-700" : "text-slate-400 hover:text-red-700"
-                      }`}
-                    >
-                      <FontAwesomeIcon icon={client.isBlocked ? faCheck : faBan} size="sm" />
-                    </button>
+
+                    {onToggleBlock && (
+                      <button
+                        type="button"
+                        onClick={() => onToggleBlock(client)}
+                        disabled={togglingClientId === client.clientId}
+                        title={client.isBlocked ? "Unblock client" : "Block client"}
+                        aria-label={
+                          client.isBlocked ? "Unblock client" : "Block client"
+                        }
+                        className={`flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors focus:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                          client.isBlocked
+                            ? "hover:bg-emerald-50 hover:text-emerald-600 focus-visible:ring-emerald-300"
+                            : "hover:bg-red-50 hover:text-red-600 focus-visible:ring-red-300"
+                        }`}
+                      >
+                        <FontAwesomeIcon
+                          icon={client.isBlocked ? faCheck : faBan}
+                          size="sm"
+                        />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

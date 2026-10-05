@@ -1,7 +1,10 @@
 import TermsAndConditionsEditor from "../../termsAndConditions/components/Termsandconditionseditor";
 import { useRefundPolicyMutation, useRefundPolicyQuery } from "../hooks/useRefundPolicy";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 export default function RefundPolicyPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.REFUND_POLICY_UPDATE);
   const { data, isLoading } = useRefundPolicyQuery();
   const { mutate, isPending, serverErrors } = useRefundPolicyMutation();
 
@@ -12,6 +15,7 @@ export default function RefundPolicyPage() {
       saving={isPending}
       loading={isLoading}
       serverErrors={serverErrors}
+      canUpdate={canUpdate}
       title="Refund Policy"
       subtitle="Manage bilingual refund policy content"
       enDescription="Write the English version of the Refund Policy below."

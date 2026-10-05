@@ -58,8 +58,8 @@ export default function TicketTypesTable({
               </td>
               <td className="px-6 py-3">
                 <RowActions
-                  onEdit={() => onEdit(ticketType)}
-                  onDelete={() => onDeleteRequest(ticketType)}
+                  onEdit={onEdit ? () => onEdit(ticketType) : undefined}
+                  onDelete={onDeleteRequest ? () => onDeleteRequest(ticketType) : undefined}
                 />
               </td>
             </tr>

@@ -1,6 +1,8 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 
 export default function ProvidersHeader() {
   const navigate = useNavigate();
@@ -14,13 +16,15 @@ export default function ProvidersHeader() {
         </p>
       </div>
 
-      <button
-        onClick={() => navigate("/providers/new")}
-        className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-      >
-        <FontAwesomeIcon icon={faPlus} />
-        Add Provider
-      </button>
+      <PermissionGuard permission={PERMISSION_CODES.PROVIDERS_CREATE}>
+        <button
+          onClick={() => navigate("/providers/new")}
+          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+        >
+          <FontAwesomeIcon icon={faPlus} />
+          Add Provider
+        </button>
+      </PermissionGuard>
     </div>
   );
 }

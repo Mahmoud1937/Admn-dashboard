@@ -9,6 +9,9 @@ import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilter
 import TicketDetailsModal from "../components/TicketDetailsModal";
 import TicketFormModal from "../components/TicketFormModal";
 import TicketsFiltersPanel from "../components/TicketsFiltersPanel";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 import TicketsBoard from "../components/TicketsBoard";
 import { useTicketMutations } from "../hooks/useTicketMutations";
 import { useTicketsQuery } from "../hooks/useTicketsQuery";
@@ -24,6 +27,7 @@ const emptyFilters = {
 };
 
 export default function TicketsPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.TICKETS_UPDATE);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 400);
   const [filters, setFilters] = useState(emptyFilters);
@@ -115,17 +119,19 @@ export default function TicketsPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            clearServerErrors();
-            setIsFormOpen(true);
-          }}
-          className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add Ticket
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.TICKETS_CREATE}>
+          <button
+            type="button"
+            onClick={() => {
+              clearServerErrors();
+              setIsFormOpen(true);
+            }}
+            className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add Ticket
+          </button>
+        </PermissionGuard>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white">
@@ -198,7 +204,7 @@ export default function TicketsPage() {
           ticketId={detailsTicketId}
           headerColor={detailsColor}
           onClose={closeDetails}
-          onUpdate={handleUpdateTicket}
+          onUpdate={canUpdate ? handleUpdateTicket : undefined}
           isSaving={isSaving}
           serverErrors={serverErrors}
         />

@@ -18,6 +18,8 @@ import { useSliderQuery } from "../hooks/useSlidersQuery";
 import SliderFormModal from "../components/SliderFormModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import { formatDate } from "../../../utils/formatDate";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 const DetailItem = ({ icon, label, value }) => (
   <div className="rounded-lg border border-gray-100 bg-gray-50/70 p-4">
@@ -79,6 +81,7 @@ const BannerCard = ({ title, language, url }) => (
 );
 
 const SliderDetailsPage = () => {
+  const canUpdate = usePermission(PERMISSION_CODES.SLIDERS_UPDATE);
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -146,7 +149,7 @@ const SliderDetailsPage = () => {
   <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <button
+          {canUpdate && <button
             type="button"
             onClick={() => navigate(-1)}
             className="group inline-flex w-fit items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-gray-900"
@@ -157,7 +160,7 @@ const SliderDetailsPage = () => {
             />
 
             <span>Back to Sliders</span>
-          </button>
+          </button>}
 
           <button
             type="button"
@@ -293,7 +296,7 @@ const SliderDetailsPage = () => {
       
 
       {/* Update Modal */}
-      <SliderFormModal
+      {canUpdate && <SliderFormModal
         isOpen={isFormOpen}
         onClose={() => {
           setIsFormOpen(false);
@@ -304,10 +307,9 @@ const SliderDetailsPage = () => {
         serverErrors={serverErrors}
         clearServerErrors={clearServerErrors}
         sliderToEdit={slider}
-      />
+      />}
     </div>
   );
 };
 
 export default SliderDetailsPage;
-

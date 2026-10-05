@@ -21,6 +21,21 @@ export const getEmployees = async ({
   return data.data; // { items, pageNumber, pageSize, totalCount, totalPages }
 };
 
+export const getEmployeeById = async (employeeId) => {
+  const { data } = await axiosInstance.get(`/EmployeeAdmin/${employeeId}`);
+
+  if (data?.succeeded === false) {
+    throw new Error(data?.message || "Failed to load employee.");
+  }
+
+  const employee = data?.data ?? data;
+  if (!employee || typeof employee !== "object") {
+    throw new Error("Employee data is unavailable.");
+  }
+
+  return employee;
+};
+
 export const toggleEmployeeActive = async (employeeId) => {
   const { data } = await axiosInstance.patch(
     `/EmployeeAdmin/${employeeId}/toggle-active`
@@ -62,5 +77,11 @@ export const registerEmployee = async (payload) => {
     throw new Error(data?.message || "Failed to register employee.");
   }
 
+  return data;
+};
+export const resetEmployeePassword = async ({ employeeId }) => {
+  const { data } = await axiosInstance.patch(
+    `AuthAdmin/employees/${employeeId}/reset-password`
+  );
   return data;
 };

@@ -1,12 +1,15 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import GovernorateSelect from "../../cities/components/GovernorateSelect";
+import CitySelect from "./CitySelect";
 
 export default function BranchesFilters({
   search,
   onSearchChange,
   governorateFilter,
   onGovernorateFilterChange,
+  cityFilter,
+  onCityFilterChange,
   statusFilter,
   onStatusFilterChange,
 }) {
@@ -35,6 +38,18 @@ export default function BranchesFilters({
           placeholder="All Governorates"
         />
       </div>
+
+      {onCityFilterChange && (
+        <div className="sm:w-56">
+          <CitySelect
+            governorateId={governorateFilter}
+            value={cityFilter}
+            onChange={onCityFilterChange}
+            placeholder="All Cities"
+            disabled={!governorateFilter}
+          />
+        </div>
+      )}
 
       {/* Status */}
       <select

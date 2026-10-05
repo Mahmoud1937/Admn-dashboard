@@ -167,7 +167,7 @@ const CardPoolTable = ({
 
                 {/* Export */}
                 <td className="px-4 py-3 text-center text-sm">
-                  <button
+                  {onDelete && <button
                     type="button"
                     onClick={() => onExport(pool.id)}
                     disabled={exportingId === pool.id}
@@ -183,7 +183,7 @@ const CardPoolTable = ({
                       spin={exportingId === pool.id}
                     />
                     Export
-                  </button>
+                  </button>}
                 </td>
 
                 {/* Delete */}

@@ -8,10 +8,16 @@ import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilter
 import useEmployeeToggleMutation from "../hooks/useEmployeeToggleMutation";
 import useEmployeeUpdateMutation from "../hooks/useEmployeeUpdateMutation";
 import useEmployeeCreateMutation from "../hooks/useEmployeeCreateMutation";
+import useEmployeeResetPasswordMutation from "../hooks/useEmployeeResetPasswordMutation";
 import EmployeeFormModal from "../components/EmployeeFormModal";
 import EmployeePasswordModal from "../components/EmployeePasswordModal";
+import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import useEmployeePermissionsMutation from "../permissions/hooks/useEmployeePermissionsMutation";
+import EmployeePermissionsModal from "../permissions/components/EmployeePermissionsModal";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 
 function useDebouncedValue(value, delay = 400) {
@@ -25,14 +31,43 @@ function useDebouncedValue(value, delay = 400) {
   return debounced;
 }
 
+const getEmployeeLabel = (employee) =>
+  [employee?.firstName, employee?.lastName].filter(Boolean).join(" ") ||
+  employee?.employeeName ||
+  employee?.name ||
+  "this employee";
+
+const extractPassword = (response) => {
+  const data = response?.data;
+  if (typeof data === "string" && data.trim()) return data.trim();
+  return (
+    response?.password ??
+    data?.password ??
+    data?.newPassword ??
+    data?.temporaryPassword ??
+    ""
+  );
+};
+
 export default function EmployeesPage() {
+  const canViewEmployees = usePermission(PERMISSION_CODES.EMPLOYEES_READ);
+  const canCreateEmployees = usePermission(PERMISSION_CODES.EMPLOYEES_CREATE);
+  const canUpdateEmployees = usePermission(PERMISSION_CODES.EMPLOYEES_UPDATE);
+  const canManagePermissions = usePermission(
+    PERMISSION_CODES.EMPLOYEES_MANAGE_PERMISSIONS
+  );
   const [search, setSearch] = useState("");
   const [groupId, setGroupId] = useState("");
   const [employeeToEdit, setEmployeeToEdit] = useState(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState("");
+  const [employeePendingToggle, setEmployeePendingToggle] = useState(null);
+  const [employeePendingReset, setEmployeePendingReset] = useState(null);
   const debouncedSearch = useDebouncedValue(search, 400);
-
+  const [permissionsTarget, setPermissionsTarget] = useState(null);
+  const { permissionsMutation } = useEmployeePermissionsMutation({
+    onSuccess: () => setPermissionsTarget(null),
+  });
   const { pageNumber, pageSize, goToPage, handlePageSizeChange, getPageNumbers } =
     useServerPagination({ resetKey: `${debouncedSearch}-${groupId}` });
 
@@ -42,6 +77,7 @@ export default function EmployeesPage() {
       pageSize,
       searchTerm: debouncedSearch,
       employeeGroupId: groupId,
+      enabled: canViewEmployees,
     });
 
   const { toggleMutation } = useEmployeeToggleMutation();
@@ -62,13 +98,21 @@ export default function EmployeesPage() {
       setGeneratedPassword(response?.password || "");
     },
   });
+  const { resetMutation } = useEmployeeResetPasswordMutation({
+    onSuccess: (response) => {
+      setEmployeePendingReset(null);
+      setGeneratedPassword(extractPassword(response));
+    },
+  });
 
   const openEmployeeEdit = (employee) => {
+    if (!canUpdateEmployees) return;
     clearServerErrors();
     setEmployeeToEdit(employee);
   };
 
   const saveEmployee = (values) => {
+    if (!canUpdateEmployees) return;
     clearServerErrors();
     updateMutation.mutate({
       employeeId: employeeToEdit.employeeId ?? employeeToEdit.id,
@@ -76,21 +120,41 @@ export default function EmployeesPage() {
     });
   };
 
+  const confirmToggleStatus = () => {
+    if (!canUpdateEmployees || !employeePendingToggle) return;
+
+    toggleMutation.mutate(
+      employeePendingToggle.employeeId ?? employeePendingToggle.id,
+      { onSettled: () => setEmployeePendingToggle(null) }
+    );
+  };
+
+  const confirmResetPassword = () => {
+    if (!canUpdateEmployees || !employeePendingReset) return;
+
+    resetMutation.mutate(
+      { employeeId: employeePendingReset.employeeId ?? employeePendingReset.id },
+      { onError: () => setEmployeePendingReset(null) }
+    );
+  };
+
   return (
     <div className="space-y-4 p-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-slate-800">Employees</h1>
-        <button
-          type="button"
-          onClick={() => {
-            clearCreateServerErrors();
-            setIsCreateOpen(true);
-          }}
-          className="flex items-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add Employee
-        </button>
+        {canCreateEmployees && (
+          <button
+            type="button"
+            onClick={() => {
+              clearCreateServerErrors();
+              setIsCreateOpen(true);
+            }}
+            className="flex items-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add Employee
+          </button>
+        )}
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white">
@@ -121,23 +185,43 @@ export default function EmployeesPage() {
       <EmployeesTable
         employees={employees}
         isLoading={isLoading}
-        onToggleStatus={(employee) =>
-          toggleMutation.mutate(employee.employeeId ?? employee.id)
-        }
+        onToggleStatus={setEmployeePendingToggle}
         onEdit={openEmployeeEdit}
+        onResetPassword={setEmployeePendingReset}
+        onManagePermissions={setPermissionsTarget}
+        canUpdate={canUpdateEmployees}
+        canManagePermissions={canManagePermissions}
         togglingEmployeeId={
           toggleMutation.isPending ? toggleMutation.variables : null
         }
       />
-
+      {permissionsTarget && canManagePermissions && (
+        <EmployeePermissionsModal
+          key={permissionsTarget.employeeId ?? permissionsTarget.id}
+          employee={permissionsTarget}
+          onClose={() => setPermissionsTarget(null)}
+          onSave={(permissionIds) =>
+            permissionsMutation.mutate({
+              employeeId: permissionsTarget.employeeId ?? permissionsTarget.id,
+              permissionIds,
+            })
+          }
+          isSaving={permissionsMutation.isPending}
+        />
+      )}
       <EmployeeFormModal
-        isOpen={Boolean(employeeToEdit) || isCreateOpen}
+        isOpen={
+          (Boolean(employeeToEdit) && canUpdateEmployees) ||
+          (isCreateOpen && canCreateEmployees)
+        }
         employee={employeeToEdit}
         onSave={(values) => {
           if (employeeToEdit) {
             saveEmployee(values);
             return;
           }
+
+          if (!canCreateEmployees) return;
 
           clearCreateServerErrors();
           createMutation.mutate({
@@ -162,9 +246,40 @@ export default function EmployeesPage() {
       />
 
       <EmployeePasswordModal
+        key={generatedPassword || "employee-password"}
         password={generatedPassword}
         onClose={() => setGeneratedPassword("")}
       />
+
+      {employeePendingToggle && canUpdateEmployees && (
+        <ConfirmDeleteModal
+          isOpen
+          variant={employeePendingToggle.isBlocked ? "success" : "danger"}
+          title={employeePendingToggle.isBlocked ? "Activate employee?" : "Block employee?"}
+          message={`Are you sure you want to ${
+            employeePendingToggle.isBlocked ? "activate" : "block"
+          } ${getEmployeeLabel(employeePendingToggle)}?`}
+          confirmLabel={employeePendingToggle.isBlocked ? "Activate" : "Block"}
+          isLoading={toggleMutation.isPending}
+          onConfirm={confirmToggleStatus}
+          onCancel={() => setEmployeePendingToggle(null)}
+        />
+      )}
+
+      {employeePendingReset && canUpdateEmployees && (
+        <ConfirmDeleteModal
+          isOpen
+          variant="danger"
+          title="Reset password?"
+          message={`A new password will be generated for ${getEmployeeLabel(
+            employeePendingReset
+          )} and the current one will stop working immediately.`}
+          confirmLabel="Reset Password"
+          isLoading={resetMutation.isPending}
+          onConfirm={confirmResetPassword}
+          onCancel={() => setEmployeePendingReset(null)}
+        />
+      )}
 
       <Pagination
         pageNumber={pageNumber}

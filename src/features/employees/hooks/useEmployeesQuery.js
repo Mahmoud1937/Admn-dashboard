@@ -2,12 +2,19 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getEmployees } from "../services/employeesService";
 
 
-export default function useEmployeesQuery({ pageNumber, pageSize, searchTerm, employeeGroupId }) {
+export default function useEmployeesQuery({
+  pageNumber,
+  pageSize,
+  searchTerm,
+  employeeGroupId,
+  enabled = true,
+}) {
   const query = useQuery({
     queryKey: ["employees", { pageNumber, pageSize, searchTerm, employeeGroupId }],
     queryFn: ({ signal }) =>
       getEmployees({ pageNumber, pageSize, searchTerm, employeeGroupId, signal }),
     placeholderData: keepPreviousData,
+    enabled,
   });
 
   return {

@@ -12,8 +12,11 @@ import ClientsTable from "../components/ClientsTable";
 import Pagination from "../../../shared/components/Pagination";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import usePermission from "../../auth/hooks/usePermission";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 
 const ClientsPage = () => {
+  const canUpdate = usePermission(PERMISSION_CODES.CLIENTS_UPDATE);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -109,7 +112,10 @@ const ClientsPage = () => {
   const confirmToggleBlock = () => {
     if (!clientPendingToggle) return;
     blockMutation.mutate(
-      { userId: clientPendingToggle.clientId, isBlocked: !clientPendingToggle.isBlocked },
+      {
+        userId: clientPendingToggle.clientId,
+        isBlocked: !clientPendingToggle.isBlocked,
+      },
       { onSettled: () => setClientPendingToggle(null) }
     );
   };
@@ -214,7 +220,10 @@ const ClientsPage = () => {
           <ClientsTable
             clients={clients}
             isLoading={isLoading}
-            onToggleBlock={setClientPendingToggle}
+            onToggleBlock={canUpdate ? setClientPendingToggle : undefined}
+            togglingClientId={
+              blockMutation.isPending ? blockMutation.variables?.userId : null
+            }
           />
         )}
 
@@ -230,7 +239,7 @@ const ClientsPage = () => {
         />
       </div>
 
-      {clientPendingToggle && (
+      {clientPendingToggle && canUpdate && (
         <ConfirmDeleteModal
           isOpen
           variant={clientPendingToggle.isBlocked ? "success" : "danger"}
@@ -244,6 +253,7 @@ const ClientsPage = () => {
           onCancel={() => setClientPendingToggle(null)}
         />
       )}
+
     </div>
   );
 };

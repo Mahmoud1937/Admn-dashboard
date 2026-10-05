@@ -1,7 +1,10 @@
 import TermsAndConditionsEditor from "../../termsAndConditions/components/Termsandconditionseditor";
 import { usePrivacyPolicyMutation, usePrivacyPolicyQuery } from "../hooks/usePrivacyPolicy";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 export default function PrivacyPolicyPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.PRIVACY_POLICY_UPDATE);
   const { data, isLoading } = usePrivacyPolicyQuery();
   const { mutate, isPending, serverErrors } = usePrivacyPolicyMutation();
 
@@ -12,6 +15,7 @@ export default function PrivacyPolicyPage() {
       saving={isPending}
       loading={isLoading}
       serverErrors={serverErrors}
+      canUpdate={canUpdate}
       title="Privacy Policy"
       subtitle="Manage bilingual privacy policy content"
       enDescription="Write the English version of the Privacy Policy below."

@@ -32,7 +32,7 @@ export default function SpecialistsTable({ specialists, hasActiveFilters, onEdit
             <td className="px-6 py-3 font-medium text-slate-900">{specialist.enName}</td>
             <td className="px-6 py-3 text-slate-600">{specialist.arName}</td>
             <td className="px-6 py-3">
-              <RowActions onEdit={() => onEdit(specialist)} onDelete={() => onDeleteRequest(specialist)} />
+              <RowActions onEdit={onEdit ? () => onEdit(specialist) : undefined} onDelete={onDeleteRequest ? () => onDeleteRequest(specialist) : undefined} />
             </td>
           </tr>
         ))}

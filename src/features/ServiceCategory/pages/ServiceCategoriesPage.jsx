@@ -10,8 +10,13 @@ import Pagination from "../../../shared/components/Pagination";
 import ServiceCategoryFormModal from "../components/ServiceCategoryFormModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import PermissionGuard from "../../auth/components/PermissionGuard";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import usePermission from "../../auth/hooks/usePermission";
 
 export default function ServiceCategoriesPage() {
+  const canUpdate = usePermission(PERMISSION_CODES.SERVICE_CATEGORIES_UPDATE);
+  const canDelete = usePermission(PERMISSION_CODES.SERVICE_CATEGORIES_DELETE);
   const [search, setSearch] = useState("");
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -100,13 +105,15 @@ export default function ServiceCategoriesPage() {
           </p>
         </div>
 
-        <button
-          onClick={openAddForm}
-          className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add Service Category
-        </button>
+        <PermissionGuard permission={PERMISSION_CODES.SERVICE_CATEGORIES_CREATE}>
+          <button
+            onClick={openAddForm}
+            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Add Service Category
+          </button>
+        </PermissionGuard>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -129,8 +136,8 @@ export default function ServiceCategoriesPage() {
             <ServiceCategoriesTable
               categories={categories}
               hasActiveFilters={!!search}
-              onEdit={openEditForm}
-              onDeleteRequest={setCategoryToDelete}
+              onEdit={canUpdate ? openEditForm : undefined}
+              onDeleteRequest={canDelete ? setCategoryToDelete : undefined}
             />
 
             {categories.length > 0 && (
@@ -157,7 +164,7 @@ export default function ServiceCategoriesPage() {
   isSaving={isSaving}
   serverErrors={serverErrors}
 />
-      <ConfirmDeleteModal
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!categoryToDelete}
         title="Delete Service Category"
         message={`Are you sure you want to delete "${categoryToDelete?.enName}"? This action cannot be undone.`}
@@ -166,7 +173,7 @@ export default function ServiceCategoriesPage() {
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setCategoryToDelete(null)}
-      />
+      />}
     </div>
   );
 }

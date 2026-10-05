@@ -2,6 +2,7 @@ import axios from "axios";
 
 export const TOKEN_KEY = "token";
 export const REFRESH_TOKEN_KEY = "refreshToken";
+export const MUST_CHANGE_PASSWORD_KEY = "mustChangePassword";
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const setToken = (token) => localStorage.setItem(TOKEN_KEY, token);
@@ -11,6 +12,17 @@ export const getRefreshToken = () => localStorage.getItem(REFRESH_TOKEN_KEY);
 export const setRefreshToken = (refreshToken) =>
   localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 export const clearRefreshToken = () => localStorage.removeItem(REFRESH_TOKEN_KEY);
+
+export const getMustChangePassword = () =>
+  localStorage.getItem(MUST_CHANGE_PASSWORD_KEY) === "true";
+export const setMustChangePassword = (value) => {
+  if (value) {
+    localStorage.setItem(MUST_CHANGE_PASSWORD_KEY, "true");
+    return;
+  }
+
+  localStorage.removeItem(MUST_CHANGE_PASSWORD_KEY);
+};
 
 const axiosInstance = axios.create({
   baseURL: "https://medicard-api-v2.medicardeg.com/api/",
@@ -23,15 +35,28 @@ const isAuthRequest = (url = "") => {
   const normalizedUrl = url.toLowerCase();
   return (
     normalizedUrl.includes("authadmin/login") ||
-    normalizedUrl.includes("authadmin/refresh-token")
+    normalizedUrl.includes("authadmin/refresh-token") ||
+    normalizedUrl.includes("authadmin/logout")
+  );
+};
+
+const isAllowedWhilePasswordChangeRequired = (url = "") => {
+  const normalizedUrl = url.toLowerCase();
+  return (
+    normalizedUrl.includes("authadmin/change-password") ||
+    normalizedUrl.includes("authadmin/logout")
   );
 };
 
 // ---- Session-expired signal, consumed by AuthProvider ----
 // No window events: AuthProvider registers a plain callback once on mount.
 let onSessionExpired = null;
+let onTokenRefreshed = null;
 export const registerSessionExpiredHandler = (handler) => {
   onSessionExpired = handler;
+};
+export const registerTokenRefreshedHandler = (handler) => {
+  onTokenRefreshed = handler;
 };
 
 export const handleRefreshFailure = (reason = "unknown") => {
@@ -80,6 +105,7 @@ export const refreshAccessToken = () => {
 
       setToken(accessToken);
       if (nextRefreshToken) setRefreshToken(nextRefreshToken);
+      onTokenRefreshed?.(accessToken);
 
       return accessToken;
     })
@@ -95,6 +121,14 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const token = getToken();
     const authRequest = isAuthRequest(config.url);
+
+    if (
+      getMustChangePassword() &&
+      !authRequest &&
+      !isAllowedWhilePasswordChangeRequired(config.url)
+    ) {
+      return Promise.reject(new axios.Cancel("Password change required"));
+    }
 
     if (!token && !authRequest) {
       return Promise.reject(new axios.Cancel("Authentication required"));

@@ -22,9 +22,53 @@ const STATUS_TONE = {
   4: 'success', // Used
 }
 
-const HEADER_CELL_CLASS = 'px-4 py-3 text-center'
-
 const formatMoney = (n) => `${Number(n).toFixed(2)} EGP`
+
+const formatTime = (date) => {
+  const d = new Date(date)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+}
+
+function TableSkeleton({ rows = 7 }) {
+  return (
+    <div className="divide-y divide-slate-100" aria-busy="true">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-center gap-5 px-6 py-4">
+          <div className="h-3 w-20 animate-pulse rounded bg-slate-100" />
+          <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-slate-100" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3 w-44 animate-pulse rounded bg-slate-100" />
+            <div className="h-3 w-28 animate-pulse rounded bg-slate-100" />
+          </div>
+          <div className="hidden h-3 w-32 animate-pulse rounded bg-slate-100 md:block" />
+          <div className="h-3 w-20 animate-pulse rounded bg-slate-100" />
+          <div className="h-6 w-16 animate-pulse rounded-full bg-slate-100" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function IconButton({ title, onClick, tone = 'blue', children }) {
+  const tones = {
+    blue: 'hover:bg-blue-50 hover:text-blue-700 focus-visible:ring-blue-300',
+    green:
+      'hover:bg-emerald-50 hover:text-emerald-600 focus-visible:ring-emerald-300',
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      aria-label={title}
+      className={`flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors focus:outline-none focus-visible:ring-2 ${tones[tone]}`}
+    >
+      {children}
+    </button>
+  )
+}
 
 export default function InvoicesTable({
   invoices,
@@ -38,11 +82,7 @@ export default function InvoicesTable({
     useInvoiceDetailsQuery(detailsInvoiceId, !!detailsInvoiceId)
 
   if (isLoading) {
-    return (
-      <div className="py-10 text-center text-sm text-slate-400">
-        Loading invoices...
-      </div>
-    )
+    return <TableSkeleton />
   }
 
   if (!invoices.length) {
@@ -59,144 +99,154 @@ export default function InvoicesTable({
   return (
     <div className="min-w-0">
       <ScrollableTable maxHeight="60vh">
-        <table className="min-w-[1700px] w-full text-center text-sm">
-          <thead className="sticky top-0 z-10 bg-slate-100">
-            <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
-              <th className={`w-24 ${HEADER_CELL_CLASS}`}>Invoice No</th>
-              <th className={`w-[300px] ${HEADER_CELL_CLASS}`}>Client</th>
-              <th className={HEADER_CELL_CLASS}>Date</th>
-              <th className={HEADER_CELL_CLASS}>Phone</th>
-              <th className={HEADER_CELL_CLASS}>Card Number</th>
-              <th className={`w-[220px] ${HEADER_CELL_CLASS}`}>Provider</th>
-              <th className={HEADER_CELL_CLASS}>Branch</th>
-              <th className={HEADER_CELL_CLASS}>Payment</th>
-              <th className={HEADER_CELL_CLASS}>Price Before Discount</th>
-              <th className={HEADER_CELL_CLASS}>Price After Discount</th>
-              <th className={HEADER_CELL_CLASS}>Total</th>
-              <th className={HEADER_CELL_CLASS}>Services</th>
-              <th className={HEADER_CELL_CLASS}>Status</th>
-              <th className={HEADER_CELL_CLASS}>Action</th>
+        <table className="w-full min-w-[1280px] text-left text-sm">
+          <thead className="sticky top-0 z-10 bg-slate-50">
+            <tr className="border-b border-slate-200 text-xs font-medium text-slate-500">
+              <th className="px-6 py-3">Invoice</th>
+              <th className="px-4 py-3">Client</th>
+              <th className="px-4 py-3">Card number</th>
+              <th className="px-4 py-3">Provider</th>
+              <th className="px-4 py-3">Payment</th>
+              <th className="px-4 py-3 text-right">Before discount</th>
+              <th className="px-4 py-3 text-right">After discount</th>
+              <th className="px-4 py-3 text-right">Total</th>
+              <th className="px-4 py-3 text-center">Services</th>
+              <th className="px-4 py-3 text-center">Status</th>
+              <th className="px-6 py-3 text-center">Actions</th>
             </tr>
           </thead>
-          <tbody>
+
+          <tbody className="divide-y divide-slate-100">
             {invoices.map((inv) => {
               const clientName = inv.familyMemberName || inv.clientName || '-'
+              const time = formatTime(inv.date)
 
               return (
                 <tr
                   key={inv.invoiceId}
-                  className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60"
+                  className="transition-colors hover:bg-slate-50"
                 >
-                  <td className="px-4 py-3 text-sm font-medium text-slate-500 whitespace-nowrap text-center">
-                  {inv.invoiceId}
+                  {/* Invoice no + date */}
+                  <td className="whitespace-nowrap px-6 py-3.5">
+                    <p className="font-semibold tabular-nums text-slate-900">
+                      #{inv.invoiceId}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {formatDate(inv.date)}
+                      {time && <span className="text-slate-400"> {time}</span>}
+                    </p>
                   </td>
-                  <td className="w-[300px] max-w-[300px] px-4 py-3">
-                    <div className="mx-auto flex max-w-[240px] items-center gap-3 whitespace-nowrap rounded-[7px] px-2 py-1.5">
+
+                  {/* Client + phone */}
+                  <td className="px-4 py-3.5">
+                    <div className="flex max-w-[280px] items-center gap-3">
                       <ClientAvatar
                         name={clientName === '-' ? '' : clientName}
                         colorSeed={inv.clientId || inv.userId || inv.invoiceId}
-                        sizeClass="h-8 w-8"
-                        textClass="text-[9px] font-semibold"
+                        sizeClass="h-9 w-9"
+                        textClass="text-[10px] font-semibold"
                       />
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0">
                         <p
                           title={clientName}
-                          className="block overflow-hidden whitespace-nowrap text-left text-sm font-medium text-slate-700"
-                          dir="ltr"
-                          style={{
-                            direction: 'ltr',
-                            textOverflow: 'clip ellipsis',
-                            unicodeBidi: 'plaintext',
-                          }}
+                          dir="auto"
+                          className="truncate text-left font-medium text-slate-900"
                         >
                           {clientName}
                         </p>
-                        {inv.familyMemberRelation && (
-                          <p className="mt-0.5 text-[11px] font-normal text-slate-400">
-                            {inv.familyMemberRelation}
-                          </p>
-                        )}
+                        <p className="truncate text-xs text-slate-500">
+                          {inv.familyMemberRelation
+                            ? `${inv.familyMemberRelation}, `
+                            : ''}
+                          <span className="tabular-nums">
+                            {inv.mobileNumber || 'No phone'}
+                          </span>
+                        </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">
-                    <p>{formatDate(inv.date)}</p>
-                    <p className="text-xs text-slate-400">
-                      {new Date(inv.date).toLocaleTimeString('en-GB', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">
-                    {inv.mobileNumber || '-'}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">
+
+                  {/* Card */}
+                  <td className="whitespace-nowrap px-4 py-3.5 font-mono text-xs tabular-nums text-slate-700">
                     {inv.cardNumber || '-'}
                   </td>
-                  <td className="w-[220px] max-w-[220px] px-4 py-3 text-center">
-                    <div className="mx-auto max-w-[190px] leading-tight">
-                      <p className="truncate text-sm text-slate-500">
+
+                  {/* Provider + branch */}
+                  <td className="px-4 py-3.5">
+                    <div className="max-w-[230px] leading-tight">
+                      <p className="truncate font-medium text-slate-800">
                         {inv.providerNameEn || '-'}
                       </p>
                       {inv.providerNameAr && (
                         <p
-                          className="mt-0.5 truncate text-xs text-slate-400"
                           dir="rtl"
+                          lang="ar"
+                          style={{ textAlign: 'left' }}
+                          className="mt-0.5 truncate text-xs text-slate-500"
                         >
                           {inv.providerNameAr}
                         </p>
                       )}
+                      {inv.providerBranchName && (
+                        <p className="mt-0.5 truncate text-xs text-slate-400">
+                          {inv.providerBranchName}
+                        </p>
+                      )}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">
-                    {inv.providerBranchName || '-'}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center gap-1.5 text-sm text-slate-500">
+
+                  {/* Payment */}
+                  <td className="whitespace-nowrap px-4 py-3.5">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
                       <FontAwesomeIcon
                         icon={inv.isCash ? faMoneyBillWave : faCreditCard}
                         className="text-slate-400"
-                        size="sm"
                       />
                       {inv.isCash ? 'Cash' : 'Visa'}
-                    </div>
+                    </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">
+
+                  {/* Amounts */}
+                  <td className="whitespace-nowrap px-4 py-3.5 text-right tabular-nums text-slate-500">
                     {formatMoney(inv.priceBefore)}
                   </td>
-                  <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">
+                  <td className="whitespace-nowrap px-4 py-3.5 text-right tabular-nums text-slate-600">
                     {formatMoney(inv.priceAfter)}
                   </td>
-                  <td className="px-4 py-3 text-sm font-medium text-slate-700 whitespace-nowrap text-center">
+                  <td className="whitespace-nowrap px-4 py-3.5 text-right font-semibold tabular-nums text-slate-900">
                     {formatMoney(inv.totalAmount)}
                   </td>
-                  <td className="px-4 py-3 text-sm text-slate-500 whitespace-nowrap text-center">
+
+                  {/* Services */}
+                  <td className="px-4 py-3.5 text-center tabular-nums text-slate-600">
                     {inv.servicesCount}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
+
+                  {/* Status */}
+                  <td className="whitespace-nowrap px-4 py-3.5">
                     <div className="flex items-center justify-center">
                       <StatusBadge tone={STATUS_TONE[inv.status] ?? 'default'}>
                         {inv.statusName}
                       </StatusBadge>
                     </div>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
+
+                  {/* Actions */}
+                  <td className="px-6 py-3.5">
+                    <div className="flex items-center justify-center gap-1">
+                      <IconButton
+                        title="View details"
                         onClick={() => setDetailsInvoiceId(inv.invoiceId)}
-                        title="View Details"
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600"
                       >
                         <Eye size={16} />
-                      </button>
-                      <button
+                      </IconButton>
+                      <IconButton
+                        title="View timeline"
+                        tone="green"
                         onClick={() => setTimelineInvoiceId(inv.invoiceId)}
-                        title="Timeline"
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-emerald-600"
                       >
                         <History size={16} />
-                      </button>
+                      </IconButton>
                     </div>
                   </td>
                 </tr>
