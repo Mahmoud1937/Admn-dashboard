@@ -6,6 +6,7 @@ import DashboardLayout from "../layout/DashboardLayout";
 import ProtectedRoute from "../shared/components/Protectedroute";
 import PermissionRoute from "../features/auth/components/PermissionRoute";
 import { PERMISSION_CODES } from "../features/auth/constants/permissionCodes";
+import NotificationsPage from "../features/notificationsAdmin/pages/NotificationsPage";
 const DashboardPage = lazy(() => import("../features/dashboard/pages/DashboardPage"));
 const NotFoundPage = lazy(() => import("../shared/components/NotFoundPage"));
 const ProvidersPage = lazy(() => import("../features/providers/pages/ProvidersPage"));
@@ -47,21 +48,14 @@ const withPermission = (permission, element) => (
 );
 
 const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/change-password",
-    element: <ForceChangePasswordPage />,
-  },
+  { path: "/login",element: <LoginPage />},
+  {path: "/change-password",element: <ForceChangePasswordPage />},
   {
     // Layout route: nothing under "/" renders unless AuthContext has a
     // valid (non-expired) JWT - otherwise ProtectedRoute redirects to /login.
     path: "/",
     element: <ProtectedRoute />,
-    children: [
-      {
+    children: [{
         element: <DashboardLayout />,
         children: [
           {
@@ -79,7 +73,13 @@ const router = createBrowserRouter([
               <ProvidersPage />
             ),
           },
-
+{
+  path: 'notifications',
+  element: withPermission(
+    PERMISSION_CODES.NOTIFICATION_MARKETING_READ,
+    <NotificationsPage />,
+  ),
+},
           {
             path: "branches",
             element: withPermission(

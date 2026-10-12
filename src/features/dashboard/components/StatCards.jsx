@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowTrendUp,
@@ -8,8 +8,26 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useDashboard } from "../hooks/useDashboard";
 import { DatePicker } from "../../../shared/components/DateRangeFilterFields";
+import {
+  getDashboardFilter,
+  saveDashboardFilter,
+} from "../../../shared/utils/dashboardFilterSession";
 
 const today = () => new Date().toLocaleDateString("en-CA");
+const isStoredDate = (value) =>
+  value === "" ||
+  (typeof value === "string" &&
+    /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+    !Number.isNaN(new Date(`${value}T00:00:00`).getTime()));
+
+const initialDates = () => {
+  const stored = getDashboardFilter("summary");
+  return {
+    from: isStoredDate(stored?.from) ? stored.from : today(),
+    to: isStoredDate(stored?.to) ? stored.to : today(),
+  };
+};
+
 const toApiDate = (date, time) => {
   if (!date) return null;
 
@@ -50,12 +68,12 @@ function StatCard({
 }) {
   return (
     <article
-      className={`rounded-xl border p-5 shadow-sm transition-shadow hover:shadow-md ${CARD_BACKGROUNDS[tone]}`}
+      className={`min-w-0 rounded-xl border p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5 ${CARD_BACKGROUNDS[tone]}`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="mt-3 truncate text-2xl font-bold tracking-tight text-slate-900">
+          <p className="mt-3 break-words text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
             {primaryValue}
           </p>
           <p className="mt-1 text-xs text-slate-400">{primaryLabel}</p>
@@ -67,11 +85,11 @@ function StatCard({
         </span>
       </div>
 
-      <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+      <div className="mt-5 flex items-center justify-between gap-2 border-t border-slate-100 pt-4">
         <span className="text-xs font-medium text-slate-500">
           {secondaryLabel}
         </span>
-        <span className="text-sm font-semibold text-slate-700">
+        <span className="min-w-0 break-words text-right text-sm font-semibold text-slate-700">
           {secondaryValue}
         </span>
       </div>
@@ -82,7 +100,7 @@ function StatCard({
 function StatCardsSkeleton() {
   return (
     <div
-      className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4"
       aria-label="Loading dashboard summary"
     >
       {Array.from({ length: 4 }, (_, index) => (
@@ -101,8 +119,11 @@ function StatCardsSkeleton() {
 }
 
 export default function StatCards() {
-  const [from, setFrom] = useState(today());
-  const [to, setTo] = useState(today());
+  const [{ from, to }, setDates] = useState(initialDates);
+
+  useEffect(() => {
+    saveDashboardFilter("summary", { from, to });
+  }, [from, to]);
 
   const filters = useMemo(
     () => {
@@ -121,7 +142,7 @@ export default function StatCards() {
 
   return (
     <section className="space-y-4" aria-labelledby="dashboard-summary-title">
-      <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm xl:flex-row xl:items-center xl:justify-between">
         <div>
           <h2
             id="dashboard-summary-title"
@@ -134,30 +155,46 @@ export default function StatCards() {
           </p>
         </div>
 
-        <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-2">
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-medium text-slate-600">
-              From date
-            </span>
-            <DatePicker
-              value={from}
-              maxDate={to}
-              onChange={setFrom}
-              className="w-full sm:w-40"
-            />
-          </label>
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end xl:w-auto">
+          <div className="grid flex-1 gap-3 sm:grid-cols-2 xl:flex-none">
+            <label className="block">
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">
+                From date
+              </span>
+              <DatePicker
+                value={from}
+                maxDate={to}
+                onChange={(value) =>
+                  setDates((previous) => ({ ...previous, from: value }))
+                }
+                className="w-full xl:w-40"
+              />
+            </label>
 
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-medium text-slate-600">
-              To date
-            </span>
-            <DatePicker
-              value={to}
-              minDate={from}
-              onChange={setTo}
-              className="w-full sm:w-40"
-            />
-          </label>
+            <label className="block">
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">
+                To date
+              </span>
+              <DatePicker
+                value={to}
+                minDate={from}
+                onChange={(value) =>
+                  setDates((previous) => ({ ...previous, to: value }))
+                }
+                className="w-full xl:w-40"
+              />
+            </label>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const date = today();
+              setDates({ from: date, to: date });
+            }}
+            className="h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-800"
+          >
+            Reset
+          </button>
         </div>
       </div>
 
@@ -183,7 +220,7 @@ export default function StatCards() {
       )}
 
       {data && !isLoading && (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
           <StatCard
             title="Sold Cards"
             icon={faCreditCard}

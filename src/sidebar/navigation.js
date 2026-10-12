@@ -23,6 +23,7 @@ import {
   faUserTie,
   faChartLine,
   faCodeBranch,
+  faBell,
 } from "@fortawesome/free-solid-svg-icons";
 import { PERMISSION_CODES } from "../features/auth/constants/permissionCodes";
 
@@ -33,6 +34,7 @@ export const navigation = [
     icon: faChartLine,
     permission: PERMISSION_CODES.DASHBOARD_READ,
   },
+
   {
     title: "Providers",
     path: "/providers",
@@ -166,6 +168,12 @@ export const navigation = [
     icon: faMoneyBillWave,
     permission: PERMISSION_CODES.PLAN_TYPES_READ,
   },
+    {
+  title: "Notifications",
+  path: "/notifications",
+  icon: faBell,
+  permission: PERMISSION_CODES.NOTIFICATION_MARKETING_READ,
+},
   {
     title: "Terms & Conditions",
     path: "/terms-and-conditions",

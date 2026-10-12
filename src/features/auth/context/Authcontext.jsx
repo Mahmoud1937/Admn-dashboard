@@ -23,6 +23,7 @@ import {
   setMustChangePassword as persistMustChangePassword,
 } from "../../../shared/api/axiosInstance";
 import { getUserFromToken, isTokenExpired } from "../../../shared/utils/jwt";
+import { clearDashboardFilters } from "../../../shared/utils/dashboardFilterSession";
 import { getEmployeeById } from "../../employees/services/employeesService";
 import { getPermissions } from "../../employees/permissions/services/permissionsService";
 import {
@@ -132,6 +133,7 @@ export function AuthProvider({ children }) {
       loginPermissions = []
     ) => {
       permissionLoadRunRef.current += 1;
+      clearDashboardFilters();
       removeToken();
       removeRefreshToken();
       clearPersistedPermissions();
@@ -151,6 +153,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(() => {
     permissionLoadRunRef.current += 1;
+    clearDashboardFilters();
     removeToken();
     removeRefreshToken();
     clearPersistedPermissions();
@@ -173,6 +176,7 @@ export function AuthProvider({ children }) {
     });
     registerSessionExpiredHandler((reason) => {
       permissionLoadRunRef.current += 1;
+      clearDashboardFilters();
       clearPersistedPermissions();
       persistMustChangePassword(false);
       setSessionExpiredReason(reason);
@@ -194,6 +198,7 @@ export function AuthProvider({ children }) {
 
     const clearInvalidSession = () => {
       permissionLoadRunRef.current += 1;
+      clearDashboardFilters();
       removeToken();
       removeRefreshToken();
       persistMustChangePassword(false);

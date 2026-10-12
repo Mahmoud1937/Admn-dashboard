@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBuilding, faListCheck, faTag } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faBuilding, faListCheck, faTag } from "@fortawesome/free-solid-svg-icons";
 import { useProviderQuery } from "../hooks/useProviderQuery";
 import { useProviderMutation } from "../hooks/useProviderMutation";
 import ProviderInfoForm from "../components/ProviderInfoForm";
 import ProviderBranchesTab from "../../branches/components/ProviderBranchesTab";
 import ProviderServicesTab from "../../providerServices/components/ProviderServicesTab";
+import ProviderPackagesTab from "../../providerPackages/components/ProviderPackagesTab";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import AccessDeniedPage from "../../../shared/components/AccessDeniedPage";
 import usePermission from "../../auth/hooks/usePermission";
@@ -26,6 +27,7 @@ const TABS = [
     icon: faTag,
     permission: PERMISSION_CODES.PROVIDER_SERVICES_READ,
   },
+  { key: "packages", label: "Packages", icon: faBoxOpen },
 ];
 
 export default function ProviderDetailsPage() {
@@ -115,6 +117,8 @@ export default function ProviderDetailsPage() {
       {activeTab === "branches" && canViewBranches && <ProviderBranchesTab />}
 
       {activeTab === "Services" && canViewServices && <ProviderServicesTab />}
+
+      {activeTab === "packages" && <ProviderPackagesTab />}
     </div>
   );
 }

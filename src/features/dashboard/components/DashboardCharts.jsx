@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarDays,
@@ -18,6 +18,10 @@ import {
 } from "recharts";
 import { DASHBOARD_CHART_GROUP_BY } from "../services/dashboardService";
 import { useDashboardChart } from "../hooks/useDashboardChart";
+import {
+  getDashboardFilter,
+  saveDashboardFilter,
+} from "../../../shared/utils/dashboardFilterSession";
 
 const GROUP_OPTIONS = [
   { value: DASHBOARD_CHART_GROUP_BY.ByMonth, label: "By month" },
@@ -28,6 +32,15 @@ const GROUP_OPTIONS = [
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 6 }, (_, index) => currentYear - index);
+const initialChartFilters = () => {
+  const stored = getDashboardFilter("chart");
+  return {
+    groupBy: Object.values(DASHBOARD_CHART_GROUP_BY).includes(stored?.groupBy)
+      ? stored.groupBy
+      : DASHBOARD_CHART_GROUP_BY.ByMonth,
+    year: YEARS.includes(stored?.year) ? stored.year : currentYear,
+  };
+};
 
 const formatMoney = (value) =>
   `${Number(value ?? 0).toLocaleString("en-US", {
@@ -74,25 +87,23 @@ function ChartCard({
 }) {
   return (
     <article
-      className={`min-w-0 rounded-xl border p-5 shadow-sm ${CHART_CARD_BACKGROUNDS[tone]} ${className}`}
+      className={`min-w-0 rounded-xl border p-4 shadow-sm sm:p-5 ${CHART_CARD_BACKGROUNDS[tone]} ${className}`}
     >
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="min-w-0">
           <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
           <p className="mt-1 text-xs text-slate-500">{description}</p>
         </div>
-        <div className="shrink-0 text-right">
-          <p className="text-lg font-bold text-slate-900">{total}</p>
+        <div className="min-w-0 sm:text-right">
+          <p className="break-words text-lg font-bold text-slate-900">{total}</p>
           <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
             {totalLabel}
           </p>
         </div>
       </div>
-<div
-  className={`${chartClassName} w-full`}
->
-  {children}
-</div>
+      <div className={`${chartClassName} w-full min-w-0`}>
+        {children}
+      </div>
     </article>
   );
 }
@@ -136,19 +147,24 @@ function ChartsSkeleton() {
 }
 
 export default function DashboardCharts() {
-  const [groupBy, setGroupBy] = useState(DASHBOARD_CHART_GROUP_BY.ByMonth);
-  const [year, setYear] = useState(currentYear);
+  const [{ groupBy, year }, setChartFilters] = useState(initialChartFilters);
+
+  useEffect(() => {
+    saveDashboardFilter("chart", { groupBy, year });
+  }, [groupBy, year]);
 
   const isMonthGrouping = groupBy === DASHBOARD_CHART_GROUP_BY.ByMonth;
 
   const handleGroupByChange = (event) => {
     const nextGroupBy = Number(event.target.value);
 
-    setGroupBy(nextGroupBy);
-
-    if (nextGroupBy !== DASHBOARD_CHART_GROUP_BY.ByMonth) {
-      setYear(currentYear);
-    }
+    setChartFilters((previous) => ({
+      groupBy: nextGroupBy,
+      year:
+        nextGroupBy === DASHBOARD_CHART_GROUP_BY.ByMonth
+          ? previous.year
+          : currentYear,
+    }));
   };
 
   const { data, isLoading, isError, refetch } = useDashboardChart({
@@ -167,7 +183,7 @@ export default function DashboardCharts() {
 
   return (
     <section className="space-y-4" aria-labelledby="dashboard-trends-title">
-      <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm xl:flex-row xl:items-center xl:justify-between">
         <div>
           <h2
             id="dashboard-trends-title"
@@ -180,53 +196,72 @@ export default function DashboardCharts() {
           </p>
         </div>
 
-        <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-2">
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-medium text-slate-600">
-              Group by
-            </span>
-            <span className="relative block">
-              <FontAwesomeIcon
-                icon={faChartColumn}
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"
-              />
-              <select
-                value={groupBy}
-                onChange={handleGroupByChange}
-                className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-8 text-sm text-slate-700 outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-600/10 sm:w-40"
-              >
-                {GROUP_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </span>
-          </label>
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end xl:w-auto">
+          <div className="grid flex-1 gap-3 sm:grid-cols-2 xl:flex-none">
+            <label className="block">
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">
+                Group by
+              </span>
+              <span className="relative block">
+                <FontAwesomeIcon
+                  icon={faChartColumn}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"
+                />
+                <select
+                  value={groupBy}
+                  onChange={handleGroupByChange}
+                  className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-8 text-sm text-slate-700 outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-600/10 xl:w-40"
+                >
+                  {GROUP_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </span>
+            </label>
 
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-medium text-slate-600">
-              Year
-            </span>
-            <span className="relative block">
-              <FontAwesomeIcon
-                icon={faCalendarDays}
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"
-              />
-              <select
-                value={year}
-                onChange={(event) => setYear(Number(event.target.value))}
-                disabled={!isMonthGrouping}
-                className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-8 text-sm text-slate-700 outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-600/10 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 sm:w-32"
-              >
-                {YEARS.map((optionYear) => (
-                  <option key={optionYear} value={optionYear}>
-                    {optionYear}
-                  </option>
-                ))}
-              </select>
-            </span>
-          </label>
+            <label className="block">
+              <span className="mb-1.5 block text-xs font-medium text-slate-600">
+                Year
+              </span>
+              <span className="relative block">
+                <FontAwesomeIcon
+                  icon={faCalendarDays}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"
+                />
+                <select
+                  value={year}
+                  onChange={(event) =>
+                    setChartFilters((previous) => ({
+                      ...previous,
+                      year: Number(event.target.value),
+                    }))
+                  }
+                  disabled={!isMonthGrouping}
+                  className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-8 text-sm text-slate-700 outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-600/10 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 xl:w-32"
+                >
+                  {YEARS.map((optionYear) => (
+                    <option key={optionYear} value={optionYear}>
+                      {optionYear}
+                    </option>
+                  ))}
+                </select>
+              </span>
+            </label>
+          </div>
+          <button
+            type="button"
+            onClick={() =>
+              setChartFilters({
+                groupBy: DASHBOARD_CHART_GROUP_BY.ByMonth,
+                year: currentYear,
+              })
+            }
+            className="h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-800"
+          >
+            Reset
+          </button>
         </div>
       </div>
 
@@ -287,6 +322,7 @@ export default function DashboardCharts() {
                     dataKey="label"
                     axisLine={false}
                     tickLine={false}
+                    minTickGap={12}
                     tick={{ fill: "#64748b", fontSize: 11 }}
                   />
                   <YAxis
@@ -356,7 +392,7 @@ export default function DashboardCharts() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={prepareChartData(data.soldCardsInfo)} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
                 <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="4 4" />
-                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} />
+                <XAxis dataKey="label" axisLine={false} tickLine={false} minTickGap={12} tick={{ fill: "#64748b", fontSize: 11 }} />
                 <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} width={36} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value) => [formatCount(value), "Cards"]} cursor={{ fill: "#f8fafc" }} />
                 <Bar dataKey="count" name="Cards" fill="#059669" radius={[6, 6, 0, 0]} maxBarSize={42} />
@@ -378,7 +414,7 @@ export default function DashboardCharts() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={providerData} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
                 <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="4 4" />
-                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} />
+                <XAxis dataKey="label" axisLine={false} tickLine={false} minTickGap={12} tick={{ fill: "#64748b", fontSize: 11 }} />
                 <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} width={36} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value) => formatCount(value)} cursor={{ fill: "#f8fafc" }} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }} />
