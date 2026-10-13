@@ -57,7 +57,7 @@ const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
     <div className="min-w-0">
       <ScrollableTable maxHeight="60vh">
         <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="sticky top-0 z-10 bg-slate-50">
+          <thead className="sticky top-0 z-10 bg-slate-100">
             <tr className="border-b border-slate-200 text-xs font-medium text-slate-500">
               <th className="px-6 py-3">Card number</th>
               <th className="px-4 py-3">Type</th>

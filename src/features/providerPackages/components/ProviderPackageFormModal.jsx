@@ -42,10 +42,13 @@ function PackageImageField({ file, label, onChange, error }) {
 const getUpdateValues = (providerPackage) => {
   const before = Number(providerPackage.priceBefore);
   const after = Number(providerPackage.priceAfter);
+  const backendDiscount = providerPackage.totalDiscount;
   const percentage =
-    before > 0 && Number.isFinite(after)
-      ? (((before - after) / before) * 100).toFixed(2)
-      : "0";
+    backendDiscount != null && Number.isFinite(Number(backendDiscount))
+      ? Number(backendDiscount)
+      : before > 0 && Number.isFinite(after)
+        ? Number(((((before - after) / before) * 100).toFixed(2)))
+        : 0;
 
   return {
     nameAr: providerPackage.packageArName || "",
@@ -53,7 +56,7 @@ const getUpdateValues = (providerPackage) => {
     descriptionAr: providerPackage.descriptionAr || "",
     descriptionEn: providerPackage.descriptionEn || "",
     priceBefore: String(providerPackage.priceBefore ?? ""),
-    discountPercentage: percentage,
+    discountPercentage: String(percentage),
     imageAr: providerPackage.imageAr || null,
     imageEn: providerPackage.imageEn || null,
     serviceIds: (providerPackage.services ?? []).map((service) => ({
@@ -81,6 +84,7 @@ export default function ProviderPackageFormModal({
     register,
     control,
     handleSubmit,
+    getValues,
     setError,
     formState: { errors },
   } = useForm({
@@ -92,6 +96,8 @@ export default function ProviderPackageFormModal({
   useEffect(() => {
     applyServerErrors(serverErrors, setError);
   }, [serverErrors, setError]);
+
+  const discountField = register("discountPercentage");
 
   const submit = (values) => {
     onSave({
@@ -195,7 +201,13 @@ export default function ProviderPackageFormModal({
           inputMode="decimal"
           sanitize={false}
           error={errors.discountPercentage?.message}
-          {...register("discountPercentage")}
+          {...discountField}
+          onChange={(event) => {
+            if (Number(event.target.value) > 100) {
+              event.target.value = getValues("discountPercentage");
+            }
+            discountField.onChange(event);
+          }}
         />
       </div>
 

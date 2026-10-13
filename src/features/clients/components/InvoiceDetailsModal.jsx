@@ -116,7 +116,7 @@ export default function InvoiceDetailsModal({ isOpen, onClose, invoice, isLoadin
             <div className="max-h-72 overflow-y-auto overflow-x-auto">
               <table className="w-full table-fixed text-sm">
                 <thead>
-                  <tr className="bg-slate-50 text-slate-400 text-xs sticky top-0 z-10">
+                  <tr className="bg-slate-100 text-slate-400 text-xs sticky top-0 z-10">
                     <th className="text-center px-3 sm:px-5 py-3">#</th>
                     <th className="text-center px-3 sm:px-5 py-3">Service</th>
                     <th className="text-center px-3 sm:px-5 py-3">Price Before</th>

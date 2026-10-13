@@ -27,7 +27,12 @@ const TABS = [
     icon: faTag,
     permission: PERMISSION_CODES.PROVIDER_SERVICES_READ,
   },
-  { key: "packages", label: "Packages", icon: faBoxOpen },
+  {
+    key: "packages",
+    label: "Packages",
+    icon: faBoxOpen,
+    permission: PERMISSION_CODES.PROVIDER_PACKAGES_READ,
+  },
 ];
 
 export default function ProviderDetailsPage() {
@@ -40,16 +45,23 @@ export default function ProviderDetailsPage() {
   const canUpdate = usePermission(PERMISSION_CODES.PROVIDERS_UPDATE);
   const canViewBranches = usePermission(PERMISSION_CODES.PROVIDER_BRANCHES_READ);
   const canViewServices = usePermission(PERMISSION_CODES.PROVIDER_SERVICES_READ);
+  const canViewPackages = usePermission(PERMISSION_CODES.PROVIDER_PACKAGES_READ);
   const isEditMode = isCreateMode || (isUpdateRequested && canUpdate);
   const visibleTabs = TABS.filter((tab) => {
     if (!tab.permission) return true;
     if (tab.permission === PERMISSION_CODES.PROVIDER_BRANCHES_READ) {
       return canViewBranches;
     }
-    return canViewServices;
+    if (tab.permission === PERMISSION_CODES.PROVIDER_SERVICES_READ) {
+      return canViewServices;
+    }
+    return canViewPackages;
   });
 
   const [activeTab, setActiveTab] = useState("info");
+  const selectedTab = visibleTabs.some((tab) => tab.key === activeTab)
+    ? activeTab
+    : "info";
 
   const { provider, isLoading, isError, error,refetch } =
     useProviderQuery(id, isCreateMode);
@@ -91,7 +103,7 @@ export default function ProviderDetailsPage() {
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 px-1 py-2.5 text-xs font-medium transition sm:flex-initial sm:justify-start sm:gap-2 sm:py-3 sm:text-sm ${
-                activeTab === tab.key
+                selectedTab === tab.key
                   ? "border-blue-600 text-blue-600"
                   : "border-transparent text-slate-500 hover:text-slate-700"
               }`}
@@ -103,7 +115,7 @@ export default function ProviderDetailsPage() {
         </div>
       )}
 
-      {activeTab === "info" && (
+      {selectedTab === "info" && (
         <ProviderInfoForm
           isCreateMode={isCreateMode}
           isEditMode={isEditMode}
@@ -114,11 +126,11 @@ export default function ProviderDetailsPage() {
         />
       )}
 
-      {activeTab === "branches" && canViewBranches && <ProviderBranchesTab />}
+      {selectedTab === "branches" && canViewBranches && <ProviderBranchesTab />}
 
-      {activeTab === "Services" && canViewServices && <ProviderServicesTab />}
+      {selectedTab === "Services" && canViewServices && <ProviderServicesTab />}
 
-      {activeTab === "packages" && <ProviderPackagesTab />}
+      {selectedTab === "packages" && canViewPackages && <ProviderPackagesTab />}
     </div>
   );
 }

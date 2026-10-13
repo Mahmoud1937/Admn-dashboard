@@ -146,6 +146,9 @@ export default function SearchableAsyncSelect({
           disabled={disabled}
           value={displayValue}
           onFocus={handleFocus}
+          onClick={() => {
+            if (!isOpen) handleFocus();
+          }}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder={isOpen ? searchPlaceholder : placeholder}
           className="w-full min-w-0 truncate bg-transparent outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:text-slate-500"
@@ -158,10 +161,29 @@ export default function SearchableAsyncSelect({
               className="cursor-pointer text-xs text-slate-400 hover:text-slate-600"
             />
           )}
-          <FontAwesomeIcon
-            icon={faChevronDown}
-            className={`text-xs text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
-          />
+          <button
+            type="button"
+            disabled={disabled}
+            aria-label={isOpen ? "Close options" : "Open options"}
+            aria-expanded={isOpen}
+            onClick={() => {
+              if (isOpen) {
+                setIsOpen(false);
+                setSearchInput("");
+                inputRef.current?.blur();
+              } else {
+                setIsOpen(true);
+                setSearchInput("");
+                inputRef.current?.focus();
+              }
+            }}
+            className="cursor-pointer text-slate-400 disabled:cursor-not-allowed"
+          >
+            <FontAwesomeIcon
+              icon={faChevronDown}
+              className={`text-xs transition-transform ${isOpen ? "rotate-180" : ""}`}
+            />
+          </button>
         </span>
       </div>
 

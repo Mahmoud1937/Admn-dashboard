@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -20,6 +20,10 @@ import {
 } from "../schema/notificationSchema";
 
 import { DatePicker } from "../../../shared/components/DateRangeFilterFields";
+import ProviderSelect from "../../../shared/components/ProviderSelect";
+import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
+import GovernorateSelect from "../../cities/components/GovernorateSelect";
+import { getNotificationPackageLookup } from "../services/notificationsService";
 
 const inputBase =
   "w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none transition-colors duration-200 focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500";
@@ -28,6 +32,9 @@ const FOCUS_TONES = {
   blue: "focus:border-[#1b4477] focus:ring-[#1b4477]/15",
   teal: "focus:border-[#2caba2] focus:ring-[#2caba2]/20",
 };
+
+const lookupLabel = (item) =>
+  [item.enName, item.arName].filter(Boolean).join(" - ") || String(item.id);
 
 // Small self-contained animations (turned off for users who prefer reduced motion).
 const ANIMATION_CSS = `
@@ -658,6 +665,11 @@ export default function NotificationFormModal({
     name: "sendMode",
   });
 
+  const targetType = useWatch({
+    control,
+    name: "targetType",
+  });
+
   const scheduledDate = useWatch({
     control,
     name: "scheduledDate",
@@ -968,6 +980,95 @@ export default function NotificationFormModal({
                     />
                   </div>
                 </Field>
+              </section>
+
+              {/* Audience and destination */}
+              <section>
+                <SectionHeading
+                  title="Audience & destination"
+                  description="Optionally narrow the audience and link the notification to a provider or package."
+                />
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Field label="Gender" htmlFor="notification-gender">
+                    <select
+                      id="notification-gender"
+                      {...register("isMale")}
+                      className={`${inputBase} ${border("isMale")}`}
+                    >
+                      <option value="">All genders</option>
+                      <option value="true">Male</option>
+                      <option value="false">Female</option>
+                    </select>
+                  </Field>
+
+                  <Field label="Governorate" error={errors.governmentId?.message}>
+                    <Controller
+                      name="governmentId"
+                      control={control}
+                      render={({ field }) => (
+                        <GovernorateSelect
+                          value={field.value}
+                          onChange={(id) => field.onChange(id ?? "")}
+                          placeholder="All governorates"
+                        />
+                      )}
+                    />
+                  </Field>
+
+                  <Field label="Target type" htmlFor="notification-target-type">
+                    <Controller
+                      name="targetType"
+                      control={control}
+                      render={({ field }) => (
+                        <select
+                          id="notification-target-type"
+                          value={field.value}
+                          onChange={(event) => {
+                            field.onChange(event.target.value);
+                            setValue("targetId", "", { shouldDirty: true, shouldValidate: true });
+                          }}
+                          className={`${inputBase} ${border("targetType")}`}
+                        >
+                          <option value="1">Provider</option>
+                          <option value="2">Package</option>
+                        </select>
+                      )}
+                    />
+                  </Field>
+
+                  <Field
+                    label={targetType === "2" ? "Package" : "Provider"}
+                    error={errors.targetId?.message}
+                    hint="Optional destination for this notification."
+                  >
+                    <Controller
+                      name="targetId"
+                      control={control}
+                      render={({ field }) =>
+                        targetType === "2" ? (
+                          <SearchableAsyncSelect
+                            queryKey={["notification-packages-lookup"]}
+                            fetchItems={getNotificationPackageLookup}
+                            value={field.value}
+                            onChange={(id) => field.onChange(id ?? "")}
+                            getOptionLabel={lookupLabel}
+                            getOptionValue={(item) => item.id}
+                            placeholder="Select package"
+                            searchPlaceholder="Search packages..."
+                          />
+                        ) : (
+                          <ProviderSelect
+                            queryKey={["providers", "lookup", "notifications"]}
+                            value={field.value}
+                            onChange={(id) => field.onChange(id ?? "")}
+                            placeholder="Select provider"
+                          />
+                        )
+                      }
+                    />
+                  </Field>
+                </div>
               </section>
 
               {/* Delivery */}

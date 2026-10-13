@@ -108,6 +108,7 @@ export default function ProviderPackageDetailsModal({
   packageId,
   initialMode = "details",
   providerId,
+  canUpdate = false,
   onSave,
   onClose,
   isSaving,
@@ -120,6 +121,7 @@ export default function ProviderPackageDetailsModal({
   const closeTimerRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState(initialMode);
+  const isEditing = mode === "edit" && canUpdate;
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -136,7 +138,7 @@ export default function ProviderPackageDetailsModal({
   }, [closeThen]);
 
   const handleEdit = () => {
-    if (providerPackage) setMode("edit");
+    if (canUpdate && providerPackage) setMode("edit");
   };
 
   useEffect(() => {
@@ -157,7 +159,7 @@ export default function ProviderPackageDetailsModal({
   }, [requestClose]);
 
   const percent = providerPackage
-    ? getDiscountPercent(providerPackage.priceBefore, providerPackage.totalDiscount)
+    ? getDiscountPercent(providerPackage.totalDiscount)
     : null;
   const discounted = providerPackage
     ? hasDiscount(providerPackage.totalDiscount)
@@ -170,7 +172,7 @@ export default function ProviderPackageDetailsModal({
       className={`fixed inset-0 z-[200] flex justify-end bg-slate-900/50 backdrop-blur-[2px] transition-opacity duration-300 motion-reduce:transition-none ${
         isOpen ? "opacity-100" : "opacity-0"
       }`}
-      onClick={mode === "details" ? requestClose : undefined}
+      onClick={!isEditing ? requestClose : undefined}
     >
       <div
         ref={dialogRef}
@@ -189,7 +191,7 @@ export default function ProviderPackageDetailsModal({
               id="provider-package-details-title"
               className="text-lg font-semibold text-slate-900"
             >
-              {mode === "edit" ? "Edit package" : "Package details"}
+              {isEditing ? "Edit package" : "Package details"}
             </h2>
             <p className="mt-0.5 text-xs text-slate-500">
               Package #{packageId}
@@ -198,14 +200,14 @@ export default function ProviderPackageDetailsModal({
           <button
             type="button"
             onClick={requestClose}
-            aria-label={mode === "edit" ? "Close edit package" : "Close package details"}
+            aria-label={isEditing ? "Close edit package" : "Close package details"}
             className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
           >
             <X size={20} />
           </button>
         </div>
 
-        {mode === "edit" ? (
+        {isEditing ? (
           isLoading ? (
             <DetailsSkeleton />
           ) : isError || !providerPackage ? (
@@ -285,7 +287,7 @@ export default function ProviderPackageDetailsModal({
                     <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-100">
                       <FontAwesomeIcon icon={faTags} className="text-[10px]" />
                       {percent != null ? `${percent}% off · ` : ""}
-                      Save {formatPrice(providerPackage.totalDiscount)}
+                      Save {formatPrice(providerPackage.priceBefore - providerPackage.priceAfter)}
                     </span>
                   </div>
                 ) : (
@@ -384,7 +386,7 @@ export default function ProviderPackageDetailsModal({
           >
             Close
           </button>
-          {providerPackage && onSave && (
+          {providerPackage && canUpdate && onSave && (
             <button
               type="button"
               onClick={handleEdit}

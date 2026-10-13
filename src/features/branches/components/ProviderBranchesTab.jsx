@@ -226,7 +226,7 @@ export default function ProviderBranchesTab({ readOnly = false }) {
             <ScrollableTable className="scroll-table">
               <table className="w-full min-w-[960px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/70 text-xs font-medium text-slate-500">
+                  <tr className="border-b border-slate-100 bg-slate-100 text-xs font-medium text-slate-500">
                     <th className="px-6 py-3">Branch</th>
                     <th className="px-4 py-3">Location</th>
                     <th className="px-4 py-3">Coordinates</th>

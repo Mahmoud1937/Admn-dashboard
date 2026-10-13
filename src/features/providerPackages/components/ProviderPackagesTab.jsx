@@ -29,6 +29,8 @@ import {
 } from "../utils/packageUtils";
 import ProviderPackageFormModal from "./ProviderPackageFormModal";
 import ProviderPackageDetailsModal from "./ProviderPackageDetailsModal";
+import usePermission from "../../auth/hooks/usePermission";
+import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 
 
 function CardsSkeleton({ count = 6 }) {
@@ -67,11 +69,8 @@ function CardsSkeleton({ count = 6 }) {
   );
 }
 
-function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete }) {
-  const percent = getDiscountPercent(
-    providerPackage.priceBefore,
-    providerPackage.totalDiscount,
-  );
+function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete, canUpdate, canDelete }) {
+  const percent = getDiscountPercent(providerPackage.totalDiscount);
   const discounted = hasDiscount(providerPackage.totalDiscount);
   const isActive = Boolean(providerPackage.isActive);
 
@@ -168,7 +167,7 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete }) {
       </div>
 
       <div className="mt-4 space-y-2">
-        <div className="grid grid-cols-2 gap-2">
+        <div className={`grid gap-2 ${canUpdate ? "grid-cols-2" : "grid-cols-1"}`}>
           <button
             type="button"
             onClick={() => onView(providerPackage.packageId)}
@@ -184,18 +183,18 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete }) {
               className="text-xs transition-transform group-hover:translate-x-0.5"
             />
           </button>
-          <button
+          {canUpdate && <button
             type="button"
             onClick={() => onEdit(providerPackage)}
             className="flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-blue-200 bg-white px-3 text-[13px] font-medium text-blue-900 transition-colors hover:border-blue-300 hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
           >
             <FontAwesomeIcon icon={faPen} className="text-xs text-blue-400" />
             Edit
-          </button>
+          </button>}
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <button
+        {(canUpdate || canDelete) && <div className={`grid gap-2 ${canUpdate && canDelete ? "grid-cols-2" : "grid-cols-1"}`}>
+          {canUpdate && <button
             type="button"
             onClick={() => onToggle(providerPackage)}
             className="flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 text-[13px] font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2"
@@ -205,16 +204,16 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete }) {
               className="text-xs text-slate-400"
             />
             {providerPackage.isActive ? "Deactivate" : "Activate"}
-          </button>
-          <button
+          </button>}
+          {canDelete && <button
             type="button"
             onClick={() => onDelete(providerPackage)}
             className="flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-red-200 bg-white px-3 text-[13px] font-medium text-red-700 transition-colors hover:border-red-300 hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2"
           >
             <FontAwesomeIcon icon={faTrash} className="text-xs text-red-400" />
             Delete
-          </button>
-        </div>
+          </button>}
+        </div>}
       </div>
     </article>
   );
@@ -222,6 +221,10 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete }) {
 
 export default function ProviderPackagesTab() {
   const { id: providerId } = useParams();
+  const canRead = usePermission(PERMISSION_CODES.PROVIDER_PACKAGES_READ);
+  const canCreate = usePermission(PERMISSION_CODES.PROVIDER_PACKAGES_CREATE);
+  const canUpdate = usePermission(PERMISSION_CODES.PROVIDER_PACKAGES_UPDATE);
+  const canDelete = usePermission(PERMISSION_CODES.PROVIDER_PACKAGES_DELETE);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openPackage, setOpenPackage] = useState(null);
   const [packageToToggle, setPackageToToggle] = useState(null);
@@ -241,7 +244,7 @@ export default function ProviderPackagesTab() {
     isError,
     error,
     refetch,
-  } = useProviderPackagesQuery({ providerId, pageNumber, pageSize });
+  } = useProviderPackagesQuery({ providerId, pageNumber, pageSize, enabled: canRead });
   const { mutation, serverErrors, clearServerErrors } =
     useProviderPackageCreateMutation({ onSuccess: () => setIsModalOpen(false) });
   const {
@@ -267,6 +270,7 @@ export default function ProviderPackagesTab() {
   };
 
   const openPackageDrawer = (packageId, mode) => {
+    if (!canRead || (mode === "edit" && !canUpdate)) return;
     clearUpdateServerErrors();
     setOpenPackage({ packageId, mode });
   };
@@ -282,7 +286,7 @@ export default function ProviderPackagesTab() {
               : `${totalCount} ${totalCount === 1 ? "package" : "packages"} in total`}
           </p>
         </div>
-        <button
+        {canCreate && <button
           type="button"
           onClick={() => {
             clearServerErrors();
@@ -292,7 +296,7 @@ export default function ProviderPackagesTab() {
         >
           <FontAwesomeIcon icon={faPlus} />
           Add package
-        </button>
+        </button>}
       </div>
 
       {isLoading ? (
@@ -324,6 +328,8 @@ export default function ProviderPackagesTab() {
                 onEdit={(item) => openPackageDrawer(item.packageId, "edit")}
                 onToggle={setPackageToToggle}
                 onDelete={setPackageToDelete}
+                canUpdate={canUpdate}
+                canDelete={canDelete}
               />
             ))}
           </div>
@@ -342,46 +348,55 @@ export default function ProviderPackagesTab() {
         </>
       )}
 
-      {isModalOpen && (
+      {isModalOpen && canCreate && (
         <ProviderPackageFormModal
           providerId={providerId}
-          onSave={(payload) => mutation.mutate(payload)}
+          onSave={(payload) => {
+            if (canCreate) mutation.mutate(payload);
+          }}
           onClose={closeCreateModal}
           isSaving={mutation.isPending}
           serverErrors={serverErrors}
         />
       )}
-      {openPackage && (
+      {openPackage && canRead && (
         <ProviderPackageDetailsModal
           key={openPackage.packageId}
           packageId={openPackage.packageId}
           initialMode={openPackage.mode}
           providerId={providerId}
-          onSave={(payload) => updateMutation.mutate(payload)}
+          canUpdate={canUpdate}
+          onSave={(payload) => {
+            if (canUpdate) updateMutation.mutate(payload);
+          }}
           onClose={closePackageDrawer}
           isSaving={updateMutation.isPending}
           serverErrors={updateServerErrors}
         />
       )}
-      <ConfirmDeleteModal
+      {canUpdate && <ConfirmDeleteModal
         isOpen={!!packageToToggle}
         variant={packageToToggle?.isActive ? "danger" : "success"}
         title={packageToToggle?.isActive ? "Deactivate package?" : "Activate package?"}
         message={`Are you sure you want to ${packageToToggle?.isActive ? "deactivate" : "activate"} "${packageToToggle?.packageEnName || packageToToggle?.packageArName || "this package"}"?`}
         confirmLabel={packageToToggle?.isActive ? "Deactivate" : "Activate"}
         isLoading={toggleMutation.isPending}
-        onConfirm={() => toggleMutation.mutate(packageToToggle.packageId)}
+        onConfirm={() => {
+          if (canUpdate && packageToToggle) toggleMutation.mutate(packageToToggle.packageId);
+        }}
         onCancel={() => setPackageToToggle(null)}
-      />
-      <ConfirmDeleteModal
+      />}
+      {canDelete && <ConfirmDeleteModal
         isOpen={!!packageToDelete}
         title="Delete package?"
         message={`Are you sure you want to permanently delete "${packageToDelete?.packageEnName || packageToDelete?.packageArName || "this package"}"? This cannot be undone.`}
         confirmLabel="Delete"
         isLoading={deleteMutation.isPending}
-        onConfirm={() => deleteMutation.mutate(packageToDelete.packageId)}
+        onConfirm={() => {
+          if (canDelete && packageToDelete) deleteMutation.mutate(packageToDelete.packageId);
+        }}
         onCancel={() => setPackageToDelete(null)}
-      />
+      />}
     </div>
   );
 }

@@ -223,7 +223,7 @@ export default function ProviderServicesTab() {
             <ScrollableTable className="scroll-table">
               <table className="w-full min-w-[820px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/70 text-xs font-medium text-slate-500">
+                  <tr className="border-b border-slate-100 bg-slate-100 text-xs font-medium text-slate-500">
                     <th className="px-6 py-3">Service</th>
                     <th className="px-4 py-3 text-right">Price before</th>
                     <th className="px-4 py-3 text-center">Discount</th>

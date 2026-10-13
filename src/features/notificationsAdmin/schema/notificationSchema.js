@@ -8,6 +8,11 @@ const optionalUrl = z
     message: "Enter a valid URL starting with http:// or https://",
   });
 
+const optionalId = z.union([z.string(), z.number()]).refine(
+  (value) => value === "" || (Number.isInteger(Number(value)) && Number(value) > 0),
+  { message: "Select a valid item" }
+);
+
 export const notificationSchema = z
   .object({
     title: z.string().trim().min(1, "Title is required").max(100, "Max 100 characters"),
@@ -22,6 +27,10 @@ export const notificationSchema = z
       .min(1, "Arabic message is required")
       .max(500, "Max 500 characters"),
     imageUrl: optionalUrl,
+    isMale: z.enum(["", "true", "false"]),
+    governmentId: optionalId,
+    targetType: z.enum(["1", "2"]),
+    targetId: optionalId,
     sendMode: z.enum(["now", "schedule"]),
     scheduledAt: z.string().optional(),
     durationDay: z
@@ -54,6 +63,10 @@ export const defaultNotificationValues = {
   messageEn: "",
   messageAr: "",
   imageUrl: "",
+  isMale: "",
+  governmentId: "",
+  targetType: "1",
+  targetId: "",
   sendMode: "now",
   scheduledAt: "",
   durationDay: "",
@@ -65,6 +78,10 @@ export const toPayload = (v) => ({
   messageEn: v.messageEn.trim(),
   messageAr: v.messageAr.trim(),
   imageUrl: v.imageUrl?.trim() || null,
+  isMale: v.isMale == null || v.isMale === "" ? null : v.isMale === "true",
+  governmentId: v.governmentId ? Number(v.governmentId) : null,
+  targetType: Number(v.targetType),
+  targetId: v.targetId ? Number(v.targetId) : null,
   durationDay: v.durationDay ? Number(v.durationDay) : null,
   scheduledAt:
     v.sendMode === "schedule" && v.scheduledAt

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export default function ScrollableTable({ children, maxHeight = "60vh", className = "" }) {
+export default function ScrollableTable({ children, maxHeight = "70vh", className = "" }) {
   const containerRef = useRef(null);
 
   useEffect(() => {

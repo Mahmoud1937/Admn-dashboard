@@ -8,11 +8,10 @@ export const formatPrice = (value) => {
   });
 };
 
-export const getDiscountPercent = (priceBefore, totalDiscount) => {
-  const before = Number(priceBefore);
+export const getDiscountPercent = (totalDiscount) => {
   const discount = Number(totalDiscount);
-  if (!before || !discount || discount <= 0) return null;
-  return Math.round((discount / before) * 100);
+  if (!Number.isFinite(discount) || discount <= 0) return null;
+  return discount;
 };
 
 export const hasDiscount = (totalDiscount) => Number(totalDiscount) > 0;

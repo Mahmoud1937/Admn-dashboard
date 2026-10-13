@@ -174,7 +174,7 @@ export default function OrderHistorySection({ userId }) {
         <>
           <ScrollableTable maxHeight="60vh">
             <table className="w-full min-w-[900px] text-left text-sm">
-              <thead>
+              <thead className="bg-slate-100">
                 <tr className="border-b border-slate-100 text-xs font-medium uppercase tracking-wide text-slate-400">
                   <th className="px-4 py-3">Invoice ID</th>
                   <th className="px-4 py-3">Provider</th>
