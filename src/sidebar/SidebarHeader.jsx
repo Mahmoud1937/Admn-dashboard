@@ -13,7 +13,7 @@ export default function SidebarHeader({ collapsed, setCollapsed }) {
             className="h-9 w-auto object-contain"
           />
         </div>
-      )}
+      )} 
 
       <button
         onClick={() => setCollapsed((prev) => !prev)}
