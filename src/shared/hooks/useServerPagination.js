@@ -15,7 +15,7 @@ function getPageNumbers(currentPage, totalPages, windowSize = 2) {
 export function useServerPagination({ resetKey, initialPageSize = 20 } = {}) {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(initialPageSize);
-
+ 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPageNumber(1);

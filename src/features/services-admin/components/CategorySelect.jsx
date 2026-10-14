@@ -9,13 +9,14 @@ export default function CategorySelect({
   disabled,
 }) {
   return (
+    
     <div className="w-full sm:w-72">
       <SearchableAsyncSelect
         queryKey={["categories"]}
         fetchItems={getServiceCategories}
         value={value}
         onChange={onChange}
-        getOptionLabel={(item) => `${item.enName} - ${item.arName}`}
+        getOptionLabel={(item) => `${item.enName} - ${item.arName}`} 
         placeholder={placeholder}
         searchPlaceholder="Search categories..."
         disabled={disabled}
