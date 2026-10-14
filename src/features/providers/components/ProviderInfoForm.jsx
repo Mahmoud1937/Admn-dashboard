@@ -2,8 +2,15 @@ import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFloppyDisk, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
-import { buildProviderFormValues, emptyProviderForm } from "../utils/providerFormHelpers";
+import {
+  faAddressBook,
+  faCircleExclamation,
+  faCircleInfo,
+  faFloppyDisk,
+  faPenToSquare,
+  faPowerOff,
+} from "@fortawesome/free-solid-svg-icons";
+import { buildProviderFormValues, emptyProviderForm, PROVIDER_CLASS_OPTIONS } from "../utils/providerFormHelpers";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import TextField from "../../../shared/components/TextField";
 import DateField from "./DateField";
@@ -14,6 +21,54 @@ import ProviderCategorySelect from "./ProviderCategorySelect";
 
 const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+/* ---------- Small presentational helpers ---------- */
+
+function SectionCard({ icon, title, description, action, children }) {
+  return (
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-sm text-blue-600">
+            <FontAwesomeIcon icon={icon} />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+            {description && (
+              <p className="text-xs text-slate-500">{description}</p>
+            )}
+          </div>
+        </div>
+        {action}
+      </div>
+      <div className="p-5 sm:p-6">{children}</div>
+    </section>
+  );
+}
+
+function FieldLabel({ htmlFor, required, children }) {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className="mb-1.5 block text-sm font-medium text-slate-700"
+    >
+      {children}
+      {required && <span className="ml-0.5 text-red-500">*</span>}
+    </label>
+  );
+}
+
+function FieldError({ message }) {
+  if (!message) return null;
+  return (
+    <p className="mt-1.5 flex items-center gap-1.5 text-xs text-red-600">
+      <FontAwesomeIcon icon={faCircleExclamation} className="text-[10px]" />
+      {message}
+    </p>
+  );
+}
+
+/* ---------- Main component ---------- */
 
 export default function ProviderInfoForm({
   isCreateMode,
@@ -73,9 +128,9 @@ export default function ProviderInfoForm({
     const unsubscribe = subscribe({
       formState: { values: true },
       callback: () => {
-      // Reset only the mutation result. RHF field errors are intentionally
-      // preserved so relevant server/validation messages remain visible.
-      mutation.reset();
+        // Reset only the mutation result. RHF field errors are intentionally
+        // preserved so relevant server/validation messages remain visible.
+        mutation.reset();
       },
     });
 
@@ -117,6 +172,7 @@ export default function ProviderInfoForm({
     if (!isCreateMode && !canUpdate) return;
     const payload = {
       providerCategoryId: formValues.providerCategoryId,
+      providerClass: formValues.providerClass,
       specialistId: formValues.specialistId || null,
       arName: formValues.arName,
       enName: formValues.enName,
@@ -155,209 +211,253 @@ export default function ProviderInfoForm({
     setIsEditing(false);
   };
 
+  const selectClasses =
+    "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm sm:p-8"
-    >
-      {/* Header */}
-      <div className="mb-6 flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
-        <h2 className="text-lg font-semibold text-slate-900">
-          {isCreateMode ? "Create Provider" : "Provider Information"}
-        </h2>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+      {/* ---------- Basic information ---------- */}
+      <SectionCard
+        icon={faCircleInfo}
+        title={isCreateMode ? "Provider Details" : "Provider Information"}
+        description="Name, category and classification of the provider."
+        action={
+          !isCreateMode && !isEditing && canUpdate ? (
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="inline-flex items-center justify-center gap-2 self-start rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 sm:self-auto"
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="text-xs" />
+              Update
+            </button>
+          ) : null
+        }
+      >
+        <div className="space-y-6">
+          {/* Logo */}
+          <ProviderLogoUpload
+            currentImageUrl={previewImage}
+            currentFileName={imageFile?.name}
+            selectedFile={imageFile}
+            onImageChange={handleImageChange}
+            disabled={!canEdit}
+            error={errors.logoFile?.message}
+          />
 
-        {!isCreateMode && !isEditing && canUpdate && (
-          <button
-            type="button"
-            onClick={() => setIsEditing(true)}
-            className="flex items-center justify-center gap-2 self-start rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:self-auto"
-          >
-            <FontAwesomeIcon icon={faPenToSquare} />
-            Update
-          </button>
+          <hr className="border-slate-100" />
+
+          {/* Names */}
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <TextField
+              label="English Name"
+              required
+              maxLength={100}
+              disabled={!canEdit}
+              error={errors.enName?.message}
+              {...register("enName")}
+            />
+
+            <TextField
+              label="Arabic Name"
+              required
+              dir="rtl"
+              maxLength={100}
+              disabled={!canEdit}
+              error={errors.arName?.message}
+              {...register("arName")}
+            />
+          </div>
+
+          {/* Category + Specialist */}
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div>
+              <FieldLabel required>Category</FieldLabel>
+              <Controller
+                name="providerCategoryId"
+                control={control}
+                render={({ field }) => (
+                  <ProviderCategorySelect
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={!canEdit}
+                    error={errors.providerCategoryId?.message}
+                    className="w-full"
+                  />
+                )}
+              />
+            </div>
+
+            <div>
+              <FieldLabel>Specialist</FieldLabel>
+              <Controller
+                name="specialistId"
+                control={control}
+                render={({ field }) => (
+                  <SpecialistSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={!canEdit}
+                    error={errors.specialistId?.message}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Class + Join date */}
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div>
+              <FieldLabel htmlFor={canEdit ? "provider-class" : undefined} required={canEdit}>
+                Class
+              </FieldLabel>
+              {canEdit ? (
+                <select
+                  id="provider-class"
+                  {...register("providerClass")}
+                  className={`${selectClasses} max-w-40`}
+                >
+                  <option value="">Select class</option>
+                  {PROVIDER_CLASS_OPTIONS.map(({ value, label }) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="flex w-full items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700">
+                  {provider?.class ?? "-"}
+                </div>
+              )}
+              <FieldError message={errors.providerClass?.message} />
+            </div>
+
+            {!isCreateMode && (
+              <div>
+                <FieldLabel>Join Date</FieldLabel>
+                <Controller
+                  name="joinDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DateField
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled
+                    />
+                  )}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* ---------- Contact information ---------- */}
+      <SectionCard
+        icon={faAddressBook}
+        title="Contact Information"
+        description="Numbers used by members and the support team. Digits only."
+      >
+        {errors.contactInfo && (
+          <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+            <FieldError message={errors.contactInfo.message} />
+          </div>
         )}
-      </div>
 
-      {/* Logo */}
-      <ProviderLogoUpload
-        currentImageUrl={previewImage}
-        currentFileName={imageFile?.name}
-        selectedFile={imageFile}
-        onImageChange={handleImageChange}
-        disabled={!canEdit}
-        error={errors.logoFile?.message}
-      />
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          <TextField
+            label="Hotline"
+            inputMode="numeric"
+            sanitize={false}
+            disabled={!canEdit}
+            error={errors.hotLine?.message}
+            {...hotLineRegister}
+            onChange={handleDigitsOnlyChange(hotLineRegister)}
+          />
 
-      {/* Join Date */}
-      {!isCreateMode && (
-        <div className="mb-6">
-          <label className="mb-2 block text-sm font-medium text-slate-700">
-            Join Date
-          </label>
+          <TextField
+            label="Phone Number"
+            inputMode="numeric"
+            sanitize={false}
+            disabled={!canEdit}
+            error={errors.phoneNumber?.message}
+            {...phoneNumberRegister}
+            onChange={handleDigitsOnlyChange(phoneNumberRegister)}
+          />
 
-          <Controller
-            name="joinDate"
-            control={control}
-            render={({ field }) => (
-              <DateField
-                value={field.value}
-                onChange={field.onChange}
-                disabled
-              />
-            )}
+          <TextField
+            label="Landline"
+            inputMode="numeric"
+            sanitize={false}
+            disabled={!canEdit}
+            error={errors.landline?.message}
+            {...landlineRegister}
+            onChange={handleDigitsOnlyChange(landlineRegister)}
           />
         </div>
-      )}
+      </SectionCard>
 
-      {/* Names */}
-      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <TextField
-          label="English Name"
-          required
-          maxLength={100}
-          disabled={!canEdit}
-          error={errors.enName?.message}
-          {...register("enName")}
-        />
-
-        <TextField
-          label="Arabic Name"
-          required
-          dir="rtl"
-          maxLength={100}
-          disabled={!canEdit}
-          error={errors.arName?.message}
-          {...register("arName")}
-        />
-      </div>
-
-      {/* Category + Specialist */}
-      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">
-            Category <span className="text-red-500">*</span>
-          </label>
-
-<Controller
-  name="providerCategoryId"
-  control={control}
-  render={({ field }) => (
-    <ProviderCategorySelect
-      value={field.value}
-      onChange={field.onChange}
-      disabled={!canEdit}
-      error={errors.providerCategoryId?.message}
-      className="w-full"
-    />
-  )}
-/>
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">
-            Specialist
-          </label>
-
-          <Controller
-            name="specialistId"
-            control={control}
-            render={({ field }) => (
-              <SpecialistSelect
-                value={field.value}
-                onChange={field.onChange}
-                disabled={!canEdit}
-                error={errors.specialistId?.message}
-              />
-            )}
-          />
-        </div>
-      </div>
-
-{/* Contact Information */}
-<div className="mb-6 rounded-xl border border-slate-200 bg-slate-50/50 p-4 sm:p-5">
-  <h3 className="mb-4 text-sm font-semibold text-slate-800">
-    Contact Information
-  </h3>
-
-  {errors.contactInfo && (
-    <p className="mb-4 text-sm text-red-500">
-      {errors.contactInfo.message}
-    </p>
-  )}
-
-  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-    <TextField
-      label="Hotline"
-      inputMode="numeric"
-      sanitize={false}
-      disabled={!canEdit}
-      error={errors.hotLine?.message}
-      {...hotLineRegister}
-      onChange={handleDigitsOnlyChange(hotLineRegister)}
-    />
-
-    <TextField
-      label="Phone Number"
-      inputMode="numeric"
-      sanitize={false}
-      disabled={!canEdit}
-      error={errors.phoneNumber?.message}
-      {...phoneNumberRegister}
-      onChange={handleDigitsOnlyChange(phoneNumberRegister)}
-    />
-
-    <TextField
-      label="Landline"
-      inputMode="numeric"
-      sanitize={false}
-      disabled={!canEdit}
-      error={errors.landline?.message}
-      {...landlineRegister}
-      onChange={handleDigitsOnlyChange(landlineRegister)}
-    />
-  </div>
-</div>
-
-      {/* Active Status */}
-      <div className="mb-6 flex items-center gap-3">
-        <label className="text-sm font-medium text-slate-700">
-          Active Status
-        </label>
-
+      {/* ---------- Status ---------- */}
+      <SectionCard
+        icon={faPowerOff}
+        title="Status"
+        description="Inactive providers are hidden from members."
+      >
         <Controller
           name="isActive"
           control={control}
           render={({ field }) => (
-            <button
-              type="button"
-              disabled={!canEdit}
-              onClick={() => field.onChange(!field.value)}
-              className={`relative h-6 w-11 rounded-full transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                field.value ? "bg-emerald-500" : "bg-slate-300"
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
-                  field.value ? "left-5" : "left-0.5"
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-slate-800">
+                  {field.value ? "Active" : "Inactive"}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {field.value
+                    ? "This provider is visible and can be used."
+                    : "This provider is currently disabled."}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                role="switch"
+                aria-checked={!!field.value}
+                aria-label="Active status"
+                disabled={!canEdit}
+                onClick={() => field.onChange(!field.value)}
+                className={`relative h-6 w-11 shrink-0 rounded-full transition focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60 ${
+                  field.value ? "bg-emerald-500" : "bg-slate-300"
                 }`}
-              />
-            </button>
+              >
+                <span
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${
+                    field.value ? "left-[22px]" : "left-0.5"
+                  }`}
+                />
+              </button>
+            </div>
           )}
         />
-      </div>
+      </SectionCard>
 
+      {/* ---------- Server error ---------- */}
       {mutation.isError && Object.keys(errors).length === 0 && (
-        <p className="mb-4 text-sm text-red-500">
-          {mutation.error?.response?.data?.message || "Failed to save changes."}
-        </p>
+        <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <FontAwesomeIcon icon={faCircleExclamation} className="mt-0.5" />
+          <p>
+            {mutation.error?.response?.data?.message || "Failed to save changes."}
+          </p>
+        </div>
       )}
 
+      {/* ---------- Actions ---------- */}
       {canEdit && (
-        <div className="mt-8 flex flex-col-reverse items-stretch justify-end gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:gap-4">
+        <div className="sticky bottom-0 z-10 -mx-1 flex flex-col-reverse items-stretch justify-end gap-3 rounded-xl border border-slate-200 bg-white/95 px-5 py-4 shadow-lg backdrop-blur sm:flex-row sm:items-center">
           <button
             type="button"
             onClick={handleCancelEdit}
-            className="text-sm font-medium text-slate-500 hover:text-slate-700"
+            className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
             Cancel
           </button>
@@ -365,10 +465,14 @@ export default function ProviderInfoForm({
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <FontAwesomeIcon icon={faFloppyDisk} />
-            {isCreateMode ? "Create Provider" : "Save Info"}
+            <FontAwesomeIcon icon={faFloppyDisk} className="text-xs" />
+            {mutation.isPending
+              ? "Saving..."
+              : isCreateMode
+              ? "Create Provider"
+              : "Save Changes"}
           </button>
         </div>
       )}

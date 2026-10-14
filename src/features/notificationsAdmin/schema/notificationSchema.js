@@ -29,7 +29,7 @@ export const notificationSchema = z
     imageUrl: optionalUrl,
     isMale: z.enum(["", "true", "false"]),
     governmentId: optionalId,
-    targetType: z.enum(["1", "2"]),
+    targetType: z.enum(["", "1", "2"]),
     targetId: optionalId,
     sendMode: z.enum(["now", "schedule"]),
     scheduledAt: z.string().optional(),
@@ -65,7 +65,7 @@ export const defaultNotificationValues = {
   imageUrl: "",
   isMale: "",
   governmentId: "",
-  targetType: "1",
+  targetType: "",
   targetId: "",
   sendMode: "now",
   scheduledAt: "",
@@ -80,8 +80,8 @@ export const toPayload = (v) => ({
   imageUrl: v.imageUrl?.trim() || null,
   isMale: v.isMale == null || v.isMale === "" ? null : v.isMale === "true",
   governmentId: v.governmentId ? Number(v.governmentId) : null,
-  targetType: Number(v.targetType),
-  targetId: v.targetId ? Number(v.targetId) : null,
+  targetType: v.targetType ? Number(v.targetType) : null,
+  targetId: v.targetType && v.targetId ? Number(v.targetId) : null,
   durationDay: v.durationDay ? Number(v.durationDay) : null,
   scheduledAt:
     v.sendMode === "schedule" && v.scheduledAt

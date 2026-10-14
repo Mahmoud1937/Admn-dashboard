@@ -32,6 +32,7 @@ export async function createProvider(payload) {
   const formData = new FormData();
 
   formData.append("ProviderCategoryId", payload.providerCategoryId);
+  formData.append("Class", payload.providerClass);
 
   if (payload.specialistId) {
     formData.append("SpecialistId", payload.specialistId);
@@ -59,6 +60,7 @@ export async function updateProvider(id, payload) {
   const formData = new FormData();
 
   formData.append("ProviderCategoryId", payload.providerCategoryId);
+  formData.append("Class", payload.providerClass);
 
   if (payload.specialistId) {
     formData.append("SpecialistId", payload.specialistId);

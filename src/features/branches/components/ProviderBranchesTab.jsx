@@ -278,6 +278,11 @@ export default function ProviderBranchesTab({ readOnly = false }) {
                           >
                             {branch.fullAddress || "No address"}
                           </p>
+                          {branch.kilo != null && (
+                            <p className="text-xs text-slate-500">
+                              Road kilometer marker: {branch.kilo}
+                            </p>
+                          )}
                         </td>
 
                         {/* Coordinates + map link */}

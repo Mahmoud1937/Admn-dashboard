@@ -72,6 +72,7 @@ export async function createBranch(payload) {
     branchName: payload.branchName,
     mapUrl: payload.mapUrl,
     fullAddress: payload.fullAddress,
+    kilo: payload.kilo,
     isActive: payload.isActive,
   });
 
@@ -89,6 +90,7 @@ export async function updateBranch(payload) {
       branchName: payload.branchName,
       mapUrl: payload.mapUrl,
       fullAddress: payload.fullAddress,
+      kilo: payload.kilo,
       isActive: payload.isActive,
     }
   );

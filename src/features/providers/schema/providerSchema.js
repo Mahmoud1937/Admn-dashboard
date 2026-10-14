@@ -40,6 +40,7 @@ export const getProviderSchema = (isCreateMode) =>
       enName: enNameField,
       arName: arNameField,
       providerCategoryId: requiredIdField("Category"),
+      providerClass: z.enum(["1", "2", "3"], { error: "Class is required" }),
       specialistId: optionalIdField,
       hotLine: optionalHotLineField,
       phoneNumber: egyptianPhoneField,

@@ -17,6 +17,7 @@ const EMPTY_VALUES = {
   email: "",
   mapUrl: "",
   fullAddress: "",
+  kilo: "",
   isActive: true,
 };
 
@@ -29,6 +30,7 @@ function branchToFormValues(branch) {
     email: branch.email ?? "",
     mapUrl: branch.mapUrl ?? "",
     fullAddress: branch.fullAddress ?? "",
+    kilo: branch.kilo == null ? "" : String(branch.kilo),
     isActive: branch.isActive ?? true,
   };
 }
@@ -79,6 +81,7 @@ export default function BranchFormModal({
       email: data.email,
       mapUrl: data.mapUrl || "",
       fullAddress: data.fullAddress || "",
+      kilo: data.kilo === "" ? null : (data.kilo),
       isActive: data.isActive,
     };
 
@@ -159,6 +162,15 @@ export default function BranchFormModal({
       {errors.fullAddress && (
         <p className="-mt-3 mb-3 text-xs text-red-500">{errors.fullAddress.message}</p>
       )}
+
+      <TextField
+        label="Road kilometer marker"
+        placeholder="e.g. 82"
+        inputMode="decimal"
+        sanitize={false}
+        error={errors.kilo?.message}
+        {...register("kilo")}
+      />
 
       <TextField
         label="Map URL"

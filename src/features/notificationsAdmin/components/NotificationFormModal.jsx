@@ -528,10 +528,10 @@ function DeliverySection({
 
       <div className="mt-4">
         <Field
-          label="Notification visibility"
+          label="Repeat after (days) — Optional"
           htmlFor="notification-duration"
           error={errors.durationDay?.message}
-          hint="How many days this notification should remain visible in the app."
+          hint="For example, 3 repeats the notification after 3 days. Leave empty to send it once."
         >
           <div className="relative max-w-[220px]">
             <input
@@ -1030,6 +1030,7 @@ export default function NotificationFormModal({
                           }}
                           className={`${inputBase} ${border("targetType")}`}
                         >
+                          <option value="">No target</option>
                           <option value="1">Provider</option>
                           <option value="2">Package</option>
                         </select>
@@ -1037,6 +1038,7 @@ export default function NotificationFormModal({
                     />
                   </Field>
 
+                  {targetType && (
                   <Field
                     label={targetType === "2" ? "Package" : "Provider"}
                     error={errors.targetId?.message}
@@ -1068,6 +1070,7 @@ export default function NotificationFormModal({
                       }
                     />
                   </Field>
+                  )}
                 </div>
               </section>
 

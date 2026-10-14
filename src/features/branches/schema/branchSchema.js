@@ -33,6 +33,14 @@ const fullAddressField = z
   .min(10, "Full address should be at least 10 characters long")
   .max(150, "Address can't exceed 150 characters");
 
+const kiloField = z
+  .string()
+  .trim()
+  .refine(
+    (value) => value === "" || (Number.isFinite(Number(value)) && Number(value) >= 0),
+    { message: "Enter a valid road kilometer marker (0 or greater)" }
+  );
+
 const branchSchema = z.object({
   branchName: nameField("Branch name"),
   governorateId: requiredIdField("Governorate"),
@@ -40,6 +48,7 @@ const branchSchema = z.object({
   email: emailField,
   mapUrl: mapUrlField,
   fullAddress: fullAddressField,
+  kilo: kiloField,
   isActive: isActiveField,
 });
 
