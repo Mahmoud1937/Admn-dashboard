@@ -38,7 +38,7 @@ const axiosInstance = axios.create({
 // Active only in development when explicitly enabled.
 const isQaApiFailureEnabled = () =>
   import.meta.env.DEV &&
-  import.meta.env.VITE_QA_SIMULATE_API_FAILURE === "true";
+  import.meta.env.VITEQASIMULATEAPIFAILURE === "true";
 
 const isAuthRequest = (url = "") => {
   const normalizedUrl = url.toLowerCase();
