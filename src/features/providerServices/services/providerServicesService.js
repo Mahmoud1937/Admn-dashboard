@@ -23,6 +23,7 @@ export async function getProviderServices({
 }
 
 export async function createProviderService(payload) {
+    payload.providerPriceListId=1
   const { data } = await axiosInstance.post("/ProviderServiceAdmin/provider-services", {
     providerId: payload.providerId,
     serviceId: payload.serviceId,
@@ -30,12 +31,14 @@ export async function createProviderService(payload) {
     discountPercentage: payload.discountPercentage,
     isSpecialOffer: payload.isSpecialOffer,
     isActive: payload.isActive,
+    providerPriceListId:payload.providerPriceListId
   });
 
   return data;
 }
 
 export async function updateProviderService(payload) {
+  payload.providerPriceListId=1
   const { data } = await axiosInstance.put(
     `/ProviderServiceAdmin/provider-services/${payload.id}`,
     {
@@ -46,6 +49,7 @@ export async function updateProviderService(payload) {
       discountPercentage: payload.discountPercentage,
       isSpecialOffer: payload.isSpecialOffer,
       isActive: payload.isActive,
+          providerPriceListId:payload.providerPriceListId
     }
   );
 
