@@ -70,26 +70,26 @@ function StatCard({
     <article
       className={`min-w-0 rounded-xl border p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5 ${CARD_BACKGROUNDS[tone]}`}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
           <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="mt-3 break-words text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          <p className="mt-3 break-words text-lg font-bold tracking-tight text-slate-900 sm:text-2xl">
             {primaryValue}
           </p>
           <p className="mt-1 text-xs text-slate-400">{primaryLabel}</p>
         </div>
         <span
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-1 ${CARD_STYLES[tone]}`}
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1 sm:h-11 sm:w-11 ${CARD_STYLES[tone]}`}
         >
           <FontAwesomeIcon icon={icon} aria-hidden="true" />
         </span>
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-2 border-t border-slate-100 pt-4">
+      <div className="mt-5 flex flex-col items-start gap-1 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
         <span className="text-xs font-medium text-slate-500">
           {secondaryLabel}
         </span>
-        <span className="min-w-0 break-words text-right text-sm font-semibold text-slate-700">
+        <span className="min-w-0 break-words text-left text-sm font-semibold text-slate-700 sm:text-right">
           {secondaryValue}
         </span>
       </div>

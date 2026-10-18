@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createNotification,
   deleteNotification,
+  toggleNotificationActive,
+  updateNotification,
 } from "../services/notificationsService";
 import { NOTIFICATIONS_QUERY_KEY } from "./useNotificationsQuery";
 
@@ -13,7 +15,7 @@ export const extractErrorMessage = (error, fallback) => {
     const flat = Object.values(errors).flat().filter(Boolean);
     if (flat.length) return flat.join(" • ");
   }
-  return error?.response?.data?.message || fallback;
+  return error?.response?.data?.message || error?.message || fallback;
 };
 
 export default function useNotificationMutations({ onSuccess, onError } = {}) {
@@ -41,5 +43,30 @@ export default function useNotificationMutations({ onSuccess, onError } = {}) {
       onError?.(extractErrorMessage(e, "Failed to delete notification.")),
   });
 
-  return { create, remove };
+  const update = useMutation({
+    mutationFn: updateNotification,
+    onSuccess: (data) => {
+      refresh();
+      onSuccess?.("Notification updated.", data);
+    },
+    onError: (error) =>
+      onError?.(extractErrorMessage(error, "Failed to update notification.")),
+  });
+
+  const toggleActive = useMutation({
+    mutationFn: ({ notificationId }) => toggleNotificationActive(notificationId),
+    onSuccess: (_, notification) => {
+      refresh();
+      const message = notification.isActive === true
+        ? "Notification deactivated."
+        : notification.isActive === false
+          ? "Notification activated."
+          : "Notification status updated.";
+      onSuccess?.(message);
+    },
+    onError: (error) =>
+      onError?.(extractErrorMessage(error, "Failed to update notification status.")),
+  });
+
+  return { create, remove, update, toggleActive };
 }

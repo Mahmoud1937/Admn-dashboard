@@ -12,7 +12,6 @@ export const normalizePermissions = (permissions) => {
     ),
   ];
 };
-
 export const resolvePermissionCodes = (permissionIds, permissionCatalog) => {
   if (!Array.isArray(permissionIds)) {
     throw new Error("Employee permissions are missing from the response.");
@@ -21,7 +20,6 @@ export const resolvePermissionCodes = (permissionIds, permissionCatalog) => {
   if (!Array.isArray(permissionCatalog)) {
     throw new Error("Permission catalog is unavailable.");
   }
-
   const codesById = new Map(
     permissionCatalog
       .filter(
@@ -46,8 +44,7 @@ export const resolvePermissionCodes = (permissionIds, permissionCatalog) => {
   );
 };
 
-// One-time cleanup for sessions created by the previous persistence model.
-// Permission codes are never read from or written to localStorage now.
+
 export const clearPersistedPermissions = () => {
   localStorage.removeItem("permissions");
   localStorage.removeItem("permissionCodes");

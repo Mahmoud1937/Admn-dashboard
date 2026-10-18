@@ -56,10 +56,20 @@ const formatCompactNumber = (value) =>
     maximumFractionDigits: 1,
   }).format(Number(value ?? 0));
 
-const prepareChartData = (info) =>
+const MONTH_LABELS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+const prepareChartData = (info, isMonthGrouping) =>
   (info?.data ?? []).map((item) => ({
     ...item,
-    label: item.labelEn || String(item.period ?? ""),
+    label: item.labelEn || (
+      isMonthGrouping && Number.isInteger(Number(item.period)) &&
+      Number(item.period) >= 1 && Number(item.period) <= 12
+        ? MONTH_LABELS[Number(item.period) - 1]
+        : String(item.period ?? "")
+    ),
   }));
 
 const TOOLTIP_STYLE = {
@@ -105,6 +115,21 @@ function ChartCard({
         {children}
       </div>
     </article>
+  );
+}
+
+function ChartViewport({ children, isMonthGrouping, title }) {
+  return (
+    <div
+      className="h-full w-full overflow-x-auto overflow-y-hidden overscroll-x-contain"
+      role="region"
+      aria-label={`${title} chart; scroll horizontally to view all periods`}
+      tabIndex={0}
+    >
+      <div className={`h-full w-full ${isMonthGrouping ? "min-w-[660px]" : "min-w-[420px]"}`}>
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -172,8 +197,9 @@ export default function DashboardCharts() {
     year,
   });
 
-  const invoiceData = prepareChartData(data?.invoiceInfo);
-  const providerData = prepareChartData(data?.providerInfo).map(
+  const invoiceData = prepareChartData(data?.invoiceInfo, isMonthGrouping);
+  const soldCardsData = prepareChartData(data?.soldCardsInfo, isMonthGrouping);
+  const providerData = prepareChartData(data?.providerInfo, isMonthGrouping).map(
     (provider, index) => ({
       label: provider.label,
       providers: provider.count,
@@ -296,7 +322,8 @@ export default function DashboardCharts() {
             {invoiceData.length === 0 ? (
               <EmptyChartState message="Try another year or reporting interval." />
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ChartViewport isMonthGrouping={isMonthGrouping} title="Invoice Performance">
+              <ResponsiveContainer width="100%" height="100%" debounce={60}>
                 <ComposedChart
                   data={invoiceData}
                   margin={{ top: 12, right: 8, left: 0, bottom: 0 }}
@@ -322,7 +349,8 @@ export default function DashboardCharts() {
                     dataKey="label"
                     axisLine={false}
                     tickLine={false}
-                    minTickGap={12}
+                    interval={isMonthGrouping ? 0 : "preserveStartEnd"}
+                    tickFormatter={(value) => isMonthGrouping ? String(value).slice(0, 3) : value}
                     tick={{ fill: "#64748b", fontSize: 11 }}
                   />
                   <YAxis
@@ -376,6 +404,7 @@ export default function DashboardCharts() {
                   />
                 </ComposedChart>
               </ResponsiveContainer>
+              </ChartViewport>
             )}
           </ChartCard>
 
@@ -386,18 +415,20 @@ export default function DashboardCharts() {
             total={formatCount(data.soldCardsInfo?.totalCount)}
             tone="emerald"
           >
-            {prepareChartData(data.soldCardsInfo).length === 0 ? (
+            {soldCardsData.length === 0 ? (
               <EmptyChartState message="No sold-card activity was returned for this period." />
             ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={prepareChartData(data.soldCardsInfo)} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
+            <ChartViewport isMonthGrouping={isMonthGrouping} title="Sold Cards">
+            <ResponsiveContainer width="100%" height="100%" debounce={60}>
+              <BarChart data={soldCardsData} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
                 <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="4 4" />
-                <XAxis dataKey="label" axisLine={false} tickLine={false} minTickGap={12} tick={{ fill: "#64748b", fontSize: 11 }} />
+                <XAxis dataKey="label" axisLine={false} tickLine={false} interval={isMonthGrouping ? 0 : "preserveStartEnd"} tickFormatter={(value) => isMonthGrouping ? String(value).slice(0, 3) : value} tick={{ fill: "#64748b", fontSize: 11 }} />
                 <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} width={36} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value) => [formatCount(value), "Cards"]} cursor={{ fill: "#f8fafc" }} />
                 <Bar dataKey="count" name="Cards" fill="#059669" radius={[6, 6, 0, 0]} maxBarSize={42} />
               </BarChart>
             </ResponsiveContainer>
+            </ChartViewport>
             )}
           </ChartCard>
 
@@ -411,10 +442,11 @@ export default function DashboardCharts() {
             {providerData.length === 0 ? (
               <EmptyChartState message="No provider or branch activity was returned for this period." />
             ) : (
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartViewport isMonthGrouping={isMonthGrouping} title="Provider Network Growth">
+            <ResponsiveContainer width="100%" height="100%" debounce={60}>
               <BarChart data={providerData} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
                 <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="4 4" />
-                <XAxis dataKey="label" axisLine={false} tickLine={false} minTickGap={12} tick={{ fill: "#64748b", fontSize: 11 }} />
+                <XAxis dataKey="label" axisLine={false} tickLine={false} interval={isMonthGrouping ? 0 : "preserveStartEnd"} tickFormatter={(value) => isMonthGrouping ? String(value).slice(0, 3) : value} tick={{ fill: "#64748b", fontSize: 11 }} />
                 <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} width={36} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value) => formatCount(value)} cursor={{ fill: "#f8fafc" }} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }} />
@@ -422,6 +454,7 @@ export default function DashboardCharts() {
                 <Bar dataKey="branches" name="Branches" fill="#0ea5e9" radius={[6, 6, 0, 0]} maxBarSize={32} />
               </BarChart>
             </ResponsiveContainer>
+            </ChartViewport>
             )}
           </ChartCard>
         </div>

@@ -6,6 +6,7 @@ export async function getProviderServices({
   pageSize,
   search,
   status,
+  servicePriceListId,
 } = {}) {
   const { data } = await axiosInstance.get(
     `/ProviderServiceAdmin/provider-services/${providerId}`,
@@ -15,6 +16,7 @@ export async function getProviderServices({
         PageSize: pageSize || undefined,
         SearchTerm: search || undefined,
         Status: status ?? undefined,
+        PriceListId: servicePriceListId || undefined,
       },
     }
   );
@@ -23,7 +25,6 @@ export async function getProviderServices({
 }
 
 export async function createProviderService(payload) {
-    payload.providerPriceListId=1
   const { data } = await axiosInstance.post("/ProviderServiceAdmin/provider-services", {
     providerId: payload.providerId,
     serviceId: payload.serviceId,
@@ -31,14 +32,13 @@ export async function createProviderService(payload) {
     discountPercentage: payload.discountPercentage,
     isSpecialOffer: payload.isSpecialOffer,
     isActive: payload.isActive,
-    providerPriceListId:payload.providerPriceListId
+    providerPriceListId: payload.servicePriceListId,
   });
 
   return data;
 }
 
 export async function updateProviderService(payload) {
-  payload.providerPriceListId=1
   const { data } = await axiosInstance.put(
     `/ProviderServiceAdmin/provider-services/${payload.id}`,
     {
@@ -49,7 +49,7 @@ export async function updateProviderService(payload) {
       discountPercentage: payload.discountPercentage,
       isSpecialOffer: payload.isSpecialOffer,
       isActive: payload.isActive,
-          providerPriceListId:payload.providerPriceListId
+      providerPriceListId: payload.servicePriceListId,
     }
   );
 

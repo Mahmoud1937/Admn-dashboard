@@ -7,20 +7,27 @@ export function useProviderServicesQuery({
   pageSize,
   search,
   statusFilter,
+  servicePriceListId,
+  enabled = true,
 }) {
   const query = useQuery({
-    queryKey: ["provider-services", providerId, pageNumber, pageSize, search, statusFilter],
+    queryKey: ["provider-services", providerId, pageNumber, pageSize, search, statusFilter, servicePriceListId],
     queryFn: () =>
       getProviderServices({
         providerId,
         pageNumber,
         pageSize,
         search,
+        servicePriceListId,
         // Backend contract: 0 = all, 1 = active, 2 = inactive
         status: statusFilter === "" ? 0 : Number(statusFilter),
       }),
-    enabled: !!providerId,
-    placeholderData: (previousData) => previousData,
+    enabled: enabled && !!providerId,
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === providerId &&
+      previousQuery?.queryKey[6] === servicePriceListId
+        ? previousData
+        : undefined,
   });
 
   return {

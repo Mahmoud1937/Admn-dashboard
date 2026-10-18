@@ -163,6 +163,12 @@ export const navigation = [
     permission: PERMISSION_CODES.EMPLOYEES_READ,
   },
   {
+    title: "Brokers",
+    path: "/brokers",
+    icon: faUserTie,
+    permission: PERMISSION_CODES.BROKERS_READ,
+  },
+  {
     title: "Subscription Types",
     path: "/plan-types",
     icon: faMoneyBillWave,

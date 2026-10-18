@@ -13,32 +13,38 @@ const optionalId = z.union([z.string(), z.number()]).refine(
   { message: "Select a valid item" }
 );
 
+const notificationContentShape = {
+  title: z.string().trim().min(1, "Title is required").max(100, "Max 100 characters"),
+  messageEn: z
+    .string()
+    .trim()
+    .min(1, "English message is required")
+    .max(500, "Max 500 characters"),
+  messageAr: z
+    .string()
+    .trim()
+    .min(1, "Arabic message is required")
+    .max(500, "Max 500 characters"),
+  imageUrl: optionalUrl,
+  durationDay: z
+    .string()
+    .optional()
+    .refine((v) => !v || (/^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= 365), {
+      message: "Enter a whole number between 1 and 365",
+    }),
+};
+
+export const updateNotificationSchema = z.object(notificationContentShape);
+
 export const notificationSchema = z
   .object({
-    title: z.string().trim().min(1, "Title is required").max(100, "Max 100 characters"),
-    messageEn: z
-      .string()
-      .trim()
-      .min(1, "English message is required")
-      .max(500, "Max 500 characters"),
-    messageAr: z
-      .string()
-      .trim()
-      .min(1, "Arabic message is required")
-      .max(500, "Max 500 characters"),
-    imageUrl: optionalUrl,
+    ...notificationContentShape,
     isMale: z.enum(["", "true", "false"]),
     governmentId: optionalId,
     targetType: z.enum(["", "1", "2"]),
     targetId: optionalId,
     sendMode: z.enum(["now", "schedule"]),
     scheduledAt: z.string().optional(),
-    durationDay: z
-      .string()
-      .optional()
-      .refine((v) => !v || (/^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= 365), {
-        message: "Enter a whole number between 1 and 365",
-      }),
   })
   .superRefine((val, ctx) => {
     if (val.sendMode === "schedule") {
@@ -87,4 +93,12 @@ export const toPayload = (v) => ({
     v.sendMode === "schedule" && v.scheduledAt
       ? v.scheduledAt
       : null,
+});
+
+export const toUpdateNotificationPayload = (values) => ({
+  messageAr: values.messageAr.trim(),
+  messageEn: values.messageEn.trim(),
+  title: values.title.trim(),
+  imageUrl: values.imageUrl?.trim() || null,
+  durationDay: values.durationDay ? Number(values.durationDay) : null,
 });

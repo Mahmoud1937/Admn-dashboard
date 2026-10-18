@@ -38,6 +38,7 @@ const TicketTypesPage = lazy(() => import("../features/ticket-types/pages/Ticket
 const SubscriptionTypesPage = lazy(() => import("../features/subscription-types/pages/SubscriptionTypesPage"));
 const TicketsPage = lazy(() => import("../features/tickets/pages/TicketsPage"));
 const EmployeesPage = lazy(() => import("../features/employees/pages/EmployeesPage"));
+const BrokersPage = lazy(() => import("../features/brokers/pages/BrokersPage"));
 const LoginPage = lazy(() => import("../features/auth/pages/LoginPage"));
 const ForceChangePasswordPage = lazy(() =>
   import("../features/auth/pages/ForceChangePasswordPage")
@@ -254,6 +255,10 @@ const router = createBrowserRouter([
           {
             path: "employees",
             element: withPermission(PERMISSION_CODES.EMPLOYEES_READ, <EmployeesPage />),
+          },
+          {
+            path: "brokers",
+            element: withPermission(PERMISSION_CODES.BROKERS_READ, <BrokersPage />),
           },
           // View / Update Slider details (full-size images + edit)
           {

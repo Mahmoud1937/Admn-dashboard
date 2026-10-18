@@ -5,7 +5,9 @@ import {
   faCalendarDays,
   faChevronDown,
   faClock,
-  faHourglassHalf,
+  faPenToSquare,
+  faPowerOff,
+  faRotate,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
@@ -16,37 +18,69 @@ import { formatDate } from "../../../utils/formatDate";
 function TableSkeleton() {
   return (
     <div className="divide-y divide-slate-100" aria-busy="true">
-      <div className="h-11 bg-slate-100" />
+      <div className="h-11 bg-slate-50" />
       {Array.from({ length: 5 }, (_, index) => (
-        <div key={index} className="flex items-center gap-5 px-5 py-5">
-          <div className="h-11 w-11 shrink-0 animate-pulse rounded-lg bg-slate-100" />
-          <div className="h-4 w-40 animate-pulse rounded bg-slate-100" />
-          <div className="hidden h-4 flex-1 animate-pulse rounded bg-slate-100 md:block" />
-          <div className="hidden h-4 flex-1 animate-pulse rounded bg-slate-100 lg:block" />
-          <div className="h-4 w-24 animate-pulse rounded bg-slate-100" />
+        <div key={index} className="flex items-center gap-5 px-6 py-5">
+          <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-slate-100" />
+          <div className="space-y-2">
+            <div className="h-3.5 w-40 animate-pulse rounded bg-slate-100" />
+            <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
+          </div>
+          <div className="hidden h-3.5 flex-1 animate-pulse rounded bg-slate-100 md:block" />
+          <div className="hidden h-3.5 flex-1 animate-pulse rounded bg-slate-100 lg:block" />
+          <div className="h-3.5 w-24 animate-pulse rounded bg-slate-100" />
         </div>
       ))}
     </div>
   );
 }
 
-function NotificationIcon({ imageUrl }) {
-  const [imageFailed, setImageFailed] = useState(false);
+function NotificationIcon({ imageUrl, isActive }) {
+  const [failedUrl, setFailedUrl] = useState(null);
 
-  if (imageUrl && !imageFailed) {
+  if (imageUrl && failedUrl !== imageUrl) {
     return (
       <img
         src={imageUrl}
         alt=""
-        className="h-11 w-11 shrink-0 rounded-lg border border-slate-200 bg-slate-50 object-cover"
-        onError={() => setImageFailed(true)}
+        className={`h-10 w-10 shrink-0 rounded-lg border bg-slate-50 object-cover ${
+          isActive === true ? "border-blue-200" : "border-slate-200"
+        }`}
+        onError={() => setFailedUrl(imageUrl)}
       />
     );
   }
 
   return (
-    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-800 ring-1 ring-blue-100">
-      <FontAwesomeIcon icon={faBell} aria-hidden="true" />
+    <span
+      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${
+        isActive === true
+          ? "bg-blue-50 text-blue-700 ring-blue-100"
+          : "bg-slate-100 text-slate-400 ring-slate-200/60"
+      }`}
+    >
+      <FontAwesomeIcon icon={faBell} className="text-sm" aria-hidden="true" />
+    </span>
+  );
+}
+
+function StatusPill({ isActive }) {
+  if (typeof isActive !== "boolean") return null;
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${
+        isActive
+          ? "bg-emerald-50 text-emerald-700 ring-emerald-600/15"
+          : "bg-slate-50 text-slate-500 ring-slate-500/15"
+      }`}
+    >
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${
+          isActive ? "bg-emerald-500" : "bg-slate-400"
+        }`}
+      />
+      {isActive ? "Active" : "Inactive"}
     </span>
   );
 }
@@ -55,25 +89,19 @@ function MessagePreview({ value, language }) {
   const isArabic = language === "AR";
 
   return (
-    <div className="flex min-w-0 items-start gap-2">
-      <span
-        className={`inline-flex shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-          isArabic
-            ? "bg-teal-50 text-teal-700"
-            : "bg-blue-50 text-blue-700"
-        }`}
-      >
-        {language}
-      </span>
-      <span
+    <div className="min-w-0">
+      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+        {isArabic ? "Arabic" : "English"}
+      </p>
+      <p
         dir={isArabic ? "rtl" : "ltr"}
         title={value || undefined}
-        className={`line-clamp-2 min-w-0 break-words text-sm leading-5 text-slate-600 ${
+        className={`line-clamp-2 break-words text-sm leading-5 text-slate-600 ${
           isArabic ? "text-right" : "text-left"
         }`}
       >
-        {value || "—"}
-      </span>
+        {value || <span className="text-slate-300">—</span>}
+      </p>
     </div>
   );
 }
@@ -89,12 +117,15 @@ function ScheduleCell({ scheduledAt, durationDay }) {
     <div className="space-y-1.5">
       {hasDate ? (
         <>
-          <div className="flex items-center gap-2 whitespace-nowrap font-medium text-slate-700">
-            <FontAwesomeIcon icon={faCalendarDays} className="w-3.5 text-blue-700" />
+          <div className="flex items-center gap-2 whitespace-nowrap text-sm font-medium text-slate-800">
+            <FontAwesomeIcon
+              icon={faCalendarDays}
+              className="w-3.5 text-slate-400"
+            />
             {formatDate(scheduledAt)}
           </div>
           <div className="flex items-center gap-2 whitespace-nowrap text-xs text-slate-500">
-            <FontAwesomeIcon icon={faClock} className="w-3.5 text-teal-600" />
+            <FontAwesomeIcon icon={faClock} className="w-3.5 text-slate-400" />
             {date.toLocaleTimeString("en-US", {
               hour: "2-digit",
               minute: "2-digit",
@@ -103,13 +134,13 @@ function ScheduleCell({ scheduledAt, durationDay }) {
           </div>
         </>
       ) : (
-        <span className="text-slate-400">Not scheduled</span>
+        <span className="text-sm text-slate-400">Not scheduled</span>
       )}
       {durationDay != null && (
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
-          <FontAwesomeIcon icon={faHourglassHalf} className="text-[10px]" />
-          Repeats after {durationDay} {durationDay === 1 ? "day" : "days"}
-        </span>
+        <div className="flex items-center gap-2 whitespace-nowrap text-xs text-slate-500">
+          <FontAwesomeIcon icon={faRotate} className="w-3.5 text-slate-400" />
+          Every {durationDay} {durationDay === 1 ? "day" : "days"}
+        </div>
       )}
     </div>
   );
@@ -119,8 +150,8 @@ function ExpandedMessage({ language, value }) {
   const isArabic = language === "Arabic";
 
   return (
-    <div className="min-w-0 rounded-lg border border-slate-200 bg-white p-4">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
         {language} message
       </p>
       <p
@@ -135,7 +166,34 @@ function ExpandedMessage({ language, value }) {
   );
 }
 
-function NotificationRow({ notification, expanded, onToggle, canDelete, onDelete }) {
+function ActionButton({ label, title, onClick, tone = "neutral", iconClass = "text-slate-400", disabled, children, ...rest }) {
+  const tones = {
+    neutral:
+      "hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-slate-500",
+    blue: "hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-blue-600",
+    green:
+      "hover:bg-emerald-50 hover:text-emerald-700 focus-visible:outline-emerald-600",
+    amber:
+      "hover:bg-amber-50 hover:text-amber-700 focus-visible:outline-amber-600",
+    red: "hover:bg-red-50 hover:text-red-600 focus-visible:outline-red-500",
+  };
+
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={title ?? label}
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors focus-visible:outline-2 disabled:cursor-not-allowed disabled:opacity-50 ${iconClass} ${tones[tone]}`}
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+}
+
+function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, canToggle, onToggleActive, isToggling, canDelete, onDelete }) {
   const {
     notificationId,
     title,
@@ -144,25 +202,39 @@ function NotificationRow({ notification, expanded, onToggle, canDelete, onDelete
     messageAr,
     scheduledAt,
     durationDay,
+    isActive,
   } = notification;
   const detailsId = `notification-details-${notificationId}`;
+  const label = title || notificationId;
 
   return (
     <>
       <tr
         onClick={onToggle}
-        className={`cursor-pointer border-b border-slate-100 transition-colors hover:bg-slate-50 ${
-          expanded ? "bg-blue-50/40" : "bg-white"
+        className={`group cursor-pointer border-b border-slate-100 transition-colors ${
+          expanded ? "bg-slate-50" : "bg-white hover:bg-slate-50/70"
         }`}
       >
-        <td className="px-5 py-4 align-top">
+        <td className="relative px-6 py-4 align-top">
+          {expanded && (
+            <span className="absolute inset-y-0 left-0 w-0.5 bg-blue-900" aria-hidden="true" />
+          )}
           <div className="flex items-start gap-3">
-            <NotificationIcon imageUrl={imageUrl} />
-            <div className="min-w-0 pt-0.5">
-              <p dir="auto" title={title} className="line-clamp-2 break-words font-semibold text-slate-900">
+            <NotificationIcon imageUrl={imageUrl} isActive={isActive} />
+            <div className="min-w-0">
+              <p
+                dir="auto"
+                title={title}
+                className="line-clamp-2 break-words text-sm font-semibold text-slate-900"
+              >
                 {title || "Untitled notification"}
               </p>
-              <p className="mt-1 text-xs text-slate-400">#{notificationId}</p>
+              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                <span className="text-xs tabular-nums text-slate-400">
+                  #{notificationId}
+                </span>
+                <StatusPill isActive={isActive} />
+              </div>
             </div>
           </div>
         </td>
@@ -172,47 +244,80 @@ function NotificationRow({ notification, expanded, onToggle, canDelete, onDelete
         <td className="px-4 py-4 align-top">
           <MessagePreview language="AR" value={messageAr} />
         </td>
-        <td className="px-4 py-4 align-top text-sm">
+        <td className="px-4 py-4 align-top">
           <ScheduleCell scheduledAt={scheduledAt} durationDay={durationDay} />
         </td>
         <td className="px-4 py-4 align-top">
-          <div className="flex items-center justify-end gap-1">
-            <button
-              type="button"
-              aria-label={expanded ? "Hide notification details" : "Show notification details"}
+          <div className="flex items-center justify-end gap-0.5">
+            {canEdit && (
+              <ActionButton
+                tone="blue"
+                label={`Edit notification ${label}`}
+                title="Edit notification"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onEdit(notification);
+                }}
+              >
+                <FontAwesomeIcon icon={faPenToSquare} className="text-xs" />
+              </ActionButton>
+            )}
+            {canToggle && (
+              <ActionButton
+                tone={isActive === false ? "green" : "amber"}
+                iconClass={isActive === true ? "text-blue-700" : "text-slate-400"}
+                label={`${isActive === true ? "Deactivate" : isActive === false ? "Activate" : "Toggle status of"} notification ${label}`}
+                title={
+                  isActive === true
+                    ? "Deactivate notification"
+                    : isActive === false
+                      ? "Activate notification"
+                      : "Toggle notification status"
+                }
+                disabled={isToggling}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onToggleActive(notification);
+                }}
+              >
+                <FontAwesomeIcon icon={faPowerOff} className="text-xs" />
+              </ActionButton>
+            )}
+            {canDelete && (
+              <ActionButton
+                tone="red"
+                label={`Delete notification ${label}`}
+                title="Delete notification"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDelete(notification);
+                }}
+              >
+                <FontAwesomeIcon icon={faTrash} className="text-xs" />
+              </ActionButton>
+            )}
+            <ActionButton
+              label={expanded ? "Hide notification details" : "Show notification details"}
               aria-expanded={expanded}
               aria-controls={expanded ? detailsId : undefined}
               onClick={(event) => {
                 event.stopPropagation();
                 onToggle();
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-blue-600"
             >
               <FontAwesomeIcon
                 icon={faChevronDown}
-                className={`text-xs transition-transform ${expanded ? "rotate-180" : ""}`}
+                className={`text-xs transition-transform duration-200 ${
+                  expanded ? "rotate-180" : ""
+                }`}
               />
-            </button>
-            {canDelete && (
-              <button
-                type="button"
-                aria-label={`Delete notification ${title || notificationId}`}
-                title="Delete notification"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onDelete(notification);
-                }}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-red-500"
-              >
-                <FontAwesomeIcon icon={faTrash} className="text-xs" />
-              </button>
-            )}
+            </ActionButton>
           </div>
         </td>
       </tr>
       {expanded && (
-        <tr id={detailsId} className="border-b border-slate-200 bg-slate-50/70">
-          <td colSpan={5} className="px-5 py-4">
+        <tr id={detailsId} className="border-b border-slate-200 bg-slate-50">
+          <td colSpan={5} className="px-6 pb-5 pt-1">
             <div className="grid gap-3 md:grid-cols-2">
               <ExpandedMessage language="English" value={messageEn} />
               <ExpandedMessage language="Arabic" value={messageAr} />
@@ -231,6 +336,11 @@ export default function NotificationsTable({
   error,
   onRetry,
   onDelete,
+  onEdit,
+  onToggleActive,
+  canEdit = false,
+  canToggle = false,
+  isToggling = false,
   canDelete = true,
   hasActiveFilters = false,
 }) {
@@ -257,19 +367,19 @@ export default function NotificationsTable({
     <ScrollableTable className="scroll-table min-h-[360px]">
       <table className="w-full min-w-[980px] table-fixed text-left text-sm">
         <colgroup>
-          <col className="w-[25%]" />
+          <col className="w-[26%]" />
           <col className="w-[22%]" />
           <col className="w-[22%]" />
-          <col className="w-[20%]" />
-          <col className="w-[11%]" />
+          <col className="w-[18%]" />
+          <col className="w-[12%]" />
         </colgroup>
-        <thead className="sticky top-0 z-10 bg-slate-100 text-xs font-semibold uppercase tracking-wide text-slate-500 shadow-[0_1px_0_0_rgb(226,232,240)]">
+        <thead className="sticky top-0 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 shadow-[0_1px_0_0_rgb(226,232,240)]">
           <tr>
-            <th scope="col" className="px-5 py-3.5">Notification</th>
-            <th scope="col" className="px-4 py-3.5">English message</th>
-            <th scope="col" className="px-4 py-3.5">Arabic message</th>
-            <th scope="col" className="px-4 py-3.5">Schedule</th>
-            <th scope="col" className="px-4 py-3.5 text-right">Actions</th>
+            <th scope="col" className="px-6 py-3">Notification</th>
+            <th scope="col" className="px-4 py-3">English message</th>
+            <th scope="col" className="px-4 py-3">Arabic message</th>
+            <th scope="col" className="px-4 py-3">Schedule</th>
+            <th scope="col" className="px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -286,6 +396,11 @@ export default function NotificationsTable({
                 )
               }
               canDelete={canDelete}
+              canEdit={canEdit}
+              onEdit={onEdit}
+              canToggle={canToggle}
+              onToggleActive={onToggleActive}
+              isToggling={isToggling}
               onDelete={onDelete}
             />
           ))}

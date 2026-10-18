@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAddressBook,
+  faChevronDown,
   faCircleExclamation,
   faCircleInfo,
   faFloppyDisk,
@@ -212,7 +213,7 @@ export default function ProviderInfoForm({
   };
 
   const selectClasses =
-    "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+    "w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2.5 pr-9 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-700 disabled:shadow-none disabled:opacity-100";
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
@@ -308,14 +309,15 @@ export default function ProviderInfoForm({
           {/* Class + Join date */}
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
-              <FieldLabel htmlFor={canEdit ? "provider-class" : undefined} required={canEdit}>
+              <FieldLabel htmlFor="provider-class" required>
                 Class
               </FieldLabel>
-              {canEdit ? (
+              <div className="relative">
                 <select
                   id="provider-class"
                   {...register("providerClass")}
-                  className={`${selectClasses} max-w-40`}
+                  disabled={!canEdit}
+                  className={selectClasses}
                 >
                   <option value="">Select class</option>
                   {PROVIDER_CLASS_OPTIONS.map(({ value, label }) => (
@@ -324,11 +326,11 @@ export default function ProviderInfoForm({
                     </option>
                   ))}
                 </select>
-              ) : (
-                <div className="flex w-full items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700">
-                  {provider?.class ?? "-"}
-                </div>
-              )}
+                <FontAwesomeIcon
+                  icon={faChevronDown}
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"
+                />
+              </div>
               <FieldError message={errors.providerClass?.message} />
             </div>
 

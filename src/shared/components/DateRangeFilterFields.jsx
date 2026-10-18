@@ -208,6 +208,7 @@ function Calendar({
 }
 
 export function DatePicker({
+  id,
   value,
   onChange,
   minDate,
@@ -303,6 +304,7 @@ export function DatePicker({
     <div ref={rootRef} className={`relative ${className}`}>
       <div className="relative">
         <input
+          id={id}
           type="text"
           inputMode="numeric"
           autoComplete="off"

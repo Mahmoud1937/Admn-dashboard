@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const baseShape = {
+  servicePriceListId: z.string().min(1, "Price list is required"),
   serviceId: z.string().min(1, "Service is required"),
   priceBefore: z
     .string()

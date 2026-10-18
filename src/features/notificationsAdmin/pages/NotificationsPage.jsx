@@ -13,6 +13,7 @@ import useNotificationsQuery from "../hooks/useNotificationsQuery";
 import useNotificationMutations from "../hooks/useNotificationMutations";
 import NotificationsTable from "../components/NotificationsTable";
 import NotificationFormModal from "../components/NotificationFormModal";
+import NotificationEditModal from "../components/NotificationEditModal";
 
 function Toast({ toast, onClose }) {
   useEffect(() => {
@@ -95,16 +96,22 @@ export default function NotificationsPage() {
   const canDelete = hasPermission(PERMISSION_CODES.NOTIFICATION_MARKETING_DELETE);
   const { data = [], isLoading, isError, refetch } = useNotificationsQuery();
   const [formOpen, setFormOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [toast, setToast] = useState(null);
 
-  const { create, remove } = useNotificationMutations({
+  const { create, remove, update, toggleActive } = useNotificationMutations({
     onSuccess: (message) => setToast({ type: "success", message }),
     onError: (message) => setToast({ type: "error", message }),
   });
 
   const handleCreate = (payload) =>
     create.mutate(payload, { onSuccess: () => setFormOpen(false) });
+
+  const handleUpdate = (payload) =>
+    update.mutate(payload, { onSuccess: () => setEditTarget(null) });
+
+  const handleToggleActive = (notification) => toggleActive.mutate(notification);
 
   const handleDelete = () =>
     remove.mutate(deleteTarget.notificationId, {
@@ -149,6 +156,11 @@ export default function NotificationsPage() {
             items={data}
             isLoading={isLoading}
             onDelete={setDeleteTarget}
+            onEdit={setEditTarget}
+            onToggleActive={handleToggleActive}
+            canEdit={canCreate}
+            canToggle={canCreate}
+            isToggling={toggleActive.isPending}
             canDelete={canDelete}
           />
         )}
@@ -159,6 +171,12 @@ export default function NotificationsPage() {
         onClose={() => setFormOpen(false)}
         onSubmit={handleCreate}
         isSaving={create.isPending}
+      />
+      <NotificationEditModal
+        notification={editTarget}
+        onClose={() => setEditTarget(null)}
+        onSubmit={handleUpdate}
+        isSaving={update.isPending}
       />
       <ConfirmDelete
         target={deleteTarget}

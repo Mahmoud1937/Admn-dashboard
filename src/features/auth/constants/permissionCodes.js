@@ -1,6 +1,10 @@
 // Values are the exact codes confirmed by the backend PermissionAdmin response.
 export const PERMISSION_CODES = Object.freeze({
   DASHBOARD_READ: 'dashboard.read',
+  BROKERS_CREATE: 'brokers.create',
+  BROKERS_DELETE: 'brokers.delete',
+  BROKERS_READ: 'brokers.read',
+  BROKERS_UPDATE: 'brokers.update',
   CARD_POOLS_CREATE: 'card_pools.create',
   CARD_POOLS_DELETE: 'card_pools.delete',
   CARD_POOLS_READ: 'card_pools.read',

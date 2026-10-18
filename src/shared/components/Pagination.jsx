@@ -10,7 +10,7 @@ export default function Pagination({
   onPageSizeChange,
   getPageNumbers,
 }) {
-  if (totalCount < 20) return null;
+  if (totalPages <= 1) return null;
   const pageNumbers = getPageNumbers(pageNumber, totalPages);
 
   return (

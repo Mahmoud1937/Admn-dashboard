@@ -10,6 +10,7 @@ import ServiceSelect from "./ServiceSelect";
 
 
 const EMPTY_VALUES = {
+  servicePriceListId: "",
   serviceId: "",
   priceBefore: "",
   discountPercentage: "",
@@ -20,6 +21,8 @@ const EMPTY_VALUES = {
 // Backend returns PascalCase field names (ASP.NET ModelState style, e.g.
 // "ServiceId"). Map them to the camelCase field names used by the form.
 const SERVER_FIELD_NAME_MAP = {
+  ProviderPriceListId: "servicePriceListId",
+  ServicePriceListId: "servicePriceListId",
   ServiceId: "serviceId",
   PriceBefore: "priceBefore",
   DiscountPercentage: "discountPercentage",
@@ -32,9 +35,10 @@ function toFormFieldName(serverFieldName) {
   );
 }
 
-function providerServiceToFormValues(providerService) {
-  if (!providerService) return EMPTY_VALUES;
+function providerServiceToFormValues(providerService, servicePriceListId) {
+  if (!providerService) return { ...EMPTY_VALUES, servicePriceListId };
   return {
+    servicePriceListId,
     serviceId: providerService.serviceId ? String(providerService.serviceId) : "",
     priceBefore:
       providerService.priceBefore != null ? String(providerService.priceBefore) : "",
@@ -51,6 +55,8 @@ export default function ProviderServiceFormModal({
   isOpen,
   providerService,
   providerId,
+  servicePriceListId,
+  priceListLabel,
   onSave,
   onClose,
   isSaving,
@@ -59,7 +65,6 @@ export default function ProviderServiceFormModal({
 }) {
   const isEditMode = !!providerService;
   const schema = isEditMode ? updateProviderServiceSchema : createProviderServiceSchema;
-
   const {
     register,
     handleSubmit,
@@ -75,11 +80,11 @@ export default function ProviderServiceFormModal({
 
   useEffect(() => {
     if (isOpen) {
-      reset(providerServiceToFormValues(providerService));
+      reset(providerServiceToFormValues(providerService, servicePriceListId));
       onClearErrors?.();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, providerService, reset]);
+  }, [isOpen, providerService, servicePriceListId, reset]);
 
   // Map backend validation errors (PascalCase field -> [errorCode]) onto the
   // matching form fields. Shown as-is, no client-side translation.
@@ -102,6 +107,7 @@ export default function ProviderServiceFormModal({
     onSave({
       id: providerService?.id,
       providerId: Number(providerId),
+      servicePriceListId: Number(data.servicePriceListId),
       serviceId: Number(data.serviceId),
       priceBefore: Number(data.priceBefore),
       discountPercentage: data.discountPercentage ? Number(data.discountPercentage) : 0,
@@ -116,6 +122,15 @@ export default function ProviderServiceFormModal({
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
     >
+      <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+        <input type="hidden" {...register("servicePriceListId")} />
+        <p className="text-xs font-medium text-slate-500">Price list #{servicePriceListId}</p>
+        <p className="text-sm font-semibold text-slate-700">{priceListLabel}</p>
+        {errors.servicePriceListId && (
+          <p className="mt-1 text-xs text-red-500">{errors.servicePriceListId.message}</p>
+        )}
+      </div>
+
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
           Service <span className="text-red-500">*</span>

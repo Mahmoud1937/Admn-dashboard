@@ -12,6 +12,19 @@ export const createNotification = async (payload) => {
   return data?.data;
 };
 
+export const updateNotification = async ({ notificationId, ...payload }) => {
+  const { data } = await axiosInstance.put(`${BASE}/${notificationId}`, payload);
+  return data?.data;
+};
+
+export const toggleNotificationActive = async (notificationId) => {
+  const { data } = await axiosInstance.patch(`${BASE}/${notificationId}/toggle-active`);
+  if (data?.succeeded === false) {
+    throw new Error(data.message || "Failed to update notification status.");
+  }
+  return data?.data;
+};
+
 export const getNotificationPackageLookup = async (pageNumber = 1, pageSize = 20, searchTerm = "") => {
   const { data } = await axiosInstance.get("/AdminLookup/packages");
   const packages = Array.isArray(data?.data) ? data.data : [];

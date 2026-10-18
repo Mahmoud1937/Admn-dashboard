@@ -1,0 +1,50 @@
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { createBroker, deleteBroker, updateBroker } from "../services/brokersService";
+import { handleMutationError } from "../../../shared/utils/handleMutationError";
+
+export function useBrokerMutations({ onSaveSuccess, onDeleteSuccess }) {
+  const queryClient = useQueryClient();
+  const [serverErrors, setServerErrors] = useState(null);
+  const clearServerErrors = () => setServerErrors(null);
+
+  const createMutation = useMutation({
+    mutationFn: createBroker,
+    onSuccess: (response) => {
+      toast.success(response?.message || "Broker created successfully.");
+      queryClient.invalidateQueries({ queryKey: ["brokers"] });
+      onSaveSuccess?.();
+    },
+    onError: (error) => handleMutationError(error, "Failed to create broker.", setServerErrors),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: updateBroker,
+    onSuccess: (response) => {
+      toast.success(response?.message || "Broker updated successfully.");
+      queryClient.invalidateQueries({ queryKey: ["brokers"] });
+      onSaveSuccess?.();
+    },
+    onError: (error) => handleMutationError(error, "Failed to update broker.", setServerErrors),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteBroker,
+    onSuccess: (response) => {
+      toast.success(response?.message || "Broker deleted successfully.");
+      queryClient.invalidateQueries({ queryKey: ["brokers"] });
+      onDeleteSuccess?.();
+    },
+    onError: (error) => toast.error(error?.response?.data?.message || "Failed to delete broker."),
+  });
+
+  return {
+    createMutation,
+    updateMutation,
+    deleteMutation,
+    isSaving: createMutation.isPending || updateMutation.isPending,
+    serverErrors,
+    clearServerErrors,
+  };
+}
