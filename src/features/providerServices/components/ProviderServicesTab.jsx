@@ -28,7 +28,6 @@ import ProviderServiceFormModal from "./ProviderServiceFormModal";
 import PriceListFormModal from "./PriceListFormModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
-import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { createProviderPriceList, deleteProviderPriceList, getProviderPriceListOptions, updateProviderPriceList } from "../services/priceListsService";
@@ -87,8 +86,13 @@ function IconButton({ title, onClick, tone = "blue", children }) {
 }
 
 export default function ProviderServicesTab() {
+  const canViewPriceLists = usePermission(PERMISSION_CODES.PROVIDER_PRICE_LISTS_READ);
+  const canCreatePriceList = usePermission(PERMISSION_CODES.PROVIDER_PRICE_LISTS_CREATE);
+  const canUpdatePriceList = usePermission(PERMISSION_CODES.PROVIDER_PRICE_LISTS_UPDATE);
+  const canDeletePriceList = usePermission(PERMISSION_CODES.PROVIDER_PRICE_LISTS_DELETE);
+  const canViewServices = usePermission(PERMISSION_CODES.PROVIDER_SERVICES_READ);
+  const canCreateService = usePermission(PERMISSION_CODES.PROVIDER_SERVICES_CREATE);
   const canUpdate = usePermission(PERMISSION_CODES.PROVIDER_SERVICES_UPDATE);
-  const canDelete = usePermission(PERMISSION_CODES.PROVIDER_SERVICES_DELETE);
   const queryClient = useQueryClient();
   const { id: providerId } = useParams();
 
@@ -109,7 +113,7 @@ export default function ProviderServicesTab() {
   } = useQuery({
     queryKey: ["provider-price-list-options", providerId],
     queryFn: () => getProviderPriceListOptions(providerId),
-    enabled: Boolean(providerId),
+    enabled: canViewPriceLists && Boolean(providerId),
   });
   const selectedPriceListId = priceLists.some(
     (priceList) => String(priceList.id) === servicePriceListId
@@ -188,7 +192,7 @@ export default function ProviderServicesTab() {
     search,
     statusFilter,
     servicePriceListId: selectedPriceListId,
-    enabled: Boolean(selectedPriceListId),
+    enabled: canViewServices && (!canViewPriceLists || Boolean(selectedPriceListId)),
   });
 
   const {
@@ -209,25 +213,27 @@ export default function ProviderServicesTab() {
   const hasActiveFilters = !!(search || statusFilter);
 
   const handleOpenAdd = () => {
+    if (!canCreateService || !canViewPriceLists || !selectedPriceListId) return;
     setSelectedService(null);
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (service) => {
+    if (!canUpdate || !canViewPriceLists) return;
     setSelectedService(service);
     setIsModalOpen(true);
   };
 
   const handleSave = (payload) => {
     if (selectedService) {
-      updateMutation.mutate(payload);
+      if (canUpdate && canViewPriceLists) updateMutation.mutate(payload);
     } else {
-      createMutation.mutate(payload);
+      if (canCreateService && canViewPriceLists && selectedPriceListId) createMutation.mutate(payload);
     }
   };
 
   const handleConfirmToggle = () => {
-    if (serviceToToggle) {
+    if (canUpdate && canViewPriceLists && serviceToToggle) {
       toggleMutation.mutate(serviceToToggle);
     }
   };
@@ -237,6 +243,7 @@ export default function ProviderServicesTab() {
   return (
     <div className="min-w-0 space-y-5">
       {/* Price lists */}
+      {canViewPriceLists && (
       <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 pb-4 pt-5">
           <div className="flex items-center gap-3">
@@ -256,7 +263,7 @@ export default function ProviderServicesTab() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {canUpdate && selectedPriceList && (
+            {canUpdatePriceList && selectedPriceList && (
               <button
                 type="button"
                 onClick={() => {
@@ -271,7 +278,7 @@ export default function ProviderServicesTab() {
                 Edit dates
               </button>
             )}
-            {canDelete && selectedPriceList && (
+            {canDeletePriceList && selectedPriceList && (
               <button
                 type="button"
                 onClick={() => setPriceListToDelete(selectedPriceList)}
@@ -282,7 +289,7 @@ export default function ProviderServicesTab() {
                 Delete
               </button>
             )}
-            <PermissionGuard permission={PERMISSION_CODES.PROVIDER_SERVICES_CREATE}>
+            {canCreatePriceList && (
               <button
                 type="button"
                 onClick={() => {
@@ -295,7 +302,7 @@ export default function ProviderServicesTab() {
                 <FontAwesomeIcon icon={faPlus} />
                 Create price list
               </button>
-            </PermissionGuard>
+            )}
           </div>
         </div>
 
@@ -369,7 +376,10 @@ export default function ProviderServicesTab() {
           )}
         </div>
       </section>
+      )}
 
+      {canViewServices && (
+      <>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -383,7 +393,7 @@ export default function ProviderServicesTab() {
           </p>
         </div>
 
-        <PermissionGuard permission={PERMISSION_CODES.PROVIDER_SERVICES_CREATE}>
+        {canViewPriceLists && canCreateService && (
           <button
             type="button"
             onClick={handleOpenAdd}
@@ -393,7 +403,7 @@ export default function ProviderServicesTab() {
             <FontAwesomeIcon icon={faPlus} />
             Add service
           </button>
-        </PermissionGuard>
+        )}
       </div>
 
       {/* Filters + Table */}
@@ -426,15 +436,15 @@ export default function ProviderServicesTab() {
 
         </div>
 
-        {isLoadingPriceLists ? (
+        {canViewPriceLists && isLoadingPriceLists ? (
           <TableSkeleton />
-        ) : isPriceListsError ? (
+        ) : canViewPriceLists && isPriceListsError ? (
           <QueryErrorState
             title="Unable to load price lists"
             error={priceListsError}
             onRetry={refetchPriceLists}
           />
-        ) : !selectedPriceListId ? (
+        ) : canViewPriceLists && !selectedPriceListId ? (
           <TableEmptyState
             icon={faTag}
             title="No price lists found"
@@ -468,7 +478,7 @@ export default function ProviderServicesTab() {
                     <th className="px-4 py-3 text-center">Offer</th>
                     <th className="px-4 py-3 text-center">Status</th>
                     <th className="px-4 py-3">Joined</th>
-                    {canUpdate && (
+                    {canUpdate && canViewPriceLists && (
                       <th className="px-6 py-3 text-center">Actions</th>
                     )}
                   </tr>
@@ -540,7 +550,7 @@ export default function ProviderServicesTab() {
                       </td>
 
                       {/* Actions */}
-                      {canUpdate && (
+                      {canUpdate && canViewPriceLists && (
                         <td
                           className="px-6 py-3.5"
                           onClick={(e) => e.stopPropagation()}
@@ -595,14 +605,18 @@ export default function ProviderServicesTab() {
         )}
       </div>
 
+      </>
+      )}
+
+      {canViewPriceLists && (canCreatePriceList || canUpdatePriceList) && (
       <PriceListFormModal
         isOpen={isPriceListModalOpen}
         priceList={editingPriceList}
         providerId={providerId}
         hasPriceLists={priceLists.length > 0}
         onSave={(payload) => {
-          if (editingPriceList) updatePriceListMutation.mutate(payload);
-          else createPriceListMutation.mutate(payload);
+          if (editingPriceList && canUpdatePriceList) updatePriceListMutation.mutate(payload);
+          else if (!editingPriceList && canCreatePriceList) createPriceListMutation.mutate(payload);
         }}
         onClose={() => setIsPriceListModalOpen(false)}
         isSaving={createPriceListMutation.isPending || updatePriceListMutation.isPending}
@@ -610,21 +624,23 @@ export default function ProviderServicesTab() {
           editingPriceList ? updatePriceListMutation.error : createPriceListMutation.error
         )}
       />
+      )}
 
-      {canDelete && (
+      {canViewPriceLists && canDeletePriceList && (
         <ConfirmDeleteModal
           isOpen={Boolean(priceListToDelete)}
           title="Delete price list"
           message={`Are you sure you want to delete price list #${priceListToDelete?.id} (${displayPeriodDate(priceListToDelete?.startAt)} - ${displayPeriodDate(priceListToDelete?.endAt)})?`}
           confirmLabel="Delete price list"
           onConfirm={() => {
-            if (priceListToDelete) deletePriceListMutation.mutate(priceListToDelete.id);
+            if (canDeletePriceList && priceListToDelete) deletePriceListMutation.mutate(priceListToDelete.id);
           }}
           onCancel={() => setPriceListToDelete(null)}
           isLoading={deletePriceListMutation.isPending}
         />
       )}
 
+      {canViewServices && canViewPriceLists && (canCreateService || canUpdate) && (
       <ProviderServiceFormModal
         isOpen={isModalOpen}
         providerService={selectedService}
@@ -639,8 +655,9 @@ export default function ProviderServicesTab() {
         serverErrors={serverErrors}
         onClearErrors={clearServerErrors}
       />
+      )}
 
-      {canUpdate && (
+      {canViewServices && canViewPriceLists && canUpdate && (
         <ConfirmDeleteModal
           isOpen={!!serviceToToggle}
           variant={serviceToToggle?.isActive ? "danger" : "success"}

@@ -17,6 +17,7 @@ import {
   setRefreshToken as persistRefreshToken,
   clearRefreshToken as removeRefreshToken,
   refreshAccessToken,
+  invalidateAuthSession,
   registerSessionExpiredHandler,
   registerTokenRefreshedHandler,
   getMustChangePassword,
@@ -132,6 +133,7 @@ export function AuthProvider({ children }) {
       needsPasswordChange = false,
       loginPermissions = []
     ) => {
+      invalidateAuthSession();
       permissionLoadRunRef.current += 1;
       clearDashboardFilters();
       removeToken();
@@ -152,6 +154,7 @@ export function AuthProvider({ children }) {
   );
 
   const logout = useCallback(() => {
+    invalidateAuthSession();
     permissionLoadRunRef.current += 1;
     clearDashboardFilters();
     removeToken();
@@ -175,7 +178,10 @@ export function AuthProvider({ children }) {
       setTokenState(refreshedToken);
     });
     registerSessionExpiredHandler((reason) => {
+      invalidateAuthSession();
       permissionLoadRunRef.current += 1;
+      queryClient.cancelQueries();
+      queryClient.clear();
       clearDashboardFilters();
       clearPersistedPermissions();
       persistMustChangePassword(false);
@@ -191,13 +197,17 @@ export function AuthProvider({ children }) {
       registerTokenRefreshedHandler(null);
       registerSessionExpiredHandler(null);
     };
-  }, []);
+  }, [queryClient]);
 
   useEffect(() => {
     let cancelled = false;
 
     const clearInvalidSession = () => {
+      if (cancelled) return;
+      invalidateAuthSession();
       permissionLoadRunRef.current += 1;
+      queryClient.cancelQueries();
+      queryClient.clear();
       clearDashboardFilters();
       removeToken();
       removeRefreshToken();
@@ -232,7 +242,7 @@ export function AuthProvider({ children }) {
           activeToken = await refreshAccessToken();
           user = getUserFromToken(activeToken);
         } catch {
-          clearInvalidSession();
+          if (getToken() === activeToken) clearInvalidSession();
           return;
         }
       }
@@ -242,7 +252,8 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      if (!cancelled) setTokenState(activeToken);
+      if (cancelled || getToken() !== activeToken) return;
+      setTokenState(activeToken);
 
       try {
         await loadPermissionsForEmployee(user.employeeId);
@@ -259,7 +270,7 @@ export function AuthProvider({ children }) {
       cancelled = true;
       permissionLoadRunRef.current += 1;
     };
-  }, [loadPermissionsForEmployee]);
+  }, [loadPermissionsForEmployee, queryClient]);
 
   const user = token ? getUserFromToken(token) : null;
   const isAuthenticated = isAdminUser(user);

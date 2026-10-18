@@ -56,6 +56,10 @@ export const PERMISSION_CODES = Object.freeze({
   PROVIDER_PACKAGES_DELETE: 'provider_packages.delete',
   PROVIDER_PACKAGES_READ: 'provider_packages.read',
   PROVIDER_PACKAGES_UPDATE: 'provider_packages.update',
+  PROVIDER_PRICE_LISTS_CREATE: 'provider_price_lists.create',
+  PROVIDER_PRICE_LISTS_DELETE: 'provider_price_lists.delete',
+  PROVIDER_PRICE_LISTS_READ: 'provider_price_lists.read',
+  PROVIDER_PRICE_LISTS_UPDATE: 'provider_price_lists.update',
   PROVIDER_SERVICES_CREATE: 'provider_services.create',
   PROVIDER_SERVICES_DELETE: 'provider_services.delete',
   PROVIDER_SERVICES_READ: 'provider_services.read',
@@ -94,4 +98,5 @@ export const PERMISSION_CODES = Object.freeze({
   NOTIFICATION_MARKETING_CREATE: 'notification_marketing.create',
   NOTIFICATION_MARKETING_DELETE: 'notification_marketing.delete',
   NOTIFICATION_MARKETING_READ: 'notification_marketing.read',
+  NOTIFICATION_MARKETING_UPDATE: 'notification_marketing.update',
 })

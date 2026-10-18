@@ -93,6 +93,7 @@ export default function NotificationsPage() {
   
   const { hasPermission } = useAuth();
   const canCreate = hasPermission(PERMISSION_CODES.NOTIFICATION_MARKETING_CREATE);
+  const canUpdate = hasPermission(PERMISSION_CODES.NOTIFICATION_MARKETING_UPDATE);
   const canDelete = hasPermission(PERMISSION_CODES.NOTIFICATION_MARKETING_DELETE);
   const { data = [], isLoading, isError, refetch } = useNotificationsQuery();
   const [formOpen, setFormOpen] = useState(false);
@@ -105,18 +106,25 @@ export default function NotificationsPage() {
     onError: (message) => setToast({ type: "error", message }),
   });
 
-  const handleCreate = (payload) =>
-    create.mutate(payload, { onSuccess: () => setFormOpen(false) });
+  const handleCreate = (payload) => {
+    if (canCreate) create.mutate(payload, { onSuccess: () => setFormOpen(false) });
+  };
 
-  const handleUpdate = (payload) =>
-    update.mutate(payload, { onSuccess: () => setEditTarget(null) });
+  const handleUpdate = (payload) => {
+    if (canUpdate) update.mutate(payload, { onSuccess: () => setEditTarget(null) });
+  };
 
-  const handleToggleActive = (notification) => toggleActive.mutate(notification);
+  const handleToggleActive = (notification) => {
+    if (canUpdate) toggleActive.mutate(notification);
+  };
 
-  const handleDelete = () =>
-    remove.mutate(deleteTarget.notificationId, {
-      onSettled: () => setDeleteTarget(null),
-    });
+  const handleDelete = () => {
+    if (canDelete && deleteTarget) {
+      remove.mutate(deleteTarget.notificationId, {
+        onSettled: () => setDeleteTarget(null),
+      });
+    }
+  };
 
   return (
     <div className="min-w-0 space-y-6">
@@ -158,32 +166,38 @@ export default function NotificationsPage() {
             onDelete={setDeleteTarget}
             onEdit={setEditTarget}
             onToggleActive={handleToggleActive}
-            canEdit={canCreate}
-            canToggle={canCreate}
+            canEdit={canUpdate}
+            canToggle={canUpdate}
             isToggling={toggleActive.isPending}
             canDelete={canDelete}
           />
         )}
       </div>
 
-      <NotificationFormModal
-        open={formOpen}
-        onClose={() => setFormOpen(false)}
-        onSubmit={handleCreate}
-        isSaving={create.isPending}
-      />
-      <NotificationEditModal
-        notification={editTarget}
-        onClose={() => setEditTarget(null)}
-        onSubmit={handleUpdate}
-        isSaving={update.isPending}
-      />
-      <ConfirmDelete
-        target={deleteTarget}
-        onCancel={() => setDeleteTarget(null)}
-        onConfirm={handleDelete}
-        isDeleting={remove.isPending}
-      />
+      {canCreate && (
+        <NotificationFormModal
+          open={formOpen}
+          onClose={() => setFormOpen(false)}
+          onSubmit={handleCreate}
+          isSaving={create.isPending}
+        />
+      )}
+      {canUpdate && (
+        <NotificationEditModal
+          notification={editTarget}
+          onClose={() => setEditTarget(null)}
+          onSubmit={handleUpdate}
+          isSaving={update.isPending}
+        />
+      )}
+      {canDelete && (
+        <ConfirmDelete
+          target={deleteTarget}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={handleDelete}
+          isDeleting={remove.isPending}
+        />
+      )}
       <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
   );

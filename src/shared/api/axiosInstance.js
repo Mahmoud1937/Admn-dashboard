@@ -52,6 +52,14 @@ const isAllowedWhilePasswordChangeRequired = (url = "") => {
 // No window events: AuthProvider registers a plain callback once on mount.
 let onSessionExpired = null;
 let onTokenRefreshed = null;
+let authSessionVersion = 0;
+let refreshPromise = null;
+let refreshAttemptTimestamps = [];
+export const invalidateAuthSession = () => {
+  authSessionVersion += 1;
+  refreshAttemptTimestamps = [];
+  refreshPromise = null;
+};
 export const registerSessionExpiredHandler = (handler) => {
   onSessionExpired = handler;
 };
@@ -59,15 +67,21 @@ export const registerTokenRefreshedHandler = (handler) => {
   onTokenRefreshed = handler;
 };
 
-export const handleRefreshFailure = (reason = "unknown") => {
+export const handleRefreshFailure = (reason = "unknown", expectedSession = null) => {
+  if (
+    expectedSession &&
+    (authSessionVersion !== expectedSession.version ||
+      getToken() !== expectedSession.accessToken ||
+      getRefreshToken() !== expectedSession.refreshToken)
+  ) {
+    return;
+  }
   clearToken();
   clearRefreshToken();
   onSessionExpired?.(reason);
 };
 
 // ---- Single shared in-flight refresh + circuit breaker ----
-let refreshPromise = null;
-let refreshAttemptTimestamps = [];
 const MAX_REFRESH_ATTEMPTS = 3;
 const REFRESH_WINDOW_MS = 10_000;
 
@@ -83,6 +97,8 @@ export const refreshAccessToken = () => {
   if (refreshPromise) return refreshPromise;
 
   const refreshToken = getRefreshToken();
+  const accessTokenBeforeRefresh = getToken();
+  const sessionVersionBeforeRefresh = authSessionVersion;
   if (!refreshToken) return Promise.reject(new Error("missing-refresh-token"));
   if (refreshLimitExceeded()) return Promise.reject(new Error("refresh-attempt-limit"));
 
@@ -90,30 +106,43 @@ export const refreshAccessToken = () => {
 
   // Uses the base axios client so this call can never recursively enter
   // this instance's own interceptors.
-  refreshPromise = axios
+  let attempt;
+  attempt = axios
     .post(
-    `${axiosInstance.defaults.baseURL}AuthAdmin/refresh-token`,
+      `${axiosInstance.defaults.baseURL}AuthAdmin/refresh-token`,
       { refreshToken },
       { headers: { "Content-Type": "application/json" } }
     )
     .then((response) => {
-      const authData = response?.data?.data;
-      const accessToken = authData?.token;
+      if (
+        authSessionVersion !== sessionVersionBeforeRefresh ||
+        getToken() !== accessTokenBeforeRefresh ||
+        getRefreshToken() !== refreshToken
+      ) {
+        throw new Error("auth-session-changed");
+      }
+
+      const authData = response?.data?.data ?? response?.data;
+      const accessToken = authData?.token ?? authData?.accessToken;
       const nextRefreshToken = authData?.refreshToken;
 
-      if (!accessToken) throw new Error("refresh-response-missing-token");
+      if (response?.data?.succeeded === false || !accessToken) {
+        throw new Error("refresh-response-missing-token");
+      }
 
       setToken(accessToken);
       if (nextRefreshToken) setRefreshToken(nextRefreshToken);
+      refreshAttemptTimestamps = [];
       onTokenRefreshed?.(accessToken);
 
       return accessToken;
     })
     .finally(() => {
-      refreshPromise = null;
+      if (refreshPromise === attempt) refreshPromise = null;
     });
 
-  return refreshPromise;
+  refreshPromise = attempt;
+  return attempt;
 };
 
 // ---- Request interceptor: attach token + tag request with the token used ----
@@ -136,12 +165,13 @@ axiosInstance.interceptors.request.use(
 
     if (token) {
       config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
     // Tags the request with the exact token it was sent with, so the
     // response interceptor can tell "stale token, already refreshed
     // elsewhere" apart from "current token, genuinely rejected".
     config._tokenUsed = token || null;
+    config._sessionVersion = authSessionVersion;
 
     return config;
   },
@@ -163,6 +193,10 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    if (originalRequest._sessionVersion !== authSessionVersion) {
+      return Promise.reject(error);
+    }
+
     const currentToken = getToken();
 
     // Case A: storage already has a newer token than the one this request
@@ -175,7 +209,7 @@ axiosInstance.interceptors.response.use(
     ) {
       originalRequest._retriedWithNewToken = true;
       originalRequest.headers = originalRequest.headers || {};
-   originalRequest.headers.Authorization = `Bearer ${currentToken}`;
+      originalRequest.headers.Authorization = `Bearer ${currentToken}`;
       return axiosInstance(originalRequest);
     }
 
@@ -183,21 +217,25 @@ axiosInstance.interceptors.response.use(
     // the endpoint genuinely rejects a current, valid token. Not a
     // token-expiry issue; stop instead of looping.
     if (originalRequest._retriedWithNewToken || originalRequest._refreshed) {
-      handleRefreshFailure("retried-request-returned-401");
       return Promise.reject(error);
     }
 
     // Case C: first 401 for a request that used the current token —
     // refresh once, then retry this request.
     originalRequest._refreshed = true;
+    const expectedSession = {
+      version: authSessionVersion,
+      accessToken: currentToken,
+      refreshToken: getRefreshToken(),
+    };
     return refreshAccessToken().then(
       (accessToken) => {
         originalRequest.headers = originalRequest.headers || {};
-    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return axiosInstance(originalRequest);
       },
       (refreshError) => {
-        handleRefreshFailure(refreshError?.message || "refresh-failed");
+        handleRefreshFailure(refreshError?.message || "refresh-failed", expectedSession);
         return Promise.reject(refreshError);
       }
     );

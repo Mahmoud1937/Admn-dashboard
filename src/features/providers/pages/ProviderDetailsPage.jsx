@@ -56,6 +56,7 @@ export default function ProviderDetailsPage() {
   const canUpdate = usePermission(PERMISSION_CODES.PROVIDERS_UPDATE);
   const canViewBranches = usePermission(PERMISSION_CODES.PROVIDER_BRANCHES_READ);
   const canViewServices = usePermission(PERMISSION_CODES.PROVIDER_SERVICES_READ);
+  const canViewPriceLists = usePermission(PERMISSION_CODES.PROVIDER_PRICE_LISTS_READ);
   const canViewPackages = usePermission(PERMISSION_CODES.PROVIDER_PACKAGES_READ);
   const isEditMode = isCreateMode || (isUpdateRequested && canUpdate);
 
@@ -63,11 +64,15 @@ export default function ProviderDetailsPage() {
     const access = {
       info: true,
       branches: canViewBranches,
-      services: canViewServices,
+      services: canViewServices || canViewPriceLists,
       packages: canViewPackages,
     };
-    return TABS.filter((tab) => access[tab.key]);
-  }, [canViewBranches, canViewServices, canViewPackages]);
+    return TABS.filter((tab) => access[tab.key]).map((tab) =>
+      tab.key === "services" && !canViewServices
+        ? { ...tab, label: "Price lists" }
+        : tab
+    );
+  }, [canViewBranches, canViewServices, canViewPriceLists, canViewPackages]);
 
   const [activeTab, setActiveTab] = useState("info");
   const selectedTab = visibleTabs.some((tab) => tab.key === activeTab)
@@ -186,7 +191,7 @@ export default function ProviderDetailsPage() {
         )}
 
         {selectedTab === "branches" && canViewBranches && <ProviderBranchesTab />}
-        {selectedTab === "services" && canViewServices && <ProviderServicesTab />}
+        {selectedTab === "services" && (canViewServices || canViewPriceLists) && <ProviderServicesTab />}
         {selectedTab === "packages" && canViewPackages && <ProviderPackagesTab />}
       </section>
     </div>
