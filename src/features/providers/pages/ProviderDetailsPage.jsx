@@ -5,6 +5,7 @@ import {
   faArrowLeft,
   faBoxOpen,
   faBuilding,
+  faClockRotateLeft,
   faListCheck,
   faTag,
 } from "@fortawesome/free-solid-svg-icons";
@@ -14,6 +15,7 @@ import ProviderInfoForm from "../components/ProviderInfoForm";
 import ProviderBranchesTab from "../../branches/components/ProviderBranchesTab";
 import ProviderServicesTab from "../../providerServices/components/ProviderServicesTab";
 import ProviderPackagesTab from "../../providerPackages/components/ProviderPackagesTab";
+import ProviderRenewalsTab from "../../providerRenewals/components/ProviderRenewalsTab";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import AccessDeniedPage from "../../../shared/components/AccessDeniedPage";
 import usePermission from "../../auth/hooks/usePermission";
@@ -24,6 +26,7 @@ const TABS = [
   { key: "branches", label: "Branches", icon: faListCheck },
   { key: "services", label: "Services", icon: faTag },
   { key: "packages", label: "Packages", icon: faBoxOpen },
+  { key: "renewals", label: "Renewals", icon: faClockRotateLeft },
 ];
 
 function PageSkeleton() {
@@ -58,6 +61,8 @@ export default function ProviderDetailsPage() {
   const canViewServices = usePermission(PERMISSION_CODES.PROVIDER_SERVICES_READ);
   const canViewPriceLists = usePermission(PERMISSION_CODES.PROVIDER_PRICE_LISTS_READ);
   const canViewPackages = usePermission(PERMISSION_CODES.PROVIDER_PACKAGES_READ);
+  const canViewRenewals = usePermission(PERMISSION_CODES.PROVIDERS_READ);
+  const canReadBrokers = usePermission(PERMISSION_CODES.BROKERS_READ);
   const isEditMode = isCreateMode || (isUpdateRequested && canUpdate);
 
   const visibleTabs = useMemo(() => {
@@ -66,13 +71,14 @@ export default function ProviderDetailsPage() {
       branches: canViewBranches,
       services: canViewServices || canViewPriceLists,
       packages: canViewPackages,
+      renewals: canViewRenewals,
     };
     return TABS.filter((tab) => access[tab.key]).map((tab) =>
       tab.key === "services" && !canViewServices
         ? { ...tab, label: "Price lists" }
         : tab
     );
-  }, [canViewBranches, canViewServices, canViewPriceLists, canViewPackages]);
+  }, [canViewBranches, canViewServices, canViewPriceLists, canViewPackages, canViewRenewals]);
 
   const [activeTab, setActiveTab] = useState("info");
   const selectedTab = visibleTabs.some((tab) => tab.key === activeTab)
@@ -112,7 +118,7 @@ export default function ProviderDetailsPage() {
     ? "Fill in the details below to register a new provider."
     : isEditMode
     ? "Update provider information."
-    : "View provider information, branches, services and packages.";
+    : "View provider information, branches, services, packages and renewals.";
 
   return (
     <div className="space-y-6">
@@ -193,6 +199,16 @@ export default function ProviderDetailsPage() {
         {selectedTab === "branches" && canViewBranches && <ProviderBranchesTab />}
         {selectedTab === "services" && (canViewServices || canViewPriceLists) && <ProviderServicesTab />}
         {selectedTab === "packages" && canViewPackages && <ProviderPackagesTab />}
+        {!isCreateMode && selectedTab === "renewals" && canViewRenewals && (
+          <ProviderRenewalsTab
+            key={id}
+            providerId={id}
+            canUploadAttachments={canUpdate}
+            canCreateRenewals={canUpdate}
+            canUpdateRenewals={canUpdate}
+            canSelectBroker={canReadBrokers}
+          />
+        )}
       </section>
     </div>
   );

@@ -2,40 +2,43 @@
 
 [README](../README.md) · [Routing](routing.md) · [API integration](api-integration.md)
 
-This describes client behavior. The repository does not establish the backend's token validity rules, refresh-token policy, or server-side authorization enforcement.
+This describes client behavior. The repository does not establish the backend's token validity rules or server-side authorization enforcement.
 
 ## Login and stored session
 
-[`useAuthMutations`](../src/features/auth/hooks/useAuthMutations.js) sends `POST AuthAdmin/login` with `email` and `password`, mapping the login form's `identifier` field to `email`. The success handler reads a token from `data.token` or `data.accessToken`, an optional `data.refreshToken`, `data.isNeedChangePassword`, and permission codes from `data.permissionCodes` with `data.permissions` as a fallback. It accepts `succeeded` or `success` on the outer response. The exact live response shape is backend-dependent.
+[`useAuthMutations`](../src/features/auth/hooks/useAuthMutations.js) sends `POST AuthAdmin/login` with `email` and `password`, mapping the login form's `identifier` field to `email`. The success handler reads a token from `data.token` or `data.accessToken`, `data.isNeedChangePassword`, and permission codes from `data.permissionCodes` with `data.permissions` as a fallback. It accepts `succeeded` or `success` on the outer response. The exact live response shape is backend-dependent.
 
-[`AuthProvider`](../src/features/auth/context/Authcontext.jsx) stores the access token under `token`, refresh token under `refreshToken`, and password-change flag under `mustChangePassword` in browser `localStorage`. It decodes [JWT claims](../src/shared/utils/jwt.js) such as `employeeId` and `accountType` to form a user object. Decoding is a client-side convenience, not proof that the server accepts a token. Login clears old dashboard filters and legacy persisted permission keys.
+[`AuthProvider`](../src/features/auth/context/Authcontext.jsx) stores the access token under `token`, the refresh token under `refreshToken`, and the password-change flag under `mustChangePassword` in browser `localStorage`. It decodes [JWT claims](../src/shared/utils/jwt.js) such as `employeeId` and `accountType` to form a user object. Decoding is a client-side convenience, not proof that the server accepts a token. Login clears old dashboard filters and legacy persisted permission keys.
 
 The login page uses React Hook Form and the [login Zod schema](../src/features/auth/schema/loginSchema.js). It sends the validated form through the mutation hook. Credentials are never documented as values here.
 
-## Startup, request, and refresh flow
+## Startup, request, and session expiry
 
 ```mermaid
 flowchart TD
   Start["AuthProvider starts"] --> Stored{"Stored token has admin-identifying claim?"}
   Stored -- No --> Clear["Clear local session"]
-  Stored -- Yes --> Expired{"JWT expired?"}
-  Expired -- Yes --> Refresh["POST AuthAdmin/refresh-token"]
-  Expired -- No --> Permissions["Load employee and permission catalog"]
-  Refresh -- Success --> Permissions
-  Refresh -- Failure --> Clear
+  Stored -- Yes --> Permissions["Load employee and permission catalog"]
   Permissions -- Success --> Route["ProtectedRoute may render children"]
   Permissions -- Failure --> Retry["ProtectedRoute shows retryable error"]
+  Permissions -- Expired token or HTTP 401 --> Renew["Renew tokens; send or retry request"]
   Route --> Request["Feature request with Bearer token"]
   Request --> Unauthorized{"HTTP 401?"}
-  Unauthorized -- Yes --> RefreshRetry["Refresh once and retry request"]
-  RefreshRetry -- Failure --> Clear
+  Unauthorized -- Yes --> Renew
+  Renew -- Success --> Result["Return request result"]
+  Renew -- Failure --> Clear
+  Clear --> Login["Redirect to login"]
 ```
 
-The [Axios request interceptor](../src/shared/api/axiosInstance.js) adds `Authorization: Bearer <token>` when a token exists. It rejects normal requests without a token and blocks most requests while a forced password change is required. Login, refresh, and logout are treated as auth requests; change-password and logout are allowed during the password-change state.
+The [Axios request interceptor](../src/shared/api/axiosInstance.js) adds `Authorization: Bearer <token>` when a token exists. It rejects normal requests without a token and blocks most requests while a forced password change is required. Login and logout are treated as auth requests; change-password and logout are allowed during the password-change state.
 
-On startup, `AuthProvider` checks a stored JWT and refreshes it only if it is already expired. The response interceptor refreshes after an unauthorized feature request. A single in-flight refresh promise is shared, a request sent with an older token may retry with the newer stored token, and refresh attempts are limited to three within ten seconds. A second 401 after retry or refresh failure clears tokens and signals session expiry. There is **no proactive timer-based refresh** in the current source. The refresh call reads `response.data.data.token` and, if present, `response.data.data.refreshToken`.
+On startup, `AuthProvider` restores a stored JWT with an admin-identifying claim and loads permissions. A missing or malformed token clears the local session. An expired token remains available for renewal: the Axios request interceptor refreshes it before sending protected requests, including the startup permission requests. Route guards allow the existing session to remain mounted during renewal.
 
-[`ProtectedRoute`](../src/shared/components/Protectedroute.jsx) waits for initialization, checks authentication and JWT expiration, clears Query data on invalid state, redirects to `/login`, and sends users with `mustChangePassword` to `/change-password`. On permission-loading failure it preserves the authenticated session and presents a retry action. The standalone [`SessionExpiredModal`](../src/features/auth/components/SessionExpiredModal.jsx) exists in source but is not mounted by `App` or the route tree; do not describe it as the displayed expiry flow.
+The single `refreshAccessToken` function in [Axios](../src/shared/api/axiosInstance.js) sends `POST AuthAdmin/refresh-token` with `{ refreshToken }` using base Axios to bypass the interceptors. It reads `succeeded`, `data.success`, `data.token`, and `data.refreshToken` from the response. Valid credentials replace both stored tokens and update the provider's token state. Concurrent requests wait for the same refresh promise.
+
+An HTTP 401 from a non-auth request renews the current token and retries the request once. A delayed 401 sent with an older token reuses the renewed token. A second 401 is returned to the caller without another retry. Login and logout errors are left to their existing mutation handlers. A missing refresh token, rejected refresh, or invalid refresh response clears the session and Query data and redirects to login. Responses from a previous login cannot overwrite the current session.
+
+[`ProtectedRoute`](../src/shared/components/Protectedroute.jsx) waits for initialization and permission loading. It checks authentication, clears Query data on invalid state, redirects to `/login` after session failure, and sends users with `mustChangePassword` to `/change-password`. On permission-loading failure it preserves the authenticated session and presents a retry action. The standalone [`SessionExpiredModal`](../src/features/auth/components/SessionExpiredModal.jsx) exists in source but is not mounted by `App` or the route tree; do not describe it as the displayed expiry flow.
 
 ## Password change and logout
 

@@ -20,13 +20,13 @@ Vite normally serves the local app at `http://localhost:5173` unless the port is
 | `npm run preview` | `vite preview` |
 | `npm run lint` | `eslint .` |
 
-There is no `test` script or checked-in test suite. The build output is `dist/`, which [`eslint.config.js`](../eslint.config.js) ignores and [`.gitignore`](../.gitignore) excludes from Git. The repository contains a [Prettier configuration](../.prettierrc), but no formatting script is declared.
+There is no `test` script. The build output is `dist/`, which [`eslint.config.js`](../eslint.config.js) ignores and [`.gitignore`](../.gitignore) excludes from Git. The repository contains a [Prettier configuration](../.prettierrc), but no formatting script is declared.
 
 ## Environment configuration
 
 [`src/shared/api/axiosInstance.js`](../src/shared/api/axiosInstance.js) sets the API base URL directly in source. A source search found no project-specific `import.meta.env` variable or checked-in `.env` file. `import.meta.env.DEV` is used only for optional protected-route diagnostics in [`Protectedroute.jsx`](../src/shared/components/Protectedroute.jsx). Therefore, there are **no required environment variable names to set for the current code**. Changing the API target would require a code or deployment change outside the scope of this documentation.
 
-The front end stores access and refresh tokens in browser `localStorage`; never put real credentials or token values in documentation, commits, or screenshots. [Authentication and permissions](authentication-and-permissions.md) describes the lifecycle.
+The front end stores its access token in browser `localStorage`; never put real credentials or token values in documentation, commits, or screenshots. [Authentication and permissions](authentication-and-permissions.md) describes the lifecycle.
 
 ## Build and hosting
 

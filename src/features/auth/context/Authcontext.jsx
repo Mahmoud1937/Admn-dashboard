@@ -11,19 +11,15 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import {
   TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
   getToken,
   setToken as persistToken,
   clearToken as removeToken,
-  setRefreshToken as persistRefreshToken,
-  clearRefreshToken as removeRefreshToken,
-  refreshAccessToken,
-  invalidateAuthSession,
-  registerSessionExpiredHandler,
-  registerTokenRefreshedHandler,
+  registerAuthHandlers,
   getMustChangePassword,
   setMustChangePassword as persistMustChangePassword,
 } from "../../../shared/api/axiosInstance";
-import { getUserFromToken, isTokenExpired } from "../../../shared/utils/jwt";
+import { getUserFromToken } from "../../../shared/utils/jwt";
 import { clearDashboardFilters } from "../../../shared/utils/dashboardFilterSession";
 import { getEmployeeById } from "../../employees/services/employeesService";
 import { getPermissions } from "../../employees/permissions/services/permissionsService";
@@ -133,14 +129,12 @@ export function AuthProvider({ children }) {
       needsPasswordChange = false,
       loginPermissions = []
     ) => {
-      invalidateAuthSession();
       permissionLoadRunRef.current += 1;
       clearDashboardFilters();
       removeToken();
-      removeRefreshToken();
       clearPersistedPermissions();
       persistToken(newToken);
-      if (refreshToken) persistRefreshToken(refreshToken);
+      if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
       persistMustChangePassword(needsPasswordChange);
       setTokenState(newToken);
       updatePermissions(loginPermissions);
@@ -154,11 +148,9 @@ export function AuthProvider({ children }) {
   );
 
   const logout = useCallback(() => {
-    invalidateAuthSession();
     permissionLoadRunRef.current += 1;
     clearDashboardFilters();
     removeToken();
-    removeRefreshToken();
     clearPersistedPermissions();
     persistMustChangePassword(false);
     setTokenState(null);
@@ -166,6 +158,7 @@ export function AuthProvider({ children }) {
     setPermissionsInitializationError(null);
     setIsPermissionsInitializing(false);
     setMustChangePasswordState(false);
+    setIsAuthInitializing(false);
   }, []);
 
   const clearSessionExpiredReason = useCallback(
@@ -174,53 +167,27 @@ export function AuthProvider({ children }) {
   );
 
   useEffect(() => {
-    registerTokenRefreshedHandler((refreshedToken) => {
-      setTokenState(refreshedToken);
-    });
-    registerSessionExpiredHandler((reason) => {
-      invalidateAuthSession();
-      permissionLoadRunRef.current += 1;
-      queryClient.cancelQueries();
-      queryClient.clear();
-      clearDashboardFilters();
-      clearPersistedPermissions();
-      persistMustChangePassword(false);
-      setSessionExpiredReason(reason);
-      setTokenState(null);
-      setPermissions([]);
-      setPermissionsInitializationError(null);
-      setIsPermissionsInitializing(false);
-      setMustChangePasswordState(false);
+    registerAuthHandlers({
+      onTokenRefreshed: setTokenState,
+      onSessionExpired: (reason) => {
+        queryClient.cancelQueries();
+        queryClient.clear();
+        logout();
+        setSessionExpiredReason(reason);
+      },
     });
 
-    return () => {
-      registerTokenRefreshedHandler(null);
-      registerSessionExpiredHandler(null);
-    };
-  }, [queryClient]);
+    return () => registerAuthHandlers(null);
+  }, [logout, queryClient]);
 
   useEffect(() => {
     let cancelled = false;
 
     const clearInvalidSession = () => {
       if (cancelled) return;
-      invalidateAuthSession();
-      permissionLoadRunRef.current += 1;
       queryClient.cancelQueries();
       queryClient.clear();
-      clearDashboardFilters();
-      removeToken();
-      removeRefreshToken();
-      persistMustChangePassword(false);
-
-      if (!cancelled) {
-        setTokenState(null);
-        setPermissions([]);
-        setPermissionsInitializationError(null);
-        setIsPermissionsInitializing(false);
-        setMustChangePasswordState(false);
-        setIsAuthInitializing(false);
-      }
+      logout();
     };
 
     const initializeAuth = async () => {
@@ -229,25 +196,10 @@ export function AuthProvider({ children }) {
       setIsPermissionsInitializing(true);
       setPermissionsInitializationError(null);
 
-      let activeToken = getToken();
-      let user = activeToken ? getUserFromToken(activeToken) : null;
+      const activeToken = getToken();
+      const user = activeToken ? getUserFromToken(activeToken) : null;
 
       if (!activeToken || !isAdminUser(user)) {
-        clearInvalidSession();
-        return;
-      }
-
-      if (isTokenExpired(activeToken)) {
-        try {
-          activeToken = await refreshAccessToken();
-          user = getUserFromToken(activeToken);
-        } catch {
-          if (getToken() === activeToken) clearInvalidSession();
-          return;
-        }
-      }
-
-      if (!isAdminUser(user)) {
         clearInvalidSession();
         return;
       }
@@ -270,7 +222,7 @@ export function AuthProvider({ children }) {
       cancelled = true;
       permissionLoadRunRef.current += 1;
     };
-  }, [loadPermissionsForEmployee, queryClient]);
+  }, [loadPermissionsForEmployee, logout, queryClient]);
 
   const user = token ? getUserFromToken(token) : null;
   const isAuthenticated = isAdminUser(user);

@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTriangleExclamation, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import { faTriangleExclamation, faCircleCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 export default function ConfirmDeleteModal({
   isOpen,
@@ -10,16 +10,26 @@ export default function ConfirmDeleteModal({
   isLoading,
   onConfirm,
   onCancel,
+  inline = false,
+  titleId,
+  errorMessage,
+  loadingLabel = "Processing...",
+  confirmIcon,
 }) {
   if (!isOpen) return null;
 
   const isSuccess = variant === "success";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+    <div
+      role={inline ? "group" : undefined}
+      aria-labelledby={inline ? titleId : undefined}
+      aria-busy={inline ? Boolean(isLoading) : undefined}
+      className={inline ? "w-full space-y-3 rounded-xl border border-red-200 bg-red-50 p-4" : "fixed inset-0 z-50 flex items-center justify-center bg-black/40"}
+    >
+      <div className={inline ? "space-y-3" : "w-full max-w-md rounded-xl bg-white p-6 shadow-xl"}>
         <div className="flex items-start gap-4">
-          <div
+          {!inline && <div
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
               isSuccess
                 ? "bg-emerald-50 text-emerald-600"
@@ -27,37 +37,45 @@ export default function ConfirmDeleteModal({
             }`}
           >
             <FontAwesomeIcon icon={isSuccess ? faCircleCheck : faTriangleExclamation} />
-          </div>
+          </div>}
 
           <div>
-            <h3 className="text-base font-semibold text-slate-900">
+            <h3 id={titleId} className={`${inline ? "text-sm" : "text-base"} font-semibold text-slate-900`}>
               {title}
             </h3>
-            <p className="mt-1 text-sm text-slate-500">{message}</p>
+            <p className={`mt-1 text-sm ${inline ? "text-slate-600" : "text-slate-500"}`}>{message}</p>
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className={inline ? "flex flex-wrap gap-2" : "mt-6 flex justify-end gap-3"}>
           <button
+            type={inline ? "button" : undefined}
             onClick={onCancel}
             disabled={isLoading}
-            className="rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-60"
+            className={inline
+              ? "rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
+              : "rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-60"}
           >
             Cancel
           </button>
 
           <button
+            type={inline ? "button" : undefined}
             onClick={onConfirm}
             disabled={isLoading}
-            className={`rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60 ${
+            className={inline
+              ? "inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300 disabled:cursor-not-allowed disabled:opacity-50"
+              : `rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60 ${
               isSuccess
                 ? "bg-emerald-600 hover:bg-emerald-700"
                 : "bg-red-600 hover:bg-red-700"
             }`}
           >
-            {isLoading ? "Processing..." : confirmLabel}
+            {confirmIcon && <FontAwesomeIcon icon={isLoading ? faSpinner : confirmIcon} spin={Boolean(isLoading)} />}
+            {isLoading ? loadingLabel : confirmLabel}
           </button>
         </div>
+        {errorMessage && <p role="alert" className="text-sm text-red-600">{errorMessage}</p>}
       </div>
     </div>
   );

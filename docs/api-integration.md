@@ -6,7 +6,7 @@
 
 This is an inventory of requests **verified in front-end source**, not a validated OpenAPI specification. Paths, methods, parameters, and fields below describe what the browser code sends or reads. Live backend acceptance, complete response schemas, side effects, and authorization need backend or runtime verification.
 
-[`axiosInstance.js`](../src/shared/api/axiosInstance.js) creates one Axios instance with base URL `https://medicard-api-v2.medicardeg.com/api/` and default `Content-Type: application/json`. Feature services import it. A request interceptor attaches a stored bearer token and blocks certain unauthenticated or forced-password-change requests. A response interceptor handles HTTP 401 refresh and retry; it does not unwrap every response or globally reject `succeeded: false`. [Authentication](authentication-and-permissions.md) gives the full session flow.
+[`axiosInstance.js`](../src/shared/api/axiosInstance.js) creates one Axios instance with base URL `https://medicard-api-v2.medicardeg.com/api/` and default `Content-Type: application/json`. Feature services import it. The request interceptor renews an expired access token before sending a protected request, attaches the bearer token, and blocks certain unauthenticated or forced-password-change requests. The response interceptor renews tokens on HTTP 401 and retries each request once. Concurrent requests share one renewal; renewal failure clears the session. The interceptors do not unwrap every response or globally reject `succeeded: false`. [Authentication](authentication-and-permissions.md) gives the full session flow.
 
 Services usually receive Axios `response.data`, which may be an application envelope. They differ in what they return:
 
@@ -19,16 +19,16 @@ Services usually receive Axios `response.data`, which may be an application enve
 
 Where list data is read as a paginated object, the observed fields are `items`, `pageNumber`, `pageSize`, `totalCount`, and `totalPages`. This is a **front-end expectation**, not a guarantee for all endpoints. [`useClientsQuery`](../src/features/clients/hooks/useClientsQuery.js) recalculates total pages from count and page size. [`useServerPagination`](../src/shared/hooks/useServerPagination.js) starts at page 1 with size 20 unless overridden, resets page on a reset key, and leaves filter construction to each feature. Several list hooks use TanStack Query `placeholderData` to retain previous data during pagination. Query keys, invalidation, and enabled conditions are owned by each feature hook; the [root Query client](../src/app/queryClient.js) has no custom defaults.
 
-Other response fields explicitly read by the client include login `token`/`accessToken`, `refreshToken`, `isNeedChangePassword`, and `permissionCodes`/`permissions`; employee `permissionIds`; permission catalog `id` and `code`; map `providers` and `governorates`; ticket detail `ticketTimelines`; and provider package `packageId`, names, prices, discount, service count, and active state. These are partial client projections, not complete response schemas.
+Other response fields explicitly read by the client include login `token`/`accessToken`, `isNeedChangePassword`, and `permissionCodes`/`permissions`; employee `permissionIds`; permission catalog `id` and `code`; map `providers` and `governorates`; ticket detail `ticketTimelines`; and provider package `packageId`, names, prices, discount, service count, and active state. These are partial client projections, not complete response schemas.
 
 ## Authentication and staff
 
-Sources: [auth service](../src/features/auth/services/Authservice.js), [Axios refresh](../src/shared/api/axiosInstance.js), [employee service](../src/features/employees/services/employeesService.js), [permission service](../src/features/employees/permissions/services/permissionsService.js).
+Sources: [auth service](../src/features/auth/services/Authservice.js), [HTTP client](../src/shared/api/axiosInstance.js), [employee service](../src/features/employees/services/employeesService.js), [permission service](../src/features/employees/permissions/services/permissionsService.js).
 
 | Method | Path relative to `/api/` | Parameters or body sent by client |
 | --- | --- | --- |
 | POST | `AuthAdmin/login` | `email`, `password` |
-| POST | `AuthAdmin/refresh-token` | `refreshToken`; sent with base Axios, outside the shared interceptors |
+| POST | `AuthAdmin/refresh-token` | `refreshToken`; base Axios bypasses the interceptors |
 | POST | `AuthAdmin/change-password` | `currentPassword`, `newPassword`, `confirmNewPassword` |
 | POST | `AuthAdmin/logout` | No explicit body |
 | POST | `/AuthAdmin/register` | `firstName`, `lastName`, `email`, `phoneNumber`, numeric `employeeMemberId` |

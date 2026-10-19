@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../features/auth/context/Authcontext";
-import { isTokenExpired } from "../utils/jwt";
 import QueryErrorState from "./QueryErrorState";
 
 const isAuthDebugEnabled = () =>
@@ -27,26 +26,24 @@ export default function ProtectedRoute() {
   } = useAuth();
   const location = useLocation();
   const queryClient = useQueryClient();
-  const hasValidToken = isAuthenticated && !isTokenExpired(token);
+  const hasValidSession = isAuthenticated && Boolean(token);
 
   authDebug("render", {
     path: location.pathname,
     hasToken: Boolean(token),
     isAuthenticated,
     isAuthInitializing,
-    tokenExpired: token ? isTokenExpired(token) : null,
   });
 
   useEffect(() => {
     if (isAuthInitializing) return;
 
-    if (!hasValidToken) {
+    if (!hasValidSession) {
       authDebug("invalid auth state; invoking logout", {
         path: location.pathname,
         hasToken: Boolean(token),
         isAuthenticated,
         isAuthInitializing,
-        tokenExpired: token ? isTokenExpired(token) : null,
       });
       queryClient.cancelQueries();
       queryClient.clear();
@@ -56,7 +53,7 @@ export default function ProtectedRoute() {
       }
     }
   }, [
-    hasValidToken,
+    hasValidSession,
     isAuthInitializing,
     isAuthenticated,
     location.pathname,
@@ -80,7 +77,7 @@ export default function ProtectedRoute() {
     );
   }
 
-  if (!hasValidToken) {
+  if (!hasValidSession) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
