@@ -23,14 +23,14 @@ function getRowErrors(attachment) {
   return errors;
 }
 
-export default function ProviderAttachmentUploadForm({ mutation, disabled = false }) {
+export default function ProviderAttachmentUploadForm({ mutation, disabled = false, onResetFeedback = mutation.reset }) {
   const [attachments, setAttachments] = useState(() => [createAttachmentRow(0)]);
   const nextId = useRef(1);
   const isDisabled = disabled || mutation.isPending;
 
   const handleAddAttachment = () => {
     if (isDisabled) return;
-    mutation.reset();
+    onResetFeedback();
     const row = createAttachmentRow(nextId.current++);
     setAttachments((previous) => [...previous, row]);
   };
@@ -39,7 +39,7 @@ export default function ProviderAttachmentUploadForm({ mutation, disabled = fals
     if (isDisabled) return;
     const file = event.target.files?.[0];
     if (!file) return;
-    mutation.reset();
+    onResetFeedback();
     const error = getAttachmentFileError(file);
     if (error) event.target.value = "";
     setAttachments((previous) => previous.map((attachment) => attachment.id === id
@@ -50,6 +50,7 @@ export default function ProviderAttachmentUploadForm({ mutation, disabled = fals
   const handleSubmit = (event) => {
     event.preventDefault();
     if (isDisabled || attachments.length === 0) return;
+    onResetFeedback();
     const validated = attachments.map((attachment) => ({ ...attachment, errors: getRowErrors(attachment) }));
     setAttachments(validated);
     if (validated.some((attachment) => Object.keys(attachment.errors).length > 0)) return;
@@ -88,7 +89,7 @@ export default function ProviderAttachmentUploadForm({ mutation, disabled = fals
                     aria-describedby={attachment.errors.attachmentType ? `attachment-type-error-${attachment.id}` : undefined}
                     onChange={(event) => {
                       if (isDisabled) return;
-                      mutation.reset();
+                      onResetFeedback();
                       const attachmentType = event.target.value;
                       setAttachments((previous) => previous.map((item) => item.id === attachment.id
                         ? { ...item, attachmentType, errors: { ...item.errors, attachmentType: null } } : item));
@@ -135,7 +136,7 @@ export default function ProviderAttachmentUploadForm({ mutation, disabled = fals
                   aria-label={`Remove attachment ${index + 1}`}
                   onClick={() => {
                     if (isDisabled) return;
-                    mutation.reset();
+                    onResetFeedback();
                     setAttachments((previous) => previous.filter((item) => item.id !== attachment.id));
                   }}
                   className="inline-flex items-center gap-2 self-start justify-self-start rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 sm:mt-7"

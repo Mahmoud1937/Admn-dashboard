@@ -112,7 +112,7 @@ export default function ProviderDetailsPage() {
     );
   }
 
-  const providerName = provider?.name || provider?.nameEn || "Provider";
+  const providerName = provider?.enName || provider?.arName || provider?.name || provider?.nameEn || "Provider";
   const pageTitle = isCreateMode ? "New Provider" : providerName;
   const pageSubtitle = isCreateMode
     ? "Fill in the details below to register a new provider."

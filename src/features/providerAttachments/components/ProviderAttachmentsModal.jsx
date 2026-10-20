@@ -21,6 +21,7 @@ import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
+import useAutoDismissSuccess from "../../../shared/hooks/useAutoDismissSuccess";
 
 function getAttachmentFile(attachmentUrl) {
   try {
@@ -102,10 +103,21 @@ export default function ProviderAttachmentsModal({ providerRenewalId, canUpload 
   const uploadMutation = useProviderAttachmentUploadMutation({ providerRenewalId });
   const updateMutation = useProviderAttachmentUpdateMutation({ providerRenewalId });
   const deleteMutation = useProviderAttachmentDeleteMutation({ providerRenewalId });
+  useAutoDismissSuccess(uploadMutation);
+  useAutoDismissSuccess(updateMutation);
+  useAutoDismissSuccess(deleteMutation);
   const isBusy = uploadMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
   const hasActiveAction = editingAttachmentId !== null || deletingAttachmentId !== null;
+  const canDeleteAttachment = (attachment) =>
+    canUpload && Number(attachment.attachmentType) === 6;
   const { attachments, isLoading, isError, error, refetch } =
     useProviderAttachmentsQuery({ providerRenewalId });
+
+  const resetFeedback = () => {
+    uploadMutation.reset();
+    updateMutation.reset();
+    deleteMutation.reset();
+  };
 
   return (
     <FormModalShell
@@ -122,6 +134,7 @@ export default function ProviderAttachmentsModal({ providerRenewalId, canUpload 
         <ProviderAttachmentUploadForm
           mutation={uploadMutation}
           disabled={hasActiveAction || updateMutation.isPending || deleteMutation.isPending}
+          onResetFeedback={resetFeedback}
         />
       )}
       {updateMutation.isSuccess && (
@@ -152,16 +165,16 @@ export default function ProviderAttachmentsModal({ providerRenewalId, canUpload 
               key={attachment.id}
               attachment={attachment}
               canReplace={canUpload && editingAttachmentId !== attachment.id}
-              canDelete={canUpload && deletingAttachmentId !== attachment.id}
+              canDelete={canDeleteAttachment(attachment) && deletingAttachmentId !== attachment.id}
               disabled={isBusy || hasActiveAction}
               onReplace={() => {
                 if (isBusy || hasActiveAction) return;
-                updateMutation.reset();
+                resetFeedback();
                 setEditingAttachmentId(attachment.id);
               }}
               onDelete={() => {
-                if (isBusy || hasActiveAction) return;
-                deleteMutation.reset();
+                if (isBusy || hasActiveAction || !canDeleteAttachment(attachment)) return;
+                resetFeedback();
                 setDeletingAttachmentId(attachment.id);
               }}
             >
@@ -176,7 +189,7 @@ export default function ProviderAttachmentsModal({ providerRenewalId, canUpload 
                   onSuccess={() => setEditingAttachmentId(null)}
                 />
               )}
-              {canUpload && deletingAttachmentId === attachment.id && (
+              {canDeleteAttachment(attachment) && deletingAttachmentId === attachment.id && (
                 <ConfirmDeleteModal
                   inline
                   isOpen
@@ -195,7 +208,7 @@ export default function ProviderAttachmentsModal({ providerRenewalId, canUpload 
                     setDeletingAttachmentId(null);
                   }}
                   onConfirm={() => {
-                    if (isBusy || !canUpload) return;
+                    if (isBusy || !canDeleteAttachment(attachment)) return;
                     deleteMutation.mutate(attachment.id, {
                       onSuccess: () => setDeletingAttachmentId(null),
                     });

@@ -7,6 +7,7 @@ import { useProviderRenewalUpdateMutation } from "../hooks/useProviderRenewalUpd
 import ProviderRenewalFormModal from "./ProviderRenewalFormModal";
 import ProviderAttachmentsModal from "../../providerAttachments/components/ProviderAttachmentsModal";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
+import useAutoDismissSuccess from "../../../shared/hooks/useAutoDismissSuccess";
 import Pagination from "../../../shared/components/Pagination";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
@@ -43,6 +44,8 @@ export default function ProviderRenewalsTab({
   const [editingRenewal, setEditingRenewal] = useState(null);
   const createMutation = useProviderRenewalCreateMutation({ providerId });
   const updateMutation = useProviderRenewalUpdateMutation({ providerId });
+  useAutoDismissSuccess(createMutation);
+  useAutoDismissSuccess(updateMutation);
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const hasOpenRenewalForm = isCreateModalOpen || editingRenewal !== null;
   const {
@@ -63,6 +66,11 @@ export default function ProviderRenewalsTab({
     refetch,
   } = useProviderRenewalsQuery({ providerId, pageNumber, pageSize });
 
+  const resetFeedback = () => {
+    createMutation.reset();
+    updateMutation.reset();
+  };
+
   return (
     <div className="min-w-0 space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -80,7 +88,7 @@ export default function ProviderRenewalsTab({
             disabled={!providerId || isSaving || hasOpenRenewalForm}
             onClick={() => {
               if (isSaving || hasOpenRenewalForm) return;
-              createMutation.reset();
+              resetFeedback();
               setIsCreateModalOpen(true);
             }}
             className="inline-flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:opacity-50"
@@ -151,7 +159,10 @@ export default function ProviderRenewalsTab({
                         <button
                           type="button"
                           disabled={isSaving || hasOpenRenewalForm}
-                          onClick={() => setSelectedRenewalId(renewal.id)}
+                          onClick={() => {
+                            resetFeedback();
+                            setSelectedRenewalId(renewal.id);
+                          }}
                           aria-label={`View attachments for renewal #${renewal.id}`}
                           className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-800 transition hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
                         >
@@ -166,7 +177,7 @@ export default function ProviderRenewalsTab({
                             disabled={isSaving || hasOpenRenewalForm}
                             onClick={() => {
                               if (isSaving || hasOpenRenewalForm) return;
-                              updateMutation.reset();
+                              resetFeedback();
                               setEditingRenewal(renewal);
                             }}
                             aria-label={`Edit renewal #${renewal.id}`}
