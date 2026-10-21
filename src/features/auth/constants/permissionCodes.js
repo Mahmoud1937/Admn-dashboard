@@ -99,4 +99,7 @@ export const PERMISSION_CODES = Object.freeze({
   NOTIFICATION_MARKETING_DELETE: 'notification_marketing.delete',
   NOTIFICATION_MARKETING_READ: 'notification_marketing.read',
   NOTIFICATION_MARKETING_UPDATE: 'notification_marketing.update',
+  NOTIFICATION_TEMPLATES_READ: 'notification_templates.read',
+  NOTIFICATION_TEMPLATES_CREATE: 'notification_templates.create',
+  NOTIFICATION_TEMPLATES_UPDATE: 'notification_templates.update',
 })

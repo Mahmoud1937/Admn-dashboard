@@ -7,6 +7,7 @@ import ProtectedRoute from "../shared/components/Protectedroute";
 import PermissionRoute from "../features/auth/components/PermissionRoute";
 import { PERMISSION_CODES } from "../features/auth/constants/permissionCodes";
 import NotificationsPage from "../features/notificationsAdmin/pages/NotificationsPage";
+const NotificationTemplatesPage = lazy(() => import("../features/notificationTemplates/pages/NotificationTemplatesPage"));
 const DashboardPage = lazy(() => import("../features/dashboard/pages/DashboardPage"));
 const NotFoundPage = lazy(() => import("../shared/components/NotFoundPage"));
 const ProvidersPage = lazy(() => import("../features/providers/pages/ProvidersPage"));
@@ -81,6 +82,13 @@ const router = createBrowserRouter([
     <NotificationsPage />,
   ),
 },
+          {
+            path: "notification-templates",
+            element: withPermission(
+              PERMISSION_CODES.NOTIFICATION_TEMPLATES_READ,
+              <NotificationTemplatesPage />
+            ),
+          },
           {
             path: "branches",
             element: withPermission(

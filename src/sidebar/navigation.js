@@ -181,6 +181,12 @@ export const navigation = [
   permission: PERMISSION_CODES.NOTIFICATION_MARKETING_READ,
 },
   {
+    title: "Notification Templates",
+    path: "/notification-templates",
+    icon: faBell,
+    permission: PERMISSION_CODES.NOTIFICATION_TEMPLATES_READ,
+  },
+  {
     title: "Terms & Conditions",
     path: "/terms-and-conditions",
     icon: faFileContract,
