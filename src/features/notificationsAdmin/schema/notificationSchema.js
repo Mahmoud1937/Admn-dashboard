@@ -1,12 +1,5 @@
 import { z } from "zod";
-
-const optionalUrl = z
-  .string()
-  .trim()
-  .optional()
-  .refine((v) => !v || /^https?:\/\/\S+$/i.test(v), {
-    message: "Enter a valid URL starting with http:// or https://",
-  });
+import { imageFileSchema } from "../../offer-sliders/schema/sliderSchema";
 
 const optionalId = z.union([z.string(), z.number()]).refine(
   (value) => value === "" || (Number.isInteger(Number(value)) && Number(value) > 0),
@@ -25,7 +18,7 @@ const notificationContentShape = {
     .trim()
     .min(1, "Arabic message is required")
     .max(500, "Max 500 characters"),
-  imageUrl: optionalUrl,
+  imageUrl: imageFileSchema.nullable().optional(),
   durationDay: z
     .string()
     .optional()
@@ -68,7 +61,7 @@ export const defaultNotificationValues = {
   title: "",
   messageEn: "",
   messageAr: "",
-  imageUrl: "",
+  imageUrl: null,
   isMale: "",
   governmentId: "",
   targetType: "",
@@ -83,7 +76,7 @@ export const toPayload = (v) => ({
   title: v.title.trim(),
   messageEn: v.messageEn.trim(),
   messageAr: v.messageAr.trim(),
-  imageUrl: v.imageUrl?.trim() || null,
+  imageUrl: v.imageUrl ?? null,
   isMale: v.isMale == null || v.isMale === "" ? null : v.isMale === "true",
   governmentId: v.governmentId ? Number(v.governmentId) : null,
   targetType: v.targetType ? Number(v.targetType) : null,
@@ -99,6 +92,7 @@ export const toUpdateNotificationPayload = (values) => ({
   messageAr: values.messageAr.trim(),
   messageEn: values.messageEn.trim(),
   title: values.title.trim(),
-  imageUrl: values.imageUrl?.trim() || null,
+  // Omit the upload when no replacement was selected, keeping the saved image.
+  imageUrl: values.imageUrl ?? undefined,
   durationDay: values.durationDay ? Number(values.durationDay) : null,
 });

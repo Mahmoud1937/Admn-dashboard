@@ -1,8 +1,9 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
+import NotificationImageField from "./NotificationImageField";
 import {
   toUpdateNotificationPayload,
   updateNotificationSchema,
@@ -24,13 +25,13 @@ function Field({ id, label, error, required = false, children }) {
 }
 
 export default function NotificationEditModal({ notification, onClose, onSubmit, isSaving }) {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, control, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(updateNotificationSchema),
     defaultValues: {
       title: "",
       messageEn: "",
       messageAr: "",
-      imageUrl: "",
+      imageUrl: null,
       durationDay: "",
     },
   });
@@ -41,7 +42,7 @@ export default function NotificationEditModal({ notification, onClose, onSubmit,
       title: notification.title ?? "",
       messageEn: notification.messageEn ?? "",
       messageAr: notification.messageAr ?? "",
-      imageUrl: notification.imageUrl ?? "",
+      imageUrl: null,
       durationDay: notification.durationDay == null ? "" : String(notification.durationDay),
     });
   }, [notification, reset]);
@@ -67,9 +68,24 @@ export default function NotificationEditModal({ notification, onClose, onSubmit,
         <Field id="edit-notification-ar" label="Arabic message" required error={errors.messageAr?.message}>
           <textarea id="edit-notification-ar" rows={3} maxLength={500} dir="rtl" {...register("messageAr")} className={fieldClassName} />
         </Field>
-        <Field id="edit-notification-image" label="Image URL" error={errors.imageUrl?.message}>
-          <input id="edit-notification-image" type="url" {...register("imageUrl")} className={fieldClassName} />
-        </Field>
+        <Controller
+          name="imageUrl"
+          control={control}
+          render={({ field }) => (
+            <NotificationImageField
+              key={notification.notificationId}
+              id="edit-notification-image"
+              name={field.name}
+              value={field.value}
+              inputRef={field.ref}
+              onBlur={field.onBlur}
+              onChange={(file) => setValue("imageUrl", file, { shouldDirty: true, shouldTouch: true, shouldValidate: true })}
+              currentImageUrl={notification.imageUrl}
+              disabled={isSaving}
+              error={errors.imageUrl?.message}
+            />
+          )}
+        />
         <Field id="edit-notification-duration" label="Repeat after (days)" error={errors.durationDay?.message}>
           <input id="edit-notification-duration" type="number" min="1" max="365" step="1" {...register("durationDay")} className={fieldClassName} />
         </Field>

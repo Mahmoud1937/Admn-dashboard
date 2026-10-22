@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,7 +7,6 @@ import {
   faPaperPlane,
   faBell,
   faSpinner,
-  faImage,
   faBolt,
   faClock,
   faCheck,
@@ -25,6 +24,7 @@ import ProviderSelect from "../../../shared/components/ProviderSelect";
 import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
 import GovernorateSelect from "../../cities/components/GovernorateSelect";
 import { getNotificationPackageLookup } from "../services/notificationsService";
+import NotificationImageField from "./NotificationImageField";
 
 const inputBase =
   "w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none transition-colors duration-200 focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500";
@@ -480,6 +480,7 @@ export default function NotificationFormModal({
     control,
     name: "imageUrl",
   });
+  const [imagePreview, setImagePreview] = useState(null);
 
   const sendMode = useWatch({
     control,
@@ -770,37 +771,23 @@ export default function NotificationFormModal({
                   description="Optionally attach an image to make the notification more engaging."
                 />
 
-                <Field
-                  label="Image URL"
-                  htmlFor="notification-image-url"
-                  error={
-                    errors.imageUrl?.message
-                  }
-                  hint="Use a publicly accessible image URL. Recommended landscape format."
-                >
-                  <div className="relative">
-                    <FontAwesomeIcon
-                      icon={faImage}
-                      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400"
+                <Controller
+                  name="imageUrl"
+                  control={control}
+                  render={({ field }) => (
+                    <NotificationImageField
+                      id="notification-image-file"
+                      name={field.name}
+                      value={field.value}
+                      inputRef={field.ref}
+                      onBlur={field.onBlur}
+                      onChange={(file) => setValue("imageUrl", file, { shouldDirty: true, shouldTouch: true, shouldValidate: true })}
+                      onPreviewChange={setImagePreview}
+                      disabled={isSaving}
+                      error={errors.imageUrl?.message}
                     />
-
-                    <input
-                      id="notification-image-url"
-                      aria-invalid={!!errors.imageUrl}
-                      aria-describedby={
-                        errors.imageUrl
-                          ? "notification-image-url-error"
-                          : undefined
-                      }
-                      {...register("imageUrl")}
-                      placeholder="https://example.com/image.jpg"
-                      autoComplete="off"
-                      className={`${inputBase} pl-9 ${border(
-                        "imageUrl"
-                      )}`}
-                    />
-                  </div>
-                </Field>
+                  )}
+                />
               </section>
 
               {/* Audience and destination */}
@@ -910,7 +897,7 @@ export default function NotificationFormModal({
               title={title}
               messageEn={messageEn}
               messageAr={messageAr}
-              imageUrl={imageUrl}
+              imageUrl={imageUrl ? imagePreview : null}
             />
           </div>
 
