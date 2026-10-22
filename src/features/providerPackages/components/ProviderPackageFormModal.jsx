@@ -7,7 +7,7 @@ import ImageUploadField from "../../../shared/components/ImageUploadField";
 import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
 import TextField from "../../../shared/components/TextField";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
-import { getProviderServices } from "../../providerServices/services/providerServicesService";
+import { getProviderPackageCategories, getProviderPackageServices } from "../services/providerPackagesService";
 import {
   createProviderPackageSchema,
   defaultProviderPackageValues,
@@ -92,6 +92,8 @@ export default function ProviderPackageFormModal({
     defaultValues: providerPackage ? getUpdateValues(providerPackage) : defaultProviderPackageValues,
     mode: "onChange",
   });
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const categoryId = selectedCategory?.providerId === providerId ? selectedCategory?.id ?? "" : "";
 
   useEffect(() => {
     applyServerErrors(serverErrors, setError);
@@ -213,6 +215,27 @@ export default function ProviderPackageFormModal({
 
       <div>
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          Service category <span className="text-red-500">*</span>
+        </label>
+        <SearchableAsyncSelect
+          key={providerId}
+          queryKey={["provider-package-categories", providerId]}
+          fetchItems={(pageNumber, pageSize, search) =>
+            getProviderPackageCategories({ providerId, pageNumber, pageSize, search })
+          }
+          value={categoryId}
+          onChange={(id) => {
+            if (!isSaving) setSelectedCategory({ providerId, id });
+          }}
+          getOptionLabel={(category) => category.name}
+          placeholder="Select a service category"
+          searchPlaceholder="Search provider categories..."
+          disabled={isSaving || !providerId}
+        />
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-sm font-medium text-slate-700">
           Services <span className="text-red-500">*</span>
         </label>
         <Controller
@@ -221,34 +244,35 @@ export default function ProviderPackageFormModal({
           render={({ field }) => (
             <>
               <SearchableAsyncSelect
-                key={field.value.length}
-                queryKey={["provider-package-services", providerId]}
+                key={`${providerId}-${categoryId}-${field.value.length}`}
+                queryKey={["provider-package-services", providerId, categoryId]}
                 fetchItems={(pageNumber, pageSize, searchTerm) =>
-                  getProviderServices({
+                  getProviderPackageServices({
                     providerId,
+                    categoryId,
                     pageNumber,
                     pageSize,
                     search: searchTerm,
-                    status: 1,
                   })
                 }
                 value=""
                 onChange={(id, service) => {
-                  if (!service || field.value.some((item) => item.id === Number(id))) return;
+                  if (isSaving || !categoryId || !service || field.value.some((item) => item.id === Number(id))) return;
                   field.onChange([
                     ...field.value,
                     {
                       id: Number(id),
-                      label: service.serviceNameEn || service.serviceNameAr || String(id),
+                      label: service.serviceNameEn || service.serviceNameAr || service.serviceName || String(id),
                     },
                   ]);
                 }}
-                getOptionValue={(service) => service.serviceId}
+                getOptionValue={(service) => service.id}
                 getOptionLabel={(service) =>
-                  [service.serviceNameEn, service.serviceNameAr].filter(Boolean).join(" - ")
+                  [service.serviceNameEn, service.serviceNameAr].filter(Boolean).join(" - ") || service.serviceName || String(service.id)
                 }
-                placeholder="Select services"
+                placeholder={categoryId ? "Select services" : "Choose a category first"}
                 searchPlaceholder="Search provider services..."
+                disabled={isSaving || !providerId || !categoryId}
                 clearable={false}
                 error={errors.serviceIds?.message}
               />

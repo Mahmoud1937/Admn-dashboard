@@ -38,7 +38,7 @@ function NotificationImage({ imageUrl }) {
   const [hasError, setHasError] = useState(false);
 
   const isValidUrl =
-    imageUrl && /^https?:\/\/.+/i.test(imageUrl.trim());
+    imageUrl && /^(?:https?:\/\/|blob:).+/i.test(imageUrl.trim());
 
   if (!isValidUrl || hasError) {
     return null;

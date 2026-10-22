@@ -6,6 +6,8 @@ const TONES = {
   emerald: "bg-emerald-50 text-emerald-600",
   primary: "bg-blue-50 text-blue-700",
   warning: "bg-amber-50 text-amber-700",
+  orange: "bg-orange-50 text-orange-700",
+  violet: "bg-violet-50 text-violet-700",
 };
 
 export default function StatusBadge({

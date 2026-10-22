@@ -4,7 +4,8 @@ import { faBell, faChevronDown, faPenToSquare, faPowerOff, faSpinner } from "@fo
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import LazyImageCell from "../../../shared/components/LazyImageCell";
 import ImageLightbox from "../../../shared/components/ImageLightbox";
-import { NOTIFICATION_EVENT_LABELS } from "../constants/notificationEvents";
+import EventBadge from "../../../shared/components/StatusBadge";
+import { resolveNotificationEvent } from "../constants/notificationEvents";
 
 const MESSAGE_LANGUAGES = [
   { key: "messageEn", label: "EN", fullLabel: "English", lang: "en", dir: "ltr" },
@@ -68,7 +69,8 @@ function TemplateCard({
   const message = template[langKey];
   const title = template.title || "Untitled template";
   const inactive = template.isDeleted === true;
-  const eventLabel = NOTIFICATION_EVENT_LABELS[template.notificationEvent] ?? template.notificationEvent ?? "—";
+  const event = resolveNotificationEvent(template.notificationEvent);
+  const eventLabel = event?.label ?? template.notificationEvent ?? "—";
   const toggleLabel = inactive ? "Activate" : template.isDeleted === false ? "Deactivate" : "Toggle status of";
   const isTogglingThis = isToggling && togglingId === template.id;
   const detailsId = `template-message-${template.id}`;
@@ -82,12 +84,13 @@ function TemplateCard({
     >
       {/* Header */}
       <header className="flex items-center justify-between gap-3 px-5 pt-4">
-        <span
-          title={eventLabel}
-          className="inline-flex min-w-0 max-w-[65%] items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-800 ring-1 ring-inset ring-blue-100"
+        <EventBadge
+          tone={event?.tone}
+          className="min-w-0 max-w-[65%] gap-1.5"
         >
-          <span className="truncate">{eventLabel}</span>
-        </span>
+          {event?.icon && <FontAwesomeIcon icon={event.icon} className="shrink-0" aria-hidden="true" />}
+          <span title={eventLabel} className="truncate">{eventLabel}</span>
+        </EventBadge>
         <StatusBadge isDeleted={template.isDeleted} />
       </header>
 

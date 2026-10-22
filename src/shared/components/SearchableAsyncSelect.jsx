@@ -3,6 +3,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
+import { getApiErrorMessage } from "../helpers/apiErrorHandler";
 
 const PAGE_SIZE = 20;
 
@@ -46,6 +47,10 @@ export default function SearchableAsyncSelect({
   const {
     data,
     isLoading,
+    isError,
+    error: queryError,
+    refetch,
+    isFetching,
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
@@ -196,6 +201,18 @@ export default function SearchableAsyncSelect({
               <div className="flex items-center justify-center gap-2 py-4 text-xs text-slate-400">
                 <FontAwesomeIcon icon={faSpinner} spin />
                 Loading...
+              </div>
+            ) : isError && items.length === 0 ? (
+              <div role="alert" className="space-y-2 px-3 py-4 text-center text-xs text-red-600">
+                <p>{getApiErrorMessage(queryError, { details: true, fallback: "Unable to load options." })}</p>
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  disabled={disabled || isFetching}
+                  className="font-medium underline underline-offset-2 disabled:opacity-50"
+                >
+                  Try again
+                </button>
               </div>
             ) : items.length === 0 ? (
               <p className="py-4 text-center text-xs text-slate-400">No results found.</p>

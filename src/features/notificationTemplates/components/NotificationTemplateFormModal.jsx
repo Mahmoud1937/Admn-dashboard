@@ -1,21 +1,38 @@
 import { useEffect, useRef, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faPlus, faFloppyDisk, faImage, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBell,
+  faPlus,
+  faFloppyDisk,
+  faImage,
+  faTriangleExclamation,
+  faWandMagicSparkles,
+} from "@fortawesome/free-solid-svg-icons";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
 import TextField from "../../../shared/components/TextField";
 import NotificationPreview from "../../../shared/components/NotificationPreview";
+import EventBadge from "../../../shared/components/StatusBadge";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
-import { NOTIFICATION_EVENTS, NOTIFICATION_EVENT_LABELS } from "../constants/notificationEvents";
+import { NOTIFICATION_EVENTS, resolveNotificationEvent } from "../constants/notificationEvents";
 import { notificationTemplateSchema, notificationTemplateUpdateSchema } from "../schema/notificationTemplateSchema";
 import { useNotificationTemplateVariablesQuery } from "../hooks/useNotificationTemplatesQuery";
 
 // Soft recommendations (push notifications get truncated on devices). Not enforced.
 const TITLE_RECOMMENDED = 50;
 const MESSAGE_RECOMMENDED = 150;
+
+// "invoiceNumber" / "invoice_number" -> "Invoice Number"
+const formatPlaceholderName = (name) =>
+  name
+    .replace(/[_-]+/g, " ")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 
 function TemplateSection({ title, description, children }) {
   return (
@@ -45,17 +62,23 @@ function PlaceholderChips({ names, onInsert, disabled }) {
   if (names.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className="text-[11px] text-gray-400">Insert:</span>
+    <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+      <span className="flex items-center gap-1 text-[11px] font-medium text-gray-500">
+        <FontAwesomeIcon icon={faWandMagicSparkles} className="text-[#2caba2]" aria-hidden="true" />
+        Insert variable
+      </span>
       {names.map((name) => (
         <button
           key={name}
           type="button"
           disabled={disabled}
           onClick={() => onInsert(`{{${name}}}`)}
-          className="rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-600 ring-1 ring-inset ring-slate-200 transition-colors hover:bg-blue-50 hover:text-blue-800 hover:ring-blue-200 focus-visible:outline-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+          title={`Inserts {{${name}}}`}
+          aria-label={`Insert variable ${formatPlaceholderName(name)}`}
+          className="group inline-flex items-center gap-1 rounded-full border border-[#1b4477]/15 bg-gradient-to-b from-white to-blue-50/60 px-2.5 py-1 text-[11px] font-medium text-[#1b4477] shadow-sm transition-all hover:-translate-y-px hover:border-[#2caba2]/60 hover:from-[#2caba2]/5 hover:to-[#2caba2]/15 hover:text-[#13705f] hover:shadow focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#1b4477] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
         >
-          {`{{${name}}}`}
+          <FontAwesomeIcon icon={faPlus} className="text-[9px] opacity-50 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+          {formatPlaceholderName(name)}
         </button>
       ))}
     </div>
@@ -65,10 +88,6 @@ function PlaceholderChips({ names, onInsert, disabled }) {
 function ImageUrlPreview({ url }) {
   const [status, setStatus] = useState("loading");
   const trimmed = (url || "").trim();
-
-  useEffect(() => {
-    setStatus("loading");
-  }, [trimmed]);
 
   if (!/^https?:\/\//i.test(trimmed)) return null;
 
@@ -104,19 +123,21 @@ function ImageUrlPreview({ url }) {
 
 export default function NotificationTemplateFormModal({ template, mutation, onSave, onClose }) {
   const isEditing = Boolean(template);
-  const { register, handleSubmit, control, setError, setValue, getValues, formState: { errors } } = useForm({
+  const { register, handleSubmit, control, setError, clearErrors, setValue, getValues, formState: { errors } } = useForm({
     resolver: zodResolver(isEditing ? notificationTemplateUpdateSchema : notificationTemplateSchema),
     defaultValues: {
       notificationEvent: "",
       title: template?.title ?? "",
-      imageUrl: template?.imageUrl ?? "",
+      imageUrl: null,
       messageAr: template?.messageAr ?? "",
       messageEn: template?.messageEn ?? "",
     },
   });
-  const [title, imageUrl, messageAr, messageEn, notificationEvent] = useWatch({ control, name: ["title", "imageUrl", "messageAr", "messageEn", "notificationEvent"] });
+  const [title, messageAr, messageEn, notificationEvent] = useWatch({ control, name: ["title", "messageAr", "messageEn", "notificationEvent"] });
   const variablesQuery = useNotificationTemplateVariablesQuery();
-  const event = NOTIFICATION_EVENTS.find(({ value }) => value === Number(isEditing ? template.notificationEvent : notificationEvent));
+
+  // In edit mode the event comes from the template; in create mode from the select.
+  const event = resolveNotificationEvent(isEditing ? template?.notificationEvent : notificationEvent);
   const eventVariables = variablesQuery.data?.data?.[event?.variablesKey];
   const placeholders = variablesQuery.isSuccess && Array.isArray(eventVariables)
     ? eventVariables.filter((name) => typeof name === "string" && name.length > 0)
@@ -125,6 +146,28 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
   const arRegister = register("messageAr");
   const enRegister = register("messageEn");
   const textareaRefs = useRef({ messageAr: null, messageEn: null });
+  const imageInputRef = useRef(null);
+  const imagePreviewRef = useRef(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const previewUrl = imagePreview ?? template?.imageUrl ?? null;
+
+  useEffect(() => () => {
+    if (imagePreviewRef.current) URL.revokeObjectURL(imagePreviewRef.current);
+  }, []);
+
+  const handleImageChange = (file, onChange) => {
+    if (mutation.isPending) return;
+    onChange(file);
+    const result = notificationTemplateSchema.shape.imageUrl.safeParse(file);
+    if (result.success) clearErrors("imageUrl");
+    else setError("imageUrl", { type: "validate", message: result.error.issues[0]?.message });
+
+    if (imagePreviewRef.current) URL.revokeObjectURL(imagePreviewRef.current);
+    const preview = result.success && file ? URL.createObjectURL(file) : null;
+    imagePreviewRef.current = preview;
+    setImagePreview(preview);
+    if (!file && imageInputRef.current) imageInputRef.current.value = "";
+  };
 
   useEffect(() => {
     const serverErrors = mutation.error?.response?.data?.errors;
@@ -180,9 +223,10 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
               {isEditing ? (
                 <div>
                   <p className="mb-1.5 text-sm font-medium text-slate-700">Notification event</p>
-                  <p className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-600">
-                    {NOTIFICATION_EVENT_LABELS[template.notificationEvent] ?? template.notificationEvent ?? "—"}
-                  </p>
+                  <EventBadge tone={event?.tone} className="gap-1.5">
+                    {event?.icon && <FontAwesomeIcon icon={event.icon} aria-hidden="true" />}
+                    {event?.label ?? template.notificationEvent ?? "—"}
+                  </EventBadge>
                 </div>
               ) : (
                 <div>
@@ -199,6 +243,14 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                     <option value="">Select event</option>
                     {NOTIFICATION_EVENTS.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
                   </select>
+                  {event && (
+                    <div className="mt-2">
+                      <EventBadge tone={event.tone} className="gap-1.5">
+                        <FontAwesomeIcon icon={event.icon} aria-hidden="true" />
+                        {event.label}
+                      </EventBadge>
+                    </div>
+                  )}
                   {errors.notificationEvent && <p id="template-event-error" role="alert" className="mt-1 text-xs text-red-500">{errors.notificationEvent.message}</p>}
                 </div>
               )}
@@ -291,8 +343,44 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
             </div>
           </TemplateSection>
           <TemplateSection title="Media" description="Optionally include an image with the notification.">
-            <TextField label="Image URL (optional)" sanitize={false} maxLength={null} placeholder="https://example.com/image.png" {...register("imageUrl")} error={errors.imageUrl?.message} />
-            <ImageUrlPreview url={imageUrl} />
+            <Controller
+              name="imageUrl"
+              control={control}
+              render={({ field }) => (
+                <div className="space-y-3">
+                  <label htmlFor="template-image-file" className="block text-sm font-medium text-slate-700">Image (optional)</label>
+                  <input
+                    id="template-image-file"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    name={field.name}
+                    ref={(element) => {
+                      field.ref(element);
+                      imageInputRef.current = element;
+                    }}
+                    onBlur={field.onBlur}
+                    onChange={(event) => handleImageChange(event.target.files?.[0] ?? null, field.onChange)}
+                    disabled={mutation.isPending}
+                    aria-invalid={Boolean(errors.imageUrl)}
+                    aria-describedby={errors.imageUrl ? "template-image-help template-image-error" : "template-image-help"}
+                    className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:font-medium file:text-blue-900 hover:file:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  />
+                  <p id="template-image-help" className="text-xs text-gray-500">JPG, PNG, or WebP. Maximum 5 MB.</p>
+                  {isEditing && template.imageUrl && <p className="text-xs text-gray-500">Choose a new image to replace the current one. Leave empty to keep it.</p>}
+                  {errors.imageUrl && <p id="template-image-error" role="alert" className="text-xs text-red-600">{errors.imageUrl.message}</p>}
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Notification image preview" className="max-h-40 rounded-xl border border-gray-200 object-contain" />
+                  ) : template?.imageUrl ? (
+                    <ImageUrlPreview key={template.imageUrl} url={template.imageUrl} />
+                  ) : null}
+                  {field.value && (
+                    <button type="button" onClick={() => handleImageChange(null, field.onChange)} disabled={mutation.isPending} className="text-xs font-medium text-red-600 hover:text-red-700 disabled:opacity-50">
+                      {isEditing ? "Cancel replacement" : "Remove image"}
+                    </button>
+                  )}
+                </div>
+              )}
+            />
           </TemplateSection>
 
           {mutation.isError && (
@@ -301,7 +389,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
             </p>
           )}
         </fieldset>
-        <NotificationPreview title={title} messageAr={messageAr} messageEn={messageEn} imageUrl={imageUrl} />
+        <NotificationPreview title={title} messageAr={messageAr} messageEn={messageEn} imageUrl={previewUrl} />
       </div>
       <FormActions
         onCancel={requestClose}

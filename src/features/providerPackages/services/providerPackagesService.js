@@ -1,4 +1,43 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
+import { requireApiSuccess } from "../../../shared/helpers/apiErrorHandler";
+
+export async function getProviderPackageCategories({ providerId, pageNumber = 1, pageSize = 20, search = "" }) {
+  const response = await axiosInstance.get("/CategoryService/providerCategories", {
+    params: { providerId },
+  });
+  const body = requireApiSuccess(response, "Failed to load provider categories.");
+  const categories = Array.isArray(body?.data) ? body.data : [];
+  const searchTerm = search.trim().toLocaleLowerCase();
+  const matches = searchTerm
+    ? categories.filter((category) => category.name?.toLocaleLowerCase().includes(searchTerm))
+    : categories;
+  const start = (pageNumber - 1) * pageSize;
+
+  return {
+    ...body,
+    data: {
+      items: matches.slice(start, start + pageSize),
+      pageNumber,
+      pageSize,
+      totalCount: matches.length,
+      totalPages: Math.ceil(matches.length / pageSize),
+    },
+  };
+}
+
+export async function getProviderPackageServices({ providerId, categoryId, pageNumber = 1, pageSize = 20, search = "" }) {
+  const response = await axiosInstance.get("/ProviderPage/servicesByCategory", {
+    params: {
+      categoryId,
+      providerId,
+      Search: search || undefined,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+    },
+  });
+
+  return requireApiSuccess(response, "Failed to load provider services.");
+}
 
 const requireSuccess = (data) => {
   if (data.succeeded === false) {
