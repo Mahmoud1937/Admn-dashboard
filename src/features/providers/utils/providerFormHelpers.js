@@ -21,6 +21,9 @@ export function sanitizeNameInput(value) {
   return sharedSanitizeNameInput(value).slice(0, 100);
 }
 
+export const getProviderMedicardCashback = (provider) =>
+  provider.medicardCashback ?? provider.MedicardCashback ?? 0;
+
 export function buildProviderFormValues(provider) {
   return {
     arName: sanitizeNameInput(provider.arName ?? ""),
@@ -32,6 +35,7 @@ export function buildProviderFormValues(provider) {
     providerClass: getProviderClassValue(provider.class),
     specialistId: provider.specialistId ?? "",
     isActive: provider.isActive,
+    medicardCashback: getProviderMedicardCashback(provider),
     joinDate: provider.createdAt ? provider.createdAt.slice(0, 10) : "",
   };
 }
@@ -47,4 +51,5 @@ export const emptyProviderForm = {
   specialistId: "",
   joinDate: "",
   isActive: true,
+  medicardCashback: 0,
 };

@@ -43,6 +43,7 @@ export async function createProvider(payload) {
   formData.append("HotLine", payload.hotLine ?? "");
   formData.append("PhoneNumber", payload.phoneNumber ?? "");
   formData.append("IsActive", payload.isActive);
+  formData.append("MedicardCashback", String(payload.medicardCashback ?? 0));
   formData.append("Landline", payload.landline ?? "");
 
   if (payload.logoFile) {
@@ -71,6 +72,7 @@ export async function updateProvider(id, payload) {
   formData.append("HotLine", payload.hotLine ?? "");
   formData.append("PhoneNumber", payload.phoneNumber ?? "");
   formData.append("IsActive", payload.isActive);
+  formData.append("MedicardCashback", String(payload.medicardCashback ?? 0));
   formData.append("Landline", payload.landline ?? "");
 
   if (payload.logoFile) {

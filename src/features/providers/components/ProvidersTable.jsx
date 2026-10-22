@@ -11,6 +11,7 @@ import { splitBilingualName } from "../../../shared/utils/splitBilingualName";
 import LazyImageCell from "../../../shared/components/LazyImageCell";
 import ImageLightbox from "../../../shared/components/ImageLightbox";
 import { useMediaQuery } from "../../../shared/hooks/useMediaQuery";
+import { getProviderMedicardCashback } from "../utils/providerFormHelpers";
 
 const DESKTOP_QUERY = "(min-width: 768px)";
 
@@ -153,6 +154,11 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
                   </div>
 
                   <div>
+                    <p className="text-slate-400">Medicard Cashback</p>
+                    <p className="text-slate-700">{getProviderMedicardCashback(provider)}</p>
+                  </div>
+
+                  <div>
                     <p className="text-slate-400">Join Date</p>
                     <p className="text-slate-700">{formatDateNumeric(provider.createdAt)}</p>
                   </div>
@@ -169,12 +175,13 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
 
       {/* ---------- Desktop/tablet: table (md and up) ---------- */}
       {isDesktop && (
-        <table className="w-full min-w-[1200px] table-fixed text-center text-sm">
+        <table className="w-full min-w-[1400px] table-fixed text-center text-sm">
         <thead className="sticky top-0 z-10 bg-slate-100">
             <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
               <th className="w-[260px] px-4 py-2.5 text-center">Provider</th>
               <th className="w-[180px] px-6 py-2.5 text-center">Category</th>
               <th className="w-[110px] px-4 py-2.5 text-center">Class</th>
+              <th className="w-[160px] px-4 py-2.5 text-center">Medicard Cashback</th>
               <th className="hidden w-[190px] px-6 py-2.5 text-center lg:table-cell">Specialist</th>
               <th className="w-[150px] px-6 py-2.5 text-center">Hotline</th>
               <th className="hidden w-[110px] px-6 py-2.5 text-center lg:table-cell">Branches</th>
@@ -224,6 +231,10 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
 
                   <td className="px-4 py-2 text-center text-slate-600">
                     {provider.class ?? "-"}
+                  </td>
+
+                  <td className="px-4 py-2 text-center text-slate-600">
+                    {getProviderMedicardCashback(provider)}
                   </td>
 
                   <td className="hidden px-6 py-2 lg:table-cell">

@@ -181,6 +181,7 @@ export default function ProviderInfoForm({
       phoneNumber: formValues.phoneNumber,
       landline: formValues.landline || null,
       isActive: formValues.isActive,
+      medicardCashback: formValues.medicardCashback,
       logoFile: imageFile,
     };
 
@@ -350,6 +351,22 @@ export default function ProviderInfoForm({
                 />
               </div>
             )}
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <TextField
+              label="Medicard Cashback"
+              required
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={100}
+              step={1}
+              sanitize={false}
+              disabled={!canEdit}
+              error={errors.medicardCashback?.message}
+              {...register("medicardCashback", { valueAsNumber: true })}
+            />
           </div>
         </div>
       </SectionCard>

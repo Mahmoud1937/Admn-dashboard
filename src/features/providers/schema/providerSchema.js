@@ -34,6 +34,18 @@ const optionalDigitsField = (label, { min = 1, max = 20 } = {}) =>
 const optionalHotLineField = optionalDigitsField("Hotline", { min: 5, max: 5 });
 const landlineField = optionalDigitsField("Landline", { min: 7, max: 11 });
 
+const cashbackRangeMessage = "Medicard cashback must be a whole number from 0 to 100";
+const medicardCashbackField = z.preprocess(
+  (value) => value === "" || value === null || Number.isNaN(value) ? undefined : value,
+  z
+    .number({
+      error: (issue) => issue.input === undefined ? "Medicard cashback is required" : cashbackRangeMessage,
+    })
+    .int(cashbackRangeMessage)
+    .min(0, cashbackRangeMessage)
+    .max(100, cashbackRangeMessage)
+);
+
 export const getProviderSchema = (isCreateMode) =>
   z
     .object({
@@ -46,6 +58,7 @@ export const getProviderSchema = (isCreateMode) =>
       phoneNumber: egyptianPhoneField,
       landline: landlineField,          
       isActive: isActiveField,
+      medicardCashback: medicardCashbackField,
       joinDate: optionalDateField,
       logoFile: isCreateMode
         ? z
