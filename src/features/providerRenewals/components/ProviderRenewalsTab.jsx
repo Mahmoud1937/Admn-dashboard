@@ -7,7 +7,6 @@ import { useProviderRenewalUpdateMutation } from "../hooks/useProviderRenewalUpd
 import ProviderRenewalFormModal from "./ProviderRenewalFormModal";
 import ProviderAttachmentsModal from "../../providerAttachments/components/ProviderAttachmentsModal";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
-import useAutoDismissSuccess from "../../../shared/hooks/useAutoDismissSuccess";
 import Pagination from "../../../shared/components/Pagination";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
@@ -44,8 +43,6 @@ export default function ProviderRenewalsTab({
   const [editingRenewal, setEditingRenewal] = useState(null);
   const createMutation = useProviderRenewalCreateMutation({ providerId });
   const updateMutation = useProviderRenewalUpdateMutation({ providerId });
-  useAutoDismissSuccess(createMutation);
-  useAutoDismissSuccess(updateMutation);
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const hasOpenRenewalForm = isCreateModalOpen || editingRenewal !== null;
   const {
@@ -98,13 +95,6 @@ export default function ProviderRenewalsTab({
           </button>
         )}
       </div>
-
-      {createMutation.isSuccess && (
-        <p role="status" className="text-sm text-emerald-700">Renewal created successfully.</p>
-      )}
-      {updateMutation.isSuccess && (
-        <p role="status" className="text-sm text-emerald-700">Renewal updated successfully.</p>
-      )}
 
       <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         {isLoading ? (

@@ -1,5 +1,14 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
 
+const getBranchParams = ({ governorateId, cityId, search = "", status, pageNumber, pageSize } = {}) => ({
+  GovernorateId: governorateId || undefined,
+  CityId: cityId || undefined,
+  Search: search || undefined,
+  Status: status === "" || status === undefined ? undefined : status,
+  PageNumber: pageNumber,
+  PageSize: pageSize || undefined,
+});
+
 async function requestBranches(params) {
   const { data } = await axiosInstance.get(
     "/ProviderBranchesAdmin",
@@ -37,15 +46,18 @@ export async function getAllBranches({
   pageNumber = 1,
   pageSize,
 } = {}) {
-  return requestBranches({
-    GovernorateId: governorateId || undefined,
-    CityId: cityId || undefined,
-    Search: search || undefined,
-    Status: status === "" || status === undefined ? undefined : status,
-    PageNumber: pageNumber,
-    PageSize: pageSize || undefined,
+  return requestBranches(getBranchParams({
+    governorateId, cityId, search, status, pageNumber, pageSize,
+  }));
+}
+
+export async function exportBranches(options = {}) {
+  return axiosInstance.get("/ProviderBranchesAdmin/export", {
+    params: getBranchParams(options),
+    responseType: "blob",
   });
 }
+
 export async function getBranchesLookup({
   providerId,
   pageNumber = 1,

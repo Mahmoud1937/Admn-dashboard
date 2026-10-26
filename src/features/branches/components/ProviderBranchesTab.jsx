@@ -72,7 +72,7 @@ function IconButton({ title, onClick, tone = "blue", children }) {
   );
 }
 
-export default function ProviderBranchesTab({ readOnly = false }) {
+export default function ProviderBranchesTab({ readOnly = false, renderFilterActions }) {
   const canUpdate = usePermission(PERMISSION_CODES.PROVIDER_BRANCHES_UPDATE);
   const { id: providerId } = useParams();
 
@@ -203,7 +203,14 @@ export default function ProviderBranchesTab({ readOnly = false }) {
             onCityFilterChange={setCityFilter}
             statusFilter={statusFilter}
             onStatusFilterChange={setStatusFilter}
-          />
+          >
+            {renderFilterActions?.({
+              governorateId: governorateFilter || undefined,
+              cityId: cityFilter || undefined,
+              search,
+              status: statusFilter === "" ? 0 : Number(statusFilter),
+            })}
+          </BranchesFilters>
         </div>
 
         {isLoading ? (

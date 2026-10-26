@@ -1,5 +1,13 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
 
+const getServiceParams = ({ pageNumber, pageSize, searchTerm = "", categoryId, status } = {}) => ({
+  PageNumber: pageNumber,
+  PageSize: pageSize || undefined,
+  SearchTerm: searchTerm || undefined,
+  CategoryId: categoryId || undefined,
+  Status: Number.isNaN(status) ? undefined : status ?? undefined,
+});
+
 export async function getServices({
   pageNumber = 1,
   pageSize,
@@ -8,16 +16,17 @@ export async function getServices({
   status,
 } = {}) {
   const { data } = await axiosInstance.get("/ServiceAdmin/services", {
-    params: {
-      PageNumber: pageNumber,
-      PageSize: pageSize || undefined,
-      SearchTerm: searchTerm || undefined,
-      CategoryId: categoryId || undefined,
-       Status: status ?? undefined,
-    },
+    params: getServiceParams({ pageNumber, pageSize, searchTerm, categoryId, status }),
   });
 
   return data;
+}
+
+export async function exportServices(options = {}) {
+  return axiosInstance.get("/ServiceAdmin/services/export", {
+    params: getServiceParams(options),
+    responseType: "blob",
+  });
 }
 
 export async function getServiceById(id) {

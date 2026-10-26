@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faFileExcel, faPlus, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import Pagination from "../../../shared/components/Pagination";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import { useServicesQuery } from "../hooks/UseServicesQuery";
+import { useExportServices } from "../hooks/useExportServices";
 import { useServiceMutations } from "../hooks/UseServiceMutations";
 import ServiceFormModal from "../components/ServiceFormModal";
 import ServicesFilters from "../components/ServicesFilters";
@@ -15,6 +16,8 @@ import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 
 export default function ServicesPage() {
+  const canExport = usePermission(PERMISSION_CODES.SERVICES_READ);
+  const { exportToExcel, isExporting, exportError } = useExportServices();
   const canUpdate = usePermission(PERMISSION_CODES.SERVICES_UPDATE);
   const canDelete = usePermission(PERMISSION_CODES.SERVICES_DELETE);
   const [search, setSearch] = useState("");
@@ -81,6 +84,10 @@ export default function ServicesPage() {
 
   const hasActiveFilters = !!(search || categoryFilter);
 
+  const handleExport = () => {
+    if (canExport) exportToExcel({ searchTerm: search, categoryId: categoryFilter || undefined });
+  };
+
   return (
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -102,13 +109,33 @@ export default function ServicesPage() {
         </PermissionGuard>
       </div>
 
+      {exportError && (
+        <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {exportError}
+        </p>
+      )}
+
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         <ServicesFilters
           search={search}
           onSearchChange={setSearch}
           categoryFilter={categoryFilter}
           onCategoryFilterChange={setCategoryFilter}
-        />
+        >
+          {canExport && (
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={isExporting}
+              aria-busy={isExporting}
+              title="Export services to Excel"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <FontAwesomeIcon icon={isExporting ? faSpinner : faFileExcel} spin={isExporting} />
+              {isExporting ? "Exporting..." : "Export"}
+            </button>
+          )}
+        </ServicesFilters>
 
         {isLoading && (
           <p className="p-8 text-center text-sm text-slate-400">Loading services...</p>

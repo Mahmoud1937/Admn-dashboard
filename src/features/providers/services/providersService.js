@@ -1,5 +1,17 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
 
+const getProviderParams = ({ pageNumber, pageSize, searchTerm = "", filters = {} } = {}) => ({
+  PageNumber: pageNumber,
+  PageSize: pageSize || undefined,
+  SearchTerm: searchTerm || undefined,
+  Search: searchTerm || undefined,
+  Status: filters.status && filters.status !== 0 ? filters.status : undefined,
+  FromDate: filters.joinDateFrom || undefined,
+  ToDate: filters.joinDateTo || undefined,
+  CategoryId: filters.categoryId || undefined,
+  SpecialistId: filters.specialistId || undefined,
+});
+
 export async function getProviders({
   pageNumber = 1,
   pageSize,
@@ -7,20 +19,17 @@ export async function getProviders({
   filters = {},
 } = {}) {
   const { data } = await axiosInstance.get("/admin/providers", {
-    params: {
-      PageNumber: pageNumber,
-      PageSize: pageSize || undefined,
-      SearchTerm: searchTerm || undefined,
-      Search: searchTerm || undefined,
-      Status: filters.status && filters.status !== 0 ? filters.status : undefined,
-      FromDate: filters.joinDateFrom || undefined,
-      ToDate: filters.joinDateTo || undefined,
-      CategoryId: filters.categoryId || undefined,
-      SpecialistId: filters.specialistId || undefined,
-    },
+    params: getProviderParams({ pageNumber, pageSize, searchTerm, filters }),
   });
 
   return data;
+}
+
+export async function exportProviders(options = {}) {
+  return axiosInstance.get("/admin/providers/export", {
+    params: getProviderParams(options),
+    responseType: "blob",
+  });
 }
 
 export async function getProviderById(id) {

@@ -64,7 +64,7 @@ export default function PriceListFormModal({
   serverError,
 }) {
   const isEditMode = Boolean(priceList);
-  const { register, control, handleSubmit, reset, formState: { errors } } = useForm({
+  const { register, control, handleSubmit, reset, resetField, formState: { errors } } = useForm({
     resolver: zodResolver(isEditMode ? updateSchema : createSchema),
     defaultValues,
   });
@@ -80,6 +80,16 @@ export default function PriceListFormModal({
   }, [isOpen, priceList, reset]);
 
   const startDate = useWatch({ control, name: "startDate" });
+  const copy = useWatch({ control, name: "copy" });
+  const shouldCopyServices = !isEditMode && hasPriceLists && copy;
+
+  useEffect(() => {
+    if (!shouldCopyServices) {
+      resetField("priceIncreaseBy");
+      resetField("discountPercentage");
+    }
+  }, [shouldCopyServices, resetField]);
+
   if (!isOpen) return null;
 
   const onSubmit = (values) => {
@@ -120,7 +130,7 @@ export default function PriceListFormModal({
               )}
             />
           </Field>
-          {!isEditMode && (
+          {shouldCopyServices && (
             <>
               <Field id="price-list-increase" label="Price increase by" error={errors.priceIncreaseBy?.message}>
                 <input id="price-list-increase" type="number" min="0" step="any" inputMode="decimal" {...register("priceIncreaseBy")} className={fieldClassName} />

@@ -7,9 +7,10 @@ export default function ServicesFilters({
   onSearchChange,
   categoryFilter,
   onCategoryFilterChange,
+  children,
 }) {
   return (
-    <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row">
+    <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:flex-wrap sm:items-center">
       <div className="relative flex-1">
         <FontAwesomeIcon
           icon={faSearch}
@@ -29,6 +30,7 @@ export default function ServicesFilters({
         onChange={onCategoryFilterChange}
         placeholder="All Categories"
       />
+      {children}
     </div>
   );
 }

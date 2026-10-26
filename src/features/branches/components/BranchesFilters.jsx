@@ -12,9 +12,10 @@ export default function BranchesFilters({
   onCityFilterChange,
   statusFilter,
   onStatusFilterChange,
+  children,
 }) {
   return (
-    <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row">
+    <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:flex-wrap sm:items-center">
       {/* Search */}
       <div className="relative flex-1">
         <FontAwesomeIcon
@@ -61,6 +62,7 @@ export default function BranchesFilters({
         <option value="1">Active</option>
         <option value="2">Inactive</option>
       </select>
+      {children}
     </div>
   );
 }

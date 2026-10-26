@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faFileExcel, faSpinner, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useProviderToggleMutation } from "../hooks/useProviderToggleMutation";
 import { useProvidersQuery } from "../hooks/useProvidersQuery";
+import { useExportProviders } from "../hooks/useExportProviders";
 import ProvidersTable from "../components/ProvidersTable";
 import Pagination from "../../../shared/components/Pagination";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
@@ -21,6 +23,8 @@ import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 
 export default function ProvidersPage() {
   const canUpdate = usePermission(PERMISSION_CODES.PROVIDERS_UPDATE);
+  const canExport = usePermission(PERMISSION_CODES.PROVIDERS_READ);
+  const { exportToExcel, isExporting, exportError } = useExportProviders();
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
@@ -102,9 +106,18 @@ const handleEdit = (provider) => {
 
   const isDeactivating = providerToToggle?.isActive;
 
+  const handleExport = () => {
+    if (canExport) exportToExcel({ searchTerm: search, filters });
+  };
+
   return (
     <div>
       <ProvidersHeader />
+      {exportError && (
+        <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {exportError}
+        </p>
+      )}
 
       <div className="mt-6 rounded-xl border border-slate-200 bg-white">
         <div className="relative">
@@ -114,7 +127,21 @@ const handleEdit = (provider) => {
             placeholder="Search by name (EN/AR) or ID..."
             onFilterClick={openFilters}
             activeFilterCount={countActiveFilters(filters)}
-          />
+          >
+            {canExport && (
+              <button
+                type="button"
+                onClick={handleExport}
+                disabled={isExporting}
+                aria-busy={isExporting}
+                title="Export providers to Excel"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <FontAwesomeIcon icon={isExporting ? faSpinner : faFileExcel} spin={isExporting} />
+                {isExporting ? "Exporting..." : "Export"}
+              </button>
+            )}
+          </SearchBarWithFilters>
 
           {isFilterOpen && (
             <ProvidersFilters
