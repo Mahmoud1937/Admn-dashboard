@@ -5,6 +5,7 @@ import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { cardSoldSchema } from "../schema/cardSoldSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
+import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
 import ImageUploadField from "../../../shared/components/ImageUploadField";
@@ -270,9 +271,12 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
         />
       </div>
 
-      {serverErrors && Object.keys(errors).length === 0 && (
-        <p className="text-red-500 text-sm">
-          {typeof serverErrors === "string" ? serverErrors : "Something went wrong"}
+      {serverErrors && (
+        <p role="alert" className="text-red-500 text-sm">
+          {typeof serverErrors === "string" ? serverErrors : getApiErrorMessage(
+            { response: { data: { errors: serverErrors } } },
+            { details: true, fallback: "Unable to sell cards. Please try again." },
+          )}
         </p>
       )}
 

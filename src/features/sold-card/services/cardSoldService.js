@@ -1,4 +1,5 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
+import { requireApiSuccess } from "../../../shared/helpers/apiErrorHandler";
 
 const BASE_URL = "/admin/card-solds";
 
@@ -53,7 +54,7 @@ export const createCardSoldByNumbers = async ({
   const response = await axiosInstance.post(`${BASE_URL}/by-numbers`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return response.data.data;
+  return requireApiSuccess(response, "Unable to sell cards. Please try again.").data;
 };
 
 // GET /api/admin/card-solds/{id}/export -> Excel blob

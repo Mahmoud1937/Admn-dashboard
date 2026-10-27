@@ -93,7 +93,7 @@ export const compressImage = async (file, {
     quality = 0.82,
     mimeType = "image/webp",
 } = {}) => {
-    if (!file.type.startsWith("image/")) {
+    if (!file.type.startsWith("image/") || file.type === "image/svg+xml") {
         return file;
     }
 

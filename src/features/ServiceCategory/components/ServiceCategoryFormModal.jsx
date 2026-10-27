@@ -79,6 +79,10 @@ export default function ServiceCategoryFormModal({ isOpen, category, onSave, onC
         error={errors.logo?.message}
         disabled={isSaving}
       />
+      <label className="mx-auto mb-4 flex w-fit cursor-pointer rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 has-disabled:cursor-not-allowed has-disabled:opacity-60">
+        Upload SVG
+        <input type="file" accept="image/svg+xml,.svg" onChange={handleImageChange} disabled={isSaving} className="hidden" />
+      </label>
 
       <TextField
         label="English Name"

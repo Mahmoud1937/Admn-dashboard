@@ -8,8 +8,8 @@ import TextField from "../../../shared/components/TextField";
 import { getCategorySchema } from "../schema/categorySchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const ACCEPTED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"];
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"];
+const ACCEPTED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp", ".svg"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export default function CategoryFormModal({ isOpen, category, onSave, onClose, isSaving, serverErrors }) {
@@ -58,7 +58,7 @@ export default function CategoryFormModal({ isOpen, category, onSave, onClose, i
 
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type) || !hasValidExtension) {
       e.target.value = "";
-      setError("logo", { type: "manual", message: "Logo must be a PNG, JPG, or WEBP image" });
+      setError("logo", { type: "manual", message: "Logo must be a PNG, JPG, WEBP, or SVG image" });
       return;
     }
 
@@ -91,6 +91,10 @@ export default function CategoryFormModal({ isOpen, category, onSave, onClose, i
         error={errors.logo?.message}
         disabled={isSaving}
       />
+      <label className="mx-auto mb-4 flex w-fit cursor-pointer rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 has-disabled:cursor-not-allowed has-disabled:opacity-60">
+        Upload SVG
+        <input type="file" accept="image/svg+xml,.svg" onChange={handleImageChange} disabled={isSaving} className="hidden" />
+      </label>
 
       <TextField
         label="English Name"

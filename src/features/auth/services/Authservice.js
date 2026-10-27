@@ -1,8 +1,8 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
 
 export const login = async (payload) => {
-  const { data } = await axiosInstance.post("AuthAdmin/login", payload);
-  return data;
+  // Retain response headers so the auth context can synchronize server time.
+  return axiosInstance.post("AuthAdmin/login", payload);
 };
 
 export const changePassword = async (payload) => {

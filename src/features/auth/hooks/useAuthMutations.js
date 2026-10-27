@@ -45,7 +45,8 @@ export default function useAuthMutations() {
         password: payload.password,
       }),
 
-    onSuccess: (response) => {
+    onSuccess: (loginResponse) => {
+      const response = loginResponse.data;
       const authData = response?.data ?? response;
       const succeeded = response?.succeeded ?? response?.success;
       const token = authData?.token ?? authData?.accessToken;
@@ -63,7 +64,9 @@ export default function useAuthMutations() {
         return;
       }
 
-      establishSession(token, refreshToken, needsPasswordChange, permissions);
+      const serverDate = loginResponse.headers?.get?.("x-server-local-time") ??
+        loginResponse.headers?.["x-server-local-time"];
+      establishSession(token, refreshToken, needsPasswordChange, permissions, serverDate);
       clearServerErrors();
       navigate(needsPasswordChange ? "/change-password" : "/", {
         replace: true,

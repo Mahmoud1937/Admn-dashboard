@@ -16,6 +16,7 @@ import {
   setToken as persistToken,
   clearToken as removeToken,
   registerAuthHandlers,
+  restoreAuthSession,
   getMustChangePassword,
   setMustChangePassword as persistMustChangePassword,
 } from "../../../shared/api/axiosInstance";
@@ -127,14 +128,15 @@ export function AuthProvider({ children }) {
       newToken,
       refreshToken,
       needsPasswordChange = false,
-      loginPermissions = []
+      loginPermissions = [],
+      serverDate = null
     ) => {
       permissionLoadRunRef.current += 1;
       clearDashboardFilters();
       removeToken();
       clearPersistedPermissions();
-      persistToken(newToken);
       if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      persistToken(newToken, serverDate);
       persistMustChangePassword(needsPasswordChange);
       setTokenState(newToken);
       updatePermissions(loginPermissions);
@@ -205,13 +207,19 @@ export function AuthProvider({ children }) {
       }
 
       if (cancelled || getToken() !== activeToken) return;
-      setTokenState(activeToken);
-
       try {
-        await loadPermissionsForEmployee(user.employeeId);
+        const currentToken = await restoreAuthSession();
+        if (cancelled || !currentToken || getToken() !== currentToken) return;
+        const currentUser = getUserFromToken(currentToken);
+        if (!isAdminUser(currentUser)) {
+          clearInvalidSession();
+          return;
+        }
+        setTokenState(currentToken);
+        await loadPermissionsForEmployee(currentUser.employeeId);
       } catch {
-        // Keep the valid auth session. ProtectedRoute renders the retryable
-        // permission initialization error instead of protected content.
+        // Refresh failures already expire the matching session. Permission
+        // failures remain retryable without granting protected content.
       } finally {
         if (!cancelled) setIsAuthInitializing(false);
       }

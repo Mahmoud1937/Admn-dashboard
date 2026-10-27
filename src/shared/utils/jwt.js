@@ -14,13 +14,21 @@ export const decodeToken = (token) => {
   }
 };
 
+/** Returns the JWT exp claim in milliseconds, or null for invalid claims. */
+export const getTokenExpiryTime = (token) => {
+  const exp = decodeToken(token)?.exp;
+  return typeof exp === "number" && exp > 0 && Number.isFinite(exp * 1000)
+    ? exp * 1000
+    : null;
+};
+
 /**
- * true if the token is missing, malformed, or past its `exp` claim.
+ * Invalid claims are rejected. Expiration is checked only against known server
+ * time; an unknown clock defers validity to the backend instead of Date.now().
  */
-export const isTokenExpired = (token) => {
-  const payload = decodeToken(token);
-  if (!payload?.exp) return true;
-  return payload.exp * 1000 <= Date.now();
+export const isTokenExpired = (token, serverNow = null) => {
+  const expiresAt = getTokenExpiryTime(token);
+  return expiresAt === null || (serverNow !== null && expiresAt <= serverNow);
 };
 
 const ARABIC_TEXT_PATTERN = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
