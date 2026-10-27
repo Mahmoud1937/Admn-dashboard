@@ -3,6 +3,9 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../features/auth/context/Authcontext";
 import QueryErrorState from "./QueryErrorState";
+import AccessDeniedPage from "./AccessDeniedPage";
+import { getVisibleNavigation } from "../../sidebar/navigation";
+import { PERMISSION_CODES } from "../../features/auth/constants/permissionCodes";
 
 const isAuthDebugEnabled = () =>
   import.meta.env.DEV && window.localStorage.getItem("debugAuth") === "1";
@@ -22,6 +25,7 @@ export default function ProtectedRoute() {
     permissionsInitializationError,
     refreshPermissions,
     mustChangePassword,
+    hasPermission,
     logout,
   } = useAuth();
   const location = useLocation();
@@ -97,6 +101,15 @@ export default function ProtectedRoute() {
 
   if (mustChangePassword) {
     return <Navigate to="/change-password" replace />;
+  }
+
+  // These two standalone pages have permission guards but no sidebar entry.
+  const hasPageAccess = getVisibleNavigation(hasPermission).length > 0
+    || hasPermission(PERMISSION_CODES.PROVIDERS_CREATE)
+    || hasPermission(PERMISSION_CODES.CARDS_READ);
+
+  if (!hasPageAccess) {
+    return <AccessDeniedPage noPageAccess />;
   }
 
   return <Outlet />;
