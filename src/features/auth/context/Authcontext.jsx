@@ -24,7 +24,6 @@ import { getUserFromToken } from "../../../shared/utils/jwt";
 import { clearDashboardFilters } from "../../../shared/utils/dashboardFilterSession";
 import { getEmployeeById } from "../../employees/services/employeesService";
 import { getPermissions } from "../../employees/permissions/services/permissionsService";
-import EmployeePasswordModal from "../../employees/components/EmployeePasswordModal";
 import {
   clearPersistedPermissions,
   normalizePermissions,
@@ -50,11 +49,6 @@ export function AuthProvider({ children }) {
   const [mustChangePassword, setMustChangePasswordState] = useState(
     getMustChangePassword
   );
-  // Keep the generated password in memory across logout until it is saved.
-  const [resetPasswordNotice, setResetPasswordNotice] = useState("");
-  const showResetPasswordNotice = useCallback((password) => {
-    setResetPasswordNotice(password);
-  }, []);
 
   const updatePermissions = useCallback((permissionCodes) => {
     const normalizedPermissions = normalizePermissions(permissionCodes);
@@ -264,7 +258,6 @@ export function AuthProvider({ children }) {
       refreshPermissions,
       sessionExpiredReason,
       clearSessionExpiredReason,
-      showResetPasswordNotice,
       login,
       logout,
     }),
@@ -282,24 +275,12 @@ export function AuthProvider({ children }) {
       refreshPermissions,
       sessionExpiredReason,
       clearSessionExpiredReason,
-      showResetPasswordNotice,
       login,
       logout,
     ]
   );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-      {resetPasswordNotice && (
-        <EmployeePasswordModal
-          password={resetPasswordNotice}
-          isOwnReset
-          onClose={() => setResetPasswordNotice("")}
-        />
-      )}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
