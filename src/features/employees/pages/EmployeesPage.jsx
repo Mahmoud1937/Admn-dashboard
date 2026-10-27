@@ -18,6 +18,9 @@ import useEmployeePermissionsMutation from "../permissions/hooks/useEmployeePerm
 import EmployeePermissionsModal from "../permissions/components/EmployeePermissionsModal";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
+import { useAuth } from "../../auth/context/Authcontext";
+import useAuthMutations from "../../auth/hooks/useAuthMutations";
+import toast from "react-hot-toast";
 
 
 function useDebouncedValue(value, delay = 400) {
@@ -50,6 +53,8 @@ const extractPassword = (response) => {
 };
 
 export default function EmployeesPage() {
+  const { showResetPasswordNotice } = useAuth();
+  const { clearSessionAndRedirect } = useAuthMutations();
   const canViewEmployees = usePermission(PERMISSION_CODES.EMPLOYEES_READ);
   const canCreateEmployees = usePermission(PERMISSION_CODES.EMPLOYEES_CREATE);
   const canUpdateEmployees = usePermission(PERMISSION_CODES.EMPLOYEES_UPDATE);
@@ -99,9 +104,19 @@ export default function EmployeesPage() {
     },
   });
   const { resetMutation } = useEmployeeResetPasswordMutation({
-    onSuccess: (response) => {
+    onSuccess: (response, { isCurrentEmployee }) => {
       setEmployeePendingReset(null);
-      setGeneratedPassword(extractPassword(response));
+      const password = extractPassword(response);
+      if (isCurrentEmployee) {
+        if (!password) {
+          toast.error("Your password was reset, but no new password was returned. Please contact your administrator.");
+          return;
+        }
+        showResetPasswordNotice(password);
+        clearSessionAndRedirect();
+        return;
+      }
+      setGeneratedPassword(password);
     },
   });
 

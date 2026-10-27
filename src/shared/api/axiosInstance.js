@@ -232,6 +232,16 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const request = error?.config;
+    // A final 401 rejects the renewed session. Ignore failures from older tokens.
+    if (
+      error?.response?.status === 401 && request?._authRetried &&
+      !isAuthRequest(request.url) && request._authSession === authSession &&
+      getToken() && request._tokenUsed === getToken()
+    ) {
+      clearToken();
+      authHandlers.onSessionExpired?.("unauthorized");
+      throw error;
+    }
     if (
       ![401, 403].includes(error?.response?.status) || !request || isAuthRequest(request.url) ||
       request._authRetried || request._authSession !== authSession || !getToken()

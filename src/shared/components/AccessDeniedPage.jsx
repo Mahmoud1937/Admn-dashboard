@@ -1,7 +1,84 @@
-import { ArrowRight, KeyRound, LockKeyhole, LogOut, RefreshCw, ShieldCheck, ShieldX } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ArrowRight, KeyRound, LockKeyhole, LogOut, PanelLeft, RefreshCw, ShieldCheck, ShieldX } from "lucide-react";
+import { Link, useOutletContext } from "react-router-dom";
 import Logo from "../../assets/logo.png";
 import { useAuth } from "../../features/auth/context/Authcontext";
 import useAuthMutations from "../../features/auth/hooks/useAuthMutations";
+import { getVisibleNavigation } from "../../sidebar/navigation";
+
+const MAX_SUGGESTED = 6;
+
+function SuggestedPages() {
+  const { hasPermission } = useAuth();
+  const { sidebarCollapsed, setSidebarCollapsed } = useOutletContext() ?? {};
+  const seen = new Set();
+  const authorizedPages = getVisibleNavigation(hasPermission)
+    .flatMap((item) => [
+      ...(item.canAccessParent ? [item] : []),
+      ...(item.children ?? []),
+    ])
+    .filter((page) => {
+      if (!page.path || seen.has(page.path)) return false;
+      seen.add(page.path);
+      return true;
+    });
+  const suggestedPages = authorizedPages.slice(0, MAX_SUGGESTED);
+  const hasMore = authorizedPages.length > suggestedPages.length;
+  const canExpandSidebar = sidebarCollapsed && typeof setSidebarCollapsed === "function";
+
+  return (
+    <div className="mx-auto mt-8 max-w-md text-left">
+      {suggestedPages.length > 0 ? (
+        <>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold text-slate-700">Some of your available pages</h2>
+            <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500">
+              Showing {suggestedPages.length} of {authorizedPages.length}
+            </span>
+          </div>
+          <nav aria-label="Suggested pages" className="grid gap-2 sm:grid-cols-2">
+            {suggestedPages.map((page) => (
+              <Link
+                key={page.path}
+                to={page.path}
+                className="group flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-primary-600/30 hover:bg-primary-50 hover:text-primary-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+              >
+                <span className="flex min-w-0 items-center gap-3">
+                  {page.icon && <FontAwesomeIcon icon={page.icon} className="w-4 shrink-0 text-slate-400 group-hover:text-primary-600" aria-hidden="true" />}
+                  <span className="truncate">{page.title}</span>
+                </span>
+                <ArrowRight size={15} className="shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-primary-600" aria-hidden="true" />
+              </Link>
+            ))}
+          </nav>
+          <div className="mt-4 flex items-center gap-3 rounded-xl border border-primary-600/15 bg-primary-50 px-4 py-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-primary-600 shadow-sm ring-1 ring-primary-600/10">
+              <PanelLeft size={18} aria-hidden="true" />
+            </span>
+            <p className="min-w-0 flex-1 text-sm leading-5 text-slate-600">
+              <span className="font-semibold text-slate-800">{hasMore ? "Looking for something else?" : "Need to go elsewhere?"}</span>{" "}
+              {canExpandSidebar ? "Expand the sidebar to see and choose from all your pages." : "Use the sidebar to see and choose from all your pages."}
+            </p>
+            {canExpandSidebar && (
+              <button
+                type="button"
+                onClick={() => setSidebarCollapsed(false)}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-primary-700 shadow-sm ring-1 ring-primary-600/20 transition hover:bg-primary-600 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+              >
+                <PanelLeft size={14} aria-hidden="true" />
+                Open sidebar
+              </button>
+            )}
+          </div>
+        </>
+      ) : (
+        <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-500">
+          There are no other pages available for your account right now. Please contact your system administrator for access.
+        </p>
+      )}
+    </div>
+  );
+}
 
 function NoPageAccessState() {
   const { user, refreshPermissions, isPermissionsInitializing } = useAuth();
@@ -137,6 +214,7 @@ export default function AccessDeniedPage({ noPageAccess = false }) {
             You can jump to one of the pages below, or use the sidebar to see
             everything available to you.
           </p>
+          <SuggestedPages />
         </div>
       </div>
 

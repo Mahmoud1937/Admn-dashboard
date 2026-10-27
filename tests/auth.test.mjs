@@ -395,7 +395,7 @@ for (const status of [401, 403]) {
     assert.equal(count(), 1);
   });
 
-  test('a repeated ' + status + ' preserves the existing single-retry propagation policy', async () => {
+  test('a repeated ' + status + (status === 401 ? ' expires the rejected session' : ' preserves the session for permission errors'), async () => {
     establish();
     const count = mockRefresh();
     let calls = 0;
@@ -403,7 +403,15 @@ for (const status of [401, 403]) {
     await assert.rejects(api.get('ProviderAdmin'), error => error.response.status === status);
     assert.equal(calls, 2);
     assert.equal(count(), 1);
-    assert.ok(auth.getToken());
+    if (status === 401) {
+      assert.equal(auth.getToken(), null);
+      assert.equal(localStorage.getItem(auth.REFRESH_TOKEN_KEY), null);
+      assert.equal(timers.size, 0);
+      assert.deepEqual(expired, ['unauthorized']);
+    } else {
+      assert.ok(auth.getToken());
+      assert.deepEqual(expired, []);
+    }
   });
 
   test('a stale ' + status + ' cannot recover or clear a replacement session', async () => {
@@ -426,6 +434,50 @@ for (const status of [401, 403]) {
     await assert.rejects(service.login({ email: 'fixture@example.test', password: 'fixture' }));
     await assert.rejects(service.logout());
     assert.equal(count(), 0);
+  });
+}
+
+test('concurrent retried 401 responses expire the matching session only once', async () => {
+  establish();
+  const gate = deferred();
+  const count = mockRefresh();
+  let retries = 0;
+  api.defaults.adapter = async config => {
+    if (config._authRetried) {
+      retries++;
+      await gate.promise;
+    }
+    throw rejection(config, 401);
+  };
+  const requests = [api.get('ProviderAdmin'), api.get('PermissionAdmin')];
+  await flush();
+  assert.equal(retries, 2);
+  gate.resolve();
+  await Promise.all(requests.map(request => assert.rejects(request)));
+  assert.equal(count(), 1);
+  assert.equal(auth.getToken(), null);
+  assert.deepEqual(expired, ['unauthorized']);
+});
+
+for (const replacement of ['login', 'rotation']) {
+  test('a delayed retried 401 cannot expire a newer ' + replacement, async () => {
+    establish();
+    const gate = deferred();
+    const count = mockRefresh();
+    api.defaults.adapter = async config => {
+      if (config._authRetried) await gate.promise;
+      throw rejection(config, 401);
+    };
+    const request = api.get('ProviderAdmin');
+    await flush();
+    assert.equal(count(), 1);
+    if (replacement === 'login') establish();
+    else await advance(3_540_000);
+    const currentToken = auth.getToken();
+    gate.resolve();
+    await assert.rejects(request);
+    assert.equal(auth.getToken(), currentToken);
+    assert.deepEqual(expired, []);
   });
 }
 

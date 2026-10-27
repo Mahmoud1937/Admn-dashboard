@@ -122,6 +122,7 @@ export default function useAuthMutations() {
     isChangingPassword: changePasswordMutation.isPending,
     logout: () => logoutMutation.mutate(),
     isLoggingOut: logoutMutation.isPending,
+    clearSessionAndRedirect,
     serverErrors,
     clearServerErrors,
   };
