@@ -9,7 +9,9 @@ export default function ImageUploadField({
   alt,
   error,
   disabled = false,
+  allowSvg = false,
 }) {
+  const formats = allowSvg ? "PNG, JPEG, WebP, or SVG" : "PNG, JPEG, or WebP";
   const [isDragging, setIsDragging] = useState(false);
   const [, setDragCounter] = useState(0);
   const [isCompressing, setIsCompressing] = useState(false);
@@ -50,7 +52,7 @@ export default function ImageUploadField({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setDropError("Please drop an image file (PNG, JPEG, or WebP)");
+      setDropError(`Please drop an image file (${formats})`);
       return;
     }
 
@@ -110,7 +112,7 @@ export default function ImageUploadField({
           {isCompressing ? "Processing..." : label}
           <input
             type="file"
-            accept="image/png, image/jpeg, image/webp"
+            accept={allowSvg ? "image/png, image/jpeg, image/webp, image/svg+xml, .svg" : "image/png, image/jpeg, image/webp"}
             onChange={handleFileInputChange}
             disabled={disabled || isCompressing}
             className="hidden"
@@ -120,7 +122,7 @@ export default function ImageUploadField({
         <p className="text-[11px] text-slate-400">
           {isCompressing ? "Compressing image..." : "or drag and drop an image here"}
         </p>
-        <p className="text-[10px] text-slate-400">PNG, JPEG, or WebP only</p>
+        <p className="text-[10px] text-slate-400">{formats} only</p>
       </div>
 
       {dropError && <p className="text-xs text-red-500">{dropError}</p>}
