@@ -1,4 +1,5 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
+import { requireApiSuccess } from "../../../shared/helpers/apiErrorHandler";
 
 const BASE = "/BrokerAdmin";
 
@@ -24,6 +25,6 @@ export async function updateBroker({ id, ...payload }) {
 }
 
 export async function deleteBroker(id) {
-  const { data } = await axiosInstance.delete(`${BASE}/${id}`);
-  return data;
+  const response = await axiosInstance.delete(`${BASE}/${id}`);
+  return requireApiSuccess(response, "Failed to delete broker.");
 }

@@ -8,6 +8,7 @@ import Pagination from "../../../shared/components/Pagination";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import AccessDeniedPage from "../../../shared/components/AccessDeniedPage";
+import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { useBrokersQuery } from "../hooks/useBrokersQuery";
@@ -91,7 +92,10 @@ export default function BrokersPage() {
               brokers={brokers}
               searchTerm={searchTerm}
               onEdit={canUpdate ? openForm : undefined}
-              onDelete={canDelete ? setBrokerToDelete : undefined}
+              onDelete={canDelete ? (broker) => {
+                deleteMutation.reset();
+                setBrokerToDelete(broker);
+              } : undefined}
             />
             <Pagination
               pageNumber={pageNumber}
@@ -125,8 +129,13 @@ export default function BrokersPage() {
           message={`Are you sure you want to delete "${brokerToDelete?.name}"? This action cannot be undone.`}
           confirmLabel="Delete"
           isLoading={deleteMutation.isPending}
+          errorMessage={deleteMutation.isError
+            ? getApiErrorMessage(deleteMutation.error, { details: true, fallback: "Failed to delete broker." }) : null}
           onConfirm={() => brokerToDelete && deleteMutation.mutate(brokerToDelete.id)}
-          onCancel={() => setBrokerToDelete(null)}
+          onCancel={() => {
+            deleteMutation.reset();
+            setBrokerToDelete(null);
+          }}
         />
       )}
     </div>

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { createBroker, deleteBroker, updateBroker } from "../services/brokersService";
 import { handleMutationError } from "../../../shared/utils/handleMutationError";
+import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
 
 export function useBrokerMutations({ onSaveSuccess, onDeleteSuccess }) {
   const queryClient = useQueryClient();
@@ -36,7 +37,7 @@ export function useBrokerMutations({ onSaveSuccess, onDeleteSuccess }) {
       queryClient.invalidateQueries({ queryKey: ["brokers"] });
       onDeleteSuccess?.();
     },
-    onError: (error) => toast.error(error?.response?.data?.message || "Failed to delete broker."),
+    onError: (error) => toast.error(getApiErrorMessage(error, { details: true, fallback: "Failed to delete broker." })),
   });
 
   return {

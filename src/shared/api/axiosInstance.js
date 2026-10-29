@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getTokenExpiryTime, isTokenExpired } from "../utils/jwt.js";
+import { getTokenExpiryTime, getUserFromToken, isTokenExpired } from "../utils/jwt.js";
 
 export const TOKEN_KEY = "token";
 export const REFRESH_TOKEN_KEY = "refreshToken";
@@ -138,28 +138,41 @@ const refreshAccessToken = (expectedSession = authSession) => {
 
   const pending = (async () => {
     if (!refreshToken?.trim()) throw new Error("Missing refresh token");
-    // Base Axios keeps this request outside the retry interceptor.
-    const response = await axios.post(
-      `${axiosInstance.defaults.baseURL}AuthAdmin/refresh-token`,
-      { refreshToken },
-      { timeout: 15_000 }
-    );
-    if (
-      session !== authSession || getToken() !== token ||
-      localStorage.getItem(REFRESH_TOKEN_KEY) !== refreshToken
-    ) throw new axios.Cancel("Authentication session changed");
+    let data;
+    let clock;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        // Base Axios keeps both attempts outside the recovery interceptor.
+        const response = await axios.post(
+          `${axiosInstance.defaults.baseURL}AuthAdmin/refresh-token`,
+          { refreshToken },
+          { timeout: 15_000 }
+        );
+        if (
+          session !== authSession || getToken() !== token ||
+          localStorage.getItem(REFRESH_TOKEN_KEY) !== refreshToken
+        ) throw new axios.Cancel("Authentication session changed");
 
-    const body = response.data;
-    const clock = readServerClock(
-      response.headers?.get?.("x-server-local-time") ?? response.headers?.["x-server-local-time"]
-    );
-    const data = body?.data;
-    if (
-      body?.succeeded !== true || data?.success !== true ||
-      typeof data?.token !== "string" ||
-      isTokenExpired(data.token, estimatedServerTime(clock || serverClock)) ||
-      typeof data?.refreshToken !== "string" || !data.refreshToken.trim()
-    ) throw new Error("Invalid refresh response");
+        const body = response.data;
+        clock = readServerClock(
+          response.headers?.get?.("x-server-local-time") ?? response.headers?.["x-server-local-time"]
+        );
+        data = body?.data;
+        if (
+          body?.succeeded !== true || data?.success !== true ||
+          typeof data?.token !== "string" ||
+          isTokenExpired(data.token, estimatedServerTime(clock || serverClock)) ||
+          typeof data?.refreshToken !== "string" || !data.refreshToken.trim()
+        ) throw new Error("Invalid refresh response");
+        break;
+      } catch (error) {
+        if (
+          attempt === 1 || session !== authSession || getToken() !== token ||
+          localStorage.getItem(REFRESH_TOKEN_KEY) !== refreshToken
+        ) throw error;
+        // Keep the same session and shared promise alive for one final attempt.
+      }
+    }
 
     localStorage.setItem(TOKEN_KEY, data.token);
     localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
@@ -229,13 +242,49 @@ axiosInstance.interceptors.request.use(async (config) => {
 });
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const request = response.config;
+    const targetEmployeeId = request?.url?.split("?")[0].match(
+      /(?:^|\/)authadmin\/employees\/([^/?]+)\/reset-password\/?$/i
+    )?.[1];
+    if (
+      response.status >= 200 && response.status < 300 &&
+      request?.method?.toLowerCase() === "patch" &&
+      targetEmployeeId &&
+      request._authSession === authSession
+    ) {
+      const body = response.data;
+      const flags = [
+        body?.succeeded, body?.success, body?.data?.succeeded, body?.data?.success,
+      ].filter((flag) => typeof flag === "boolean");
+      const requestEmployeeId = getUserFromToken(request._tokenUsed)?.employeeId;
+      const currentEmployeeId = getUserFromToken(getToken())?.employeeId;
+      const isCurrentEmployee = [requestEmployeeId, currentEmployeeId].every(
+        (id) => (typeof id === "string" || typeof id === "number") &&
+          String(id) === targetEmployeeId
+      );
+      // Expire only a confirmed self-reset; unknown identity preserves the session.
+      if (isCurrentEmployee && flags.includes(true) && !flags.includes(false)) {
+        clearToken();
+        authHandlers.onSessionExpired?.("password-reset");
+      }
+    }
+    return response;
+  },
   async (error) => {
     const request = error?.config;
     if (
       ![401, 403].includes(error?.response?.status) || !request || isAuthRequest(request.url) ||
-      request._authRetried || request._authSession !== authSession || !getToken()
+      request._authSession !== authSession || !getToken()
     ) {
+      throw error;
+    }
+    if (request._authRetried) {
+      // A later rotation or replacement login must survive this stale rejection.
+      if (request._tokenUsed === getToken()) {
+        clearToken();
+        authHandlers.onSessionExpired?.("auth-rejected");
+      }
       throw error;
     }
     request._authRetried = true;
