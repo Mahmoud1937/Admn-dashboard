@@ -752,7 +752,7 @@ export default function NotificationFormModal({
                         }
                         {...register("messageAr")}
                         rows={5}
-                        dir="rtl"
+                        dir="ltr"
                         placeholder="Write the Arabic message…"
                         className={`${inputBase} resize-none border-l-4 border-l-[#2caba2] leading-relaxed ${border(
                           "messageAr",

@@ -1,4 +1,5 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
+import { requireApiSuccess } from "../../../shared/helpers/apiErrorHandler";
 
 const BASE = "admin/notification-marketing";
 
@@ -24,7 +25,10 @@ export const createNotification = async (payload) => {
 };
 
 export const updateNotification = async ({ notificationId, ...payload }) => {
-  const { data } = await axiosInstance.put(`${BASE}/${notificationId}`, toNotificationFormData(payload), {
+  const { data } = await axiosInstance.put(`${BASE}/${notificationId}`, toNotificationFormData({
+    ...payload,
+    IsUpdatedImage: payload.imageUrl != null,
+  }), {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return data?.data;
@@ -36,6 +40,12 @@ export const toggleNotificationActive = async (notificationId) => {
     throw new Error(data.message || "Failed to update notification status.");
   }
   return data?.data;
+};
+
+export const sendNotificationNow = async (notificationId) => {
+  if (!notificationId) throw new Error("Select a notification before sending it.");
+  const response = await axiosInstance.post(`${BASE}/${encodeURIComponent(notificationId)}/send-now`);
+  return requireApiSuccess(response, "Failed to send notification.");
 };
 
 export const getNotificationPackageLookup = async (pageNumber = 1, pageSize = 20, searchTerm = "") => {

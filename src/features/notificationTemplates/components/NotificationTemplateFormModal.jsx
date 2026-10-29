@@ -9,6 +9,7 @@ import {
   faImage,
   faTriangleExclamation,
   faWandMagicSparkles,
+  faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
@@ -133,7 +134,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
       messageEn: template?.messageEn ?? "",
     },
   });
-  const [title, messageAr, messageEn, notificationEvent] = useWatch({ control, name: ["title", "messageAr", "messageEn", "notificationEvent"] });
+  const [title, messageAr, messageEn, notificationEvent, imageUrl] = useWatch({ control, name: ["title", "messageAr", "messageEn", "notificationEvent", "imageUrl"] });
   const variablesQuery = useNotificationTemplateVariablesQuery();
 
   // In edit mode the event comes from the template; in create mode from the select.
@@ -149,7 +150,8 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
   const imageInputRef = useRef(null);
   const imagePreviewRef = useRef(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const previewUrl = imagePreview ?? template?.imageUrl ?? null;
+  const imageRemoved = imageUrl === "";
+  const previewUrl = imageRemoved ? null : imagePreview ?? template?.imageUrl ?? null;
 
   useEffect(() => () => {
     if (imagePreviewRef.current) URL.revokeObjectURL(imagePreviewRef.current);
@@ -158,7 +160,8 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
   const handleImageChange = (file, onChange) => {
     if (mutation.isPending) return;
     onChange(file);
-    const result = notificationTemplateSchema.shape.imageUrl.safeParse(file);
+    const imageSchema = isEditing ? notificationTemplateUpdateSchema.shape.imageUrl : notificationTemplateSchema.shape.imageUrl;
+    const result = imageSchema.safeParse(file);
     if (result.success) clearErrors("imageUrl");
     else setError("imageUrl", { type: "validate", message: result.error.issues[0]?.message });
 
@@ -296,7 +299,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                       arRegister.ref(el);
                       textareaRefs.current.messageAr = el;
                     }}
-                    dir="rtl"
+                    dir="ltr"
                     lang="ar"
                     rows={5}
                     placeholder="Write the Arabic message..."
@@ -359,25 +362,37 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                       imageInputRef.current = element;
                     }}
                     onBlur={field.onBlur}
-                    onChange={(event) => handleImageChange(event.target.files?.[0] ?? null, field.onChange)}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) handleImageChange(file, field.onChange);
+                    }}
                     disabled={mutation.isPending}
                     aria-invalid={Boolean(errors.imageUrl)}
                     aria-describedby={errors.imageUrl ? "template-image-help template-image-error" : "template-image-help"}
                     className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:font-medium file:text-blue-900 hover:file:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
                   />
                   <p id="template-image-help" className="text-xs text-gray-500">JPG, PNG, or WebP. Maximum 5 MB.</p>
-                  {isEditing && template.imageUrl && <p className="text-xs text-gray-500">Choose a new image to replace the current one. Leave empty to keep it.</p>}
+                  {template?.imageUrl && !imageRemoved && <p className="text-xs text-gray-500">Choose a new image to replace the current one, or remove it below.</p>}
+                  {imageRemoved && <p role="status" className="text-xs text-gray-500">Image removed from this form.</p>}
                   {errors.imageUrl && <p id="template-image-error" role="alert" className="text-xs text-red-600">{errors.imageUrl.message}</p>}
                   {imagePreview ? (
                     <img src={imagePreview} alt="Notification image preview" className="max-h-40 rounded-xl border border-gray-200 object-contain" />
-                  ) : template?.imageUrl ? (
+                  ) : template?.imageUrl && !imageRemoved ? (
                     <ImageUrlPreview key={template.imageUrl} url={template.imageUrl} />
                   ) : null}
-                  {field.value && (
-                    <button type="button" onClick={() => handleImageChange(null, field.onChange)} disabled={mutation.isPending} className="text-xs font-medium text-red-600 hover:text-red-700 disabled:opacity-50">
-                      {isEditing ? "Cancel replacement" : "Remove image"}
-                    </button>
-                  )}
+                  <div className="flex flex-wrap items-center gap-3">
+                    {(field.value || (template?.imageUrl && !imageRemoved)) && (
+                      <button type="button" onClick={() => handleImageChange(template?.imageUrl ? "" : null, field.onChange)} disabled={mutation.isPending} className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50">
+                        <FontAwesomeIcon icon={faTrashCan} aria-hidden="true" />
+                        Remove image
+                      </button>
+                    )}
+                    {template?.imageUrl && (field.value || imageRemoved) && (
+                      <button type="button" onClick={() => handleImageChange(null, field.onChange)} disabled={mutation.isPending} className="text-xs font-medium text-slate-600 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50">
+                        {imageRemoved ? "Undo removal" : "Cancel replacement"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
             />

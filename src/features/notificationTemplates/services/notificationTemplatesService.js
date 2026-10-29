@@ -38,7 +38,8 @@ export async function updateNotificationTemplate({ templateId, ...payload }) {
   const values = notificationTemplateUpdateSchema.parse(payload);
   const formData = new FormData();
   formData.append("Title", values.title);
-  if (values.imageUrl) formData.append("ImageUrl", values.imageUrl);
+  formData.append("IsUpdatedImage", String(values.imageUrl != null));
+  if (values.imageUrl != null) formData.append("ImageUrl", values.imageUrl);
   formData.append("MessageAr", values.messageAr);
   formData.append("MessageEn", values.messageEn);
 

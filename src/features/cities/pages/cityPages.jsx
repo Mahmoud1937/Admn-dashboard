@@ -2,6 +2,9 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
+import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
+import useFilterPanel from "../../../shared/hooks/useFilterPanel";
+import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilters";
 
 import { useCitiesQuery } from "../hooks/useCitiesQuery";
 import { useCityMutations } from "../hooks/useCityMutations";
@@ -15,10 +18,26 @@ import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 
+const EMPTY_FILTERS = { governorateId: "" };
+
 export default function CitiesPage() {
   const canUpdate = usePermission(PERMISSION_CODES.CITIES_UPDATE);
   const canDelete = usePermission(PERMISSION_CODES.CITIES_DELETE);
-  const [governorateFilter, setGovernorateFilter] = useState("");
+  const [search, setSearch] = useState("");
+  const searchTerm = useDebouncedValue(search.trim(), 400);
+  const {
+    isOpen: isFilterOpen,
+    filters,
+    draft,
+    setDraft,
+    panelRef,
+    triggerRef,
+    toggle: toggleFilters,
+    close: closeFilters,
+    apply: applyFilters,
+    clear: clearFilters,
+  } = useFilterPanel({ emptyFilters: EMPTY_FILTERS });
+  const governorateFilter = filters.governorateId;
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCity, setEditingCity] = useState(null);
@@ -30,7 +49,7 @@ export default function CitiesPage() {
     goToPage,
     handlePageSizeChange,
     getPageNumbers,
-  } = useServerPagination({ resetKey: governorateFilter });
+  } = useServerPagination({ resetKey: `${searchTerm}-${governorateFilter}` });
 
   const {
     cities,
@@ -41,7 +60,7 @@ export default function CitiesPage() {
     error,
     isPlaceholderData,
     refetch,
-  } = useCitiesQuery({ pageNumber, pageSize, search: "", governorateFilter });
+  } = useCitiesQuery({ pageNumber, pageSize, search: searchTerm, governorateFilter });
 
   const closeForm = () => {
     setIsFormOpen(false);
@@ -86,7 +105,7 @@ export default function CitiesPage() {
     }
   };
 
-  const hasActiveFilters = !!governorateFilter;
+  const hasActiveFilters = !!(searchTerm || governorateFilter);
 
   return (
     <div>
@@ -110,10 +129,26 @@ export default function CitiesPage() {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white">
-        <CitiesFilters
-          governorateFilter={governorateFilter}
-          onGovernorateFilterChange={setGovernorateFilter}
-        />
+        <div className="relative">
+          <SearchBarWithFilters
+            value={search}
+            onChange={setSearch}
+            placeholder="Search cities by name (EN/AR)..."
+            onFilterClick={toggleFilters}
+            filterButtonRef={triggerRef}
+            activeFilterCount={governorateFilter ? 1 : 0}
+          />
+          {isFilterOpen && (
+            <CitiesFilters
+              draft={draft}
+              onChange={setDraft}
+              onApply={applyFilters}
+              onClear={clearFilters}
+              onClose={closeFilters}
+              panelRef={panelRef}
+            />
+          )}
+        </div>
 
         {isLoading && (
           <p className="p-8 text-center text-sm text-slate-400">Loading cities...</p>

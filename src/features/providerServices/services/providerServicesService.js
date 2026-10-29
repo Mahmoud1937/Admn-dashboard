@@ -1,4 +1,38 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
+import { requireApiSuccess } from "../../../shared/helpers/apiErrorHandler";
+
+function toLookupPage(body, pageNumber, pageSize, searchTerm) {
+  const items = Array.isArray(body?.data) ? body.data : [];
+  const search = searchTerm.trim().toLocaleLowerCase();
+  const matches = search ? items.filter((item) =>
+    [item.name, item.enName, item.arName].some((name) => name?.toLocaleLowerCase().includes(search))
+  ) : items;
+  const start = (pageNumber - 1) * pageSize;
+
+  return {
+    ...body,
+    data: {
+      items: matches.slice(start, start + pageSize),
+      pageNumber,
+      pageSize,
+      totalCount: matches.length,
+      totalPages: Math.ceil(matches.length / pageSize),
+    },
+  };
+}
+
+export async function getProviderServiceCategories(pageNumber = 1, pageSize = 20, searchTerm = "") {
+  const response = await axiosInstance.get("/CategoryService/categories");
+  const body = requireApiSuccess(response, "Failed to load service categories.");
+  return toLookupPage(body, pageNumber, pageSize, searchTerm);
+}
+
+export async function getProviderServiceOptions({ categoryId, pageNumber = 1, pageSize = 20, searchTerm = "" } = {}) {
+  if (!categoryId) return toLookupPage({ data: [] }, pageNumber, pageSize, searchTerm);
+  const response = await axiosInstance.get("/AdminLookup/services", { params: { categoryId } });
+  const body = requireApiSuccess(response, "Failed to load services.");
+  return toLookupPage(body, pageNumber, pageSize, searchTerm);
+}
 
 export async function getProviderServices({
   providerId,

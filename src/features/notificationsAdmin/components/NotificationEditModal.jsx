@@ -33,6 +33,8 @@ export default function NotificationEditModal({ notification, onClose, onSubmit,
       messageAr: "",
       imageUrl: null,
       durationDay: "",
+
+
     },
   });
 
@@ -43,6 +45,7 @@ export default function NotificationEditModal({ notification, onClose, onSubmit,
       messageEn: notification.messageEn ?? "",
       messageAr: notification.messageAr ?? "",
       imageUrl: null,
+
       durationDay: notification.durationDay == null ? "" : String(notification.durationDay),
     });
   }, [notification, reset]);
@@ -66,7 +69,7 @@ export default function NotificationEditModal({ notification, onClose, onSubmit,
           <textarea id="edit-notification-en" rows={3} maxLength={500} {...register("messageEn")} className={fieldClassName} />
         </Field>
         <Field id="edit-notification-ar" label="Arabic message" required error={errors.messageAr?.message}>
-          <textarea id="edit-notification-ar" rows={3} maxLength={500} dir="rtl" {...register("messageAr")} className={fieldClassName} />
+          <textarea id="edit-notification-ar" rows={3} maxLength={500} dir="ltr" {...register("messageAr")} className={fieldClassName} />
         </Field>
         <Controller
           name="imageUrl"

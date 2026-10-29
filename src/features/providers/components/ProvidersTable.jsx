@@ -127,6 +127,11 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
 
                 <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
                   <div>
+                    <p className="text-slate-400">ID</p>
+                    <p className="tabular-nums text-slate-700">{provider.id ?? "-"}</p>
+                  </div>
+
+                  <div>
                     <p className="text-slate-400">Category</p>
                     <p className="text-slate-700">{categoryEn || "-"}</p>
                   </div>
@@ -175,9 +180,10 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
 
       {/* ---------- Desktop/tablet: table (md and up) ---------- */}
       {isDesktop && (
-        <table className="w-full min-w-[1400px] table-fixed text-center text-sm">
+        <table className="w-full min-w-[1480px] table-fixed text-center text-sm">
         <thead className="sticky top-0 z-10 bg-slate-100">
             <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
+              <th scope="col" className="w-[80px] px-4 py-2.5 text-center">ID</th>
               <th className="w-[260px] px-4 py-2.5 text-center">Provider</th>
               <th className="w-[180px] px-6 py-2.5 text-center">Category</th>
               <th className="w-[110px] px-4 py-2.5 text-center">Class</th>
@@ -201,6 +207,7 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
                   key={provider.id}
                   className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60"
                 >
+                  <td className="px-4 py-2 text-center tabular-nums text-slate-600">{provider.id ?? "-"}</td>
                   <td className="px-4 py-2">
                     <div className="mx-auto w-full max-w-[220px]">
                       <div

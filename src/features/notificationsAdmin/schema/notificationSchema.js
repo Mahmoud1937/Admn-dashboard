@@ -27,7 +27,10 @@ const notificationContentShape = {
     }),
 };
 
-export const updateNotificationSchema = z.object(notificationContentShape);
+export const updateNotificationSchema = z.object({
+  ...notificationContentShape,
+  imageUrl: imageFileSchema.or(z.literal("")).nullable().optional(),
+});
 
 export const notificationSchema = z
   .object({
@@ -92,7 +95,7 @@ export const toUpdateNotificationPayload = (values) => ({
   messageAr: values.messageAr.trim(),
   messageEn: values.messageEn.trim(),
   title: values.title.trim(),
-  // Omit the upload when no replacement was selected, keeping the saved image.
+  // No upload keeps IsUpdatedImage false; an empty string marks an explicit removal.
   imageUrl: values.imageUrl ?? undefined,
   durationDay: values.durationDay ? Number(values.durationDay) : null,
 });

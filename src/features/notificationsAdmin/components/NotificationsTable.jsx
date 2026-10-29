@@ -6,9 +6,11 @@ import {
   faChevronDown,
   faClock,
   faPenToSquare,
+  faPaperPlane,
   faPowerOff,
   faRotate,
   faTrash,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
@@ -193,7 +195,7 @@ function ActionButton({ label, title, onClick, tone = "neutral", iconClass = "te
   );
 }
 
-function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, canToggle, onToggleActive, isToggling, canDelete, onDelete }) {
+function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, canToggle, onToggleActive, isToggling, canDelete, onDelete, canSend, onSendNow, isSending, sendingId }) {
   const {
     notificationId,
     title,
@@ -206,6 +208,7 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
   } = notification;
   const detailsId = `notification-details-${notificationId}`;
   const label = title || notificationId;
+  const isSendingThis = isSending && String(sendingId) === String(notificationId);
 
   return (
     <>
@@ -249,6 +252,22 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
         </td>
         <td className="px-4 py-4 align-top">
           <div className="flex items-center justify-end gap-0.5">
+            {canSend && (
+              <ActionButton
+                tone="blue"
+                iconClass="text-blue-700"
+                label={`Send notification ${label} now`}
+                title={isSendingThis ? "Sending..." : "Send now"}
+                disabled={isSending}
+                aria-busy={isSendingThis}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onSendNow(notification);
+                }}
+              >
+                <FontAwesomeIcon icon={isSendingThis ? faSpinner : faPaperPlane} spin={isSendingThis} className="text-xs" />
+              </ActionButton>
+            )}
             {canEdit && (
               <ActionButton
                 tone="blue"
@@ -342,6 +361,10 @@ export default function NotificationsTable({
   canToggle = false,
   isToggling = false,
   canDelete = true,
+  onSendNow,
+  canSend = false,
+  isSending = false,
+  sendingId,
   hasActiveFilters = false,
 }) {
   const [expandedId, setExpandedId] = useState(null);
@@ -365,13 +388,13 @@ export default function NotificationsTable({
 
   return (
     <ScrollableTable className="scroll-table min-h-[360px]">
-      <table className="w-full min-w-[980px] table-fixed text-left text-sm">
+      <table className="w-full min-w-[1120px] table-fixed text-left text-sm">
         <colgroup>
-          <col className="w-[26%]" />
-          <col className="w-[22%]" />
-          <col className="w-[22%]" />
+          <col className="w-[24%]" />
+          <col className="w-[21%]" />
+          <col className="w-[21%]" />
+          <col className="w-[16%]" />
           <col className="w-[18%]" />
-          <col className="w-[12%]" />
         </colgroup>
         <thead className="sticky top-0 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 shadow-[0_1px_0_0_rgb(226,232,240)]">
           <tr>
@@ -402,6 +425,10 @@ export default function NotificationsTable({
               onToggleActive={onToggleActive}
               isToggling={isToggling}
               onDelete={onDelete}
+              canSend={canSend}
+              onSendNow={onSendNow}
+              isSending={isSending}
+              sendingId={sendingId}
             />
           ))}
         </tbody>

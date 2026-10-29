@@ -20,7 +20,10 @@ const baseShape = {
   isSpecialOffer: z.boolean().default(false),
 };
 
-export const createProviderServiceSchema = z.object(baseShape);
+export const createProviderServiceSchema = z.object({
+  ...baseShape,
+  categoryId: z.string().min(1, "Service category is required"),
+});
 
 export const updateProviderServiceSchema = z.object({
   ...baseShape,

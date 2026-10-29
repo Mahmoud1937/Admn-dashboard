@@ -1,5 +1,5 @@
 import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
-import { getServices } from "../../services-admin/services/ServicesService";
+import { getProviderServiceOptions } from "../services/providerServicesService";
 
 
 export default function ServiceSelect({
@@ -9,21 +9,23 @@ export default function ServiceSelect({
   placeholder = "Select service",
   error,
   disabled,
+  fallbackLabel,
 }) {
   return (
     <div className="w-full">
       <SearchableAsyncSelect
-        queryKey={["services", categoryId ?? "all"]}
+        queryKey={["provider-service-options", categoryId]}
         fetchItems={(pageNumber, pageSize, searchTerm) =>
-          getServices({ categoryId, pageNumber, pageSize, searchTerm })
+          getProviderServiceOptions({ categoryId, pageNumber, pageSize, searchTerm })
         }
         value={value}
         onChange={onChange}
-        getOptionLabel={(item) => `${item.enName} - ${item.arName}`}
+        getOptionLabel={(item) => [item.enName, item.arName].filter(Boolean).join(" - ")}
         placeholder={placeholder}
         searchPlaceholder="Search services..."
-        disabled={disabled}
+        disabled={disabled || !categoryId}
         error={error}
+        fallbackLabel={fallbackLabel}
       />
     </div>
   );

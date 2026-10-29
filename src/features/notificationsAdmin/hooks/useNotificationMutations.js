@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createNotification,
   deleteNotification,
+  sendNotificationNow,
   toggleNotificationActive,
   updateNotification,
 } from "../services/notificationsService";
@@ -68,5 +69,16 @@ export default function useNotificationMutations({ onSuccess, onError } = {}) {
       onError?.(extractErrorMessage(error, "Failed to update notification status.")),
   });
 
-  return { create, remove, update, toggleActive };
+  const sendNow = useMutation({
+    mutationFn: sendNotificationNow,
+    retry: false,
+    onSuccess: (response) => {
+      refresh();
+      onSuccess?.(response?.message || "Notification sent successfully.", response?.data);
+    },
+    onError: (error) =>
+      onError?.(extractErrorMessage(error, "Failed to send notification.")),
+  });
+
+  return { create, remove, update, toggleActive, sendNow };
 }

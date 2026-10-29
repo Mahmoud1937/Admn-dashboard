@@ -15,4 +15,6 @@ export const notificationTemplateSchema = z.object({
   messageEn: requiredText("English message"),
 });
 
-export const notificationTemplateUpdateSchema = notificationTemplateSchema.omit({ notificationEvent: true });
+export const notificationTemplateUpdateSchema = notificationTemplateSchema.omit({ notificationEvent: true }).extend({
+  imageUrl: imageFileSchema.or(z.literal("")).nullable().optional(),
+});

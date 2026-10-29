@@ -101,7 +101,7 @@ export default function NotificationsPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [toast, setToast] = useState(null);
 
-  const { create, remove, update, toggleActive } = useNotificationMutations({
+  const { create, remove, update, toggleActive, sendNow } = useNotificationMutations({
     onSuccess: (message) => setToast({ type: "success", message }),
     onError: (message) => setToast({ type: "error", message }),
   });
@@ -116,6 +116,12 @@ export default function NotificationsPage() {
 
   const handleToggleActive = (notification) => {
     if (canUpdate) toggleActive.mutate(notification);
+  };
+
+  const handleSendNow = (notification) => {
+    if (canCreate && !sendNow.isPending && notification.notificationId) {
+      sendNow.mutate(notification.notificationId);
+    }
   };
 
   const handleDelete = () => {
@@ -166,6 +172,10 @@ export default function NotificationsPage() {
             onDelete={setDeleteTarget}
             onEdit={setEditTarget}
             onToggleActive={handleToggleActive}
+            onSendNow={handleSendNow}
+            canSend={canCreate}
+            isSending={sendNow.isPending}
+            sendingId={sendNow.variables}
             canEdit={canUpdate}
             canToggle={canUpdate}
             isToggling={toggleActive.isPending}

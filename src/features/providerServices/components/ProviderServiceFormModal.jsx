@@ -1,15 +1,18 @@
 import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createProviderServiceSchema, updateProviderServiceSchema } from "../schema/providerServiceSchema";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import TextField from "../../../shared/components/TextField";
 import FormActions from "../../../shared/components/FormActions";
 import ServiceSelect from "./ServiceSelect";
+import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
+import { getProviderServiceCategories } from "../services/providerServicesService";
 
 
 
 const EMPTY_VALUES = {
+  categoryId: "",
   servicePriceListId: "",
   serviceId: "",
   priceBefore: "",
@@ -38,6 +41,7 @@ function toFormFieldName(serverFieldName) {
 function providerServiceToFormValues(providerService, servicePriceListId) {
   if (!providerService) return { ...EMPTY_VALUES, servicePriceListId };
   return {
+    categoryId: providerService.categoryId != null ? String(providerService.categoryId) : "",
     servicePriceListId,
     serviceId: providerService.serviceId ? String(providerService.serviceId) : "",
     priceBefore:
@@ -70,6 +74,7 @@ export default function ProviderServiceFormModal({
     handleSubmit,
     reset,
     setError,
+    setValue,
     control,
     formState: { errors },
   } = useForm({
@@ -77,6 +82,7 @@ export default function ProviderServiceFormModal({
     defaultValues: EMPTY_VALUES,
     mode: "onChange",
   });
+  const categoryId = useWatch({ control, name: "categoryId" });
 
   useEffect(() => {
     if (isOpen) {
@@ -133,6 +139,35 @@ export default function ProviderServiceFormModal({
 
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          Service category {!isEditMode && <span className="text-red-500">*</span>}
+        </label>
+        <Controller
+          name="categoryId"
+          control={control}
+          render={({ field }) => (
+            <SearchableAsyncSelect
+              queryKey={["provider-service-categories"]}
+              fetchItems={getProviderServiceCategories}
+              value={field.value}
+              onChange={(value) => {
+                const nextCategoryId = value != null && value !== "" ? String(value) : "";
+                if (nextCategoryId !== field.value) {
+                  setValue("serviceId", "", { shouldDirty: true, shouldValidate: true });
+                }
+                field.onChange(nextCategoryId);
+              }}
+              getOptionLabel={(item) => item.name}
+              placeholder="Select service category"
+              searchPlaceholder="Search service categories..."
+              error={errors.categoryId?.message}
+              disabled={isSaving}
+            />
+          )}
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="mb-1.5 block text-sm font-medium text-slate-700">
           Service <span className="text-red-500">*</span>
         </label>
         <Controller
@@ -140,11 +175,17 @@ export default function ProviderServiceFormModal({
           control={control}
           render={({ field }) => (
             <ServiceSelect
+              key={categoryId || "no-category"}
+              categoryId={categoryId}
               value={field.value}
               onChange={(val) =>
                 field.onChange(val != null && val !== "" ? String(val) : "")
               }
               error={errors.serviceId?.message}
+              placeholder={categoryId ? "Select service" : "Choose a category first"}
+              disabled={isSaving}
+              fallbackLabel={String(field.value) === String(providerService?.serviceId)
+                ? [providerService?.serviceNameEn, providerService?.serviceNameAr].filter(Boolean).join(" - ") : ""}
             />
           )}
         />

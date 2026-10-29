@@ -6,6 +6,12 @@
   body {
     font-family: "cairo", sans-serif !important;
   }
+
+  input:is(:not([type]), [type="text"], [type="search"], [type="email"], [type="tel"], [type="url"], [type="password"], [type="number"]),
+  textarea {
+    direction: ltr;
+    text-align: left;
+  }
 }
 
 @theme {
