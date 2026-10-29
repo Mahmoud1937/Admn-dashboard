@@ -17,7 +17,7 @@ export default function BranchesFilters({
   return (
     <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:flex-wrap sm:items-center">
       {/* Search */}
-      <div className="relative flex-1">
+      <div className="relative w-full min-w-0 sm:flex-[1_1_18rem]">
         <FontAwesomeIcon
           icon={faSearch}
           className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
