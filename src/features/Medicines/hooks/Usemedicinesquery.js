@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMedicines } from "../services/Medicinesservice";
+import { getMedicines, getProviderMedicines } from "../services/Medicinesservice";
 
 
 export function useMedicinesQuery({ pageNumber, pageSize, search, statusFilter }) {
@@ -13,6 +13,23 @@ export function useMedicinesQuery({ pageNumber, pageSize, search, statusFilter }
         status: Number(statusFilter),
       }),
     placeholderData: (previousData) => previousData,
+  });
+
+  return {
+    ...query,
+    medicines: query.data?.data?.items ?? [],
+    totalCount: query.data?.data?.totalCount ?? 0,
+    totalPages: query.data?.data?.totalPages ?? 1,
+  };
+}
+
+export function useProviderMedicinesQuery({ providerId, pageNumber, pageSize, enabled = true }) {
+  const query = useQuery({
+    queryKey: ["provider-medicines", providerId, pageNumber, pageSize],
+    queryFn: ({ signal }) => getProviderMedicines({ providerId, pageNumber, pageSize, signal }),
+    enabled: enabled && !!providerId,
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === providerId ? previousData : undefined,
   });
 
   return {

@@ -234,7 +234,7 @@ const handleImageChange = (e) => {
           className={`w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 ${errors.isLocal ? "border-red-400" : "border-slate-200"}`}
         >
           <option value="" disabled>Select origin</option>
-          <option value="true">locale</option>
+          <option value="true">local</option>
           <option value="false">Imported</option>
         </select>
         {errors.isLocal && (

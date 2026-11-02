@@ -1,4 +1,5 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
+import { requireApiSuccess } from "../../../shared/helpers/apiErrorHandler";
 
 export async function getMedicines({
   pageNumber = 1,
@@ -19,6 +20,23 @@ export async function getMedicines({
 export async function getMedicineById(id) {
   const { data } = await axiosInstance.get(`/MedicineAdmin/medicines/${id}`);
   return data;
+}
+
+export async function getProviderMedicines({
+  providerId,
+  pageNumber = 1,
+  pageSize = 15,
+  signal,
+}) {
+  const response = await axiosInstance.get(
+    `/MedicineAdmin/providers/${encodeURIComponent(providerId)}/medicines`,
+    {
+      params: { PageNumber: pageNumber, PageSize: pageSize },
+      signal,
+    }
+  );
+
+  return requireApiSuccess(response, "Failed to load provider medicines.");
 }
 
 export async function createMedicine(payload) {

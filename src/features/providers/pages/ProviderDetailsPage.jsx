@@ -7,6 +7,7 @@ import {
   faBuilding,
   faClockRotateLeft,
   faListCheck,
+  faPills,
   faTag,
 } from "@fortawesome/free-solid-svg-icons";
 import { useProviderQuery } from "../hooks/useProviderQuery";
@@ -14,6 +15,7 @@ import { useProviderMutation } from "../hooks/useProviderMutation";
 import ProviderInfoForm from "../components/ProviderInfoForm";
 import ProviderBranchesTab from "../../branches/components/ProviderBranchesTab";
 import ProviderServicesTab from "../../providerServices/components/ProviderServicesTab";
+import ProviderMedicinesTab from "../../Medicines/components/ProviderMedicinesTab";
 import ProviderPackagesTab from "../../providerPackages/components/ProviderPackagesTab";
 import ProviderRenewalsTab from "../../providerRenewals/components/ProviderRenewalsTab";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
@@ -21,6 +23,7 @@ import AccessDeniedPage from "../../../shared/components/AccessDeniedPage";
 import usePermission from "../../auth/hooks/usePermission";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import Skeleton from "../../../shared/components/Skeleton";
+import { isPharmacyCategory } from "../utils/providerFormHelpers";
 
 const TABS = [
   { key: "info", label: "Provider Info", icon: faBuilding },
@@ -61,35 +64,37 @@ export default function ProviderDetailsPage() {
   const canViewBranches = usePermission(PERMISSION_CODES.PROVIDER_BRANCHES_READ);
   const canViewServices = usePermission(PERMISSION_CODES.PROVIDER_SERVICES_READ);
   const canViewPriceLists = usePermission(PERMISSION_CODES.PROVIDER_PRICE_LISTS_READ);
+  const canViewMedicines = usePermission(PERMISSION_CODES.MEDICINES_READ);
   const canViewPackages = usePermission(PERMISSION_CODES.PROVIDER_PACKAGES_READ);
   const canViewRenewals = usePermission(PERMISSION_CODES.PROVIDERS_READ);
   const canReadBrokers = usePermission(PERMISSION_CODES.BROKERS_READ);
   const isEditMode = isCreateMode || (isUpdateRequested && canUpdate);
 
+  const { provider, isLoading, isError, error, refetch } = useProviderQuery(
+    id,
+    isCreateMode
+  );
+  const isPharmacy = isPharmacyCategory(provider?.providerCategoryId);
+
   const visibleTabs = useMemo(() => {
     const access = {
       info: true,
       branches: canViewBranches,
-      services: canViewServices || canViewPriceLists,
+      services: isPharmacy ? canViewMedicines : canViewServices || canViewPriceLists,
       packages: canViewPackages,
       renewals: canViewRenewals,
     };
     return TABS.filter((tab) => access[tab.key]).map((tab) =>
-      tab.key === "services" && !canViewServices
-        ? { ...tab, label: "Price lists" }
+      tab.key === "services"
+        ? { ...tab, label: isPharmacy ? "Medicines" : canViewServices ? "Services" : "Price lists", icon: isPharmacy ? faPills : tab.icon }
         : tab
     );
-  }, [canViewBranches, canViewServices, canViewPriceLists, canViewPackages, canViewRenewals]);
+  }, [isPharmacy, canViewMedicines, canViewBranches, canViewServices, canViewPriceLists, canViewPackages, canViewRenewals]);
 
   const [activeTab, setActiveTab] = useState("info");
   const selectedTab = visibleTabs.some((tab) => tab.key === activeTab)
     ? activeTab
     : "info";
-
-  const { provider, isLoading, isError, error, refetch } = useProviderQuery(
-    id,
-    isCreateMode
-  );
 
   const { mutation } = useProviderMutation({ id, isCreateMode });
 
@@ -119,7 +124,7 @@ export default function ProviderDetailsPage() {
     ? "Fill in the details below to register a new provider."
     : isEditMode
     ? "Update provider information."
-    : "View provider information, branches, services, packages and renewals.";
+    : `View provider information, branches, ${isPharmacy ? "medicines" : "services"}, packages and renewals.`;
 
   return (
     <div className="space-y-6">
@@ -198,7 +203,9 @@ export default function ProviderDetailsPage() {
         )}
 
         {selectedTab === "branches" && canViewBranches && <ProviderBranchesTab />}
-        {selectedTab === "services" && (canViewServices || canViewPriceLists) && <ProviderServicesTab />}
+        {selectedTab === "services" && (isPharmacy
+          ? canViewMedicines && <ProviderMedicinesTab key={id} providerId={id} />
+          : (canViewServices || canViewPriceLists) && <ProviderServicesTab />)}
         {selectedTab === "packages" && canViewPackages && <ProviderPackagesTab />}
         {!isCreateMode && selectedTab === "renewals" && canViewRenewals && (
           <ProviderRenewalsTab
