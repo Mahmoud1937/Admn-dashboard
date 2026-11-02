@@ -14,6 +14,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function ServicesPage() {
   const canExport = usePermission(PERMISSION_CODES.SERVICES_READ);
@@ -138,7 +139,7 @@ export default function ServicesPage() {
         </ServicesFilters>
 
         {isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">Loading services...</p>
+          <SkeletonTable label="Loading services..." columns={5} />
         )}
 
         {isError && (

@@ -20,6 +20,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 import AccessDeniedPage from "../../../shared/components/AccessDeniedPage";
 import usePermission from "../../auth/hooks/usePermission";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import Skeleton from "../../../shared/components/Skeleton";
 
 const TABS = [
   { key: "info", label: "Provider Info", icon: faBuilding },
@@ -31,7 +32,7 @@ const TABS = [
 
 function PageSkeleton() {
   return (
-    <div className="animate-pulse space-y-6">
+    <Skeleton className="space-y-6">
       <div className="space-y-3">
         <div className="h-4 w-24 rounded bg-slate-200" />
         <div className="h-7 w-64 rounded bg-slate-200" />
@@ -45,7 +46,7 @@ function PageSkeleton() {
           ))}
         </div>
       </div>
-    </div>
+    </Skeleton>
   );
 }
 

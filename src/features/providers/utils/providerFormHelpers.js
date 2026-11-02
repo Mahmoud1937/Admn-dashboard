@@ -24,6 +24,9 @@ export function sanitizeNameInput(value) {
 export const getProviderMedicardCashback = (provider) =>
   provider.medicardCashback ?? provider.MedicardCashback ?? 0;
 
+export const isPharmacyCategory = (providerCategoryId) =>
+  String(providerCategoryId) === "45";
+
 export function buildProviderFormValues(provider) {
   return {
     arName: sanitizeNameInput(provider.arName ?? ""),
@@ -36,6 +39,8 @@ export function buildProviderFormValues(provider) {
     specialistId: provider.specialistId ?? "",
     isActive: provider.isActive,
     medicardCashback: getProviderMedicardCashback(provider),
+    localMedicineDiscount: provider.localMedicineDiscount ?? provider.LocalMedicineDiscount ?? "",
+    importedMedicineDiscount: provider.importedMedicineDiscount ?? provider.ImportedMedicineDiscount ?? "",
     joinDate: provider.createdAt ? provider.createdAt.slice(0, 10) : "",
   };
 }
@@ -52,4 +57,6 @@ export const emptyProviderForm = {
   joinDate: "",
   isActive: true,
   medicardCashback: 0,
+  localMedicineDiscount: "",
+  importedMedicineDiscount: "",
 };

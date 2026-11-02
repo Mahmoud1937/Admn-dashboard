@@ -7,13 +7,14 @@ import ScrollableTable from "../../../shared/components/ScrollableTable";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import LazyImageCell from "../../../shared/components/LazyImageCell";
 import ImageLightbox from "../../../shared/components/ImageLightbox";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exportingId, onDelete }) => {
   const isArabic = (text) => /[\u0600-\u06FF]/.test(text || "");
   const [previewImage, setPreviewImage] = useState(null);
 
   if (isLoading) {
-    return <div className="text-center py-8 text-gray-500">Loading...</div>;
+    return <SkeletonTable label="Loading sold cards..." columns={6} />;
   }
 
   if (!items?.length) {
@@ -32,7 +33,7 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
         <ScrollableTable maxHeight="60vh">
           <table className="min-w-full text-center text-sm">
             <thead className="sticky top-0 z-10 bg-slate-100">
-              <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
+              <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
                 <th className="px-4 py-3 text-center">From</th>
                 <th className="px-4 py-3 text-center">To</th>
                 <th className="px-4 py-3 text-center">Count</th>

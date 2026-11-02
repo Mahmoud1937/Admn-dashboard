@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, FileText, X } from "lucide-react";
 import { useInvoiceTimeline } from "../hooks/useInvoiceTimeline";
+import { SkeletonText } from "../../../shared/components/Skeleton";
 
 
 const TAG_STYLES = {
@@ -43,7 +44,7 @@ export default function TimelineModal({ orderNo, onClose }) {
 
         <div className="px-6 pb-2">
           <div className="max-h-64 overflow-y-auto pr-2">
-            {loading && <p className="text-sm text-slate-400 py-4">Loading timeline...</p>}
+            {loading && <SkeletonText label="Loading timeline..." lines={4} />}
 
             {!loading && error && (
               <p className="text-sm text-red-500 py-4">Failed to load timeline: {error}</p>

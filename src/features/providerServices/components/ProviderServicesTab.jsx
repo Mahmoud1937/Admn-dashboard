@@ -31,6 +31,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { createProviderPriceList, deleteProviderPriceList, getProviderPriceListOptions, updateProviderPriceList } from "../services/priceListsService";
+import Skeleton, { SkeletonTable } from "../../../shared/components/Skeleton";
 
 const displayPeriodDate = (value) =>
   value && !Number.isNaN(new Date(value).getTime()) ? formatDate(value) : "-";
@@ -48,19 +49,18 @@ const getPriceListErrorMessage = (error) => {
 
 function TableSkeleton({ rows = 6 }) {
   return (
-    <div className="divide-y divide-slate-100" aria-busy="true">
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-6 px-6 py-4">
-          <div className="flex-1 space-y-2">
-            <div className="h-3 w-44 animate-pulse rounded bg-slate-100" />
-            <div className="h-3 w-28 animate-pulse rounded bg-slate-100" />
-          </div>
-          <div className="hidden h-3 w-16 animate-pulse rounded bg-slate-100 md:block" />
-          <div className="h-3 w-16 animate-pulse rounded bg-slate-100" />
-          <div className="h-6 w-16 animate-pulse rounded-full bg-slate-100" />
-        </div>
-      ))}
-    </div>
+    <SkeletonTable
+      rows={rows}
+      rowClassName="flex items-center gap-6 px-6 py-4"
+    >
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-3 w-44 rounded bg-slate-100" />
+        <Skeleton className="h-3 w-28 rounded bg-slate-100" />
+      </div>
+      <Skeleton className="hidden h-3 w-16 rounded bg-slate-100 md:block" />
+      <Skeleton className="h-3 w-16 rounded bg-slate-100" />
+      <Skeleton className="h-6 w-16 rounded-full bg-slate-100" />
+    </SkeletonTable>
   );
 }
 
@@ -309,8 +309,8 @@ export default function ProviderServicesTab() {
         <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-4">
           {isLoadingPriceLists ? (
             <div className="flex gap-3" aria-busy="true">
-              <div className="h-[68px] w-56 animate-pulse rounded-xl bg-slate-100" />
-              <div className="hidden h-[68px] w-56 animate-pulse rounded-xl bg-slate-100 sm:block" />
+              <Skeleton className="h-[68px] w-56 rounded-xl bg-slate-100" />
+              <Skeleton className="hidden h-[68px] w-56 rounded-xl bg-slate-100 sm:block" />
             </div>
           ) : isPriceListsError ? (
             <p className="text-sm text-red-600">Unable to load price lists.</p>

@@ -53,6 +53,12 @@ export async function createProvider(payload) {
   formData.append("PhoneNumber", payload.phoneNumber ?? "");
   formData.append("IsActive", payload.isActive);
   formData.append("MedicardCashback", String(payload.medicardCashback ?? 0));
+  if (payload.localMedicineDiscount != null && payload.localMedicineDiscount !== "") {
+    formData.append("LocalMedicineDiscount", String(payload.localMedicineDiscount));
+  }
+  if (payload.importedMedicineDiscount != null && payload.importedMedicineDiscount !== "") {
+    formData.append("ImportedMedicineDiscount", String(payload.importedMedicineDiscount));
+  }
   formData.append("Landline", payload.landline ?? "");
 
   if (payload.logoFile) {
@@ -82,6 +88,12 @@ export async function updateProvider(id, payload) {
   formData.append("PhoneNumber", payload.phoneNumber ?? "");
   formData.append("IsActive", payload.isActive);
   formData.append("MedicardCashback", String(payload.medicardCashback ?? 0));
+  if (payload.localMedicineDiscount != null && payload.localMedicineDiscount !== "") {
+    formData.append("LocalMedicineDiscount", String(payload.localMedicineDiscount));
+  }
+  if (payload.importedMedicineDiscount != null && payload.importedMedicineDiscount !== "") {
+    formData.append("ImportedMedicineDiscount", String(payload.importedMedicineDiscount));
+  }
   formData.append("Landline", payload.landline ?? "");
 
   if (payload.logoFile) {

@@ -11,11 +11,11 @@ import {
   faStethoscope,
   faChevronDown,
   faSearch,
-  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCategoriesQuery } from "../../categoreis/hooks/useCategoriesQuery";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
+import { SkeletonText } from "../../../shared/components/Skeleton";
 
 // Icons are matched by the category's English name (lowercased), since the
 // real list now comes from the backend with real ids — this only decides
@@ -169,10 +169,7 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
             )}
 
             {isInitialLoading && (
-              <div className="flex items-center gap-2 px-3 py-3 text-sm text-gray-400">
-                <FontAwesomeIcon icon={faSpinner} className="h-3.5 w-3.5 animate-spin" />
-                Loading...
-              </div>
+              <SkeletonText label="Loading..." lines={3} className="space-y-2 px-3 py-3" />
             )}
 
             {!isInitialLoading && items.length === 0 && (
@@ -194,10 +191,7 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
             ))}
 
             {isLoadingMore && (
-              <div className="flex items-center justify-center gap-2 px-3 py-2 text-xs text-gray-400">
-                <FontAwesomeIcon icon={faSpinner} className="h-3 w-3 animate-spin" />
-                Loading more...
-              </div>
+              <SkeletonText label="Loading more..." lines={1} className="space-y-2 px-3 py-3" />
             )}
           </div>
         </div>

@@ -21,6 +21,7 @@ import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
 import { NOTIFICATION_EVENTS, resolveNotificationEvent } from "../constants/notificationEvents";
 import { notificationTemplateSchema, notificationTemplateUpdateSchema } from "../schema/notificationTemplateSchema";
 import { useNotificationTemplateVariablesQuery } from "../hooks/useNotificationTemplatesQuery";
+import { SkeletonText } from "../../../shared/components/Skeleton";
 
 // Soft recommendations (push notifications get truncated on devices). Not enforced.
 const TITLE_RECOMMENDED = 50;
@@ -270,7 +271,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                   {isEditing ? "Placeholder suggestions are unavailable for this event." : "Select an event to see available placeholders."}
                 </p>
               ) : variablesQuery.isPending ? (
-                <p role="status" className="text-xs text-gray-500">Loading placeholders...</p>
+                <SkeletonText label="Loading placeholders..." lines={1} className="max-w-sm space-y-2" />
               ) : variablesQuery.isError ? (
                 <div role="alert" className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
                   <p>{getApiErrorMessage(variablesQuery.error, { details: true, fallback: "Unable to load placeholders." })}</p>

@@ -22,6 +22,7 @@ import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import useAutoDismissSuccess from "../../../shared/hooks/useAutoDismissSuccess";
+import Skeleton from "../../../shared/components/Skeleton";
 
 function getAttachmentFile(attachmentUrl) {
   try {
@@ -147,7 +148,7 @@ export default function ProviderAttachmentsModal({ providerRenewalId, canUpload 
         <div role="status" className="space-y-3">
           <span className="sr-only">Loading attachments...</span>
           {Array.from({ length: 3 }, (_, index) => (
-            <div key={index} aria-hidden="true" className="h-20 animate-pulse rounded-xl bg-slate-100" />
+            <Skeleton key={index} aria-hidden="true" className="h-20 rounded-xl bg-slate-100" />
           ))}
         </div>
       ) : isError ? (

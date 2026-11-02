@@ -7,6 +7,7 @@ import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useCardActivationQuery } from "../hooks/useCardActivationQuery";
 import CardNotActivatedTable from "../components/CardNotActivatedTable";
 import Pagination from "../../../shared/components/Pagination";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 const SOURCE_TYPE_LABELS = {
   1: "Card Pool",
@@ -118,9 +119,7 @@ export default function CardActivationPage() {
         )}
 
         {id && isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">
-            Loading cards...
-          </p>
+          <SkeletonTable label="Loading cards..." columns={3} />
         )}
 
         {id && isError && (

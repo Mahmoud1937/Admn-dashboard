@@ -13,6 +13,7 @@ import {
 import ClientAvatar from "../../../shared/components/ClientAvatar";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import StatusBadge from "../../../shared/components/StatusBadge";
+import Skeleton from "../../../shared/components/Skeleton";
 
 /* ---------- helpers ---------- */
 const isPlaceholder = (v) =>
@@ -65,7 +66,7 @@ function ContactLine({ icon, value }) {
 
 function SkeletonRow({ showActions }) {
   return (
-    <tr className="animate-pulse border-b border-slate-200 last:border-b-0">
+    <Skeleton as="tr" className="border-b border-slate-200 last:border-b-0">
       <td className="px-4 py-4"><div className="h-4 w-8 rounded bg-slate-200" /></td>
       <td className="px-4 py-4">
         <div className="flex items-center gap-3">
@@ -85,7 +86,7 @@ function SkeletonRow({ showActions }) {
           <div className="mx-auto h-6 w-20 rounded bg-slate-200" />
         </td>
       )}
-    </tr>
+    </Skeleton>
   );
 }
 
@@ -109,7 +110,7 @@ export default function EmployeesTable({
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <ScrollableTable maxHeight="70vh">
         <table className="min-w-full text-sm">
-          <thead className="sticky top-0 z-10 bg-slate-100 text-left text-slate-600 shadow-[0_1px_0_0_rgb(226,232,240)]">
+          <thead className="sticky top-0 z-10 bg-slate-100 text-left text-slate-700 shadow-[0_1px_0_0_rgb(226,232,240)]">
             <tr>
               <th className={`${TH} w-16`}>ID</th>
               <th className={`${TH} text-left`}>Employee</th>

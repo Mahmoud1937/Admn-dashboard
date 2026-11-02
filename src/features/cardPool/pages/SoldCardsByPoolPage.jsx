@@ -12,6 +12,7 @@ import { useSoldCardsQuery } from "../hooks/useSoldCardsQuery";
 import SoldCardsTable from "../components/SoldCardsTable";
 import Pagination from "../../../shared/components/Pagination";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function SoldCardsByPoolPage() {
   const [searchParams] = useSearchParams();
@@ -112,9 +113,7 @@ export default function SoldCardsByPoolPage() {
         </div>
 
         {isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">
-            Loading sold cards...
-          </p>
+          <SkeletonTable label="Loading sold cards..." columns={3} />
         )}
 
 {isError && (

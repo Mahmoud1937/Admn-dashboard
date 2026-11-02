@@ -12,6 +12,7 @@ import { useNotificationTemplateCreateMutation, useNotificationTemplateUpdateMut
 import NotificationTemplateFormModal from "../components/NotificationTemplateFormModal";
 import usePermission from "../../auth/hooks/usePermission";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import Skeleton from "../../../shared/components/Skeleton";
 
 export default function NotificationTemplatesPage() {
   const canCreate = usePermission(PERMISSION_CODES.NOTIFICATION_TEMPLATES_CREATE);
@@ -95,7 +96,7 @@ export default function NotificationTemplatesPage() {
           <div role="status" className="space-y-4 p-6">
             <span className="sr-only">Loading notification templates...</span>
             {Array.from({ length: 5 }, (_, index) => (
-              <div key={index} aria-hidden="true" className="h-20 animate-pulse rounded-lg bg-slate-100" />
+              <Skeleton key={index} aria-hidden="true" className="h-20 rounded-lg bg-slate-100" />
             ))}
           </div>
         ) : isError ? (

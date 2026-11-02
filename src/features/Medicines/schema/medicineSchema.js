@@ -42,4 +42,7 @@ export const medicineSchema = z.object({
       message: "Form can only contain letters and numbers",
     }),
   isActive: isActiveField,
+  isLocal: z
+    .enum(["true", "false"], { error: "Please select Egyptian or imported" })
+    .transform((value) => value === "true"),
 });

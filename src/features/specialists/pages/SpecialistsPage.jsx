@@ -13,6 +13,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function SpecialistsPage() {
   const canUpdate = usePermission(PERMISSION_CODES.SPECIALISTS_UPDATE);
@@ -113,7 +114,7 @@ export default function SpecialistsPage() {
         <SpecialistsFilters search={search} onSearchChange={setSearch} />
 
         {isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">Loading specialists...</p>
+          <SkeletonTable label="Loading specialists..." columns={3} />
         )}
 
         {isError && (

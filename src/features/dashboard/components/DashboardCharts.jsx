@@ -22,6 +22,7 @@ import {
   getDashboardFilter,
   saveDashboardFilter,
 } from "../../../shared/utils/dashboardFilterSession";
+import Skeleton from "../../../shared/components/Skeleton";
 
 const GROUP_OPTIONS = [
   { value: DASHBOARD_CHART_GROUP_BY.ByMonth, label: "By month" },
@@ -158,14 +159,14 @@ function ChartsSkeleton() {
       aria-label="Loading dashboard charts"
     >
       {Array.from({ length: 3 }, (_, index) => (
-        <div
+        <Skeleton
           key={index}
-          className="h-[370px] animate-pulse rounded-xl border border-slate-200 bg-white p-5"
+          className="h-[370px] rounded-xl border border-slate-200 bg-white p-5"
         >
           <div className="h-4 w-36 rounded bg-slate-200" />
           <div className="mt-2 h-3 w-48 rounded bg-slate-100" />
           <div className="mt-10 h-64 rounded-lg bg-slate-100" />
-        </div>
+        </Skeleton>
       ))}
     </div>
   );

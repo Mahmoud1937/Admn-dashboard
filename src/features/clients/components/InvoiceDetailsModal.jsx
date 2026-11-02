@@ -1,5 +1,6 @@
 // shared/components/InvoiceDetailsModal.jsx
 import { Calendar, Tag, CheckCircle2, Clock, XCircle, X } from 'lucide-react'
+import { SkeletonText } from "../../../shared/components/Skeleton";
 
 const STATUS_STYLE = {
   Paid: { badge: 'bg-blue-50 text-blue-600', icon: Calendar, iconWrap: 'bg-blue-50', iconColor: 'text-blue-600' },
@@ -35,10 +36,7 @@ export default function InvoiceDetailsModal({ isOpen, onClose, invoice, isLoadin
           className="bg-white rounded-2xl shadow-xl w-full max-w-2xl cursor-default overflow-hidden flex items-center justify-center py-16"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex flex-col items-center gap-3 text-slate-400">
-            <div className="w-8 h-8 border-2 border-slate-200 border-t-blue-500 rounded-full animate-spin" />
-            <span className="text-sm">Loading invoice details...</span>
-          </div>
+          <SkeletonText label="Loading invoice details..." lines={6} className="w-full space-y-4 px-6" />
         </div>
       </div>
     )

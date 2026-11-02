@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { formatDate } from "../../../utils/formatDate";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 const CardPoolTable = ({
   items,
@@ -14,7 +15,7 @@ const CardPoolTable = ({
   onDelete,
 }) => {
   if (isLoading) {
-    return <div className="text-center py-8 text-gray-500">Loading...</div>;
+    return <SkeletonTable label="Loading card pools..." columns={6} />;
   }
 
   if (!items?.length) {
@@ -32,7 +33,7 @@ const CardPoolTable = ({
       <ScrollableTable maxHeight="60vh">
         <table className="min-w-full text-center text-sm">
           <thead className="sticky top-0 z-10 bg-slate-100">
-            <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
+            <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
               <th className="px-4 py-3 text-center">
                 From
               </th>

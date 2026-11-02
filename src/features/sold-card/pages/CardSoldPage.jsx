@@ -16,6 +16,7 @@ import Pagination from "../../../shared/components/Pagination";
 import CardSoldCreateModal from "../components/CardSoldCreateModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function CardSoldPage() {
   const canDelete = usePermission(PERMISSION_CODES.CARD_SALES_DELETE);
@@ -170,7 +171,7 @@ export default function CardSoldPage() {
         </div>
 
         {isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">Loading sold cards...</p>
+          <SkeletonTable label="Loading sold cards..." columns={6} />
         )}
 
         {isError && (

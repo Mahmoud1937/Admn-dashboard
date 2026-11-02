@@ -15,6 +15,7 @@ import Pagination from "../../../shared/components/Pagination";
 import CardPoolCreateModal from "../components/Cardpoolcreatemodal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 
 
@@ -165,7 +166,7 @@ export default function CardPoolPage() {
         </div>
 
         {isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">Loading card pools...</p>
+          <SkeletonTable label="Loading card pools..." columns={6} />
         )}
 
   {isError && (

@@ -15,6 +15,7 @@ import FamilyMembersSection from "../components/FamilyMembersSection";
 import ClientAvatar from "../../../shared/components/ClientAvatar";
 import StatusBadge from "../../../shared/components/StatusBadge";
 import { formatDate } from "../../../utils/formatDate";
+import { SkeletonText } from "../../../shared/components/Skeleton";
 
 const formatDateTime = (value) =>
   value ? new Date(value).toLocaleString("en-GB") : "-";
@@ -97,9 +98,7 @@ const ClientDetailsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="p-6 text-center text-sm text-slate-400">
-        Loading client...
-      </div>
+      <SkeletonText label="Loading client..." lines={6} />
     );
   }
 

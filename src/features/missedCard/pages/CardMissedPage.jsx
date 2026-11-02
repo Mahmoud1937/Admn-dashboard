@@ -16,6 +16,7 @@ import Pagination from "../../../shared/components/Pagination";
 import CardMissedCreateModal from "../components/CardMissedCreateModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 const countActiveMissedFilters = (filters) =>
   Object.values(filters).filter((value) => value !== "" && value !== null && value !== undefined).length;
@@ -186,7 +187,7 @@ export default function CardMissedPage() {
         </div>
 
         {isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">Loading records...</p>
+          <SkeletonTable label="Loading records..." columns={4} />
         )}
 
 {isError && (

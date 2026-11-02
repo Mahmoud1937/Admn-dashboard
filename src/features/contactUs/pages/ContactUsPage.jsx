@@ -23,6 +23,7 @@ import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
+import { SkeletonText } from "../../../shared/components/Skeleton";
 
 const defaultValues = {
   phoneNumber: "",
@@ -126,10 +127,7 @@ export default function ContactUsPage() {
 
   if (isLoading) {
     return (
-      <p className="p-8 text-center text-sm text-slate-400">
-        <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
-        Loading contact information...
-      </p>
+      <SkeletonText label="Loading contact information..." lines={6} />
     );
   }
 

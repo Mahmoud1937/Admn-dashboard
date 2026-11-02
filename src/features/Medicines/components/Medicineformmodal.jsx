@@ -36,6 +36,7 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
       arName: "",
       medicinePrice: "",
       medicineForm: "",
+      isLocal: "",
       isActive: true,
     },
   });
@@ -47,6 +48,7 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
         arName: medicine?.arName ?? "",
         medicinePrice: medicine?.medicinePrice ?? "",
         medicineForm: medicine?.medicineForm ?? "",
+        isLocal: medicine?.isLocal == null ? "" : String(medicine.isLocal),
         isActive: medicine?.isActive ?? true,
       });
 
@@ -115,6 +117,7 @@ const handleImageChange = (e) => {
       arName: data.arName,
       medicinePrice: Number(data.medicinePrice),
       medicineForm: data.medicineForm.trim(),
+      isLocal: data.isLocal,
       isActive: data.isActive,
       image,
     });
@@ -214,6 +217,29 @@ const handleImageChange = (e) => {
         {errors.medicineForm && (
           <p className="mt-1 text-xs text-red-500">
             {errors.medicineForm.message}
+          </p>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="medicine-is-local" className="mb-1.5 block text-sm font-medium text-slate-700">
+          Origin <span className="text-red-500">*</span>
+        </label>
+        <select
+          id="medicine-is-local"
+          {...register("isLocal")}
+          disabled={isSaving}
+          aria-invalid={Boolean(errors.isLocal)}
+          aria-describedby={errors.isLocal ? "medicine-is-local-error" : undefined}
+          className={`w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 ${errors.isLocal ? "border-red-400" : "border-slate-200"}`}
+        >
+          <option value="" disabled>Select origin</option>
+          <option value="true">locale</option>
+          <option value="false">Imported</option>
+        </select>
+        {errors.isLocal && (
+          <p id="medicine-is-local-error" role="alert" className="mt-1 text-xs text-red-500">
+            {errors.isLocal.message}
           </p>
         )}
       </div>

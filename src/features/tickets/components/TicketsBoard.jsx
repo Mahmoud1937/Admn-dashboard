@@ -19,6 +19,7 @@ import ImageLightbox from '../../../shared/components/ImageLightbox'
 import { formatDate } from '../../../utils/formatDate'
 import { PRIORITY_TONE } from '../utils/ticketDetailsUtils'
 import { COLOR_STYLES, getColumnColorName } from '../utils/ticketColors'
+import { SkeletonText } from "../../../shared/components/Skeleton";
 
 const RTL_TEXT_PATTERN = /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/
 
@@ -220,9 +221,12 @@ export default function TicketsBoard({
 
   if (isLoading) {
     return (
-      <p className="p-8 text-center text-sm text-slate-400">
-        Loading tickets...
-      </p>
+      <div role="status" aria-busy="true" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <span className="sr-only">Loading tickets...</span>
+        {Array.from({ length: 3 }, (_, index) => (
+          <SkeletonText key={index} lines={6} className="min-w-0 space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4" />
+        ))}
+      </div>
     )
   }
 

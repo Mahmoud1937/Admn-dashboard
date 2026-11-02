@@ -3,6 +3,7 @@ import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import AvatarImage from "../../../shared/components/AvatarImage";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
+import StatusBadge from "../../../shared/components/StatusBadge";
 
 export default function MedicinesTable({
   medicines,
@@ -25,13 +26,14 @@ export default function MedicinesTable({
 
   return (
     <ScrollableTable maxHeight="60vh">
-      <table className="w-full min-w-[640px] text-left text-sm">
+      <table className="w-full min-w-[720px] text-left text-sm">
         <thead className="sticky top-0 z-10 bg-slate-100">
-          <tr className="border-b border-slate-200 text-xs font-medium text-slate-500">
-            <th className="px-6 py-3">Medicine</th>
-            <th className="px-4 py-3">Form</th>
-            <th className="px-4 py-3 text-right">Price</th>
-            {showActions && <th className="px-6 py-3 text-center">Actions</th>}
+          <tr className="border-b border-slate-200 text-xs font-medium text-slate-700">
+            <th className="px-6 py-3 text-left">Medicine</th>
+            <th className="px-4 py-3 text-left">Form</th>
+            <th className="px-4 py-3 text-left">Origin</th>
+            <th className="px-4 py-3 text-left">Price</th>
+            {showActions && <th className="px-6 py-3 text-left">Actions</th>}
           </tr>
         </thead>
 
@@ -66,7 +68,7 @@ export default function MedicinesTable({
               </td>
 
               {/* Form */}
-              <td className="px-4 py-3">
+              <td className="px-4 py-3 text-left">
                 {medicine.medicineForm ? (
                   <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-800">
                     {medicine.medicineForm}
@@ -76,8 +78,14 @@ export default function MedicinesTable({
                 )}
               </td>
 
+              <td className="px-4 py-3 text-left">
+                <StatusBadge tone={medicine.isLocal === true ? "emerald" : medicine.isLocal === false ? "primary" : "neutral"}>
+                  {medicine.isLocal === true ? "locale" : medicine.isLocal === false ? "Imported" : "Not specified"}
+                </StatusBadge>
+              </td>
+
               {/* Price */}
-              <td className="px-4 py-3 text-right font-medium tabular-nums text-slate-800">
+              <td className="px-4 py-3 text-left font-medium tabular-nums text-slate-800">
                 {medicine.medicinePrice != null ? (
                   medicine.medicinePrice.toFixed(2)
                 ) : (
@@ -87,7 +95,7 @@ export default function MedicinesTable({
 
               {/* Actions */}
               {showActions && (
-                <td className="px-6 py-3">
+                <td className="px-6 py-3 text-left [&>div]:justify-start">
                   <RowActions
                     onEdit={onEdit ? () => onEdit(medicine) : undefined}
                     onDelete={

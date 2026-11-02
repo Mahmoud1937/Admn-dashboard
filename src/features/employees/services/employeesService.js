@@ -1,5 +1,6 @@
 
 import axiosInstance from "../../../shared/api/axiosInstance";
+import { requireApiSuccess } from "../../../shared/helpers/apiErrorHandler";
 
 export const getEmployees = async ({
   pageNumber = 1,
@@ -37,15 +38,11 @@ export const getEmployeeById = async (employeeId) => {
 };
 
 export const toggleEmployeeActive = async (employeeId) => {
-  const { data } = await axiosInstance.patch(
+  const response = await axiosInstance.patch(
     `/EmployeeAdmin/${employeeId}/toggle-active`
   );
 
-  if (!data?.succeeded) {
-    throw new Error(data?.message || "Failed to update employee status.");
-  }
-
-  return data;
+  return requireApiSuccess(response, "Failed to update employee status.");
 };
 
 export const updateEmployee = async ({ employeeId, payload }) => {

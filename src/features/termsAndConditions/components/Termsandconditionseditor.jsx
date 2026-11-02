@@ -5,6 +5,7 @@ import {
   AlignCenter, AlignRight, Quote, Code, Link as LinkIcon, RemoveFormatting,
   ChevronDown,
 } from "lucide-react";
+import { SkeletonText } from "../../../shared/components/Skeleton";
 
 const HEADINGS = [
   { label: "Heading 1", tag: "H1", className: "text-2xl font-bold" },
@@ -879,9 +880,7 @@ export default function TermsAndConditionsEditor({
           </div>
 
           {loading || !isInitialized ? (
-            <div className="min-h-[380px] flex items-center justify-center border border-gray-200 rounded-lg text-sm text-gray-400">
-              Loading content...
-            </div>
+            <SkeletonText label="Loading content..." lines={8} className="min-h-[380px] space-y-4 rounded-lg border border-gray-200 p-4" />
           ) : !isEditing ? (
             <ReadOnlyContent lang={activeLang} value={content[activeLang]} placeholder={activeMeta.placeholder} />
           ) : (

@@ -10,6 +10,7 @@ import usePermissionsQuery from "../hooks/usePermissionsQuery";
 import ClientAvatar from "../../../../shared/components/ClientAvatar";
 import { PERMISSION_CODES } from "../../../auth/constants/permissionCodes";
 import usePermission from "../../../auth/hooks/usePermission";
+import Skeleton from "../../../../shared/components/Skeleton";
 
 
 /* ---------- helpers ---------- */
@@ -77,13 +78,13 @@ function SkeletonGroups() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="animate-pulse rounded-xl border border-slate-200 p-4">
+        <Skeleton key={i} className="rounded-xl border border-slate-200 p-4">
           <div className="mb-3 h-4 w-36 rounded bg-slate-200" />
           <div className="grid grid-cols-2 gap-2">
             <div className="h-4 rounded bg-slate-100" />
             <div className="h-4 rounded bg-slate-100" />
           </div>
-        </div>
+        </Skeleton>
       ))}
     </div>
   );

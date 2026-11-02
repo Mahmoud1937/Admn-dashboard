@@ -14,6 +14,7 @@ import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { useSubscriptionTypeMutations } from "../hooks/useSubscriptionTypeMutations";
 import { useSubscriptionTypesQuery } from "../hooks/useSubscriptionTypesQuery";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function SubscriptionTypesPage() {
   const canUpdate = usePermission(PERMISSION_CODES.PLAN_TYPES_UPDATE);
@@ -120,9 +121,7 @@ export default function SubscriptionTypesPage() {
         <SubscriptionTypesFilters search={search} onSearchChange={setSearch} />
 
         {isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">
-            Loading subscription types...
-          </p>
+          <SkeletonTable label="Loading subscription types..." columns={6} />
         )}
 
         {isError && (

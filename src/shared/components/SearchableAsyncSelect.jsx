@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { getApiErrorMessage } from "../helpers/apiErrorHandler";
+import { SkeletonText } from "./Skeleton";
 
 const PAGE_SIZE = 20;
 
@@ -198,10 +199,7 @@ export default function SearchableAsyncSelect({
         >
           <div ref={listRef} onScroll={handleScroll} className="max-h-56 overflow-y-auto py-1">
             {isLoading ? (
-              <div className="flex items-center justify-center gap-2 py-4 text-xs text-slate-400">
-                <FontAwesomeIcon icon={faSpinner} spin />
-                Loading...
-              </div>
+              <SkeletonText label="Loading..." lines={3} className="space-y-2 px-3 py-3" />
             ) : isError && items.length === 0 ? (
               <div role="alert" className="space-y-2 px-3 py-4 text-center text-xs text-red-600">
                 <p>{getApiErrorMessage(queryError, { details: true, fallback: "Unable to load options." })}</p>
@@ -236,10 +234,7 @@ export default function SearchableAsyncSelect({
                   </button>
                 ))}
                 {isFetchingNextPage && (
-                  <div className="flex items-center justify-center gap-2 py-2 text-xs text-slate-400">
-                    <FontAwesomeIcon icon={faSpinner} spin />
-                    Loading more...
-                  </div>
+                  <SkeletonText label="Loading more..." lines={1} className="space-y-2 px-3 py-3" />
                 )}
               </>
             )}

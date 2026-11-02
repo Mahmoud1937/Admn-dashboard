@@ -12,6 +12,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function CategoriesPage() {
   const canUpdate = usePermission(PERMISSION_CODES.PROVIDER_CATEGORIES_UPDATE);
@@ -140,9 +141,7 @@ export default function CategoriesPage() {
         </div>
 
         {isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">
-            Loading categories...
-          </p>
+          <SkeletonTable label="Loading categories..." columns={4} />
         )}
 
 {isError && (

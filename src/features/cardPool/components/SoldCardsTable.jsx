@@ -1,10 +1,11 @@
 import { faCreditCard } from "@fortawesome/free-solid-svg-icons";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 const SoldCardsTable = ({ items, isLoading, hasActiveFilters = false }) => {
   if (isLoading) {
-    return <div className="text-center py-8 text-gray-500">Loading...</div>;
+    return <SkeletonTable label="Loading sold cards..." columns={3} />;
   }
 
   if (!items?.length) {
@@ -22,7 +23,7 @@ const SoldCardsTable = ({ items, isLoading, hasActiveFilters = false }) => {
       <ScrollableTable maxHeight="60vh">
         <table className="min-w-full text-center text-sm">
           <thead className="sticky top-0 z-10 bg-slate-100">
-            <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
+            <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
               <th className="px-4 py-3 text-center">Card Number</th>
               <th className="px-4 py-3 text-center">Client Name</th>
               <th className="px-4 py-3 text-center">Client Phone</th>

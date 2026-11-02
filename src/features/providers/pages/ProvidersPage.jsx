@@ -18,6 +18,7 @@ import ProvidersFilters, { emptyFilters } from "../components/ProvidersFilters";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import usePermission from "../../auth/hooks/usePermission";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 
 
@@ -156,7 +157,7 @@ const handleEdit = (provider) => {
         </div>
 
         {isLoading && (
-          <p className="p-6 text-center text-sm text-slate-400">Loading providers...</p>
+          <SkeletonTable label="Loading providers..." columns={6} />
         )}
 
 {isError && (

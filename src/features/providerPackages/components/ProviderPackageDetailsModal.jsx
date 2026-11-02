@@ -17,6 +17,7 @@ import {
   getDiscountPercent,
   hasDiscount,
 } from "../utils/packageUtils";
+import Skeleton from "../../../shared/components/Skeleton";
 
 const CLOSE_ANIMATION_MS = 250;
 
@@ -79,26 +80,26 @@ function DetailsSkeleton() {
   return (
     <div className="space-y-6 p-5 sm:p-6" aria-busy="true">
       <div className="flex items-start gap-4">
-        <div className="h-14 w-14 animate-pulse rounded-2xl bg-slate-100" />
+        <Skeleton className="h-14 w-14 rounded-2xl bg-slate-100" />
         <div className="flex-1 space-y-2.5">
-          <div className="h-4 w-2/3 animate-pulse rounded bg-slate-100" />
-          <div className="h-3 w-1/3 animate-pulse rounded bg-slate-100" />
+          <Skeleton className="h-4 w-2/3 rounded bg-slate-100" />
+          <Skeleton className="h-3 w-1/3 rounded bg-slate-100" />
         </div>
-        <div className="h-6 w-16 animate-pulse rounded-full bg-slate-100" />
+        <Skeleton className="h-6 w-16 rounded-full bg-slate-100" />
       </div>
-      <div className="h-24 animate-pulse rounded-2xl bg-slate-100" />
+      <Skeleton className="h-24 rounded-2xl bg-slate-100" />
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="h-20 animate-pulse rounded-xl bg-slate-100" />
-        <div className="h-20 animate-pulse rounded-xl bg-slate-100" />
+        <Skeleton className="h-20 rounded-xl bg-slate-100" />
+        <Skeleton className="h-20 rounded-xl bg-slate-100" />
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="h-44 animate-pulse rounded-xl bg-slate-100" />
-        <div className="h-44 animate-pulse rounded-xl bg-slate-100" />
+        <Skeleton className="h-44 rounded-xl bg-slate-100" />
+        <Skeleton className="h-44 rounded-xl bg-slate-100" />
       </div>
       <div className="space-y-2">
-        <div className="h-12 animate-pulse rounded-xl bg-slate-100" />
-        <div className="h-12 animate-pulse rounded-xl bg-slate-100" />
-        <div className="h-12 animate-pulse rounded-xl bg-slate-100" />
+        <Skeleton className="h-12 rounded-xl bg-slate-100" />
+        <Skeleton className="h-12 rounded-xl bg-slate-100" />
+        <Skeleton className="h-12 rounded-xl bg-slate-100" />
       </div>
     </div>
   );

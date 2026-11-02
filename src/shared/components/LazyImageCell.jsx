@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage } from "@fortawesome/free-solid-svg-icons";
+import Skeleton from "./Skeleton";
 
 function getScrollableAncestor(el) {
   let node = el?.parentElement;
@@ -72,7 +73,7 @@ export default function LazyImageCell({
       style={{ contain: "paint" }}
       title="Click to preview"
     >
-      {!loaded && <span className="absolute inset-0 animate-pulse bg-gray-200" />}
+      {!loaded && <Skeleton as="span" className="absolute inset-0 bg-gray-200" />}
 
       {inView && (
         <img

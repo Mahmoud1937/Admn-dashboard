@@ -17,6 +17,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 const EMPTY_FILTERS = { governorateId: "" };
 
@@ -151,7 +152,7 @@ export default function CitiesPage() {
         </div>
 
         {isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">Loading cities...</p>
+          <SkeletonTable label="Loading cities..." columns={4} />
         )}
 
 {isError && (

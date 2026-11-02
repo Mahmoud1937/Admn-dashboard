@@ -7,6 +7,7 @@ import CategoryTabs from "../components/CategoryTabs";
 import MapFilters from "../components/MapFilters";
 import ProviderClusterMap from "../components/ProviderClusterMap";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
+import { SkeletonText } from "../../../shared/components/Skeleton";
 
 
 export default function ProviderMapPage() {
@@ -96,9 +97,7 @@ const {
  <div className="relative h-[55dvh] min-h-[22rem] overflow-hidden rounded-lg border border-gray-200 sm:h-[60dvh] sm:min-h-[30rem] lg:h-[calc(100dvh-15rem)]">
   {isLoading && (
     <div className="absolute inset-0 z-[500] flex items-center justify-center bg-white/70">
-      <span className="text-sm text-gray-500">
-        Loading providers...
-      </span>
+      <SkeletonText label="Loading providers..." lines={6} />
     </div>
   )}
 

@@ -46,7 +46,18 @@ const medicardCashbackField = z.preprocess(
     .max(100, cashbackRangeMessage)
 );
 
-export const getProviderSchema = (isCreateMode) =>
+const medicineDiscountField = (label) => {
+  const rangeMessage = `${label} must be a whole number from 0 to 100`;
+  return z.preprocess(
+    (value) => value === "" || value == null || Number.isNaN(value) ? undefined : value,
+    z.number({ error: (issue) => issue.input === undefined ? `${label} is required` : rangeMessage })
+      .int(rangeMessage)
+      .min(0, rangeMessage)
+      .max(100, rangeMessage)
+  );
+};
+
+export const getProviderSchema = (isCreateMode, isPharmacy = false) =>
   z
     .object({
       enName: enNameField,
@@ -59,6 +70,10 @@ export const getProviderSchema = (isCreateMode) =>
       landline: landlineField,          
       isActive: isActiveField,
       medicardCashback: medicardCashbackField,
+      ...(isPharmacy ? {
+        localMedicineDiscount: medicineDiscountField("Local medicine discount"),
+        importedMedicineDiscount: medicineDiscountField("Imported medicine discount"),
+      } : {}),
       joinDate: optionalDateField,
       logoFile: isCreateMode
         ? z

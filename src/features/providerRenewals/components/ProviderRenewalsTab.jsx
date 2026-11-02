@@ -12,6 +12,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import { formatDate } from "../../../utils/formatDate";
+import Skeleton from "../../../shared/components/Skeleton";
 
 const formatContractDate = (value) =>
   value && !Number.isNaN(new Date(value).getTime()) ? formatDate(value) : "-";
@@ -21,10 +22,10 @@ function RenewalsSkeleton() {
     <div role="status" className="space-y-4 p-6">
       <span className="sr-only">Loading renewals...</span>
       {Array.from({ length: 5 }, (_, index) => (
-        <div
+        <Skeleton
           key={index}
           aria-hidden="true"
-          className="h-10 animate-pulse rounded-lg bg-slate-100"
+          className="h-10 rounded-lg bg-slate-100"
         />
       ))}
     </div>

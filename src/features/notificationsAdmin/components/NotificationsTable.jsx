@@ -16,24 +16,24 @@ import ScrollableTable from "../../../shared/components/ScrollableTable";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import { formatDate } from "../../../utils/formatDate";
+import Skeleton, { SkeletonTable } from "../../../shared/components/Skeleton";
 
 function TableSkeleton() {
   return (
-    <div className="divide-y divide-slate-100" aria-busy="true">
-      <div className="h-11 bg-slate-50" />
-      {Array.from({ length: 5 }, (_, index) => (
-        <div key={index} className="flex items-center gap-5 px-6 py-5">
-          <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-slate-100" />
-          <div className="space-y-2">
-            <div className="h-3.5 w-40 animate-pulse rounded bg-slate-100" />
-            <div className="h-3 w-24 animate-pulse rounded bg-slate-100" />
-          </div>
-          <div className="hidden h-3.5 flex-1 animate-pulse rounded bg-slate-100 md:block" />
-          <div className="hidden h-3.5 flex-1 animate-pulse rounded bg-slate-100 lg:block" />
-          <div className="h-3.5 w-24 animate-pulse rounded bg-slate-100" />
-        </div>
-      ))}
-    </div>
+    <SkeletonTable
+      rows={5}
+      rowClassName="flex items-center gap-5 px-6 py-5"
+      header={<div className="h-11 bg-slate-50" />}
+    >
+      <Skeleton className="h-10 w-10 shrink-0 rounded-lg bg-slate-100" />
+      <div className="space-y-2">
+        <Skeleton className="h-3.5 w-40 rounded bg-slate-100" />
+        <Skeleton className="h-3 w-24 rounded bg-slate-100" />
+      </div>
+      <Skeleton className="hidden h-3.5 flex-1 rounded bg-slate-100 md:block" />
+      <Skeleton className="hidden h-3.5 flex-1 rounded bg-slate-100 lg:block" />
+      <Skeleton className="h-3.5 w-24 rounded bg-slate-100" />
+    </SkeletonTable>
   );
 }
 

@@ -20,14 +20,14 @@ export default function BrokersTable({ brokers, searchTerm, onEdit, onDelete }) 
     <ScrollableTable className="scroll-table">
       <table className="w-full min-w-[650px] text-center text-sm">
         <thead className="sticky top-0 z-10 bg-slate-100">
-          <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-500">
+          <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
      
             <th className="px-4 py-3">Name</th>
             <th className="px-4 py-3">Phone Number</th>
             <th className="px-4 py-3">Joined</th>
             {(onEdit || onDelete) && <th className="px-4 py-3">Actions</th>}
           </tr>
-        </thead>
+        </thead> 
         <tbody>
           {brokers.map((broker) => (
             <tr key={broker.id} className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60">

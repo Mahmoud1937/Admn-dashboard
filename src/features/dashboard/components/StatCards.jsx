@@ -12,6 +12,7 @@ import {
   getDashboardFilter,
   saveDashboardFilter,
 } from "../../../shared/utils/dashboardFilterSession";
+import Skeleton from "../../../shared/components/Skeleton";
 
 const today = () => new Date().toLocaleDateString("en-CA");
 const isStoredDate = (value) =>
@@ -104,15 +105,15 @@ function StatCardsSkeleton() {
       aria-label="Loading dashboard summary"
     >
       {Array.from({ length: 4 }, (_, index) => (
-        <div
+        <Skeleton
           key={index}
-          className="h-[177px] animate-pulse rounded-xl border border-slate-200 bg-white p-5"
+          className="h-[177px] rounded-xl border border-slate-200 bg-white p-5"
         >
           <div className="h-4 w-24 rounded bg-slate-200" />
           <div className="mt-5 h-8 w-32 rounded bg-slate-200" />
           <div className="mt-8 h-px bg-slate-100" />
           <div className="mt-4 h-4 w-full rounded bg-slate-100" />
-        </div>
+        </Skeleton>
       ))}
     </div>
   );

@@ -14,6 +14,7 @@ import StatusBadge from '../../../shared/components/StatusBadge'
 import TimelineModal from './TimelineModal'
 import InvoiceDetailsModal from '../../clients/components/InvoiceDetailsModal'
 import ClientAvatar from '../../../shared/components/ClientAvatar'
+import Skeleton, { SkeletonTable } from "../../../shared/components/Skeleton";
 
 const STATUS_TONE = {
   1: 'success', // Paid
@@ -32,21 +33,20 @@ const formatTime = (date) => {
 
 function TableSkeleton({ rows = 7 }) {
   return (
-    <div className="divide-y divide-slate-100" aria-busy="true">
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-5 px-6 py-4">
-          <div className="h-3 w-20 animate-pulse rounded bg-slate-100" />
-          <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-slate-100" />
-          <div className="flex-1 space-y-2">
-            <div className="h-3 w-44 animate-pulse rounded bg-slate-100" />
-            <div className="h-3 w-28 animate-pulse rounded bg-slate-100" />
-          </div>
-          <div className="hidden h-3 w-32 animate-pulse rounded bg-slate-100 md:block" />
-          <div className="h-3 w-20 animate-pulse rounded bg-slate-100" />
-          <div className="h-6 w-16 animate-pulse rounded-full bg-slate-100" />
-        </div>
-      ))}
-    </div>
+    <SkeletonTable
+      rows={rows}
+      rowClassName="flex items-center gap-5 px-6 py-4"
+    >
+      <Skeleton className="h-3 w-20 rounded bg-slate-100" />
+      <Skeleton className="h-9 w-9 shrink-0 rounded-full bg-slate-100" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-3 w-44 rounded bg-slate-100" />
+        <Skeleton className="h-3 w-28 rounded bg-slate-100" />
+      </div>
+      <Skeleton className="hidden h-3 w-32 rounded bg-slate-100 md:block" />
+      <Skeleton className="h-3 w-20 rounded bg-slate-100" />
+      <Skeleton className="h-6 w-16 rounded-full bg-slate-100" />
+    </SkeletonTable>
   )
 }
 
@@ -101,7 +101,7 @@ export default function InvoicesTable({
       <ScrollableTable maxHeight="60vh">
         <table className="w-full min-w-[1280px] text-left text-sm">
           <thead className="sticky top-0 z-10 bg-slate-100">
-            <tr className="border-b border-slate-200 text-xs font-medium text-slate-500">
+            <tr className="border-b border-slate-200 text-xs font-medium text-slate-700">
               <th className="px-6 py-3">Invoice</th>
               <th className="px-4 py-3">Client</th>
               <th className="px-4 py-3">Card number</th>

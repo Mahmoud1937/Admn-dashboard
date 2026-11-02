@@ -6,6 +6,7 @@ import ImageLightbox from '../../../shared/components/ImageLightbox'
 import ScrollableTable from '../../../shared/components/ScrollableTable'
 import RowActions from '../../../shared/components/RowActions'
 import { formatDate } from '../../../utils/formatDate'
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 // const formatDate = (dateStr) => {
 //   if (!dateStr || dateStr.startsWith('0001')) {
@@ -24,9 +25,7 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
 
   if (isLoading) {
     return (
-      <div className="p-10 text-center text-gray-400 text-sm">
-        Loading sliders...
-      </div>
+      <SkeletonTable label="Loading sliders..." columns={6} />
     )
   }
 
@@ -45,7 +44,7 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
       <ScrollableTable maxHeight="60vh" className="min-w-0">
         <table className="w-full min-w-[720px] text-center text-sm">
           <thead className="sticky top-0 z-10 bg-slate-100">
-            <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-400">
+            <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
               <th className="w-10 px-4 py-3">#</th>
               <th className="px-4 py-3">EN Image</th>
               <th className="px-4 py-3">AR Image</th>

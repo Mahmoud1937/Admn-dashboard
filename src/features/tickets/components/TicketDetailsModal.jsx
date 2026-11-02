@@ -11,6 +11,7 @@ import { COLOR_STYLES } from "../utils/ticketColors";
 import TicketDetailsHeader from "./ticket-details/TicketDetailsHeader";
 import TicketDetailsOverview from "./ticket-details/TicketDetailsOverview";
 import TicketTimeline from "./ticket-details/TicketTimeline";
+import Skeleton from "../../../shared/components/Skeleton";
 
 function Section({ title, right, children }) {
   return (
@@ -28,11 +29,11 @@ function Section({ title, right, children }) {
 
 function LoadingSkeleton() {
   return (
-    <div className="animate-pulse space-y-5">
+    <Skeleton className="space-y-5">
       <div className="h-24 rounded-xl bg-slate-200/70" />
       <div className="h-28 rounded-xl bg-slate-200/70" />
       <div className="h-40 rounded-xl bg-slate-200/70" />
-    </div>
+    </Skeleton>
   );
 }
 

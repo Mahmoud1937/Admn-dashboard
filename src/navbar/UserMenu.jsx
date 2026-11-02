@@ -73,7 +73,7 @@ export default function UserMenu() {
               {employeeNameAr}
             </p>
           )}
-          <span className="mt-0.5 w-full truncate text-left text-[10px] text-slate-400">
+          <span className="mt-0.5 w-full truncate text-left text-[10px] text-slate-600">
             {accountType} <span className="px-1 text-slate-300">&bull;</span>{" "}
             {employeeGroupName}
           </span>

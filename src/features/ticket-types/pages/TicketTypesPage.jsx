@@ -14,6 +14,7 @@ import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { useTicketTypeMutations } from "../hooks/useTicketTypeMutations";
 import { useTicketTypesQuery } from "../hooks/useTicketTypesQuery";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function TicketTypesPage() {
   const canUpdate = usePermission(PERMISSION_CODES.TICKET_TYPES_UPDATE);
@@ -115,9 +116,7 @@ export default function TicketTypesPage() {
         <TicketTypesFilters search={search} onSearchChange={setSearch} />
 
         {isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">
-            Loading ticket types...
-          </p>
+          <SkeletonTable label="Loading ticket types..." columns={5} />
         )}
 
         {isError && (

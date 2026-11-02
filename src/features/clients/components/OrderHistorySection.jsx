@@ -17,6 +17,7 @@ import StatusBadge from '../../../shared/components/StatusBadge'
 import { formatDate } from '../../../utils/formatDate'
 import Pagination from '../../../shared/components/Pagination'
 import InvoiceDetailsModal from './InvoiceDetailsModal'
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 const ORDER_STATUS_TONE = {
   Paid: 'primary',
@@ -154,9 +155,7 @@ export default function OrderHistorySection({ userId }) {
       </div>
 
       {isLoading ? (
-        <div className="py-10 text-center text-sm text-slate-400">
-          Loading order history...
-        </div>
+        <SkeletonTable label="Loading order history..." columns={6} />
       ) : isError ? (
         <QueryErrorState
           title="Unable to load order history"

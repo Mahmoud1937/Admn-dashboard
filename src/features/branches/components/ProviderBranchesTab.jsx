@@ -32,22 +32,22 @@ import { formatDate } from "../../../utils/formatDate";
 import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
+import Skeleton, { SkeletonTable } from "../../../shared/components/Skeleton";
 
 function TableSkeleton({ rows = 6 }) {
   return (
-    <div className="divide-y divide-slate-100" aria-busy="true">
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-4 px-6 py-4">
-          <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-slate-100" />
-          <div className="flex-1 space-y-2">
-            <div className="h-3 w-40 animate-pulse rounded bg-slate-100" />
-            <div className="h-3 w-56 animate-pulse rounded bg-slate-100" />
-          </div>
-          <div className="hidden h-3 w-32 animate-pulse rounded bg-slate-100 md:block" />
-          <div className="h-6 w-16 animate-pulse rounded-full bg-slate-100" />
-        </div>
-      ))}
-    </div>
+    <SkeletonTable
+      rows={rows}
+      rowClassName="flex items-center gap-4 px-6 py-4"
+    >
+      <Skeleton className="h-10 w-10 shrink-0 rounded-xl bg-slate-100" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-3 w-40 rounded bg-slate-100" />
+        <Skeleton className="h-3 w-56 rounded bg-slate-100" />
+      </div>
+      <Skeleton className="hidden h-3 w-32 rounded bg-slate-100 md:block" />
+      <Skeleton className="h-6 w-16 rounded-full bg-slate-100" />
+    </SkeletonTable>
   );
 }
 

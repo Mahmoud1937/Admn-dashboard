@@ -13,6 +13,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 
 export default function MedicinesPage() {
@@ -86,6 +87,7 @@ export default function MedicinesPage() {
           enName: payload.enName,
           medicinePrice: payload.medicinePrice,
           medicineForm: payload.medicineForm,
+          isLocal: payload.isLocal,
           isUpdatedImage,
           imageFile: payload.image,
         },
@@ -96,6 +98,7 @@ export default function MedicinesPage() {
         enName: payload.enName,
         medicinePrice: payload.medicinePrice,
         medicineForm: payload.medicineForm,
+        isLocal: payload.isLocal,
         imageFile: payload.image,
       });
     }
@@ -135,7 +138,7 @@ export default function MedicinesPage() {
         />
 
         {isLoading && (
-          <p className="p-8 text-center text-sm text-slate-400">Loading medicines...</p>
+          <SkeletonTable label="Loading medicines..." columns={5} />
         )}
 
 {isError && (

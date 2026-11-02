@@ -31,6 +31,7 @@ import ProviderPackageFormModal from "./ProviderPackageFormModal";
 import ProviderPackageDetailsModal from "./ProviderPackageDetailsModal";
 import usePermission from "../../auth/hooks/usePermission";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import Skeleton from "../../../shared/components/Skeleton";
 
 
 function CardsSkeleton({ count = 6 }) {
@@ -45,23 +46,23 @@ function CardsSkeleton({ count = 6 }) {
           className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
         >
           <div className="flex items-start gap-3">
-            <div className="h-11 w-11 animate-pulse rounded-xl bg-slate-100" />
+            <Skeleton className="h-11 w-11 rounded-xl bg-slate-100" />
             <div className="flex-1 space-y-2">
-              <div className="h-3 w-3/4 animate-pulse rounded bg-slate-100" />
-              <div className="h-3 w-1/2 animate-pulse rounded bg-slate-100" />
+              <Skeleton className="h-3 w-3/4 rounded bg-slate-100" />
+              <Skeleton className="h-3 w-1/2 rounded bg-slate-100" />
             </div>
-            <div className="h-6 w-16 animate-pulse rounded-full bg-slate-100" />
+            <Skeleton className="h-6 w-16 rounded-full bg-slate-100" />
           </div>
-          <div className="mt-6 h-8 w-32 animate-pulse rounded bg-slate-100" />
+          <Skeleton className="mt-6 h-8 w-32 rounded bg-slate-100" />
           <div className="mt-6 h-px bg-slate-100" />
-          <div className="mt-4 h-3 w-24 animate-pulse rounded bg-slate-100" />
+          <Skeleton className="mt-4 h-3 w-24 rounded bg-slate-100" />
           <div className="mt-4 grid grid-cols-2 gap-2">
-            <div className="h-9 animate-pulse rounded-lg bg-slate-100" />
-            <div className="h-9 animate-pulse rounded-lg bg-slate-100" />
+            <Skeleton className="h-9 rounded-lg bg-slate-100" />
+            <Skeleton className="h-9 rounded-lg bg-slate-100" />
           </div>
           <div className="mt-2 grid grid-cols-2 gap-2">
-            <div className="h-9 animate-pulse rounded-lg bg-slate-100" />
-            <div className="h-9 animate-pulse rounded-lg bg-slate-100" />
+            <Skeleton className="h-9 rounded-lg bg-slate-100" />
+            <Skeleton className="h-9 rounded-lg bg-slate-100" />
           </div>
         </div>
       ))}

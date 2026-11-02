@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,7 +11,7 @@ import {
   faPenToSquare,
   faPowerOff,
 } from "@fortawesome/free-solid-svg-icons";
-import { buildProviderFormValues, emptyProviderForm, PROVIDER_CLASS_OPTIONS } from "../utils/providerFormHelpers";
+import { buildProviderFormValues, emptyProviderForm, isPharmacyCategory, PROVIDER_CLASS_OPTIONS } from "../utils/providerFormHelpers";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import TextField from "../../../shared/components/TextField";
 import DateField from "./DateField";
@@ -92,12 +92,18 @@ export default function ProviderInfoForm({
     subscribe,
     reset,
     setError,
+    clearErrors,
     setValue,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(getProviderSchema(isCreateMode)),
+    resolver: (values, context, options) => zodResolver(
+      getProviderSchema(isCreateMode, isPharmacyCategory(values.providerCategoryId))
+    )(values, context, options),
     defaultValues: emptyProviderForm,
   });
+
+  const providerCategoryId = useWatch({ control, name: "providerCategoryId" });
+  const isPharmacy = isPharmacyCategory(providerCategoryId);
 
   const hotLineRegister = register("hotLine");
   const phoneNumberRegister = register("phoneNumber");
@@ -182,6 +188,10 @@ export default function ProviderInfoForm({
       landline: formValues.landline || null,
       isActive: formValues.isActive,
       medicardCashback: formValues.medicardCashback,
+      ...(isPharmacy ? {
+        localMedicineDiscount: formValues.localMedicineDiscount,
+        importedMedicineDiscount: formValues.importedMedicineDiscount,
+      } : {}),
       logoFile: imageFile,
     };
 
@@ -281,7 +291,10 @@ export default function ProviderInfoForm({
                 render={({ field }) => (
                   <ProviderCategorySelect
                     value={field.value}
-                    onChange={field.onChange}
+                    onChange={(value) => {
+                      field.onChange(value);
+                      clearErrors(["localMedicineDiscount", "importedMedicineDiscount"]);
+                    }}
                     disabled={!canEdit}
                     error={errors.providerCategoryId?.message}
                     className="w-full"
@@ -368,6 +381,37 @@ export default function ProviderInfoForm({
               {...register("medicardCashback", { valueAsNumber: true })}
             />
           </div>
+
+          {isPharmacy && (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <TextField
+                label="Local Medicine Discount (%)"
+                required
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={100}
+                step={1}
+                sanitize={false}
+                disabled={!canEdit}
+                error={errors.localMedicineDiscount?.message}
+                {...register("localMedicineDiscount", { valueAsNumber: true })}
+              />
+              <TextField
+                label="Imported Medicine Discount (%)"
+                required
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={100}
+                step={1}
+                sanitize={false}
+                disabled={!canEdit}
+                error={errors.importedMedicineDiscount?.message}
+                {...register("importedMedicineDiscount", { valueAsNumber: true })}
+              />
+            </div>
+          )}
         </div>
       </SectionCard>
 

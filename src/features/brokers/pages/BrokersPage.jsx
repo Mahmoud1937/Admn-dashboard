@@ -8,13 +8,13 @@ import Pagination from "../../../shared/components/Pagination";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import AccessDeniedPage from "../../../shared/components/AccessDeniedPage";
-import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { useBrokersQuery } from "../hooks/useBrokersQuery";
 import { useBrokerMutations } from "../hooks/useBrokerMutations";
 import BrokersTable from "../components/BrokersTable";
 import BrokerFormModal from "../components/BrokerFormModal";
+import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function BrokersPage() {
   const canRead = usePermission(PERMISSION_CODES.BROKERS_READ);
@@ -82,7 +82,7 @@ export default function BrokersPage() {
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
         <SearchBarWithFilters value={search} onChange={setSearch} placeholder="Search by name or phone number..." showFilterButton={false} />
-        {isLoading && <p className="p-8 text-center text-sm text-slate-400">Loading brokers...</p>}
+        {isLoading && <SkeletonTable label="Loading brokers..." columns={4} />}
         {isError && error?.response?.status !== 403 && (
           <QueryErrorState title="Unable to load brokers" error={error} onRetry={refetch} />
         )}
@@ -129,8 +129,6 @@ export default function BrokersPage() {
           message={`Are you sure you want to delete "${brokerToDelete?.name}"? This action cannot be undone.`}
           confirmLabel="Delete"
           isLoading={deleteMutation.isPending}
-          errorMessage={deleteMutation.isError
-            ? getApiErrorMessage(deleteMutation.error, { details: true, fallback: "Failed to delete broker." }) : null}
           onConfirm={() => brokerToDelete && deleteMutation.mutate(brokerToDelete.id)}
           onCancel={() => {
             deleteMutation.reset();

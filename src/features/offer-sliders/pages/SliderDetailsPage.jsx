@@ -20,6 +20,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 import { formatDate } from "../../../utils/formatDate";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
+import { SkeletonText } from "../../../shared/components/Skeleton";
 
 const DetailItem = ({ icon, label, value }) => (
   <div className="rounded-lg border border-gray-100 bg-gray-50/70 p-4">
@@ -117,9 +118,7 @@ const SliderDetailsPage = () => {
   if (isLoading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <div className="text-sm text-gray-400">
-          Loading slider...
-        </div>
+        <SkeletonText label="Loading slider..." lines={6} />
       </div>
     );
   }
