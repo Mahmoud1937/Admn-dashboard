@@ -4,6 +4,7 @@ import TableEmptyState from "../../../shared/components/TableEmptyState";
 import AvatarImage from "../../../shared/components/AvatarImage";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import StatusBadge from "../../../shared/components/StatusBadge";
+import { getMedicineUnitName } from "../constants/medicineUnits";
 
 export default function MedicinesTable({
   medicines,
@@ -26,11 +27,12 @@ export default function MedicinesTable({
 
   return (
     <ScrollableTable maxHeight="60vh">
-      <table className="w-full min-w-[800px] table-fixed text-center text-sm">
+      <table className="w-full min-w-[900px] table-fixed text-center text-sm">
         <thead className="sticky top-0 z-10 bg-slate-100">
           <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
             <th scope="col" className="w-[300px] px-4 py-3 text-left">Medicine</th>
             <th scope="col" className="w-[100px] px-4 py-3 text-center">Form</th>
+            <th scope="col" className="w-[100px] px-4 py-3 text-center">Unit</th>
             <th scope="col" className="w-[140px] px-4 py-3 text-center">Origin</th>
             <th scope="col" className="w-[130px] px-4 py-3 text-center">Price</th>
             {showActions && <th scope="col" className="w-[130px] px-4 py-3 text-center">Actions</th>}
@@ -78,6 +80,10 @@ export default function MedicinesTable({
                 ) : (
                   <span className="text-slate-400">—</span>
                 )}
+              </td>
+
+              <td className="px-4 py-3 text-center">
+                {getMedicineUnitName(medicine.unit ?? medicine.Unit) || "—"}
               </td>
 
               <td className="px-4 py-3 text-center">

@@ -87,6 +87,7 @@ export default function MedicinesPage() {
           enName: payload.enName,
           medicinePrice: payload.medicinePrice,
           medicineForm: payload.medicineForm,
+          unit: payload.unit,
           isLocal: payload.isLocal,
           isUpdatedImage,
           imageFile: payload.image,
@@ -98,6 +99,7 @@ export default function MedicinesPage() {
         enName: payload.enName,
         medicinePrice: payload.medicinePrice,
         medicineForm: payload.medicineForm,
+        unit: payload.unit,
         isLocal: payload.isLocal,
         imageFile: payload.image,
       });
@@ -138,7 +140,7 @@ export default function MedicinesPage() {
         />
 
         {isLoading && (
-          <SkeletonTable label="Loading medicines..." columns={5} />
+          <SkeletonTable label="Loading medicines..." columns={6} />
         )}
 
 {isError && (

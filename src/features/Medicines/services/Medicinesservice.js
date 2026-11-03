@@ -46,6 +46,7 @@ export async function createMedicine(payload) {
   formData.append("enName", payload.enName);
   formData.append("medicinePrice", payload.medicinePrice);
   formData.append("medicineForm", payload.medicineForm);
+  formData.append("Unit", payload.unit);
   formData.append("isLocal", String(payload.isLocal));
 
   if (payload.imageFile) {
@@ -69,6 +70,7 @@ export async function updateMedicine(id, payload) {
   formData.append("enName", payload.enName);
   formData.append("medicinePrice", payload.medicinePrice);
   formData.append("medicineForm", payload.medicineForm);
+  formData.append("Unit", payload.unit);
   formData.append("isUpdatedImage", payload.isUpdatedImage);
   formData.append("isLocal", String(payload.isLocal));
 

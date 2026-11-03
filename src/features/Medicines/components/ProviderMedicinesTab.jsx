@@ -11,6 +11,7 @@ import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { useProviderMedicinesQuery } from "../hooks/Usemedicinesquery";
+import { getMedicineUnitName } from "../constants/medicineUnits";
 
 export default function ProviderMedicinesTab({ providerId }) {
   const canRead = usePermission(PERMISSION_CODES.MEDICINES_READ);
@@ -34,7 +35,7 @@ export default function ProviderMedicinesTab({ providerId }) {
       </header>
 
       {isLoading ? (
-        <SkeletonTable label="Loading provider medicines..." columns={6} />
+        <SkeletonTable label="Loading provider medicines..." columns={7} />
       ) : isError ? (
         <QueryErrorState title="Unable to load provider medicines" error={error} onRetry={refetch} />
       ) : medicines.length === 0 ? (
@@ -42,11 +43,12 @@ export default function ProviderMedicinesTab({ providerId }) {
       ) : (
         <div aria-busy={isPlaceholderData} className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>
           <ScrollableTable maxHeight="60vh">
-            <table className="w-full min-w-[920px] table-fixed text-center text-sm">
+            <table className="w-full min-w-[1020px] table-fixed text-center text-sm">
               <thead className="sticky top-0 z-10 bg-slate-100">
                 <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
                   <th scope="col" className="w-[300px] px-4 py-3 text-left">Medicine</th>
                   <th scope="col" className="w-[100px] px-4 py-3 text-center">Form</th>
+                  <th scope="col" className="w-[100px] px-4 py-3 text-center">Unit</th>
                   <th scope="col" className="w-[140px] px-4 py-3 text-center">Origin</th>
                   <th scope="col" className="w-[120px] px-4 py-3 text-center">Discount (%)</th>
                   <th scope="col" className="w-[130px] px-4 py-3 text-center">Price before</th>
@@ -67,6 +69,9 @@ export default function ProviderMedicinesTab({ providerId }) {
                     </td>
                     <td className="px-4 py-3 text-center">
                       <StatusBadge tone="primary">{medicine.medicineForm || "—"}</StatusBadge>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {getMedicineUnitName(medicine.unit ?? medicine.Unit) || "—"}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <StatusBadge tone={medicine.isLocal === true ? "emerald" : medicine.isLocal === false ? "primary" : "neutral"}>

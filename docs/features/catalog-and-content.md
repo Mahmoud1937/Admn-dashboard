@@ -8,7 +8,7 @@ The dashboard exposes CRUD pages for [provider categories](../../src/features/ca
 
 Category creation and update send bilingual names and image fields as multipart data. Services send category, bilingual name, optional instruction, and optional CPT fields as JSON. Subscription types send bilingual name/description, price, and discount percentage and have an active-state toggle. The meaning of prices, CPT values, and server-side deletion rules is backend-dependent.
 
-[Medicines](../../src/features/Medicines/services/Medicinesservice.js) have a separate list/detail and multipart create/update service. The form sends bilingual names, price, form, and an optional image; update sends an image-change flag and only sends a new image when selected. These are client payload rules, not a complete medicine data contract.
+[Medicines](../../src/features/Medicines/services/Medicinesservice.js) have a separate list/detail and multipart create/update service. The form sends bilingual names, price, form, and a required `Unit` enum name (`Box`, `Bottle`, or `Tube`), plus an optional image; update sends an image-change flag and only sends a new image when selected. These are client payload rules, not a complete medicine data contract.
 
 ## Sliders
 

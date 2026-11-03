@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { nameField, isActiveField } from "../../../shared/schema/validation";
+import { MEDICINE_UNITS } from "../constants/medicineUnits";
 
 // Local to this page only: same base rules as the shared en/ar name fields,
 // but numbers are allowed alongside letters (medicine names like
@@ -41,6 +42,7 @@ export const medicineSchema = z.object({
     .refine((val) => /^[a-zA-Z0-9\s]+$/.test(val), {
       message: "Form can only contain letters and numbers",
     }),
+  unit: z.enum(MEDICINE_UNITS, { error: "Please select a unit" }),
   isActive: isActiveField,
   isLocal: z
     .enum(["true", "false"], { error: "Please select Egyptian or imported" })

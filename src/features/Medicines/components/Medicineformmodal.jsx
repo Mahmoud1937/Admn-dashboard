@@ -7,6 +7,7 @@ import FormActions from "../../../shared/components/FormActions";
 import TextField from "../../../shared/components/TextField";
 import { medicineSchema } from "../schema/medicineSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
+import { getMedicineUnitName, MEDICINE_UNITS } from "../constants/medicineUnits";
 
 export default function MedicineFormModal({
   isOpen,
@@ -36,6 +37,7 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
       arName: "",
       medicinePrice: "",
       medicineForm: "",
+      unit: "",
       isLocal: "",
       isActive: true,
     },
@@ -48,6 +50,7 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
         arName: medicine?.arName ?? "",
         medicinePrice: medicine?.medicinePrice ?? "",
         medicineForm: medicine?.medicineForm ?? "",
+        unit: getMedicineUnitName(medicine?.unit ?? medicine?.Unit),
         isLocal: medicine?.isLocal == null ? "" : String(medicine.isLocal),
         isActive: medicine?.isActive ?? true,
       });
@@ -117,6 +120,7 @@ const handleImageChange = (e) => {
       arName: data.arName,
       medicinePrice: Number(data.medicinePrice),
       medicineForm: data.medicineForm.trim(),
+      unit: data.unit,
       isLocal: data.isLocal,
       isActive: data.isActive,
       image,
@@ -217,6 +221,30 @@ const handleImageChange = (e) => {
         {errors.medicineForm && (
           <p className="mt-1 text-xs text-red-500">
             {errors.medicineForm.message}
+          </p>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="medicine-unit" className="mb-1.5 block text-sm font-medium text-slate-700">
+          Unit <span className="text-red-500">*</span>
+        </label>
+        <select
+          id="medicine-unit"
+          {...register("unit")}
+          disabled={isSaving}
+          aria-invalid={Boolean(errors.unit)}
+          aria-describedby={errors.unit ? "medicine-unit-error" : undefined}
+          className={`w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 ${errors.unit ? "border-red-400" : "border-slate-200"}`}
+        >
+          <option value="" disabled>Select unit</option>
+          {MEDICINE_UNITS.map((unit) => (
+            <option key={unit} value={unit}>{unit}</option>
+          ))}
+        </select>
+        {errors.unit && (
+          <p id="medicine-unit-error" role="alert" className="mt-1 text-xs text-red-500">
+            {errors.unit.message}
           </p>
         )}
       </div>

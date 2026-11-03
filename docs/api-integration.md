@@ -127,7 +127,7 @@ Sources: [provider categories](../src/features/categoreis/service/categoryServic
 | `/ProviderCategoryAdmin/providerCategories`; `/ProviderCategoryAdmin/categories/{id}` | GET list with `PageNumber`, `PageSize`, `SearchTerm`; POST multipart bilingual names and `Logo`; PUT multipart names, `IsUpdatedImage`, optional `ImageUrl`; DELETE by ID |
 | `/ServiceCategoryAdmin/ServiceCategories`; `/ServiceCategoryAdmin/categories/{id}` | GET list with `PageNumber`, `PageSize`, `SearchTerm`; POST and PUT multipart bilingual names/image fields; DELETE by ID |
 | `/ServiceAdmin/services`; `/ServiceAdmin/services/{id}` | GET list/detail; list uses `PageNumber`, `PageSize`, `SearchTerm`, `CategoryId`, `Status`; POST/PUT JSON category, bilingual names, optional `serviceInstruction` and `cpt`; PUT also sends `isActive`; DELETE by ID |
-| `/MedicineAdmin/medicines`; `/MedicineAdmin/medicines/{id}` | GET list/detail; list uses `PageNumber`, `PageSize`, `SearchTerm`; POST/PUT multipart names, price, form, optional image; PUT includes `isUpdatedImage`; DELETE by ID |
+| `/MedicineAdmin/medicines`; `/MedicineAdmin/medicines/{id}` | GET list/detail; list uses `PageNumber`, `PageSize`, `SearchTerm`; POST/PUT multipart names, price, form, `Unit` (`Box`, `Bottle`, or `Tube`), optional image; PUT includes `isUpdatedImage`; DELETE by ID |
 | `/SpecialistAdmin`; `/SpecialistAdmin/{id}` | GET list with page and search; POST/PUT bilingual names; DELETE by ID |
 | `/GovernoratesAdmin`; `/GovernoratesAdmin/{id}` | GET list with page and search; POST/PUT bilingual names; DELETE by ID |
 | `/CityAdmin/cities`; `/CityAdmin/cities/{id}` | GET list with page, search, `GovernorateId`, `IsActive`; POST/PUT bilingual names and `governorateId`; PUT also sends `cityId`; DELETE by ID |
