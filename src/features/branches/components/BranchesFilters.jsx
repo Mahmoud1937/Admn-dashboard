@@ -1,68 +1,65 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import GovernorateSelect from "../../cities/components/GovernorateSelect";
 import CitySelect from "./CitySelect";
+import FilterPanel from "../../../shared/components/FilterPanel";
+import FilterPanelHeader from "../../../shared/components/FilterPanelHeader";
+import FilterPanelFooter from "../../../shared/components/FilterPanelFooter";
 
 export default function BranchesFilters({
-  search,
-  onSearchChange,
-  governorateFilter,
-  onGovernorateFilterChange,
-  cityFilter,
-  onCityFilterChange,
-  statusFilter,
-  onStatusFilterChange,
-  children,
+  draft,
+  onChange,
+  onApply,
+  onClear,
+  onClose,
+  panelRef,
 }) {
   return (
-    <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:flex-wrap sm:items-center">
-      {/* Search */}
-      <div className="relative w-full min-w-0 sm:flex-[1_1_18rem]">
-        <FontAwesomeIcon
-          icon={faSearch}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-        />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search By Name (EN/AR) or email ..."
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
-        />
-      </div>
+    <FilterPanel panelRef={panelRef} onClose={onClose} className="sm:w-80">
+      <FilterPanelHeader onClose={onClose} />
 
-      {/* Governorate */}
-      <div className="sm:w-56">
+      <div className="mb-4">
+        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          Governorate
+        </label>
         <GovernorateSelect
-          value={governorateFilter}
-          onChange={onGovernorateFilterChange}
+          value={draft.governorateId}
+          onChange={(value) => onChange((previous) => ({
+            ...previous,
+            governorateId: value ?? "",
+            cityId: "",
+          }))}
           placeholder="All Governorates"
         />
       </div>
 
-      {onCityFilterChange && (
-        <div className="sm:w-56">
-          <CitySelect
-            governorateId={governorateFilter}
-            value={cityFilter}
-            onChange={onCityFilterChange}
-            placeholder="All Cities"
-            disabled={!governorateFilter}
-          />
-        </div>
-      )}
+      <div className="mb-4">
+        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          City
+        </label>
+        <CitySelect
+          governorateId={draft.governorateId}
+          value={draft.cityId}
+          onChange={(value) => onChange((previous) => ({ ...previous, cityId: value ?? "" }))}
+          placeholder="All Cities"
+        />
+      </div>
 
-      {/* Status */}
-      <select
-        value={statusFilter}
-        onChange={(e) => onStatusFilterChange(e.target.value)}
-        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:bg-white sm:w-56"
-      >
-        <option value="">All Statuses</option>
-        <option value="1">Active</option>
-        <option value="2">Inactive</option>
-      </select>
-      {children}
-    </div>
+      <div className="mb-5">
+        <label htmlFor="branch-status-filter" className="mb-1.5 block text-sm font-medium text-slate-700">
+          Status
+        </label>
+        <select
+          id="branch-status-filter"
+          value={draft.status}
+          onChange={(event) => onChange((previous) => ({ ...previous, status: event.target.value }))}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400"
+        >
+          <option value="">All Statuses</option>
+          <option value="1">Active</option>
+          <option value="2">Inactive</option>
+        </select>
+      </div>
+
+      <FilterPanelFooter onClear={onClear} onApply={onApply} />
+    </FilterPanel>
   );
 }

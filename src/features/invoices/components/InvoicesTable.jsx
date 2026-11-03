@@ -24,6 +24,8 @@ const STATUS_TONE = {
 }
 
 const formatMoney = (n) => `${Number(n).toFixed(2)} EGP`
+const formatPercentage = (value) =>
+  value == null ? '-' : `${Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 })}%`
 
 const formatTime = (date) => {
   const d = new Date(date)
@@ -99,20 +101,39 @@ export default function InvoicesTable({
   return (
     <div className="min-w-0">
       <ScrollableTable maxHeight="60vh">
-        <table className="w-full min-w-[1280px] text-left text-sm">
+        <table className="w-full min-w-[1880px] table-fixed text-left text-sm">
+          <colgroup>
+            <col className="w-[130px]" />
+            <col className="w-[240px]" />
+            <col className="w-[160px]" />
+            <col className="w-[230px]" />
+            <col className="w-[110px]" />
+            <col className="w-[110px]" />
+            <col className="w-[150px]" />
+            <col className="w-[100px]" />
+            <col className="w-[150px]" />
+            <col className="w-[140px]" />
+            <col className="w-[70px]" />
+            <col className="w-[90px]" />
+            <col className="w-[100px]" />
+            <col className="w-[100px]" />
+          </colgroup>
           <thead className="sticky top-0 z-10 bg-slate-100">
             <tr className="border-b border-slate-200 text-xs font-medium text-slate-700">
-              <th className="px-6 py-3">Invoice</th>
-              <th className="px-4 py-3">Client</th>
-              <th className="px-4 py-3">Card number</th>
-              <th className="px-4 py-3">Provider</th>
-              <th className="px-4 py-3">Payment</th>
-              <th className="px-4 py-3 text-right">Before discount</th>
-              <th className="px-4 py-3 text-right">After discount</th>
-              <th className="px-4 py-3 text-right">Total</th>
-              <th className="px-4 py-3 text-center">Services</th>
-              <th className="px-4 py-3 text-center">Status</th>
-              <th className="px-6 py-3 text-center">Actions</th>
+              <th scope="col" className="whitespace-nowrap px-6 py-3 text-left">Invoice</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-left">Client</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-left">Card number</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-left">Provider</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-left">Type</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-left">Payment</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-right">Before discount</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-right">Discount</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-right">After discount</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-right">Total</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-center">Items</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-center">Quantity</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-3 text-center">Status</th>
+              <th scope="col" className="whitespace-nowrap px-6 py-3 text-center">Actions</th>
             </tr>
           </thead>
 
@@ -195,6 +216,22 @@ export default function InvoicesTable({
                     </div>
                   </td>
 
+                  {/* Invoice type and package source */}
+                  <td className="whitespace-nowrap px-4 py-3.5">
+                    <div className="flex flex-col items-start gap-1">
+                      {inv.isMedicineInvoice == null ? (
+                        <span className="text-slate-400">-</span>
+                      ) : (
+                        <StatusBadge tone={inv.isMedicineInvoice ? 'primary' : 'neutral'}>
+                          {inv.isMedicineInvoice ? 'Medicine' : 'Service'}
+                        </StatusBadge>
+                      )}
+                      {inv.isFromPackage && (
+                        <span className="text-xs font-medium text-blue-700">Package</span>
+                      )}
+                    </div>
+                  </td>
+
                   {/* Payment */}
                   <td className="whitespace-nowrap px-4 py-3.5">
                     <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
@@ -211,15 +248,21 @@ export default function InvoicesTable({
                     {formatMoney(inv.priceBefore)}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3.5 text-right tabular-nums text-slate-600">
+                    {formatPercentage(inv.discountPercentage)}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3.5 text-right tabular-nums text-slate-600">
                     {formatMoney(inv.priceAfter)}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3.5 text-right font-semibold tabular-nums text-slate-900">
                     {formatMoney(inv.totalAmount)}
                   </td>
 
-                  {/* Services */}
+                  {/* Item count and quantity */}
                   <td className="px-4 py-3.5 text-center tabular-nums text-slate-600">
-                    {inv.servicesCount}
+                    {inv.servicesCount ?? '-'}
+                  </td>
+                  <td className="px-4 py-3.5 text-center tabular-nums text-slate-600">
+                    {inv.totalQuantity ?? '-'}
                   </td>
 
                   {/* Status */}

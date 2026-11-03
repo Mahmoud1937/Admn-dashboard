@@ -87,7 +87,7 @@ export default function InvoiceDetailsModal({ isOpen, onClose, invoice, isLoadin
           </span>
 
           {/* Info */}
-          <div className={`grid ${familyName ? 'grid-cols-3' : 'grid-cols-2'} gap-4 sm:gap-6 mb-6 sm:mb-8`}>
+          <div className="grid grid-cols-2 gap-4 mb-6 sm:mb-8 sm:grid-cols-3 sm:gap-6">
             <div className="text-center">
               <div className="flex items-center justify-center gap-1.5 text-sm text-slate-400 mb-1.5">
                 <Calendar size={14} />
@@ -96,8 +96,18 @@ export default function InvoiceDetailsModal({ isOpen, onClose, invoice, isLoadin
               <p className="text-base font-semibold" dir="ltr">{formatDate(invoice.date)}</p>
             </div>
             <div className="text-center">
-              <div className="text-sm text-slate-400 mb-1.5">Services</div>
-              <p className="text-base font-semibold">{items.length}</p>
+              <div className="text-sm text-slate-400 mb-1.5">Invoice Type</div>
+              <p className="text-base font-semibold">
+                {invoice.isMedicineInvoice == null ? '-' : invoice.isMedicineInvoice ? 'Medicine' : 'Service'}
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-slate-400 mb-1.5">Items</div>
+              <p className="text-base font-semibold">{invoice.itemsCount ?? items.length}</p>
+            </div>
+            <div className="text-center">
+              <div className="text-sm text-slate-400 mb-1.5">Total Quantity</div>
+              <p className="text-base font-semibold">{invoice.totalQuantity ?? '-'}</p>
             </div>
             {familyName && (
               <div className="text-center">
@@ -108,7 +118,9 @@ export default function InvoiceDetailsModal({ isOpen, onClose, invoice, isLoadin
           </div>
 
           {/* Services */}
-          <h4 className="text-base font-semibold text-slate-900 mb-3">Services</h4>
+          <h4 className="text-base font-semibold text-slate-900 mb-3">
+            {invoice.isMedicineInvoice ? 'Medicines' : 'Services'}
+          </h4>
 
           <div className="rounded-xl border border-slate-100 overflow-hidden mb-6">
             <div className="max-h-72 overflow-y-auto overflow-x-auto">
@@ -116,7 +128,9 @@ export default function InvoiceDetailsModal({ isOpen, onClose, invoice, isLoadin
                 <thead>
                   <tr className="bg-slate-100 text-slate-400 text-xs sticky top-0 z-10">
                     <th className="text-center px-3 sm:px-5 py-3">#</th>
-                    <th className="text-center px-3 sm:px-5 py-3">Service</th>
+                    <th className="text-center px-3 sm:px-5 py-3">
+                      {invoice.isMedicineInvoice ? 'Medicine' : 'Service'}
+                    </th>
                     <th className="text-center px-3 sm:px-5 py-3">Price Before</th>
                     <th className="text-center px-3 sm:px-5 py-3">Price After</th>
                     <th className="text-center px-3 sm:px-5 py-3">Discount</th>

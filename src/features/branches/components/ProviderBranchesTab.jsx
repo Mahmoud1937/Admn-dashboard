@@ -17,9 +17,11 @@ import { useBranchMutations } from "../hooks/useBranchMutations";
 import { useBranchToggleMutation } from "../hooks/useBranchToggleMutation";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
+import useFilterPanel from "../../../shared/hooks/useFilterPanel";
 
 import BranchFormModal from "./BranchFormModal";
 import BranchesFilters from "./BranchesFilters";
+import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilters";
 
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import Pagination from "../../../shared/components/Pagination";
@@ -33,6 +35,8 @@ import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import Skeleton, { SkeletonTable } from "../../../shared/components/Skeleton";
+
+const EMPTY_FILTERS = { governorateId: "", cityId: "", status: "" };
 
 function TableSkeleton({ rows = 6 }) {
   return (
@@ -79,9 +83,21 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 400);
 
-  const [governorateFilter, setGovernorateFilter] = useState("");
-  const [cityFilter, setCityFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const {
+    isOpen: isFilterOpen,
+    filters,
+    draft,
+    setDraft,
+    panelRef,
+    triggerRef,
+    toggle: toggleFilters,
+    close: closeFilters,
+    apply: applyFilters,
+    clear: clearFilters,
+  } = useFilterPanel({ emptyFilters: EMPTY_FILTERS });
+  const governorateFilter = filters.governorateId;
+  const cityFilter = filters.cityId;
+  const statusFilter = filters.status;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState(null);
@@ -189,20 +205,15 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
       </div>
 
       {/* Filters + Table */}
-      <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-100">
-          <BranchesFilters
-            search={searchInput}
-            onSearchChange={setSearchInput}
-            governorateFilter={governorateFilter}
-            onGovernorateFilterChange={(value) => {
-              setGovernorateFilter(value);
-              setCityFilter("");
-            }}
-            cityFilter={cityFilter}
-            onCityFilterChange={setCityFilter}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
+      <div className="min-w-0 rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="relative">
+          <SearchBarWithFilters
+            value={searchInput}
+            onChange={setSearchInput}
+            placeholder="Search by branch name (EN/AR) or email..."
+            onFilterClick={toggleFilters}
+            filterButtonRef={triggerRef}
+            activeFilterCount={Number(Boolean(governorateFilter)) + Number(Boolean(cityFilter)) + Number(Boolean(statusFilter))}
           >
             {renderFilterActions?.({
               governorateId: governorateFilter || undefined,
@@ -210,7 +221,17 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
               search,
               status: statusFilter === "" ? 0 : Number(statusFilter),
             })}
-          </BranchesFilters>
+          </SearchBarWithFilters>
+          {isFilterOpen && (
+            <BranchesFilters
+              draft={draft}
+              onChange={setDraft}
+              onApply={applyFilters}
+              onClear={clearFilters}
+              onClose={closeFilters}
+              panelRef={panelRef}
+            />
+          )}
         </div>
 
         {isLoading ? (
