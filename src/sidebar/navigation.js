@@ -5,6 +5,7 @@ import {
   faLayerGroup,
   faStethoscope,
   faPills,
+  faFilePrescription,
   faCreditCard,
   faMap,
   faCity,
@@ -89,6 +90,11 @@ export const navigation = [
     path: "/medicines",
     icon: faPills,
     permission: PERMISSION_CODES.MEDICINES_READ,
+  },
+  {
+    title: "Prescriptions",
+    path: "/prescriptions",
+    icon: faFilePrescription,
   },
 
 

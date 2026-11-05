@@ -5,7 +5,7 @@ import {
   faMoneyBillWave,
   faCreditCard,
 } from '@fortawesome/free-solid-svg-icons'
-import { Eye, History } from 'lucide-react'
+import { Eye, History, Package as PackageIcon } from 'lucide-react'
 import TableEmptyState from '../../../shared/components/TableEmptyState'
 import { useInvoiceDetailsQuery } from '../../clients/hooks/useInvoiceDetailsQuery'
 import ScrollableTable from '../../../shared/components/ScrollableTable'
@@ -14,7 +14,11 @@ import StatusBadge from '../../../shared/components/StatusBadge'
 import TimelineModal from './TimelineModal'
 import InvoiceDetailsModal from '../../clients/components/InvoiceDetailsModal'
 import ClientAvatar from '../../../shared/components/ClientAvatar'
-import Skeleton, { SkeletonTable } from "../../../shared/components/Skeleton";
+import Skeleton, { SkeletonTable } from '../../../shared/components/Skeleton'
+
+/* -------------------------------------------------------------------------- */
+/*                                  Constants                                 */
+/* -------------------------------------------------------------------------- */
 
 const STATUS_TONE = {
   1: 'success', // Paid
@@ -23,9 +27,41 @@ const STATUS_TONE = {
   4: 'success', // Used
 }
 
-const formatMoney = (n) => `${Number(n).toFixed(2)} EGP`
+const COLUMNS = [
+  { key: 'invoice', label: 'Invoice', width: 150, align: 'left', px: 'px-6' },
+  { key: 'client', label: 'Client', width: 270, align: 'left' },
+  { key: 'provider', label: 'Provider', width: 240, align: 'left' },
+  { key: 'type', label: 'Type', width: 130, align: 'left' },
+  { key: 'amount', label: 'Amount', width: 200, align: 'right' },
+  { key: 'items', label: 'Items', width: 90, align: 'center' },
+  { key: 'status', label: 'Status', width: 110, align: 'center' },
+]
+
+const ACTIONS_WIDTH = 96
+const STICKY_SHADOW = 'shadow-[-8px_0_8px_-8px_rgba(15,23,42,0.12)]'
+const TABLE_MIN_WIDTH =
+  COLUMNS.reduce((sum, c) => sum + c.width, ACTIONS_WIDTH) + 'px'
+
+const ALIGN_CLASS = {
+  left: 'text-left',
+  center: 'text-center',
+  right: 'text-right',
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  Formatters                                */
+/* -------------------------------------------------------------------------- */
+
+const formatMoney = (n) =>
+  `${Number(n ?? 0).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} EGP`
+
 const formatPercentage = (value) =>
-  value == null ? '-' : `${Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 })}%`
+  value == null
+    ? null
+    : `${Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 })}%`
 
 const formatTime = (date) => {
   const d = new Date(date)
@@ -33,20 +69,27 @@ const formatTime = (date) => {
   return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
 }
 
+/* -------------------------------------------------------------------------- */
+/*                               Small components                             */
+/* -------------------------------------------------------------------------- */
+
 function TableSkeleton({ rows = 7 }) {
   return (
     <SkeletonTable
       rows={rows}
       rowClassName="flex items-center gap-5 px-6 py-4"
     >
-      <Skeleton className="h-3 w-20 rounded bg-slate-100" />
-      <Skeleton className="h-9 w-9 shrink-0 rounded-full bg-slate-100" />
+      <div className="w-28 space-y-2">
+        <Skeleton className="h-3 w-20 rounded bg-slate-100" />
+        <Skeleton className="h-3 w-24 rounded bg-slate-100" />
+      </div>
+      <Skeleton className="h-10 w-10 shrink-0 rounded-full bg-slate-100" />
       <div className="flex-1 space-y-2">
         <Skeleton className="h-3 w-44 rounded bg-slate-100" />
         <Skeleton className="h-3 w-28 rounded bg-slate-100" />
       </div>
       <Skeleton className="hidden h-3 w-32 rounded bg-slate-100 md:block" />
-      <Skeleton className="h-3 w-20 rounded bg-slate-100" />
+      <Skeleton className="h-3 w-24 rounded bg-slate-100" />
       <Skeleton className="h-6 w-16 rounded-full bg-slate-100" />
     </SkeletonTable>
   )
@@ -70,6 +113,198 @@ function IconButton({ title, onClick, tone = 'blue', children }) {
       {children}
     </button>
   )
+}
+
+function PaymentChip({ isCash }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+      <FontAwesomeIcon
+        icon={isCash ? faMoneyBillWave : faCreditCard}
+        className="text-slate-400"
+      />
+      {isCash ? 'Cash' : 'Visa'}
+    </span>
+  )
+}
+
+function PackageBadge() {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-md border border-violet-200 bg-violet-50 px-2 py-0.5 text-[11px] font-semibold text-violet-700">
+      <PackageIcon size={12} aria-hidden="true" />
+      Package
+    </span>
+  )
+}
+
+function DiscountBadge({ value }) {
+  return (
+    <span className="inline-flex rounded bg-emerald-50 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-700">
+      -{value}
+    </span>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  Cell views                                */
+/* -------------------------------------------------------------------------- */
+
+function InvoiceCell({ inv }) {
+  const time = formatTime(inv.date)
+
+  return (
+    <>
+      <p className="font-semibold tabular-nums text-slate-900">
+        #{inv.invoiceId}
+      </p>
+      <p className="mt-0.5 text-xs text-slate-500">
+        {formatDate(inv.date)}
+        {time && <span className="text-slate-400"> · {time}</span>}
+      </p>
+    </>
+  )
+}
+
+function ClientCell({ inv }) {
+  const clientName = inv.familyMemberName || inv.clientName || '-'
+
+  return (
+    <div className="flex items-center gap-3">
+      <ClientAvatar
+        name={clientName === '-' ? '' : clientName}
+        colorSeed={inv.clientId || inv.userId || inv.invoiceId}
+        sizeClass="h-10 w-10"
+        textClass="text-[11px] font-semibold"
+      />
+      <div className="min-w-0">
+        <p
+          title={clientName}
+          dir="auto"
+          className="truncate text-left font-medium text-slate-900"
+        >
+          {clientName}
+        </p>
+        <p className="truncate text-xs text-slate-500">
+          {inv.familyMemberRelation ? `${inv.familyMemberRelation} · ` : ''}
+          <span className="tabular-nums">{inv.mobileNumber || 'No phone'}</span>
+        </p>
+        {inv.cardNumber && (
+          <p
+            title="Card number"
+            className="mt-0.5 truncate font-mono text-[11px] tabular-nums text-slate-400"
+          >
+            {inv.cardNumber}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ProviderCell({ inv }) {
+  return (
+    <div className="leading-tight">
+      <p
+        title={inv.providerNameEn}
+        className="truncate font-medium text-slate-800"
+      >
+        {inv.providerNameEn || '-'}
+      </p>
+      {inv.providerNameAr && (
+        <p
+          dir="rtl"
+          lang="ar"
+          style={{ textAlign: 'left' }}
+          className="mt-0.5 truncate text-xs text-slate-500"
+        >
+          {inv.providerNameAr}
+        </p>
+      )}
+      {inv.providerBranchName && (
+        <p className="mt-0.5 truncate text-xs text-slate-400">
+          {inv.providerBranchName}
+        </p>
+      )}
+    </div>
+  )
+}
+
+function TypeCell({ inv }) {
+  return (
+    <div className="flex flex-col items-start gap-1.5">
+      {inv.isMedicineInvoice == null ? (
+        <span className="text-slate-400">-</span>
+      ) : (
+        <StatusBadge tone={inv.isMedicineInvoice ? 'primary' : 'neutral'}>
+          {inv.isMedicineInvoice ? 'Medicine' : 'Service'}
+        </StatusBadge>
+      )}
+      <PaymentChip isCash={inv.isCash} />
+      {inv.isFromPackage && <PackageBadge />}
+    </div>
+  )
+}
+
+function AmountCell({ inv }) {
+  const hasDiscount = Number(inv.discountPercentage) > 0
+
+  return (
+    <>
+      <p className="text-[15px] font-semibold tabular-nums text-slate-900">
+        {formatMoney(inv.totalAmount)}
+      </p>
+
+      {hasDiscount ? (
+        <>
+          <p className="mt-0.5 flex items-center justify-end gap-1.5 text-xs tabular-nums text-slate-400">
+            <span className="line-through">{formatMoney(inv.priceBefore)}</span>
+            <DiscountBadge value={formatPercentage(inv.discountPercentage)} />
+          </p>
+          <p className="mt-0.5 text-xs tabular-nums text-slate-500">
+            After: {formatMoney(inv.priceAfter)}
+          </p>
+        </>
+      ) : (
+        <p className="mt-0.5 text-xs text-slate-400">No discount</p>
+      )}
+    </>
+  )
+}
+
+function ItemsCell({ inv }) {
+  return (
+    <>
+      <p className="font-medium tabular-nums text-slate-700">
+        {inv.servicesCount ?? '-'}
+      </p>
+      <p className="text-xs tabular-nums text-slate-400">
+        Qty {inv.totalQuantity ?? '-'}
+      </p>
+    </>
+  )
+}
+
+function StatusCell({ inv }) {
+  return (
+    <div className="flex items-center justify-center">
+      <StatusBadge tone={STATUS_TONE[inv.status] ?? 'default'}>
+        {inv.statusName}
+      </StatusBadge>
+    </div>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                    Table                                   */
+/* -------------------------------------------------------------------------- */
+
+const CELL_RENDERERS = {
+  invoice: InvoiceCell,
+  client: ClientCell,
+  provider: ProviderCell,
+  type: TypeCell,
+  amount: AmountCell,
+  items: ItemsCell,
+  status: StatusCell,
 }
 
 export default function InvoicesTable({
@@ -101,200 +336,83 @@ export default function InvoicesTable({
   return (
     <div className="min-w-0">
       <ScrollableTable maxHeight="60vh">
-        <table className="w-full min-w-[1880px] table-fixed text-left text-sm">
+        <table
+          className="w-full table-fixed text-left text-sm"
+          style={{ minWidth: TABLE_MIN_WIDTH }}
+        >
           <colgroup>
-            <col className="w-[130px]" />
-            <col className="w-[240px]" />
-            <col className="w-[160px]" />
-            <col className="w-[230px]" />
-            <col className="w-[110px]" />
-            <col className="w-[110px]" />
-            <col className="w-[150px]" />
-            <col className="w-[100px]" />
-            <col className="w-[150px]" />
-            <col className="w-[140px]" />
-            <col className="w-[70px]" />
-            <col className="w-[90px]" />
-            <col className="w-[100px]" />
-            <col className="w-[100px]" />
+            {COLUMNS.map((col) => (
+              <col key={col.key} style={{ width: col.width }} />
+            ))}
+            <col style={{ width: ACTIONS_WIDTH }} />
           </colgroup>
-          <thead className="sticky top-0 z-10 bg-slate-100">
-            <tr className="border-b border-slate-200 text-xs font-medium text-slate-700">
-              <th scope="col" className="whitespace-nowrap px-6 py-3 text-left">Invoice</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-left">Client</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-left">Card number</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-left">Provider</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-left">Type</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-left">Payment</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-right">Before discount</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-right">Discount</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-right">After discount</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-right">Total</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-center">Items</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-center">Quantity</th>
-              <th scope="col" className="whitespace-nowrap px-4 py-3 text-center">Status</th>
-              <th scope="col" className="whitespace-nowrap px-6 py-3 text-center">Actions</th>
+
+          <thead className="sticky top-0 z-20 bg-slate-100">
+            <tr className="border-b border-slate-200 text-xs font-semibold uppercase tracking-wide text-slate-600">
+              {COLUMNS.map((col) => (
+                <th
+                  key={col.key}
+                  scope="col"
+                  className={`whitespace-nowrap py-3 ${col.px || 'px-4'} ${ALIGN_CLASS[col.align]}`}
+                >
+                  {col.label}
+                </th>
+              ))}
+              <th
+                scope="col"
+                className={`sticky right-0 z-30 whitespace-nowrap bg-slate-100 px-4 py-3 text-center ${STICKY_SHADOW}`}
+              >
+                Actions
+              </th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-slate-100">
-            {invoices.map((inv) => {
-              const clientName = inv.familyMemberName || inv.clientName || '-'
-              const time = formatTime(inv.date)
+            {invoices.map((inv) => (
+              <tr
+                key={inv.invoiceId}
+                className="group bg-white align-middle transition-colors hover:bg-slate-50"
+              >
+                {COLUMNS.map((col) => {
+                  const Cell = CELL_RENDERERS[col.key]
+                  const isStatus = col.key === 'status'
 
-              return (
-                <tr
-                  key={inv.invoiceId}
-                  className="transition-colors hover:bg-slate-50"
+                  return (
+                    <td
+                      key={col.key}
+                      className={`py-4 ${col.px || 'px-4'} ${
+                        col.key === 'amount' || col.key === 'items'
+                          ? `${ALIGN_CLASS[col.align]} whitespace-nowrap`
+                          : ''
+                      } ${isStatus ? 'whitespace-nowrap' : ''}`}
+                    >
+                      <Cell inv={inv} />
+                    </td>
+                  )
+                })}
+
+                {/* Actions (sticky) */}
+                <td
+                  className={`sticky right-0 z-10 bg-white px-4 py-4 transition-colors group-hover:bg-slate-50 ${STICKY_SHADOW}`}
                 >
-                  {/* Invoice no + date */}
-                  <td className="whitespace-nowrap px-6 py-3.5">
-                    <p className="font-semibold tabular-nums text-slate-900">
-                      #{inv.invoiceId}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {formatDate(inv.date)}
-                      {time && <span className="text-slate-400"> {time}</span>}
-                    </p>
-                  </td>
-
-                  {/* Client + phone */}
-                  <td className="px-4 py-3.5">
-                    <div className="flex max-w-[280px] items-center gap-3">
-                      <ClientAvatar
-                        name={clientName === '-' ? '' : clientName}
-                        colorSeed={inv.clientId || inv.userId || inv.invoiceId}
-                        sizeClass="h-9 w-9"
-                        textClass="text-[10px] font-semibold"
-                      />
-                      <div className="min-w-0">
-                        <p
-                          title={clientName}
-                          dir="auto"
-                          className="truncate text-left font-medium text-slate-900"
-                        >
-                          {clientName}
-                        </p>
-                        <p className="truncate text-xs text-slate-500">
-                          {inv.familyMemberRelation
-                            ? `${inv.familyMemberRelation}, `
-                            : ''}
-                          <span className="tabular-nums">
-                            {inv.mobileNumber || 'No phone'}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Card */}
-                  <td className="whitespace-nowrap px-4 py-3.5 font-mono text-xs tabular-nums text-slate-700">
-                    {inv.cardNumber || '-'}
-                  </td>
-
-                  {/* Provider + branch */}
-                  <td className="px-4 py-3.5">
-                    <div className="max-w-[230px] leading-tight">
-                      <p className="truncate font-medium text-slate-800">
-                        {inv.providerNameEn || '-'}
-                      </p>
-                      {inv.providerNameAr && (
-                        <p
-                          dir="rtl"
-                          lang="ar"
-                          style={{ textAlign: 'left' }}
-                          className="mt-0.5 truncate text-xs text-slate-500"
-                        >
-                          {inv.providerNameAr}
-                        </p>
-                      )}
-                      {inv.providerBranchName && (
-                        <p className="mt-0.5 truncate text-xs text-slate-400">
-                          {inv.providerBranchName}
-                        </p>
-                      )}
-                    </div>
-                  </td>
-
-                  {/* Invoice type and package source */}
-                  <td className="whitespace-nowrap px-4 py-3.5">
-                    <div className="flex flex-col items-start gap-1">
-                      {inv.isMedicineInvoice == null ? (
-                        <span className="text-slate-400">-</span>
-                      ) : (
-                        <StatusBadge tone={inv.isMedicineInvoice ? 'primary' : 'neutral'}>
-                          {inv.isMedicineInvoice ? 'Medicine' : 'Service'}
-                        </StatusBadge>
-                      )}
-                      {inv.isFromPackage && (
-                        <span className="text-xs font-medium text-blue-700">Package</span>
-                      )}
-                    </div>
-                  </td>
-
-                  {/* Payment */}
-                  <td className="whitespace-nowrap px-4 py-3.5">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-                      <FontAwesomeIcon
-                        icon={inv.isCash ? faMoneyBillWave : faCreditCard}
-                        className="text-slate-400"
-                      />
-                      {inv.isCash ? 'Cash' : 'Visa'}
-                    </span>
-                  </td>
-
-                  {/* Amounts */}
-                  <td className="whitespace-nowrap px-4 py-3.5 text-right tabular-nums text-slate-500">
-                    {formatMoney(inv.priceBefore)}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-3.5 text-right tabular-nums text-slate-600">
-                    {formatPercentage(inv.discountPercentage)}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-3.5 text-right tabular-nums text-slate-600">
-                    {formatMoney(inv.priceAfter)}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-3.5 text-right font-semibold tabular-nums text-slate-900">
-                    {formatMoney(inv.totalAmount)}
-                  </td>
-
-                  {/* Item count and quantity */}
-                  <td className="px-4 py-3.5 text-center tabular-nums text-slate-600">
-                    {inv.servicesCount ?? '-'}
-                  </td>
-                  <td className="px-4 py-3.5 text-center tabular-nums text-slate-600">
-                    {inv.totalQuantity ?? '-'}
-                  </td>
-
-                  {/* Status */}
-                  <td className="whitespace-nowrap px-4 py-3.5">
-                    <div className="flex items-center justify-center">
-                      <StatusBadge tone={STATUS_TONE[inv.status] ?? 'default'}>
-                        {inv.statusName}
-                      </StatusBadge>
-                    </div>
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-6 py-3.5">
-                    <div className="flex items-center justify-center gap-1">
-                      <IconButton
-                        title="View details"
-                        onClick={() => setDetailsInvoiceId(inv.invoiceId)}
-                      >
-                        <Eye size={16} />
-                      </IconButton>
-                      <IconButton
-                        title="View timeline"
-                        tone="green"
-                        onClick={() => setTimelineInvoiceId(inv.invoiceId)}
-                      >
-                        <History size={16} />
-                      </IconButton>
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
+                  <div className="flex items-center justify-center gap-1">
+                    <IconButton
+                      title="View details"
+                      onClick={() => setDetailsInvoiceId(inv.invoiceId)}
+                    >
+                      <Eye size={16} />
+                    </IconButton>
+                    <IconButton
+                      title="View timeline"
+                      tone="green"
+                      onClick={() => setTimelineInvoiceId(inv.invoiceId)}
+                    >
+                      <History size={16} />
+                    </IconButton>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </ScrollableTable>

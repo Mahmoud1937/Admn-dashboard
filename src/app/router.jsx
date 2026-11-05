@@ -19,6 +19,7 @@ const CitiesPage = lazy(() => import("../features/cities/pages/cityPages"));
 const SpecialistsPage = lazy(() => import("../features/specialists/pages/SpecialistsPage"));
 const ServiceCategoriesPage = lazy(() => import("../features/ServiceCategory/pages/ServiceCategoriesPage"));
 const MedicinesPage = lazy(() => import("../features/Medicines/pages/Medicinespage"));
+const PrescriptionsPage = lazy(() => import("../features/prescriptions/pages/PrescriptionsPage"));
 const ServicesPage = lazy(() => import("../features/services-admin/pages/ServicesPage"));
 const ProviderMapPage = lazy(() => import("../features/provider-map/pages/ProviderMapPage"));
 const SlidersPage = lazy(() => import("../features/offer-sliders/pages/SlidersPage"));
@@ -195,6 +196,10 @@ const router = createBrowserRouter([
               PERMISSION_CODES.MEDICINES_READ,
               <MedicinesPage title="Medicine" />
             ),
+          },
+          {
+            path: "prescriptions",
+            element: <PrescriptionsPage />,
           },
           {
             path: "card-activation",
