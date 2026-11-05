@@ -12,7 +12,7 @@ import { SkeletonTable } from "../../../shared/components/Skeleton";
 import StatusBadge from "../../../shared/components/StatusBadge";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import { useManualPrescriptionsQuery } from "../hooks/useManualPrescriptionsQuery";
-import PrescriptionDetailsModal from "../components/PrescriptionDetailsModal";
+import PrescriptionDetailsSidebar from "../components/PrescriptionDetailsSidebar";
 import ProcessPrescriptionModal from "../components/ProcessPrescriptionModal";
 import RejectPrescriptionModal from "../components/RejectPrescriptionModal";
 import { useProcessManualPrescriptionMutation } from "../hooks/useProcessManualPrescriptionMutation";
@@ -245,12 +245,14 @@ export default function PrescriptionsPage() {
         )}
       </div>
 
-      <PrescriptionDetailsModal
-        prescription={selectedPrescription}
-        onClose={() => setSelectedPrescriptionId(null)}
-        onProcess={selectedPrescription ? () => openProcess(selectedPrescription.id) : undefined}
-        onReject={selectedPrescription ? () => openReject(selectedPrescription.id) : undefined}
-      />
+      {selectedPrescription && (
+        <PrescriptionDetailsSidebar
+          prescription={selectedPrescription}
+          onClose={() => setSelectedPrescriptionId(null)}
+          onProcess={() => openProcess(selectedPrescription.id)}
+          onReject={() => openReject(selectedPrescription.id)}
+        />
+      )}
       {processingPrescription && (
         <ProcessPrescriptionModal
           prescription={processingPrescription}

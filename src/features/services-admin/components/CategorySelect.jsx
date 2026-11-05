@@ -7,10 +7,11 @@ export default function CategorySelect({
   placeholder = "Select category",
   error,
   disabled,
+  className = "w-full sm:w-72",
 }) {
   return (
     
-    <div className="w-full sm:w-72">
+    <div className={className}>
       <SearchableAsyncSelect
         queryKey={["categories"]}
         fetchItems={getServiceCategories}
