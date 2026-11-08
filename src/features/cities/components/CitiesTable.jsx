@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { faCity } from "@fortawesome/free-solid-svg-icons";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
@@ -24,7 +25,7 @@ export default function CitiesTable({ cities, hasActiveFilters, onEdit, onDelete
           <th className="px-6 py-3">English Name</th>
           <th className="px-6 py-3">Arabic Name</th>
           <th className="px-6 py-3">Governorate</th>
-          <th className="px-6 py-3 text-center">Actions</th>
+          <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>
         </tr>
       </thead>
 
@@ -37,9 +38,9 @@ export default function CitiesTable({ cities, hasActiveFilters, onEdit, onDelete
               <p className="truncate font-semibold text-slate-900">{city.governorateEnName || "—"}</p>
               <p className="truncate text-xs text-slate-400">{city.governorateArName || ""}</p>
             </td>
-            <td className="px-6 py-3">
+            <TableActionsCell className="px-6 py-3">
               <RowActions onEdit={onEdit ? () => onEdit(city) : undefined} onDelete={onDeleteRequest ? () => onDeleteRequest(city) : undefined} />
-            </td>
+            </TableActionsCell>
           </tr>
         ))}
       </tbody>

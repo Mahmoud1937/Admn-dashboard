@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { faMap } from "@fortawesome/free-solid-svg-icons";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
@@ -23,7 +24,7 @@ export default function GovernoratesTable({ governorates, hasActiveFilters, onEd
         <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
           <th className="px-6 py-3">English Name</th>
           <th className="px-6 py-3">Arabic Name</th>
-          <th className="px-6 py-3 text-center">Actions</th>
+          <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>
         </tr>
       </thead>
 
@@ -32,9 +33,9 @@ export default function GovernoratesTable({ governorates, hasActiveFilters, onEd
           <tr key={governorate.id} className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60">
             <td className="px-6 py-3 font-medium text-slate-900">{governorate.enName}</td>
             <td className="px-6 py-3 text-slate-600">{governorate.arName}</td>
-            <td className="px-6 py-3">
+            <TableActionsCell className="px-6 py-3">
               <RowActions onEdit={onEdit ? () => onEdit(governorate) : undefined} onDelete={onDeleteRequest ? () => onDeleteRequest(governorate) : undefined} />
-            </td>
+            </TableActionsCell>
           </tr>
         ))}
       </tbody>

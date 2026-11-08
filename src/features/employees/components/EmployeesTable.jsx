@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPhone,
@@ -82,9 +83,9 @@ function SkeletonRow({ showActions }) {
       <td className="px-4 py-4"><div className="h-3.5 w-16 rounded bg-slate-200" /></td>
       <td className="px-4 py-4"><div className="h-6 w-20 rounded-full bg-slate-200" /></td>
       {showActions && (
-        <td className="px-4 py-4">
+        <TableActionsCell className="px-4 py-4">
           <div className="mx-auto h-6 w-20 rounded bg-slate-200" />
-        </td>
+        </TableActionsCell>
       )}
     </Skeleton>
   );
@@ -118,7 +119,7 @@ export default function EmployeesTable({
               <th className={TH}>Group</th>
               <th className={TH}>Last Login</th>
               <th className={TH}>Status</th>
-              {showActions && <th className={TH}>Actions</th>}
+              {showActions && <TableActionsCell as="th" className={TH}>Actions</TableActionsCell>}
             </tr>
           </thead>
 
@@ -213,7 +214,13 @@ export default function EmployeesTable({
                     </td>
 
                     {showActions && (
-                      <td className="px-4 py-3.5">
+                      <TableActionsCell
+                        backgroundColor={e.isBlocked ? "color-mix(in oklab, var(--color-red-50) 40%, transparent)" : undefined}
+                        hoverColor={e.isBlocked
+                          ? "color-mix(in oklab, var(--color-red-100) 60%, transparent)"
+                          : "color-mix(in oklab, var(--color-blue-50) 60%, transparent)"}
+                        className="px-4 py-3.5"
+                      >
                         <div className="flex items-center justify-center gap-1">
                           {canUpdate && (
                             <>
@@ -264,7 +271,7 @@ export default function EmployeesTable({
                             </button>
                           )}
                         </div>
-                      </td>
+                      </TableActionsCell>
                     )}
                   </tr>
                 );

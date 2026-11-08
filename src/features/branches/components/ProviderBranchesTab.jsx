@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -261,7 +262,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                     <th className="px-4 py-3 text-center">Status</th>
                     <th className="px-4 py-3">Joined</th>
                     {showActions && (
-                      <th className="px-6 py-3 text-center">Actions</th>
+                      <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>
                     )}
                   </tr>
                 </thead>
@@ -359,7 +360,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
 
                         {/* Actions */}
                         {showActions && (
-                          <td
+                          <TableActionsCell hoverColor="var(--color-slate-50)"
                             className="px-6 py-3.5"
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -389,7 +390,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                                 </IconButton>
                               )}
                             </div>
-                          </td>
+                          </TableActionsCell>
                         )}
                       </tr>
                     );

@@ -21,14 +21,22 @@ export async function getManualPrescriptions({
   return requireApiSuccess(response, "Failed to load prescriptions.");
 }
 
+export async function getManualPrescriptionById({ manualPrescriptionId, signal }) {
+  const response = await axiosInstance.get(
+    `/admin/manual-prescriptions/${encodeURIComponent(manualPrescriptionId)}`,
+    { signal }
+  );
+
+  return requireApiSuccess(response, "Failed to load prescription details.").data;
+}
+
 export async function processManualPrescription({ manualPrescriptionId, items }) {
   const response = await axiosInstance.post(
     `/admin/manual-prescriptions/${encodeURIComponent(manualPrescriptionId)}/process`,
     {
-      items: items.map(({ serviceId, providerId, price, quantity }) => ({
+      items: items.map(({ serviceId, providerId, quantity }) => ({
         serviceId,
-        providerId,
-        price: price ?? null,
+        providerId: providerId ?? null,
         quantity: quantity ?? null,
       })),
     }
@@ -66,4 +74,30 @@ export async function getManualPrescriptionProviders({
   );
 
   return requireApiSuccess(response, "Failed to load providers for this service.");
+}
+
+export async function getManualPrescriptionPharmacies({ pageNumber = 1, pageSize = 10, search = "", signal } = {}) {
+  const response = await axiosInstance.get("/admin/manual-prescriptions/pharmacies", {
+    params: {
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+      Search: search || undefined,
+    },
+    signal,
+  });
+
+  return requireApiSuccess(response, "Failed to load pharmacies.");
+}
+
+export async function getPrescriptionMedicines({ pageNumber = 1, pageSize = 15, search = "", signal } = {}) {
+  const response = await axiosInstance.get("/Medicine", {
+    params: {
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+      Search: search || undefined,
+    },
+    signal,
+  });
+
+  return requireApiSuccess(response, "Failed to load medicines.");
 }

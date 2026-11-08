@@ -20,6 +20,7 @@ const SpecialistsPage = lazy(() => import("../features/specialists/pages/Special
 const ServiceCategoriesPage = lazy(() => import("../features/ServiceCategory/pages/ServiceCategoriesPage"));
 const MedicinesPage = lazy(() => import("../features/Medicines/pages/Medicinespage"));
 const PrescriptionsPage = lazy(() => import("../features/prescriptions/pages/PrescriptionsPage"));
+const PrescriptionDetailsPage = lazy(() => import("../features/prescriptions/pages/PrescriptionDetailsPage"));
 const ServicesPage = lazy(() => import("../features/services-admin/pages/ServicesPage"));
 const ProviderMapPage = lazy(() => import("../features/provider-map/pages/ProviderMapPage"));
 const SlidersPage = lazy(() => import("../features/offer-sliders/pages/SlidersPage"));
@@ -200,6 +201,10 @@ const router = createBrowserRouter([
           {
             path: "prescriptions",
             element: <PrescriptionsPage />,
+          },
+          {
+            path: "prescriptions/:manualPrescriptionId",
+            element: <PrescriptionDetailsPage />,
           },
           {
             path: "card-activation",

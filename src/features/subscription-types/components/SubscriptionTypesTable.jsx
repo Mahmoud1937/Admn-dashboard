@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { Fragment, useState } from "react";
 import { faBan, faCheck, faChevronDown, faCreditCard } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -66,7 +67,7 @@ export default function SubscriptionTypesTable({
             <th className="px-6 py-3 text-center">Created At</th>
             <th className="px-6 py-3 text-center">Subscriptions</th>
             <th className="px-6 py-3 text-center">Status</th>
-            <th className="px-6 py-3 text-center">Actions</th>
+            <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>
           </tr>
         </thead>
 
@@ -163,12 +164,12 @@ export default function SubscriptionTypesTable({
                   )}
                 </div>
               </td>
-              <td className="px-6 py-3" onClick={(event) => event.stopPropagation()}>
+              <TableActionsCell backgroundColor={expanded ? "color-mix(in oklab, var(--color-blue-50) 40%, transparent)" : undefined} className="px-6 py-3" onClick={(event) => event.stopPropagation()}>
                 <RowActions
                   onEdit={onEdit ? () => onEdit(subscriptionType) : undefined}
                   onDelete={onDeleteRequest ? () => onDeleteRequest(subscriptionType) : undefined}
                 />
-              </td>
+              </TableActionsCell>
                 </tr>
                 {expanded && (
                   <tr id={detailsId} className="border-b border-slate-200 bg-slate-50/70">

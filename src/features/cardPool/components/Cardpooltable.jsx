@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { faFileExcel, faSpinner, faTrash, faLayerGroup } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
@@ -70,13 +71,13 @@ const CardPoolTable = ({
                 Created At
               </th>
 
-              <th className="px-4 py-3 text-center">
+              <TableActionsCell as="th" column="export" className="px-4 py-3 text-center">
                 Export
-              </th>
+              </TableActionsCell>
 
-              <th className="px-4 py-3 text-center">
+              <TableActionsCell as="th" column="delete" className="px-4 py-3 text-center">
                 Delete
-              </th>
+              </TableActionsCell>
             </tr>
           </thead>
 
@@ -167,7 +168,7 @@ const CardPoolTable = ({
                 </td>
 
                 {/* Export */}
-                <td className="px-4 py-3 text-center text-sm">
+                <TableActionsCell column="export" className="px-4 py-3 text-center text-sm">
                   {onDelete && <button
                     type="button"
                     onClick={() => onExport(pool.id)}
@@ -185,10 +186,10 @@ const CardPoolTable = ({
                     />
                     Export
                   </button>}
-                </td>
+                </TableActionsCell>
 
                 {/* Delete */}
-                <td className="px-4 py-3 text-center text-sm">
+                <TableActionsCell column="delete" className="px-4 py-3 text-center text-sm">
                   <button
                     type="button"
                     onClick={() => onDelete(pool)}
@@ -197,7 +198,7 @@ const CardPoolTable = ({
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
-                </td>
+                </TableActionsCell>
               </tr>
             ))}
           </tbody>

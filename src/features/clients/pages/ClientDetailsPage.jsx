@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
@@ -94,7 +93,15 @@ const ClientDetailsPage = () => {
 
   const { client, isLoading, isError, error } = useClientDetailsQuery(clientId);
 
-  const [activeTab, setActiveTab] = useState(TAB_DETAILS);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const activeTab = TABS.some((tab) => tab.key === requestedTab) ? requestedTab : TAB_DETAILS;
+
+  const setActiveTab = (tab) => setSearchParams((params) => {
+    const next = new URLSearchParams(params);
+    next.set("tab", tab);
+    return next;
+  });
 
   if (isLoading) {
     return (
@@ -134,6 +141,7 @@ const ClientDetailsPage = () => {
             <button
               key={tab.key}
               type="button"
+              aria-pressed={isActive}
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-medium transition-colors ${
                 isActive

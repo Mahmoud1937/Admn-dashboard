@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { faPills } from "@fortawesome/free-solid-svg-icons";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
@@ -35,7 +36,7 @@ export default function MedicinesTable({
             <th scope="col" className="w-[100px] px-4 py-3 text-center">Unit</th>
             <th scope="col" className="w-[140px] px-4 py-3 text-center">Origin</th>
             <th scope="col" className="w-[130px] px-4 py-3 text-center">Price</th>
-            {showActions && <th scope="col" className="w-[130px] px-4 py-3 text-center">Actions</th>}
+            {showActions && <TableActionsCell as="th" scope="col" className="w-[130px] px-4 py-3 text-center">Actions</TableActionsCell>}
           </tr>
         </thead>
 
@@ -103,7 +104,7 @@ export default function MedicinesTable({
 
               {/* Actions */}
               {showActions && (
-                <td className="px-4 py-3 text-center">
+                <TableActionsCell className="px-4 py-3 text-center">
                   <RowActions
                     onEdit={onEdit ? () => onEdit(medicine) : undefined}
                     onDelete={
@@ -112,7 +113,7 @@ export default function MedicinesTable({
                         : undefined
                     }
                   />
-                </td>
+                </TableActionsCell>
               )}
             </tr>
           ))}

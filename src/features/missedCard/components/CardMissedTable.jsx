@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { faTrash, faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatDate } from "../../../utils/formatDate";
@@ -63,7 +64,7 @@ const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
               <th className="px-4 py-3">Type</th>
               <th className="px-4 py-3">Reported by</th>
               <th className="px-4 py-3">Reported on</th>
-              {onDelete && <th className="px-6 py-3 text-center">Actions</th>}
+              {onDelete && <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>}
             </tr>
           </thead>
 
@@ -81,7 +82,7 @@ const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
                   {formatDate(item.createdAt)}
                 </td>
                 {onDelete && (
-                  <td className="px-6 py-3.5">
+                  <TableActionsCell hoverColor="var(--color-slate-50)" className="px-6 py-3.5">
                     <div className="flex justify-center">
                       <button
                         type="button"
@@ -93,7 +94,7 @@ const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     </div>
-                  </td>
+                  </TableActionsCell>
                 )}
               </tr>
             ))}

@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from 'react'
 import { faImage } from '@fortawesome/free-solid-svg-icons'
 import TableEmptyState from '../../../shared/components/TableEmptyState'
@@ -50,7 +51,7 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
               <th className="px-4 py-3">AR Image</th>
               <th className="px-4 py-3">Provider</th>
               <th className="px-4 py-3">Created</th>
-              <th className="px-4 py-3">Actions</th>
+              <TableActionsCell as="th" className="px-4 py-3">Actions</TableActionsCell>
             </tr>
           </thead>
 
@@ -110,7 +111,7 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
                   </span>
                 </td>
 
-                <td className="px-4 py-3">
+                <TableActionsCell hoverColor="color-mix(in oklab, var(--color-primary-600) 10%, transparent)" className="px-4 py-3">
                   <div className="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
                     <RowActions
                       onEdit={onEdit ? (e) => {
@@ -123,7 +124,7 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
                       } : undefined}
                     />
                   </div>
-                </td>
+                </TableActionsCell>
               </tr>
             ))}
           </tbody>

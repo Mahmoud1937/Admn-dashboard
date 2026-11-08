@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from 'react'
 import useFilterPanel from '../../../shared/hooks/useFilterPanel'
 import { faClockRotateLeft } from '@fortawesome/free-solid-svg-icons'
@@ -78,7 +79,7 @@ export default function OrderHistorySection({ userId }) {
 
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null)
 
-  const { data: invoiceDetails, isLoading: isInvoiceLoading } =
+  const { data: invoiceDetails, isLoading: isInvoiceLoading, error: invoiceError, refetch: refetchInvoice } =
     useInvoiceDetailsQuery(selectedInvoiceId, !!selectedInvoiceId)
 
   const items = data?.items ?? []
@@ -180,7 +181,7 @@ export default function OrderHistorySection({ userId }) {
                   <th className="px-4 py-3 text-center">Status</th>
                   <th className="px-4 py-3 text-center">Date</th>
                   <th className="px-4 py-3 text-center">Total</th>
-                  <th className="px-4 py-3 text-center">Actions</th>
+                  <TableActionsCell as="th" className="px-4 py-3 text-center">Actions</TableActionsCell>
                 </tr>
               </thead>
               <tbody>
@@ -215,14 +216,14 @@ export default function OrderHistorySection({ userId }) {
                       })}{' '}
                       EGP
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <TableActionsCell hoverColor="transparent" className="px-4 py-3 text-center">
                       <button
                         onClick={() => setSelectedInvoiceId(order.invoiceId)}
                         className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"
                       >
                         View Details
                       </button>
-                    </td>
+                    </TableActionsCell>
                   </tr>
                 ))}
               </tbody>
@@ -247,6 +248,8 @@ export default function OrderHistorySection({ userId }) {
         onClose={() => setSelectedInvoiceId(null)}
         invoice={invoiceDetails}
         isLoading={isInvoiceLoading}
+        error={invoiceError}
+        onRetry={refetchInvoice}
       />
     </div>
   )

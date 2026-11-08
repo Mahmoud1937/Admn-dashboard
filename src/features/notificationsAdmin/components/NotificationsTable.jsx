@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -250,7 +251,11 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
         <td className="px-4 py-4 align-top">
           <ScheduleCell scheduledAt={scheduledAt} durationDay={durationDay} />
         </td>
-        <td className="px-4 py-4 align-top">
+        <TableActionsCell
+          backgroundColor={expanded ? "var(--color-slate-50)" : undefined}
+          hoverColor={expanded ? "var(--color-slate-50)" : "color-mix(in oklab, var(--color-slate-50) 70%, transparent)"}
+          className="px-4 py-4 align-top"
+        >
           <div className="flex items-center justify-end gap-0.5">
             {canSend && (
               <ActionButton
@@ -332,7 +337,7 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
               />
             </ActionButton>
           </div>
-        </td>
+        </TableActionsCell>
       </tr>
       {expanded && (
         <tr id={detailsId} className="border-b border-slate-200 bg-slate-50">
@@ -402,7 +407,7 @@ export default function NotificationsTable({
             <th scope="col" className="px-4 py-3">English message</th>
             <th scope="col" className="px-4 py-3">Arabic message</th>
             <th scope="col" className="px-4 py-3">Schedule</th>
-            <th scope="col" className="px-4 py-3 text-right">Actions</th>
+            <TableActionsCell as="th" scope="col" className="px-4 py-3 text-right">Actions</TableActionsCell>
           </tr>
         </thead>
         <tbody>

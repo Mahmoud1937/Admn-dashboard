@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrash, faUserTie } from "@fortawesome/free-solid-svg-icons";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
@@ -25,7 +26,7 @@ export default function BrokersTable({ brokers, searchTerm, onEdit, onDelete }) 
             <th className="px-4 py-3">Name</th>
             <th className="px-4 py-3">Phone Number</th>
             <th className="px-4 py-3">Joined</th>
-            {(onEdit || onDelete) && <th className="px-4 py-3">Actions</th>}
+            {(onEdit || onDelete) && <TableActionsCell as="th" className="px-4 py-3">Actions</TableActionsCell>}
           </tr>
         </thead> 
         <tbody>
@@ -36,7 +37,7 @@ export default function BrokersTable({ brokers, searchTerm, onEdit, onDelete }) 
               <td dir="ltr" className="px-4 py-3 text-slate-700">{broker.phoneNumber || "-"}</td>
               <td className="px-4 py-3 text-slate-600">{formatDate(broker.joinAt)}</td>
               {(onEdit || onDelete) && (
-                <td className="px-4 py-3">
+                <TableActionsCell className="px-4 py-3">
                   <div className="flex items-center justify-center gap-1">
                     {onEdit && (
                       <button type="button" onClick={() => onEdit(broker)} title="Edit broker" aria-label={`Edit ${broker.name}`} className="rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-700">
@@ -49,7 +50,7 @@ export default function BrokersTable({ brokers, searchTerm, onEdit, onDelete }) 
                       </button>
                     )}
                   </div>
-                </td>
+                </TableActionsCell>
               )}
             </tr>
           ))}

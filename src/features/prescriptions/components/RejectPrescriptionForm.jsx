@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExclamationTriangle, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
+import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import FormActions from "../../../shared/components/FormActions";
-import PrescriptionSidebarShell from "./PrescriptionSidebarShell";
 import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
 
-export default function RejectPrescriptionModal({ prescription, onClose, onReject, isSaving, error }) {
+export default function RejectPrescriptionForm({ prescription, onClose, onReject, isSaving, error }) {
   const [rejectionReason, setRejectionReason] = useState("");
   const [validationError, setValidationError] = useState("");
   const feedbackRef = useRef(null);
@@ -16,6 +15,7 @@ export default function RejectPrescriptionModal({ prescription, onClose, onRejec
 
   const submit = (event) => {
     event.preventDefault();
+    if (isSaving) return;
     const reason = rejectionReason.trim();
     if (!reason) {
       setValidationError("Enter a reason for rejecting this prescription.");
@@ -27,64 +27,16 @@ export default function RejectPrescriptionModal({ prescription, onClose, onRejec
   };
 
   return (
-    <PrescriptionSidebarShell
-      titleId="reject-prescription-title"
-      title={`Reject prescription #${prescription.id}`}
-      description={[prescription.customerFullName || `Customer #${prescription.customerId}`, prescription.phoneNumber].filter(Boolean).join(" · ")}
-      closeLabel="Close reject prescription form"
-      className="max-w-xl"
-      isSaving={isSaving}
-      onClose={onClose}
+    <form
+      aria-label="Reject prescription"
+      aria-busy={isSaving || undefined}
+      className="space-y-5"
       onSubmit={submit}
-      footer={(
-        <FormActions
-          className="flex items-center justify-end gap-3"
-          onCancel={onClose}
-          showCancel={!isSaving}
-          isSaving={isSaving}
-          submitLabel="Reject prescription"
-          savingLabel="Rejecting..."
-          submitClassName="rounded-lg bg-red-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-red-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-200 disabled:opacity-60"
-        />
-      )}
     >
       <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
         <FontAwesomeIcon icon={faExclamationTriangle} className="mt-0.5 shrink-0 text-amber-500" aria-hidden="true" />
         <p>The customer will see this reason. Please keep it clear and respectful.</p>
       </div>
-
-      {(prescription.text || prescription.imageUrl) && (
-        <section className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-          {prescription.text && (
-            <div>
-              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Prescription text
-              </p>
-              <p className="whitespace-pre-wrap rounded-lg bg-white px-3 py-2.5 text-sm leading-relaxed text-slate-700 ring-1 ring-slate-200" dir="auto">
-                {prescription.text}
-              </p>
-            </div>
-          )}
-          {prescription.imageUrl && (
-            <a
-              href={prescription.imageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative block overflow-hidden rounded-lg bg-white p-2 ring-1 ring-slate-200 transition hover:ring-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-              aria-label={`Open prescription #${prescription.id} image in a new tab`}
-            >
-              <img
-                src={prescription.imageUrl}
-                alt={`Prescription #${prescription.id}`}
-                className="mx-auto max-h-48 max-w-full object-contain"
-              />
-              <span className="pointer-events-none absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-slate-900/70 px-2.5 py-1 text-xs font-medium text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
-                <FontAwesomeIcon icon={faExternalLinkAlt} aria-hidden="true" /> Open
-              </span>
-            </a>
-          )}
-        </section>
-      )}
 
       <div>
         <div className="mb-1.5 flex items-center justify-between">
@@ -127,6 +79,14 @@ export default function RejectPrescriptionModal({ prescription, onClose, onRejec
           )}
         </div>
       )}
-    </PrescriptionSidebarShell>
+      <FormActions
+        onCancel={onClose}
+        showCancel={!isSaving}
+        isSaving={isSaving}
+        submitLabel="Reject prescription"
+        savingLabel="Rejecting..."
+        submitClassName="rounded-lg bg-red-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-red-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-200 disabled:opacity-60"
+      />
+    </form>
   );
 }

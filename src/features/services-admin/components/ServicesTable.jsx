@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { faStethoscope } from "@fortawesome/free-solid-svg-icons";
 import RowActions from "../../../shared/components/RowActions";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
@@ -55,7 +56,7 @@ export default function ServicesTable({
             <th className="px-4 py-3">Category</th>
             <th className="px-4 py-3">CPT</th>
             <th className="px-4 py-3">Instructions</th>
-            {showActions && <th className="px-6 py-3 text-center">Actions</th>}
+            {showActions && <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>}
           </tr>
         </thead>
 
@@ -100,7 +101,7 @@ export default function ServicesTable({
               </td>
 
               {showActions && (
-                <td className="px-6 py-3.5">
+                <TableActionsCell hoverColor="var(--color-slate-50)" className="px-6 py-3.5">
                   <RowActions
                     onEdit={onEdit ? () => onEdit(service) : undefined}
                     onDelete={
@@ -109,7 +110,7 @@ export default function ServicesTable({
                         : undefined
                     }
                   />
-                </td>
+                </TableActionsCell>
               )}
             </tr>
           ))}

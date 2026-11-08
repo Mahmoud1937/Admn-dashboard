@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClockRotateLeft, faPaperclip, faPenToSquare, faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -125,7 +126,7 @@ export default function ProviderRenewalsTab({
                     <th scope="col" className="px-4 py-3">Broker name</th>
                     <th scope="col" className="px-6 py-3">Broker phone</th>
                     <th scope="col" className="px-6 py-3">Attachments</th>
-                    {canUpdateRenewals && <th scope="col" className="px-6 py-3">Actions</th>}
+                    {canUpdateRenewals && <TableActionsCell as="th" scope="col" className="px-6 py-3">Actions</TableActionsCell>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -162,7 +163,7 @@ export default function ProviderRenewalsTab({
                         </button>
                       </td>
                       {canUpdateRenewals && (
-                        <td className="px-6 py-3.5">
+                        <TableActionsCell hoverColor="var(--color-slate-50)" className="px-6 py-3.5">
                           <button
                             type="button"
                             disabled={isSaving || hasOpenRenewalForm}
@@ -177,7 +178,7 @@ export default function ProviderRenewalsTab({
                             <FontAwesomeIcon icon={faPenToSquare} />
                             Edit dates
                           </button>
-                        </td>
+                        </TableActionsCell>
                       )}
                     </tr>
                   ))}

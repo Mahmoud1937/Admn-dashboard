@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -38,7 +39,6 @@ const COLUMNS = [
 ]
 
 const ACTIONS_WIDTH = 96
-const STICKY_SHADOW = 'shadow-[-8px_0_8px_-8px_rgba(15,23,42,0.12)]'
 const TABLE_MIN_WIDTH =
   COLUMNS.reduce((sum, c) => sum + c.width, ACTIONS_WIDTH) + 'px'
 
@@ -315,7 +315,7 @@ export default function InvoicesTable({
   const [timelineInvoiceId, setTimelineInvoiceId] = useState(null)
   const [detailsInvoiceId, setDetailsInvoiceId] = useState(null)
 
-  const { data: detailsInvoice, isLoading: detailsLoading } =
+  const { data: detailsInvoice, isLoading: detailsLoading, error: detailsError, refetch: refetchDetails } =
     useInvoiceDetailsQuery(detailsInvoiceId, !!detailsInvoiceId)
 
   if (isLoading) {
@@ -358,12 +358,12 @@ export default function InvoicesTable({
                   {col.label}
                 </th>
               ))}
-              <th
+              <TableActionsCell as="th"
                 scope="col"
-                className={`sticky right-0 z-30 whitespace-nowrap bg-slate-100 px-4 py-3 text-center ${STICKY_SHADOW}`}
+                className="whitespace-nowrap px-4 py-3 text-center"
               >
                 Actions
-              </th>
+              </TableActionsCell>
             </tr>
           </thead>
 
@@ -392,8 +392,9 @@ export default function InvoicesTable({
                 })}
 
                 {/* Actions (sticky) */}
-                <td
-                  className={`sticky right-0 z-10 bg-white px-4 py-4 transition-colors group-hover:bg-slate-50 ${STICKY_SHADOW}`}
+                <TableActionsCell
+                  hoverColor="var(--color-slate-50)"
+                  className="px-4 py-4 transition-colors"
                 >
                   <div className="flex items-center justify-center gap-1">
                     <IconButton
@@ -410,7 +411,7 @@ export default function InvoicesTable({
                       <History size={16} />
                     </IconButton>
                   </div>
-                </td>
+                </TableActionsCell>
               </tr>
             ))}
           </tbody>
@@ -430,6 +431,8 @@ export default function InvoicesTable({
           onClose={() => setDetailsInvoiceId(null)}
           invoice={detailsInvoice}
           isLoading={detailsLoading}
+          error={detailsError}
+          onRetry={refetchDetails}
         />
       )}
     </div>

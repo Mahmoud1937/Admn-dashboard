@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { faTicket } from "@fortawesome/free-solid-svg-icons";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import RowActions from "../../../shared/components/RowActions";
@@ -31,7 +32,7 @@ export default function TicketTypesTable({
             <th className="px-6 py-3 text-center">Arabic Name</th>
             <th className="px-6 py-3 text-center">Created At</th>
             <th className="px-6 py-3 text-center">Created By</th>
-            <th className="px-6 py-3 text-center">Actions</th>
+            <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>
           </tr>
         </thead>
 
@@ -56,12 +57,12 @@ export default function TicketTypesTable({
                   {ticketType.createdBy || "-"}
                 </p>
               </td>
-              <td className="px-6 py-3">
+              <TableActionsCell className="px-6 py-3">
                 <RowActions
                   onEdit={onEdit ? () => onEdit(ticketType) : undefined}
                   onDelete={onDeleteRequest ? () => onDeleteRequest(ticketType) : undefined}
                 />
-              </td>
+              </TableActionsCell>
             </tr>
           ))}
         </tbody>

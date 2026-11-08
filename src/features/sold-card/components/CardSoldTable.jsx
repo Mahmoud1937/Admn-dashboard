@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { faFileExcel, faSpinner, faTrash, faCreditCard } from "@fortawesome/free-solid-svg-icons";
@@ -44,8 +45,8 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
                 <th className="px-4 py-3 text-center">Proof</th>
                 <th className="px-4 py-3 text-center">Created By</th>
                 <th className="px-4 py-3 text-center">Created At</th>
-                <th className="px-4 py-3 text-center">Export</th>
-                <th className="px-4 py-3 text-center">Delete</th>
+                <TableActionsCell as="th" column="export" className="px-4 py-3 text-center">Export</TableActionsCell>
+                <TableActionsCell as="th" column="delete" className="px-4 py-3 text-center">Delete</TableActionsCell>
               </tr>
             </thead>
             <tbody>
@@ -104,7 +105,7 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
                   </td>
                   <td className="px-4 py-3 text-sm text-center text-gray-700">{sold.createdBy}</td>
                   <td className="px-4 py-3 text-sm text-center text-gray-700">{formatDate(sold.createdAt)}</td>
-                  <td className="px-4 py-3 text-sm text-center">
+                  <TableActionsCell column="export" className="px-4 py-3 text-sm text-center">
                     {onDelete && <button
                       type="button"
                       onClick={() => onExport(sold.id)}
@@ -118,8 +119,8 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
                       />
                       Export
                     </button>}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-center">
+                  </TableActionsCell>
+                  <TableActionsCell column="delete" className="px-4 py-3 text-sm text-center">
                     <button
                       type="button"
                       onClick={() => onDelete(sold)}
@@ -128,7 +129,7 @@ const CardSoldTable = ({ items, isLoading, hasActiveFilters, onExport, exporting
                     >
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
-                  </td>
+                  </TableActionsCell>
                 </tr>
               ))}
             </tbody>

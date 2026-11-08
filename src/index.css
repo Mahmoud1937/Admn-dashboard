@@ -38,6 +38,37 @@
 }
 
 @layer components {
+  .table-actions-cell {
+    position: sticky;
+    z-index: 1;
+    box-shadow: -8px 0 8px -8px rgb(15 23 42 / 12%);
+  }
+
+  .table-actions-cell + .table-actions-cell {
+    box-shadow: none;
+  }
+
+  .scrollable-table > table > thead:has(.table-actions-cell) > tr {
+    background-color: inherit;
+  }
+
+  thead .table-actions-cell {
+    z-index: 3;
+    background: inherit;
+    white-space: nowrap;
+  }
+
+  tbody .table-actions-cell {
+    /* Keep translucent row colors opaque over horizontally scrolling data. */
+    --table-action-fill: var(--table-action-background, transparent);
+    background: linear-gradient(var(--table-action-fill), var(--table-action-fill)), white;
+  }
+
+  tbody tr:hover > .table-actions-cell,
+  tbody tr:focus-visible > .table-actions-cell {
+    --table-action-fill: var(--table-action-hover, color-mix(in oklab, var(--color-slate-50) 60%, transparent));
+  }
+
   .scroll-table,
   .scroll-form {
     scrollbar-width: thin;

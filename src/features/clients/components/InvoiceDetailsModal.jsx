@@ -1,184 +1,232 @@
-// shared/components/InvoiceDetailsModal.jsx
-import { Calendar, Tag, CheckCircle2, Clock, XCircle, X } from 'lucide-react'
+import { useEffect, useId, useRef, useState } from "react";
+import { Calendar, Tag, CheckCircle2, Clock, XCircle, X, Pill, Users } from "lucide-react";
 import { SkeletonText } from "../../../shared/components/Skeleton";
+import ScrollableTable from "../../../shared/components/ScrollableTable";
+import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
+import { getMedicineUnitName } from "../../Medicines/constants/medicineUnits";
 
 const STATUS_STYLE = {
-  Paid: { badge: 'bg-blue-50 text-blue-600', icon: Calendar, iconWrap: 'bg-blue-50', iconColor: 'text-blue-600' },
-  Pending: { badge: 'bg-amber-50 text-amber-600', icon: Clock, iconWrap: 'bg-amber-50', iconColor: 'text-amber-600' },
-  Canceled: { badge: 'bg-red-50 text-red-600', icon: XCircle, iconWrap: 'bg-red-50', iconColor: 'text-red-600' },
-  Used: { badge: 'bg-emerald-50 text-emerald-600', icon: CheckCircle2, iconWrap: 'bg-emerald-50', iconColor: 'text-emerald-600' },
-}
+  paid: { badge: "bg-blue-50 text-blue-600", icon: Calendar, iconWrap: "bg-blue-50", iconColor: "text-blue-600", label: "Paid", message: "Payment received." },
+  pending: { badge: "bg-amber-50 text-amber-600", icon: Clock, iconWrap: "bg-amber-50", iconColor: "text-amber-600", label: "Pending", message: "Awaiting payment." },
+  canceled: { badge: "bg-red-50 text-red-600", icon: XCircle, iconWrap: "bg-red-50", iconColor: "text-red-600", label: "Canceled", message: "This invoice has been canceled." },
+  used: { badge: "bg-emerald-50 text-emerald-600", icon: CheckCircle2, iconWrap: "bg-emerald-50", iconColor: "text-emerald-600", label: "Used", message: "This invoice has been used." },
+};
+const STATUS_NAMES = { 1: "paid", 2: "pending", 3: "canceled", 4: "used" };
+const UNKNOWN_STATUS = { badge: "bg-slate-100 text-slate-600", icon: Calendar, iconWrap: "bg-slate-100", iconColor: "text-slate-500" };
 
-function formatDate(dateStr) {
-  if (!dateStr) return '-'
-  const d = new Date(dateStr)
-  if (Number.isNaN(d.getTime())) return dateStr
-  const day = String(d.getDate()).padStart(2, '0')
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const year = d.getFullYear()
-  return `${day}/${month}/${year}`
+function formatDate(value) {
+  if (!value || String(value).startsWith("0001")) return "-";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "-" : date.toLocaleDateString("en-GB");
 }
 
 function formatMoney(value) {
-  return Number(value ?? 0).toLocaleString('en-US', {
+  if (value == null || value === "" || !Number.isFinite(Number(value))) return "-";
+  return Number(value).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })
+  });
 }
 
-export default function InvoiceDetailsModal({ isOpen, onClose, invoice, isLoading }) {
-  if (!isOpen) return null
-
-  if (isLoading || !invoice) {
-    return (
-      <div className="fixed inset-0 bg-slate-900/40 flex cursor-pointer items-center justify-center z-[200] p-3 sm:p-4" onClick={onClose}>
-        <div
-          className="bg-white rounded-2xl shadow-xl w-full max-w-2xl cursor-default overflow-hidden flex items-center justify-center py-16"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <SkeletonText label="Loading invoice details..." lines={6} className="w-full space-y-4 px-6" />
-        </div>
+function InvoiceStat({ label, icon: Icon, children }) {
+  return (
+    <div className="text-center">
+      <div className="mb-1.5 flex items-center justify-center gap-1.5 text-sm text-slate-400">
+        {Icon && <Icon size={14} aria-hidden="true" />}
+        <span>{label}</span>
       </div>
-    )
-  }
+      <p dir="auto" className="break-words text-base font-semibold">{children}</p>
+    </div>
+  );
+}
 
-  const style = STATUS_STYLE[invoice.status] || STATUS_STYLE.Paid
-  const StatusIcon = style.icon
-  const items = invoice.items?.items ?? []
-  const familyName = [invoice.familyFirstName, invoice.familyLastName]
-    .filter(Boolean)
-    .join(' ')
+function MedicineImage({ src }) {
+  const [hasError, setHasError] = useState(false);
+  return (
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-50 text-slate-300">
+      {src && !hasError
+        ? <img src={src} alt="" className="h-full w-full object-contain" loading="lazy" onError={() => setHasError(true)} />
+        : <Pill size={16} aria-hidden="true" />}
+    </span>
+  );
+}
+
+function InvoiceItems({ items, isMedicineInvoice }) {
+  return (
+    <div className="mb-6 overflow-hidden rounded-xl border border-slate-100">
+      <ScrollableTable maxHeight="18rem">
+        <table dir="ltr" className={`w-full text-sm ${isMedicineInvoice ? "min-w-[900px]" : "min-w-[480px] table-fixed"}`}>
+          <caption className="sr-only">{isMedicineInvoice ? "Invoice medicines" : "Invoice services"}</caption>
+          <thead className="sticky top-0 z-10 bg-slate-50 text-xs text-slate-400">
+            <tr>
+              <th scope="col" className="px-3 py-3 text-center">#</th>
+              <th scope="col" className="px-3 py-3 text-center">{isMedicineInvoice ? "Medicine name" : "Service name"}</th>
+              {isMedicineInvoice ? (
+                <>
+                  <th scope="col" className="px-3 py-3 text-center">Quantity</th>
+                  <th scope="col" className="px-3 py-3 text-center">Unit price before</th>
+                  <th scope="col" className="px-3 py-3 text-center">Unit price after</th>
+                  <th scope="col" className="px-3 py-3 text-center">Line total before</th>
+                  <th scope="col" className="px-3 py-3 text-center">Line total after</th>
+                </>
+              ) : (
+                <>
+                  <th scope="col" className="px-3 py-3 text-center">Price before</th>
+                  <th scope="col" className="px-3 py-3 text-center">Price after</th>
+                </>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {items.length === 0 ? (
+              <tr>
+                <td colSpan={isMedicineInvoice ? 7 : 4} className="px-4 py-8 text-center text-slate-400">
+                  {isMedicineInvoice ? "No medicines found." : "No services found."}
+                </td>
+              </tr>
+            ) : items.map((item, index) => {
+              const name = item.serviceNameEn || item.serviceName || item.serviceNameAr || "-";
+              const unit = getMedicineUnitName(item.unit) || (typeof item.unit === "string" ? item.unit : "");
+              return (
+                <tr key={item.id ?? index} className="border-t border-slate-100">
+                  <td className="px-3 py-3.5 text-center tabular-nums">{index + 1}</td>
+                  <td className={`px-3 py-3.5 ${isMedicineInvoice ? "text-left" : "text-center"}`}>
+                    <div className={isMedicineInvoice ? "flex items-center gap-3" : ""}>
+                      {isMedicineInvoice && <MedicineImage key={item.medicineImageUrl || "no-image"} src={item.medicineImageUrl} />}
+                      <div className={`min-w-0 ${isMedicineInvoice ? "text-left" : ""}`}>
+                        <p dir="auto" className={`font-medium ${isMedicineInvoice ? "text-left" : ""}`}>{name}</p>
+                        {item.serviceNameAr && item.serviceNameAr !== name && (
+                          <p dir="auto" className={`text-xs text-slate-400 ${isMedicineInvoice ? "text-left" : ""}`}>{item.serviceNameAr}</p>
+                        )}
+                        {isMedicineInvoice && (item.medicineForm || unit) && (
+                          <p className="mt-1 text-xs text-slate-500">{[item.medicineForm, unit].filter(Boolean).join(" · ")}</p>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  {isMedicineInvoice ? (
+                    <>
+                      <td className="px-3 py-3.5 text-center tabular-nums">{item.quantity ?? "-"}</td>
+                      <td className="whitespace-nowrap px-3 py-3.5 text-center tabular-nums">{formatMoney(item.unitPriceBefore)}</td>
+                      <td className="whitespace-nowrap px-3 py-3.5 text-center tabular-nums">{formatMoney(item.unitPriceAfter)}</td>
+                      <td className="whitespace-nowrap px-3 py-3.5 text-center tabular-nums">{formatMoney(item.lineTotalBefore)}</td>
+                      <td className="whitespace-nowrap px-3 py-3.5 text-center font-semibold tabular-nums">{formatMoney(item.lineTotalAfter)}</td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="whitespace-nowrap px-3 py-3.5 text-center tabular-nums">{formatMoney(item.priceBefore)}</td>
+                      <td className="whitespace-nowrap px-3 py-3.5 text-center tabular-nums">{formatMoney(item.priceAfter)}</td>
+                    </>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </ScrollableTable>
+    </div>
+  );
+}
+
+export default function InvoiceDetailsModal({ isOpen, onClose, invoice, isLoading, error, onRetry }) {
+  const dialogRef = useRef(null);
+  const titleId = useId();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const dialog = dialogRef.current;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    dialog.showModal();
+    document.body.style.overflow = "hidden";
+    return () => {
+      dialog.close();
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const status = STATUS_NAMES[invoice?.status] || String(invoice?.status ?? "").toLowerCase();
+  const style = STATUS_STYLE[status] || UNKNOWN_STATUS;
+  const StatusIcon = style.icon;
+  const isMedicineInvoice = invoice?.isMedicineInvoice === true;
+  const items = Array.isArray(invoice?.services) ? invoice.services : invoice?.items?.items ?? [];
+  const familyName = [invoice?.familyFirstName, invoice?.familyLastName].filter(Boolean).join(" ");
+  const invoiceId = invoice?.invoiceId ?? invoice?.id;
+  const totalAfter = invoice?.totalAfter ?? invoice?.amount;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 flex cursor-pointer items-center justify-center z-[200] p-3 sm:p-4" onClick={onClose}>
-      <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] cursor-default overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-start justify-between px-6 sm:px-8 pt-6 sm:pt-8 pb-4">
-          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-            <div className={`w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl flex items-center justify-center ${style.iconWrap}`}>
-              <StatusIcon size={20} className={style.iconColor} />
+    <dialog
+      ref={dialogRef}
+      aria-labelledby={titleId}
+      aria-modal="true"
+      onCancel={(event) => { event.preventDefault(); onClose(); }}
+      onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}
+      className={`m-auto max-h-[90dvh] w-[calc(100%_-_1.5rem)] overflow-hidden rounded-2xl border-0 bg-white p-0 text-slate-900 shadow-xl backdrop:bg-slate-900/40 sm:w-[calc(100%_-_2rem)] ${isMedicineInvoice ? "max-w-5xl" : "max-w-2xl"}`}
+    >
+      <div className="flex max-h-[90dvh] flex-col">
+        <div className="flex shrink-0 items-start justify-between border-b border-slate-100 px-6 pb-4 pt-6 sm:px-8 sm:pt-8">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12 ${style.iconWrap}`}>
+              <StatusIcon size={20} className={style.iconColor} aria-hidden="true" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-base sm:text-lg font-semibold text-slate-900 truncate">
-                Invoice Details
-              </h3>
-              <p className="text-sm text-slate-400 mt-0.5">
-                Invoice No:{' '}
-                <span className={`font-semibold ${style.iconColor}`}>
-                  #{invoice.invoiceId}
-                </span>
-              </p>
+              <h2 id={titleId} className="truncate text-base font-semibold sm:text-lg">Invoice Details</h2>
+              {invoiceId != null && (
+                <p className="mt-0.5 text-sm text-slate-400">Invoice No: <span className={`font-semibold ${style.iconColor}`}>#{invoiceId}</span></p>
+              )}
             </div>
           </div>
-          <button onClick={onClose} className="shrink-0 text-slate-400 hover:text-slate-600">
+          <button type="button" onClick={onClose} aria-label="Close invoice details" className="shrink-0 rounded-lg p-1 text-slate-400 hover:bg-slate-50 hover:text-slate-600 focus-visible:outline-2 focus-visible:outline-blue-600">
             <X size={20} />
           </button>
         </div>
 
-        <div className="border-t border-slate-100" />
-
-        <div className="px-6 sm:px-8 py-5 sm:py-6">
-          {/* Status */}
-          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium mb-5 sm:mb-6 ${style.badge}`}>
-            {invoice.status || '-'}
-          </span>
-
-          {/* Info */}
-          <div className="grid grid-cols-2 gap-4 mb-6 sm:mb-8 sm:grid-cols-3 sm:gap-6">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1.5 text-sm text-slate-400 mb-1.5">
-                <Calendar size={14} />
-                <span>Date</span>
-              </div>
-              <p className="text-base font-semibold" dir="ltr">{formatDate(invoice.date)}</p>
+        <div className="min-h-0 overflow-y-auto px-6 py-5 sm:px-8 sm:py-6" aria-busy={isLoading || undefined}>
+          {isLoading ? (
+            <SkeletonText label="Loading invoice details..." lines={6} className="w-full space-y-4 py-8" />
+          ) : !invoice ? (
+            <div role="alert" className="space-y-3 py-8 text-center text-sm text-slate-500">
+              <p>{error ? getApiErrorMessage(error, { details: true, fallback: "Unable to load invoice details." }) : "Invoice details are unavailable."}</p>
+              {onRetry && <button type="button" onClick={onRetry} className="rounded-lg bg-blue-50 px-4 py-2 font-medium text-blue-800 hover:bg-blue-100">Try again</button>}
             </div>
-            <div className="text-center">
-              <div className="text-sm text-slate-400 mb-1.5">Invoice Type</div>
-              <p className="text-base font-semibold">
-                {invoice.isMedicineInvoice == null ? '-' : invoice.isMedicineInvoice ? 'Medicine' : 'Service'}
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-sm text-slate-400 mb-1.5">Items</div>
-              <p className="text-base font-semibold">{invoice.itemsCount ?? items.length}</p>
-            </div>
-            <div className="text-center">
-              <div className="text-sm text-slate-400 mb-1.5">Total Quantity</div>
-              <p className="text-base font-semibold">{invoice.totalQuantity ?? '-'}</p>
-            </div>
-            {familyName && (
-              <div className="text-center">
-                <div className="text-sm text-slate-400 mb-1.5">Family Member</div>
-                <p className="text-base font-semibold truncate">{familyName}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Services */}
-          <h4 className="text-base font-semibold text-slate-900 mb-3">
-            {invoice.isMedicineInvoice ? 'Medicines' : 'Services'}
-          </h4>
-
-          <div className="rounded-xl border border-slate-100 overflow-hidden mb-6">
-            <div className="max-h-72 overflow-y-auto overflow-x-auto">
-              <table className="w-full table-fixed text-sm">
-                <thead>
-                  <tr className="bg-slate-100 text-slate-400 text-xs sticky top-0 z-10">
-                    <th className="text-center px-3 sm:px-5 py-3">#</th>
-                    <th className="text-center px-3 sm:px-5 py-3">
-                      {invoice.isMedicineInvoice ? 'Medicine' : 'Service'}
-                    </th>
-                    <th className="text-center px-3 sm:px-5 py-3">Price Before</th>
-                    <th className="text-center px-3 sm:px-5 py-3">Price After</th>
-                    <th className="text-center px-3 sm:px-5 py-3">Discount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item, index) => (
-                    <tr key={item.id ?? index} className="border-t border-slate-100">
-                      <td className="px-3 sm:px-5 py-3.5 text-center">{index + 1}</td>
-                      <td className="px-3 sm:px-5 py-3.5 text-center">
-                        <p className="font-medium">{item.serviceNameEn || item.serviceName}</p>
-                        <p className="text-xs text-slate-400">{item.serviceNameAr}</p>
-                      </td>
-                      <td className="px-3 sm:px-5 py-3.5 text-center whitespace-nowrap">
-                        {formatMoney(item.priceBefore)}
-                      </td>
-                      <td className="px-3 sm:px-5 py-3.5 text-center whitespace-nowrap">
-                        {formatMoney(item.priceAfter)}
-                      </td>
-                      <td className="px-3 sm:px-5 py-3.5 text-center whitespace-nowrap">
-                        {Number(item.discountPercentage ?? 0).toFixed(0)}%
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Totals */}
-          <div className="space-y-2 mb-2">
-            <div className="flex items-center justify-between text-sm text-slate-400">
-              <span>Total Before Discount</span>
-              <span className="whitespace-nowrap">{formatMoney(invoice.totalBefore)} EGP</span>
-            </div>
-    
-            <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-              <div className="flex items-center gap-1.5 text-base text-slate-500">
-                <Tag size={16} />
-                <span>Total After Discount</span>
-              </div>
-              <span className="text-lg font-bold text-emerald-600 whitespace-nowrap">
-                {formatMoney(invoice.totalAfter)} EGP
+          ) : (
+            <>
+              {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{getApiErrorMessage(error, { details: true })}</p>}
+              <span className={`mb-5 inline-block rounded-full px-3 py-1 text-sm font-medium sm:mb-6 ${style.badge}`}>
+                {invoice.statusLabel || style.label || invoice.status || "-"}
               </span>
-            </div>
-          </div>
+
+              <div className="mb-6 grid grid-cols-2 gap-4 sm:mb-8 sm:grid-cols-3 sm:gap-6">
+                <InvoiceStat label="Date" icon={Calendar}>{formatDate(invoice.date ?? invoice.requestDate)}</InvoiceStat>
+                <InvoiceStat label="Invoice Type">{invoice.isMedicineInvoice == null ? "-" : isMedicineInvoice ? "Medicine" : "Service"}</InvoiceStat>
+                <InvoiceStat label={isMedicineInvoice ? "Medicines" : "Services"} icon={Users}>{invoice.itemsCount ?? invoice.servicesCount ?? items.length}</InvoiceStat>
+                {isMedicineInvoice && <InvoiceStat label="Total Quantity" icon={Pill}>{invoice.totalQuantity ?? "-"}</InvoiceStat>}
+                {familyName && <InvoiceStat label="Family Member">{familyName}</InvoiceStat>}
+              </div>
+
+              <h3 className="mb-3 text-base font-semibold">{isMedicineInvoice ? "Medicines" : "Services"}</h3>
+              <InvoiceItems items={items} isMedicineInvoice={isMedicineInvoice} />
+
+              <div className="mb-6 space-y-2">
+                {invoice.totalBefore != null && (
+                  <div className="flex items-center justify-between gap-2 text-sm text-slate-400">
+                    <span>Total Before Discount</span>
+                    <span className="whitespace-nowrap tabular-nums">{formatMoney(invoice.totalBefore)} EGP</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+                  <div className="flex items-center gap-1.5 text-base text-slate-500"><Tag size={16} className="shrink-0" /><span>Total After Discount</span></div>
+                  <span className="whitespace-nowrap text-lg font-bold tabular-nums text-emerald-600">{formatMoney(totalAfter)} EGP</span>
+                </div>
+              </div>
+              {style.message && <p className={`flex items-center gap-2 rounded-xl px-5 py-3.5 text-sm ${style.badge}`}><StatusIcon size={18} className="shrink-0" />{style.message}</p>}
+            </>
+          )}
         </div>
       </div>
-    </div>
-  )
+    </dialog>
+  );
 }

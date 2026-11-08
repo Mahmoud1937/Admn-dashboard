@@ -1,5 +1,6 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePrescription, faRotateRight, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
@@ -9,31 +10,15 @@ import Pagination from "../../../shared/components/Pagination";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
-import StatusBadge from "../../../shared/components/StatusBadge";
+import PrescriptionStatusBadge from "../components/PrescriptionStatusBadge";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import { useManualPrescriptionsQuery } from "../hooks/useManualPrescriptionsQuery";
-import PrescriptionDetailsSidebar from "../components/PrescriptionDetailsSidebar";
-import ProcessPrescriptionModal from "../components/ProcessPrescriptionModal";
-import RejectPrescriptionModal from "../components/RejectPrescriptionModal";
-import { useProcessManualPrescriptionMutation } from "../hooks/useProcessManualPrescriptionMutation";
-import { useRejectManualPrescriptionMutation } from "../hooks/useRejectManualPrescriptionMutation";
-import usePermission from "../../auth/hooks/usePermission";
-import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
-
-const statusTone = {
-  Pending: "warning",
-  Processed: "success",
-  Rejected: "danger",
-};
 
 export default function PrescriptionsPage() {
-  const [selectedPrescriptionId, setSelectedPrescriptionId] = useState(null);
-  const [processingPrescriptionId, setProcessingPrescriptionId] = useState(null);
-  const [rejectingPrescriptionId, setRejectingPrescriptionId] = useState(null);
+  const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState("");
   const [status, setStatus] = useState("");
   const search = useDebouncedValue(searchInput.trim(), 400);
-  const canViewClients = usePermission(PERMISSION_CODES.CLIENTS_READ);
   const {
     pageNumber,
     pageSize,
@@ -52,44 +37,10 @@ export default function PrescriptionsPage() {
     error,
     refetch,
   } = useManualPrescriptionsQuery({ pageNumber, pageSize, status, search });
-  const selectedPrescription = prescriptions.find(
-    (prescription) => prescription.id === selectedPrescriptionId
-  );
-  const processingPrescription = prescriptions.find(
-    (prescription) => prescription.id === processingPrescriptionId
-  );
-  const rejectingPrescription = prescriptions.find(
-    (prescription) => prescription.id === rejectingPrescriptionId
-  );
-  const processMutation = useProcessManualPrescriptionMutation({
-    onSuccess: () => setProcessingPrescriptionId(null),
-  });
-  const rejectMutation = useRejectManualPrescriptionMutation({
-    onSuccess: () => setRejectingPrescriptionId(null),
-  });
 
-  const openProcess = (id) => {
-    processMutation.reset();
-    setSelectedPrescriptionId(null);
-    setProcessingPrescriptionId(id);
-  };
-
-  const closeProcess = () => {
-    if (processMutation.isPending) return;
-    processMutation.reset();
-    setProcessingPrescriptionId(null);
-  };
-
-  const openReject = (id) => {
-    rejectMutation.reset();
-    setSelectedPrescriptionId(null);
-    setRejectingPrescriptionId(id);
-  };
-
-  const closeReject = () => {
-    if (rejectMutation.isPending) return;
-    rejectMutation.reset();
-    setRejectingPrescriptionId(null);
+  const openDetails = (prescription, action) => {
+    const search = action ? `?action=${action}` : "";
+    navigate(`/prescriptions/${prescription.id}${search}`);
   };
 
   return (
@@ -141,7 +92,7 @@ export default function PrescriptionsPage() {
           </label>
         </div>
         {isLoading ? (
-          <SkeletonTable label="Loading prescriptions..." columns={6} />
+          <SkeletonTable label="Loading prescriptions..." columns={7} />
         ) : isError ? (
           <QueryErrorState title="Unable to load prescriptions" error={error} onRetry={refetch} />
         ) : prescriptions.length === 0 ? (
@@ -155,77 +106,101 @@ export default function PrescriptionsPage() {
         ) : (
           <div className={isPlaceholderData ? "opacity-60" : "opacity-100"}>
             <ScrollableTable maxHeight="65vh">
-              <table className="w-full min-w-[850px] text-left text-sm">
-                <thead className="sticky top-0 z-10 bg-slate-100">
-                  <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
-                    <th scope="col" className="px-5 py-3">ID</th>
-                    <th scope="col" className="px-5 py-3">Customer</th>
-                    <th scope="col" className="px-5 py-3">Prescription text</th>
-                    <th scope="col" className="px-5 py-3">Status</th>
-                    <th scope="col" className="px-5 py-3">Submitted</th>
-                    <th scope="col" className="px-5 py-3 text-right">Actions</th>
+              <table dir="ltr" className="w-full min-w-[1080px] table-fixed text-left text-sm [&_td]:text-left [&_td]:align-top">
+                <caption className="sr-only">Manual prescriptions</caption>
+                <colgroup>
+                  <col className="w-[7%]" />
+                  <col className="w-[18%]" />
+                  <col className="w-[17%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[19%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[15%]" />
+                </colgroup>
+                <thead className="sticky top-0 z-10 bg-slate-50">
+                  <tr className="border-b border-slate-200 text-xs font-semibold text-slate-500">
+                    <th scope="col" className="px-4 py-3.5 text-left">ID</th>
+                    <th scope="col" className="px-4 py-3.5 text-left">Customer</th>
+                    <th scope="col" className="px-4 py-3.5 text-left">Prescription text</th>
+                    <th scope="col" className="px-4 py-3.5 text-left">Status</th>
+                    <th scope="col" className="px-4 py-3.5 text-left">Rejection reason</th>
+                    <th scope="col" className="px-4 py-3.5 text-left">Submitted</th>
+                    <TableActionsCell as="th" scope="col" className="px-4 py-3.5 text-left">Actions</TableActionsCell>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {prescriptions.map((prescription) => (
-                    <tr key={prescription.id} className="hover:bg-slate-50">
-                      <td className="px-5 py-4 font-medium tabular-nums text-slate-700">#{prescription.id}</td>
-                      <td className="px-5 py-4">
-                        {canViewClients ? (
-                          <Link
-                            to={`/clients/${prescription.customerId}`}
-                            className="font-medium text-slate-900 hover:text-blue-800 hover:underline"
-                            dir="auto"
-                          >
-                            {prescription.customerFullName || `Customer #${prescription.customerId}`}
-                          </Link>
-                        ) : (
-                          <span className="font-medium text-slate-900" dir="auto">
-                            {prescription.customerFullName || `Customer #${prescription.customerId}`}
-                          </span>
-                        )}
-                        <p className="mt-0.5 text-xs tabular-nums text-slate-500">{prescription.phoneNumber || "—"}</p>
+                    <tr
+                      key={prescription.id}
+                      tabIndex={0}
+                      aria-label={`Open prescription #${prescription.id} details`}
+                      onClick={(event) => {
+                        if (!event.target.closest("a, button, input, select, textarea, [data-no-row-navigation]")) openDetails(prescription);
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.target === event.currentTarget && ["Enter", " "].includes(event.key)) {
+                          event.preventDefault();
+                          openDetails(prescription);
+                        }
+                      }}
+                      className="cursor-pointer transition-colors hover:bg-blue-50/40 focus:outline-none focus-visible:bg-blue-50/40 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-400"
+                    >
+                      <td className="px-4 py-4 font-medium tabular-nums text-slate-500">
+                        <Link to={`/prescriptions/${prescription.id}`} className="hover:text-blue-800 hover:underline">
+                          #{prescription.id}
+                        </Link>
                       </td>
-                      <td className="max-w-[260px] px-5 py-4">
-                        <p className="truncate text-slate-700" dir="auto" title={prescription.text || ""}>
+                      <td data-no-row-navigation className="cursor-default px-4 py-4">
+                        <span className="block cursor-text truncate text-left font-semibold text-slate-900" dir="auto" title={prescription.customerFullName || ""}>
+                          {prescription.customerFullName || `Customer #${prescription.customerId}`}
+                        </span>
+                        <p dir="ltr" className="mt-1 text-left text-xs tabular-nums text-slate-500">{prescription.phoneNumber || "—"}</p>
+                      </td>
+                      <td className="px-4 py-4">
+                        <p className="line-clamp-2 whitespace-pre-wrap break-words text-left leading-6 text-slate-600" dir="auto" title={prescription.text || ""}>
                           {prescription.text || (prescription.imageUrl ? "Image attached" : "—")}
                         </p>
                       </td>
-                      <td className="px-5 py-4">
-                        <StatusBadge tone={statusTone[prescription.status] || "neutral"}>
-                          {prescription.status || "Unknown"}
-                        </StatusBadge>
+                      <td className="px-4 py-4">
+                        <PrescriptionStatusBadge status={prescription.status} />
                       </td>
-                      <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                      <td className="px-4 py-4">
+                        <p dir="auto" className={`whitespace-pre-wrap break-words text-left leading-6 ${prescription.rejectionReason ? "text-red-700" : "text-slate-300"}`}>
+                          {prescription.rejectionReason || "—"}
+                        </p>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-4 text-xs leading-6 tabular-nums text-slate-500">
                         {formatDateTimeShort(prescription.createdAt)}
                       </td>
-                      <td className="whitespace-nowrap px-5 py-4 text-right">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedPrescriptionId(prescription.id)}
-                          className="rounded-lg px-3 py-1.5 font-medium text-blue-800 hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
-                        >
-                          View
-                        </button>
-                        {prescription.status === "Pending" && (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => openProcess(prescription.id)}
-                              className="ml-1 rounded-lg px-3 py-1.5 font-medium text-emerald-700 hover:bg-emerald-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
-                            >
-                              Process
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => openReject(prescription.id)}
-                              className="ml-1 rounded-lg px-3 py-1.5 font-medium text-red-700 hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
-                            >
-                              Reject
-                            </button>
-                          </>
-                        )}
-                      </td>
+                      <TableActionsCell hoverColor="color-mix(in oklab, var(--color-blue-50) 40%, transparent)" className="px-4 py-4">
+                        <div className="flex flex-wrap items-center justify-start gap-1.5 text-left">
+                          <button
+                            type="button"
+                            onClick={() => openDetails(prescription)}
+                            className="rounded-md border border-slate-200 bg-white px-2 py-1 text-left text-xs font-medium text-slate-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+                          >
+                            View
+                          </button>
+                          {prescription.status === "Pending" && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => openDetails(prescription, "process")}
+                                className="rounded-md border border-emerald-100 bg-emerald-50 px-2 py-1 text-left text-xs font-medium text-emerald-700 hover:bg-emerald-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+                              >
+                                Process
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => openDetails(prescription, "reject")}
+                                className="rounded-md border border-red-100 bg-red-50 px-2 py-1 text-left text-xs font-medium text-red-700 hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </TableActionsCell>
                     </tr>
                   ))}
                 </tbody>
@@ -245,32 +220,6 @@ export default function PrescriptionsPage() {
         )}
       </div>
 
-      {selectedPrescription && (
-        <PrescriptionDetailsSidebar
-          prescription={selectedPrescription}
-          onClose={() => setSelectedPrescriptionId(null)}
-          onProcess={() => openProcess(selectedPrescription.id)}
-          onReject={() => openReject(selectedPrescription.id)}
-        />
-      )}
-      {processingPrescription && (
-        <ProcessPrescriptionModal
-          prescription={processingPrescription}
-          onClose={closeProcess}
-          onProcess={(payload) => processMutation.mutate(payload)}
-          isSaving={processMutation.isPending}
-          error={processMutation.error}
-        />
-      )}
-      {rejectingPrescription && (
-        <RejectPrescriptionModal
-          prescription={rejectingPrescription}
-          onClose={closeReject}
-          onReject={(payload) => rejectMutation.mutate(payload)}
-          isSaving={rejectMutation.isPending}
-          error={rejectMutation.error}
-        />
-      )}
     </div>
   );
 }

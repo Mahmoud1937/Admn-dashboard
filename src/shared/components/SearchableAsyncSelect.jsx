@@ -35,6 +35,7 @@ export default function SearchableAsyncSelect({
   panelZIndexClassName = "z-30",
   panelBgClassName = "bg-white",
   highlighted = false,
+  preload = false,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -64,7 +65,7 @@ export default function SearchableAsyncSelect({
       return pageNumber < totalPages ? pageNumber + 1 : undefined;
     },
     initialPageParam: 1,
-    enabled: isOpen || (Boolean(value) && !selectedLabel),
+    enabled: preload || isOpen || (Boolean(value) && !selectedLabel),
   });
 
   const items = data?.pages.flatMap((page) => page?.data?.items ?? []) ?? [];
@@ -161,11 +162,14 @@ export default function SearchableAsyncSelect({
         />
         <span className="flex shrink-0 items-center gap-2">
           {clearable && selectedLabel && !disabled && (
-            <FontAwesomeIcon
-              icon={faXmark}
+            <button
+              type="button"
+              aria-label="Clear selection"
               onClick={handleClear}
               className="cursor-pointer text-xs text-slate-400 hover:text-slate-600"
-            />
+            >
+              <FontAwesomeIcon icon={faXmark} />
+            </button>
           )}
           <button
             type="button"

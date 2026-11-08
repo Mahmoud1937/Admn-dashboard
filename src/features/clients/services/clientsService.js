@@ -1,4 +1,5 @@
 import axiosInstance from "../../../shared/api/axiosInstance";
+import { requireApiSuccess } from "../../../shared/helpers/apiErrorHandler";
 
 export const getClients = async (params = {}) => {
   const cleanParams = Object.fromEntries(
@@ -78,12 +79,13 @@ export async function getFamilyMembers(clientId) {
   const { data } = await axiosInstance.get(`/ClientAdmin/${clientId}/family-members`);
   return data;
 }
-export const getInvoiceDetails = async (invoiceId) => {
-  const { data } = await axiosInstance.get(
-    `/ProviderBranchView/invoices/${invoiceId}/details`
+export const getInvoiceDetails = async (invoiceId, { signal } = {}) => {
+  const response = await axiosInstance.get(
+    `/ProviderBranchView/invoices/${encodeURIComponent(invoiceId)}/details`,
+    { signal }
   );
 
-  return data;
+  return requireApiSuccess(response, "Failed to load invoice details.");
 };
 
 export const clientsService = {

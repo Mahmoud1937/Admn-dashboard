@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { faLayerGroup } from "@fortawesome/free-solid-svg-icons";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import AvatarImage from "../../../shared/components/AvatarImage";
@@ -24,7 +25,7 @@ export default function CategoriesTable({ categories, hasActiveFilters, onEdit, 
             <th className="px-6 py-3">Logo</th>
             <th className="px-6 py-3">English Name</th>
             <th className="px-6 py-3">Arabic Name</th>
-            <th className="px-6 py-3 text-center">Actions</th>
+            <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>
           </tr>
         </thead>
 
@@ -36,9 +37,9 @@ export default function CategoriesTable({ categories, hasActiveFilters, onEdit, 
               </td>
               <td className="px-6 py-3 font-medium text-slate-900">{category.enName}</td>
               <td className="px-6 py-3 text-slate-600">{category.arName}</td>
-              <td className="px-6 py-3">
+              <TableActionsCell className="px-6 py-3">
                 <RowActions onEdit={onEdit ? () => onEdit(category) : undefined} onDelete={onDeleteRequest ? () => onDeleteRequest(category) : undefined} />
-              </td>
+              </TableActionsCell>
             </tr>
           ))}
         </tbody>

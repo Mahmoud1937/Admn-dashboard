@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -479,7 +480,7 @@ export default function ProviderServicesTab() {
                     <th className="px-4 py-3 text-center">Status</th>
                     <th className="px-4 py-3">Joined</th>
                     {canUpdate && canViewPriceLists && (
-                      <th className="px-6 py-3 text-center">Actions</th>
+                      <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>
                     )}
                   </tr>
                 </thead>
@@ -551,7 +552,7 @@ export default function ProviderServicesTab() {
 
                       {/* Actions */}
                       {canUpdate && canViewPriceLists && (
-                        <td
+                        <TableActionsCell hoverColor="var(--color-slate-50)"
                           className="px-6 py-3.5"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -581,7 +582,7 @@ export default function ProviderServicesTab() {
                               </IconButton>
                             )}
                           </div>
-                        </td>
+                        </TableActionsCell>
                       )}
                     </tr>
                   ))}

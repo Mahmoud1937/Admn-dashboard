@@ -1,3 +1,4 @@
+import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPenToSquare,
@@ -193,7 +194,7 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
               <th className="hidden w-[110px] px-6 py-2.5 text-center lg:table-cell">Branches</th>
               <th className="w-[130px] px-6 py-2.5 text-center">Status</th>
               <th className="hidden w-[140px] px-6 py-2.5 text-center xl:table-cell">Join Date</th>
-              <th className="w-[120px] px-6 py-2.5 text-center">Actions</th>
+              <TableActionsCell as="th" className="w-[120px] px-6 py-2.5 text-center">Actions</TableActionsCell>
             </tr>
           </thead>
           <tbody>
@@ -269,11 +270,11 @@ export default function ProvidersTable({ providers, onEdit, onToggleStatus }) {
                     {formatDateNumeric(provider.createdAt)}
                   </td>
 
-                  <td className="px-6 py-2" onClick={(e) => e.stopPropagation()}>
+                  <TableActionsCell className="px-6 py-2" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center justify-center">
                       <RowActions provider={provider} onEdit={onEdit} onToggleStatus={onToggleStatus} />
                     </div>
-                  </td>
+                  </TableActionsCell>
                 </tr>
               );
             })}
