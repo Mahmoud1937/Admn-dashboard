@@ -43,8 +43,8 @@ export default function RejectPrescriptionForm({ prescription, onClose, onReject
       </div>
 
       <div>
-        <div className="mb-1.5 flex items-center justify-between">
-          <label className="block text-sm font-medium text-slate-700" htmlFor="prescription-rejection-reason">
+        <div className={`mb-1.5 flex items-center justify-between ${direction === "rtl" ? "" : "flex-row-reverse"}`}>
+          <label className="block text-right text-sm font-medium text-slate-700" htmlFor="prescription-rejection-reason">
             {t("Rejection reason")} <span className="text-red-600">*</span>
           </label>
           <span className="text-xs tabular-nums text-slate-400">{rejectionReason.length}</span>
@@ -59,7 +59,7 @@ export default function RejectPrescriptionForm({ prescription, onClose, onReject
           disabled={isSaving}
           rows={4}
           placeholder={t("Explain why this prescription is being rejected")}
-          style={direction === "rtl" ? { direction: "rtl", textAlign: "right" } : undefined}
+          style={{ direction, textAlign: "right" }}
           aria-invalid={Boolean(validationError)}
           aria-describedby={validationError ? "prescription-rejection-error" : undefined}
           className={`w-full resize-y rounded-xl border bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-4 disabled:bg-slate-50 disabled:text-slate-500 ${

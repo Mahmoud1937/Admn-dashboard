@@ -26,7 +26,7 @@ function Detail({ label, children }) {
   return (
     <div>
       <dt className="text-xs font-medium text-slate-500">{label}</dt>
-      <dd className="mt-1 break-words text-start text-sm text-slate-800" dir="auto">{children ?? "—"}</dd>
+      <dd className="mt-1 break-words text-sm text-slate-800" dir="auto">{children ?? "—"}</dd>
     </div>
   );
 }
@@ -149,12 +149,12 @@ export default function PrescriptionDetailsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <ClientAvatar name={prescription.customerFullName} colorSeed={prescription.customerId} sizeClass="h-11 w-11" textClass="text-sm" />
-                  <div className="min-w-0">
+                  <div className={`min-w-0 flex-1 ${rtl ? "text-right" : "text-left"}`}>
                     <p className="break-words font-semibold text-slate-900" dir="auto">{prescription.customerFullName || t("Unknown customer")}</p>
                     {prescription.phoneNumber && <a href={`tel:${prescription.phoneNumber}`} dir="ltr" className="mt-0.5 inline-block text-sm tabular-nums text-blue-800 hover:underline">{prescription.phoneNumber}</a>}
                   </div>
                 </div>
-                <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                <dl className={`mt-4 grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 ${rtl ? "text-right" : "text-left"}`}>
                   <Detail label={t("Customer ID")}>{prescription.customerId}</Detail>
                   <Detail label={t("Submitted")}>{formatDateTimeShort(prescription.createdAt)}</Detail>
                 </dl>
@@ -179,12 +179,12 @@ export default function PrescriptionDetailsPage() {
 
               <section className="rounded-2xl border border-slate-200 bg-white p-5">
                 <h2 className="mb-4 text-sm font-semibold text-slate-900">{t("Review details")}</h2>
-                <dl className="grid grid-cols-2 gap-4">
+                <dl className={`grid grid-cols-2 gap-4 ${rtl ? "text-right" : "text-left"}`}>
                   <Detail label={t("Reviewed by")}>{prescription.reviewedByEmployeeFullName}</Detail>
                   <Detail label={t("Reviewed at")}>{formatDateTimeShort(prescription.reviewedAt)}</Detail>
                 </dl>
                 {prescription.rejectionReason && (
-                  <div className="mt-4 rounded-lg bg-red-50 p-3 text-red-700">
+                  <div className="mt-4 rounded-lg bg-red-50 p-3 text-right text-red-700">
                     <p className="text-xs font-semibold">{t("Rejection reason")}</p>
                     <p className="mt-1 whitespace-pre-wrap break-words text-sm" dir="auto">{prescription.rejectionReason}</p>
                   </div>

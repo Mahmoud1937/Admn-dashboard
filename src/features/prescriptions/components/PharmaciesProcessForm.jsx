@@ -75,7 +75,7 @@ export default function PharmaciesProcessForm({ prescription, onCancel, onProces
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
           <div className="flex items-center gap-3">
             <AvatarImage src={selectedPharmacy.imageUrl} alt={rtl ? (selectedPharmacy.arName || selectedPharmacy.enName) : (selectedPharmacy.enName || selectedPharmacy.arName)} loading="lazy" />
-            <div className="min-w-0">
+            <div className={`min-w-0 flex-1 ${rtl ? "text-right" : "text-left"}`}>
               <p className="break-words text-sm font-semibold text-slate-800" dir="auto">{rtl ? (selectedPharmacy.arName || selectedPharmacy.enName) : (selectedPharmacy.enName || selectedPharmacy.arName)}</p>
               {selectedPharmacy.enName && selectedPharmacy.arName && <p className="mt-0.5 break-words text-xs text-slate-500" dir="auto">{rtl ? selectedPharmacy.enName : selectedPharmacy.arName}</p>}
             </div>

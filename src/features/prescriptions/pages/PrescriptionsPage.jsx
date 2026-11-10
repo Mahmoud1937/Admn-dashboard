@@ -133,7 +133,7 @@ export default function PrescriptionsPage() {
                     <th scope="col" className="px-4 py-3.5 text-start">{t("Customer")}</th>
                     <th scope="col" className="px-4 py-3.5 text-start">{t("Prescription text")}</th>
                     <th scope="col" className="px-4 py-3.5 text-start">{t("Status")}</th>
-                    <th scope="col" className="px-4 py-3.5 text-start">{t("Rejection reason")}</th>
+                    <th scope="col" className="px-4 py-3.5 text-right">{t("Rejection reason")}</th>
                     <th scope="col" className="px-4 py-3.5 text-start">{t("Submitted")}</th>
                     <TableActionsCell as="th" side={rtl ? "left" : "right"} scope="col" className="px-4 py-3.5 text-start">{t("Actions")}</TableActionsCell>
                   </tr>
@@ -161,10 +161,10 @@ export default function PrescriptionsPage() {
                         </Link>
                       </td>
                       <td data-no-row-navigation className="cursor-default px-4 py-4">
-                        <span className="block cursor-text truncate text-start font-semibold text-slate-900" dir="auto" title={prescription.customerFullName || ""}>
+                        <span className={`block cursor-text truncate font-semibold text-slate-900 ${rtl ? "text-right" : "text-left"}`} dir="auto" title={prescription.customerFullName || ""}>
                           {prescription.customerFullName || t("Customer #{{id}}", { id: prescription.customerId })}
                         </span>
-                        <p dir="ltr" className="mt-1 text-start text-xs tabular-nums text-slate-500">{prescription.phoneNumber || "—"}</p>
+                        <p dir="ltr" className={`mt-1 text-xs tabular-nums text-slate-500 ${rtl ? "text-right" : "text-left"}`}>{prescription.phoneNumber || "—"}</p>
                       </td>
                       <td className="px-4 py-4">
                         <p className="line-clamp-2 whitespace-pre-wrap break-words text-start leading-6 text-slate-600" dir="auto" title={prescription.text || ""}>
@@ -175,7 +175,7 @@ export default function PrescriptionsPage() {
                         <PrescriptionStatusBadge status={prescription.status} />
                       </td>
                       <td className="px-4 py-4">
-                        <p dir="auto" className={`whitespace-pre-wrap break-words text-start leading-6 ${prescription.rejectionReason ? "text-red-700" : "text-slate-300"}`}>
+                        <p dir="auto" className={`whitespace-pre-wrap break-words text-right leading-6 ${prescription.rejectionReason ? "text-red-700" : "text-slate-300"}`}>
                           {prescription.rejectionReason || "—"}
                         </p>
                       </td>

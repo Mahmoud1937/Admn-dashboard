@@ -70,7 +70,7 @@ export default function UserMenu() {
           </p>
           {employeeNameAr && (
             <p
-              className="mt-0.5 w-full truncate text-start text-[11px] text-slate-500"
+              className={`mt-0.5 w-full truncate text-[11px] text-slate-500 ${direction === "rtl" ? "text-right" : "text-left"}`}
               dir="rtl"
               style={{ unicodeBidi: "isolate" }}
               title={employeeNameAr}
@@ -98,7 +98,7 @@ export default function UserMenu() {
             </p>
             {employeeNameAr && (
               <p
-                className="mt-0.5 w-full truncate text-start text-xs text-slate-500"
+                className={`mt-0.5 w-full truncate text-xs text-slate-500 ${direction === "rtl" ? "text-right" : "text-left"}`}
                 dir="rtl"
                 style={{ unicodeBidi: "isolate" }}
                 title={employeeNameAr}
