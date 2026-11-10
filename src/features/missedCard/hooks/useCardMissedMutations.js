@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -5,6 +6,7 @@ import { createCardMissed, deleteCardMissed } from "../services/cardMissedServic
 import { handleMutationError } from "../../../shared/utils/handleMutationError";
 
 export const useCardMissedMutations = ({ onCreateSuccess, onDeleteSuccess } = {}) => {
+  const { t } = useTranslation("adminPages");
   const queryClient = useQueryClient();
   const [serverErrors, setServerErrors] = useState(null);
 
@@ -14,24 +16,24 @@ export const useCardMissedMutations = ({ onCreateSuccess, onDeleteSuccess } = {}
   const createMutation = useMutation({
     mutationFn: (payload) => createCardMissed(payload),
     onSuccess: (data) => {
-      toast.success(`Card ${data.cardNumber} reported successfully`);
+      toast.success(t("Card {{value1}} reported successfully", { value1: data.cardNumber }));
       invalidate();
       onCreateSuccess?.();
     },
     onError: (error) => {
-      handleMutationError(error, "Something went wrong. Please try again.", setServerErrors);
+      handleMutationError(error, t("Something went wrong. Please try again."), setServerErrors);
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteCardMissed(id),
     onSuccess: () => {
-      toast.success("Record deleted successfully");
+      toast.success(t("Record deleted successfully"));
       invalidate();
       onDeleteSuccess?.();
     },
     onError: (error) => {
-      handleMutationError(error, "Failed to delete record. Please try again.", setServerErrors);
+      handleMutationError(error, t("Failed to delete record. Please try again."), setServerErrors);
     },
   });
 

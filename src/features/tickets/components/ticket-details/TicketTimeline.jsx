@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CheckCircle2, Clock, FileText } from "lucide-react";
 import { formatDateTimeShort } from "../../../../utils/formatDate";
 import {
@@ -7,10 +8,11 @@ import {
 } from "../../utils/ticketDetailsUtils";
 
 export default function TicketTimeline({ timelines }) {
+  const { t } = useTranslation("adminPages");
   if (timelines.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-slate-200 bg-white p-6 text-center text-sm text-slate-400">
-        No timeline data available.
+        {t("No timeline data available.")}
       </p>
     );
   }

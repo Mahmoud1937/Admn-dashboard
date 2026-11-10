@@ -1,11 +1,12 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation, faCircleCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { useTranslation } from "react-i18next";
 
 export default function ConfirmDeleteModal({
   isOpen,
-  title = "Confirm Delete",
+  title,
   message,
-  confirmLabel = "Delete",
+  confirmLabel,
   variant = "danger", // "danger" | "success"
   isLoading,
   onConfirm,
@@ -13,10 +14,11 @@ export default function ConfirmDeleteModal({
   inline = false,
   titleId,
   errorMessage,
-  loadingLabel = "Processing...",
-  cancelLabel = "Cancel",
+  loadingLabel,
+  cancelLabel,
   confirmIcon,
 }) {
+  const { t } = useTranslation("common");
   if (!isOpen) return null;
 
   const isSuccess = variant === "success";
@@ -42,7 +44,7 @@ export default function ConfirmDeleteModal({
 
           <div>
             <h3 id={titleId} className={`${inline ? "text-sm" : "text-base"} font-semibold text-slate-900`}>
-              {title}
+              {title ?? t("Confirm Delete")}
             </h3>
             <p className={`mt-1 text-sm ${inline ? "text-slate-600" : "text-slate-500"}`}>{message}</p>
           </div>
@@ -57,7 +59,7 @@ export default function ConfirmDeleteModal({
               ? "rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
               : "rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-60"}
           >
-            {cancelLabel}
+            {cancelLabel ?? t("Cancel")}
           </button>
 
           <button
@@ -73,7 +75,7 @@ export default function ConfirmDeleteModal({
             }`}
           >
             {confirmIcon && <FontAwesomeIcon icon={isLoading ? faSpinner : confirmIcon} spin={Boolean(isLoading)} />}
-            {isLoading ? loadingLabel : confirmLabel}
+            {isLoading ? loadingLabel ?? t("Processing...") : confirmLabel ?? t("Delete")}
           </button>
         </div>
         {errorMessage && <p role="alert" className="text-sm text-red-600">{errorMessage}</p>}

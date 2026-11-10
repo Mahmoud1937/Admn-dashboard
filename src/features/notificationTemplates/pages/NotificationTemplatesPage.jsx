@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -15,6 +17,7 @@ import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import Skeleton from "../../../shared/components/Skeleton";
 
 export default function NotificationTemplatesPage() {
+  const { t } = useTranslation("adminPages");
   const canCreate = usePermission(PERMISSION_CODES.NOTIFICATION_TEMPLATES_CREATE);
   const canUpdate = usePermission(PERMISSION_CODES.NOTIFICATION_TEMPLATES_UPDATE);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -58,12 +61,12 @@ export default function NotificationTemplatesPage() {
   };
 
   return (
-    <div className="min-w-0 space-y-6">
+    <LocalizedPage><div className="min-w-0 space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notification Templates</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t("Notification Templates")}</h1>
           <p className="text-sm text-gray-500">
-            View notification templates and their Arabic and English messages.
+            {t("View notification templates and their Arabic and English messages.")}
           </p>
         </div>
         {canCreate && (
@@ -79,28 +82,28 @@ export default function NotificationTemplatesPage() {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-950 disabled:opacity-50"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add template
+            {t("Add template")}
           </button>
         )}
       </header>
-      {createMutation.isSuccess && <p role="status" className="text-sm text-emerald-700">Notification template created successfully.</p>}
-      {updateMutation.isSuccess && <p role="status" className="text-sm text-emerald-700">Notification template updated successfully.</p>}
-      {toggleMutation.isSuccess && <p role="status" className="text-sm text-emerald-700">Notification template status updated successfully.</p>}
+      {createMutation.isSuccess && <p role="status" className="text-sm text-emerald-700">{t("Notification template created successfully.")}</p>}
+      {updateMutation.isSuccess && <p role="status" className="text-sm text-emerald-700">{t("Notification template updated successfully.")}</p>}
+      {toggleMutation.isSuccess && <p role="status" className="text-sm text-emerald-700">{t("Notification template status updated successfully.")}</p>}
       {toggleMutation.isError && (
         <p role="alert" className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-600">
-          {getApiErrorMessage(toggleMutation.error, { details: true, fallback: "Unable to update notification template status. Please try again." })}
+          {getApiErrorMessage(toggleMutation.error, { details: true, fallback: t("Unable to update notification template status. Please try again.") })}
         </p>
       )}
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         {isLoading ? (
           <div role="status" className="space-y-4 p-6">
-            <span className="sr-only">Loading notification templates...</span>
+            <span className="sr-only">{t("Loading notification templates...")}</span>
             {Array.from({ length: 5 }, (_, index) => (
               <Skeleton key={index} aria-hidden="true" className="h-20 rounded-lg bg-slate-100" />
             ))}
           </div>
         ) : isError ? (
-          <QueryErrorState title="Unable to load notification templates" error={error} onRetry={refetch} />
+          <QueryErrorState title={t("Unable to load notification templates")} error={error} onRetry={refetch} />
         ) : (
           <>
             <NotificationTemplatesTable
@@ -119,7 +122,7 @@ export default function NotificationTemplatesPage() {
               pageSize={pageSize}
               totalCount={totalCount}
               totalPages={totalPages}
-              itemLabel="templates"
+              itemLabel={t("templates")}
               getPageNumbers={getPageNumbers}
               onGoToPage={(page) => goToPage(page, totalPages)}
               onPageSizeChange={handlePageSizeChange}
@@ -143,6 +146,6 @@ export default function NotificationTemplatesPage() {
           onClose={() => setEditTarget(null)}
         />
       )}
-    </div>
+    </div></LocalizedPage>
   );
 }

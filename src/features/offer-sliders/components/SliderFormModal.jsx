@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +18,7 @@ const SliderFormModal = ({
   clearServerErrors,
   sliderToEdit = null,
 }) => {
+  const { t } = useTranslation("adminPages");
   const isEditMode = !!sliderToEdit;
 
   const [enImageFile, setEnImageFile] = useState(null);
@@ -137,7 +139,7 @@ const SliderFormModal = ({
       <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl scroll-form sm:max-w-2xl sm:max-h-[85vh]">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">
-            {isEditMode ? "Edit Slider" : "Add Slider"}
+            {isEditMode ? t("Edit Slider") : t("Add Slider")}
           </h2>
 
           <button
@@ -145,7 +147,7 @@ const SliderFormModal = ({
             onClick={handleClose}
             disabled={isSaving}
             className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-            aria-label="Close"
+            aria-label={t("Close")}
           >
             <FontAwesomeIcon icon={faXmark} />
           </button>
@@ -155,7 +157,7 @@ const SliderFormModal = ({
           {/* Provider */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
-              Provider
+              {t("Provider")}
             </label>
 
             <Controller
@@ -179,7 +181,7 @@ const SliderFormModal = ({
             {/* English Image */}
             <div>
               <ImageUploadField
-                label="English Image"
+                label={t("English Image")}
                 preview={
                   enPreviewUrl
                     ? enPreviewUrl
@@ -211,7 +213,7 @@ const SliderFormModal = ({
             {/* Arabic Image */}
             <div>
               <ImageUploadField
-                label="Arabic Image"
+                label={t("Arabic Image")}
                 preview={
                   arPreviewUrl
                     ? arPreviewUrl
@@ -249,7 +251,7 @@ const SliderFormModal = ({
               disabled={isSaving}
               className="rounded-md px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Cancel
+              {t("Cancel")}
             </button>
 
             <button
@@ -258,10 +260,10 @@ const SliderFormModal = ({
               className="rounded-md bg-blue-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-50"
             >
               {isSaving
-                ? "Saving..."
+                ? t("Saving...")
                 : isEditMode
-                  ? "Save Changes"
-                  : "Add Slider"}
+                  ? t("Save Changes")
+                  : t("Add Slider")}
             </button>
           </div>
         </form>

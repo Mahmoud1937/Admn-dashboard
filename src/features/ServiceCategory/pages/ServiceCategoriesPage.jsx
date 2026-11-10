@@ -14,8 +14,14 @@ import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
+import LocalizedPage from "../../../localization/LocalizedPage";
+import useLanguage from "../../../localization/useLanguage";
+import useServiceCategoriesText from "../../../localization/useServiceCategoriesText";
 
 export default function ServiceCategoriesPage() {
+  const t = useServiceCategoriesText();
+  const { language, direction } = useLanguage();
+  const rtl = direction === "rtl";
   const canUpdate = usePermission(PERMISSION_CODES.SERVICE_CATEGORIES_UPDATE);
   const canDelete = usePermission(PERMISSION_CODES.SERVICE_CATEGORIES_DELETE);
   const [search, setSearch] = useState("");
@@ -41,7 +47,7 @@ export default function ServiceCategoriesPage() {
     error,
     isPlaceholderData,
     refetch
-  } = useServiceCategoriesQuery({ pageNumber, pageSize, search });
+  } = useServiceCategoriesQuery({ pageNumber, pageSize, search, language });
 
 
   const closeForm = () => {
@@ -51,6 +57,7 @@ export default function ServiceCategoriesPage() {
   };
 
   const { createMutation, updateMutation, deleteMutation, isSaving,serverErrors, clearServerErrors  } = useServiceCategoryMutations({
+    t,
     onCreateSuccess: closeForm,
     onUpdateSuccess: closeForm,
     onDeleteSuccess: () => setCategoryToDelete(null),
@@ -97,12 +104,12 @@ export default function ServiceCategoriesPage() {
   };
 
   return (
-    <div>
+    <LocalizedPage>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Service Categories Management</h1>
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">{t("Service Categories Management")}</h1>
           <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-            Manage all service categories across the platform.
+            {t("Manage all service categories across the platform.")}
           </p>
         </div>
 
@@ -112,7 +119,7 @@ export default function ServiceCategoriesPage() {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add Service Category
+            {t("Add Service Category")}
           </button>
         </PermissionGuard>
       </div>
@@ -121,14 +128,17 @@ export default function ServiceCategoriesPage() {
         <ServiceCategoriesFilters search={search} onSearchChange={setSearch} />
 
         {isLoading && (
-          <SkeletonTable label="Loading service categories..." columns={4} />
+          <SkeletonTable label={t("Loading service categories...")} columns={4} />
         )}
 
         {isError && (
  <QueryErrorState
-  title="Unable to load service categories"
+  title={t("Unable to load service categories")}
   error={error}
   onRetry={refetch}
+  loadErrorMessage={t("We couldn't load the data. Please try again.")}
+  connectionErrorMessage={t("We couldn't connect to the server. Please check your internet connection and try again.")}
+  retryLabel={t("Try Again")}
 />
         )}
 
@@ -136,6 +146,7 @@ export default function ServiceCategoriesPage() {
           <div className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>
             <ServiceCategoriesTable
               categories={categories}
+              rtl={rtl}
               hasActiveFilters={!!search}
               onEdit={canUpdate ? openEditForm : undefined}
               onDeleteRequest={canDelete ? setCategoryToDelete : undefined}
@@ -147,7 +158,11 @@ export default function ServiceCategoriesPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="service categories"
+                summary={t("Showing page {{page}} of {{totalPages}} ({{count}} service categories)", { page: pageNumber, totalPages, count: totalCount })}
+                rowsPerPageLabel={t("Rows per page")}
+                previousLabel={t("Previous")}
+                nextLabel={t("Next")}
+                rtl={rtl}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -167,14 +182,18 @@ export default function ServiceCategoriesPage() {
 />
       {canDelete && <ConfirmDeleteModal
         isOpen={!!categoryToDelete}
-        title="Delete Service Category"
-        message={`Are you sure you want to delete "${categoryToDelete?.enName}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t("Delete Service Category")}
+        message={t('Are you sure you want to delete "{{name}}"? This action cannot be undone.', {
+          name: rtl ? (categoryToDelete?.arName || categoryToDelete?.enName) : (categoryToDelete?.enName || categoryToDelete?.arName),
+        })}
+        confirmLabel={t("Delete")}
+        cancelLabel={t("Cancel")}
+        loadingLabel={t("Deleting...")}
         variant="danger"
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setCategoryToDelete(null)}
       />}
-    </div>
+    </LocalizedPage>
   );
 }

@@ -212,12 +212,10 @@ export const restoreAuthSession = () => {
   const token = getToken();
   if (!token) return Promise.resolve(null);
   watchSession();
-  if (serverClock || !localStorage.getItem(REFRESH_TOKEN_KEY)?.trim()) {
-    scheduleRefresh(true);
-    return Promise.resolve(token);
-  }
-  // Reloads have no in-memory time reference. Use the existing refresh endpoint.
-  return refreshAccessToken();
+  // Use device time after reload until a refresh supplies server time again.
+  if (!serverClock) serverClock = readServerClock(new Date().toISOString());
+  scheduleRefresh(true);
+  return Promise.resolve(token);
 };
 
 axiosInstance.interceptors.request.use(async (config) => {

@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 
 import { useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
@@ -15,6 +17,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function SoldCardsByPoolPage() {
+  const { t } = useTranslation("adminPages");
   const [searchParams] = useSearchParams();
   const location = useLocation();
 
@@ -55,7 +58,7 @@ export default function SoldCardsByPoolPage() {
 
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6">
         {cardPoolId && (
           <button
@@ -64,12 +67,12 @@ export default function SoldCardsByPoolPage() {
             className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800"
           >
             <FontAwesomeIcon icon={faArrowLeft} />
-            Back to Card Pools
+            {t("Back to Card Pools")}
           </button>
         )}
 
         <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">
-          Sold Cards
+          {t("Sold Cards")}
         </h1>
 
         <p className="mt-1 text-sm text-slate-500">
@@ -78,18 +81,18 @@ export default function SoldCardsByPoolPage() {
               <span className="font-semibold text-slate-700">
                 {count ?? 0}
               </span>{" "}
-              sold cards from{" "}
+              {t("sold cards from")}{" "}
               <span className="font-medium text-slate-700">
                 {from}
               </span>{" "}
-              to{" "}
+              {t("to")}{" "}
               <span className="font-medium text-slate-700">
                 {to}
               </span>
               .
             </>
           ) : (
-            "Cards sold from this card pool."
+            t("Cards sold from this card pool.")
           )}
         </p>
       </div>
@@ -106,19 +109,19 @@ export default function SoldCardsByPoolPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by card number, name, or phone..."
+              placeholder={t("Search by card number, name, or phone...")}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
             />
           </div>
         </div>
 
         {isLoading && (
-          <SkeletonTable label="Loading sold cards..." columns={3} />
+          <SkeletonTable label={t("Loading sold cards...")} columns={3} />
         )}
 
 {isError && (
   <QueryErrorState
-    title="Unable to Load Sold Card by Card Pool id"
+    title={t("Unable to Load Sold Card by Card Pool id")}
     error={error}
     onRetry={refetch}
   />
@@ -139,7 +142,7 @@ export default function SoldCardsByPoolPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="sold cards"
+                itemLabel={t("sold cards")}
                 onGoToPage={(page) =>
                   goToPage(page, totalPages)
                 }
@@ -150,6 +153,6 @@ export default function SoldCardsByPoolPage() {
           </div>
         )}
       </div>
-    </div>
+    </div></LocalizedPage>
   );
 }

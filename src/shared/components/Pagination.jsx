@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 const PAGE_SIZE_OPTIONS = [10, 15, 25, 50];
 
 export default function Pagination({
@@ -5,29 +7,34 @@ export default function Pagination({
   totalPages,
   totalCount,
   pageSize,
-  itemLabel = "items",
+  itemLabel,
   onGoToPage,
   onPageSizeChange,
   getPageNumbers,
   summary,
-  rowsPerPageLabel = "Rows per page",
-  previousLabel = "Previous",
-  nextLabel = "Next",
+  rowsPerPageLabel,
+  previousLabel,
+  nextLabel,
   rtl = false,
 }) {
+  const { t } = useTranslation("common");
   if (totalPages <= 1) return null;
   const pageNumbers = getPageNumbers(pageNumber, totalPages);
+  const resolvedItemLabel = itemLabel ?? t("items");
+  const resolvedRowsPerPageLabel = rowsPerPageLabel ?? t("Rows per page");
+  const resolvedPreviousLabel = previousLabel ?? t("Previous");
+  const resolvedNextLabel = nextLabel ?? t("Next");
 
   return (
     <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
         <p className="text-xs text-slate-400">
-          {summary ?? `Showing page ${pageNumber} of ${totalPages} (${totalCount} ${itemLabel})`}
+          {summary ?? t("Showing page {{pageNumber}} of {{totalPages}} ({{totalCount}} {{itemLabel}})", { pageNumber, totalPages, totalCount, itemLabel: resolvedItemLabel })}
         </p>
 
         <div className="flex items-center gap-2">
           <label htmlFor="pageSize" className="text-xs text-slate-400">
-            {rowsPerPageLabel}
+            {resolvedRowsPerPageLabel}
           </label>
           <select
             id="pageSize"
@@ -51,10 +58,10 @@ export default function Pagination({
         <button
           onClick={() => onGoToPage(pageNumber - 1)}
           disabled={pageNumber <= 1}
-          aria-label={previousLabel}
+          aria-label={resolvedPreviousLabel}
           className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"
         >
-          <span className="hidden sm:inline">{previousLabel}</span>
+          <span className="hidden sm:inline">{resolvedPreviousLabel}</span>
           <span className="sm:hidden">{rtl ? "›" : "‹"}</span>
         </button>
 
@@ -103,10 +110,10 @@ export default function Pagination({
         <button
           onClick={() => onGoToPage(pageNumber + 1)}
           disabled={pageNumber >= totalPages}
-          aria-label={nextLabel}
+          aria-label={resolvedNextLabel}
           className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"
         >
-          <span className="hidden sm:inline">{nextLabel}</span>
+          <span className="hidden sm:inline">{resolvedNextLabel}</span>
           <span className="sm:hidden">{rtl ? "‹" : "›"}</span>
         </button>
       </div>

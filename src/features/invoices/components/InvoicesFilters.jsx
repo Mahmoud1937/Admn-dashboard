@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import FilterPanel from "../../../shared/components/FilterPanel";
 import FilterPanelFooter from "../../../shared/components/FilterPanelFooter";
 import FilterPanelHeader from "../../../shared/components/FilterPanelHeader";
@@ -21,6 +22,7 @@ const select = (value, onChange, options) => (
 );
 
 export default function InvoicesFiltersPanel({ draft, onChange, onApply, onClear, onClose, panelRef }) {
+  const { t } = useTranslation("adminPages");
   const set = (field) => (e) =>
     onChange((prev) => ({ ...prev, [field]: e.target.value }));
 
@@ -35,19 +37,19 @@ export default function InvoicesFiltersPanel({ draft, onChange, onApply, onClear
       <FilterPanelHeader onClose={onClose} />
 
       <div className="mb-4">
-        <label className="mb-1.5 block text-xs font-medium text-slate-500">Client</label>
+        <label className="mb-1.5 block text-xs font-medium text-slate-500">{t("Client")}</label>
         <ClientSelect
           queryKey={["invoices", "clients"]}
           value={draft.clientId}
           onChange={(value) =>
             onChange((prev) => ({ ...prev, clientId: value ?? "" }))
           }
-          placeholder="All clients"
+          placeholder={t("All clients")}
         />
       </div>
 
       <div className="mb-4">
-        <label className="mb-1.5 block text-xs font-medium text-slate-500">Provider</label>
+        <label className="mb-1.5 block text-xs font-medium text-slate-500">{t("Provider")}</label>
         <SearchableAsyncSelect
           queryKey={["invoices", "providers"]}
           fetchItems={(pageNumber, pageSize, searchTerm) =>
@@ -61,24 +63,24 @@ export default function InvoicesFiltersPanel({ draft, onChange, onApply, onClear
               : item.arName || item.enName || ""
           }
           getOptionValue={(item) => item.id}
-          placeholder="All providers"
-          searchPlaceholder="Search providers..."
+          placeholder={t("All providers")}
+          searchPlaceholder={t("Search providers...")}
         />
       </div>
 
       <div className="mb-4">
-        <label className="mb-1.5 block text-xs font-medium text-slate-500">Branch</label>
+        <label className="mb-1.5 block text-xs font-medium text-slate-500">{t("Branch")}</label>
         <ProviderBranchSelect
           value={draft.providerBranchId}
           onChange={setBranch}
           providerId={draft.providerId}
-          placeholder="All branches"
+          placeholder={t("All branches")}
           className="w-full"
         />
       </div>
 
       <div className="mb-4">
-        <label className="mb-1.5 block text-xs font-medium text-slate-500">Status</label>
+        <label className="mb-1.5 block text-xs font-medium text-slate-500">{t("Status")}</label>
         {select(draft.status, set("status"), {
           placeholder: "All statuses",
           items: [
@@ -91,7 +93,7 @@ export default function InvoicesFiltersPanel({ draft, onChange, onApply, onClear
       </div>
 
       <div className="mb-4">
-        <label className="mb-1.5 block text-xs font-medium text-slate-500">Payment type</label>
+        <label className="mb-1.5 block text-xs font-medium text-slate-500">{t("Payment type")}</label>
         {select(draft.isCash, set("isCash"), {
           placeholder: "All",
           items: [

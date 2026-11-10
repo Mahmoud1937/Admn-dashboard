@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -27,6 +29,7 @@ const emptyFilters = {
 };
 
 export default function TicketsPage() {
+  const { t } = useTranslation("adminPages");
   const canUpdate = usePermission(PERMISSION_CODES.TICKETS_UPDATE);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 400);
@@ -108,14 +111,14 @@ export default function TicketsPage() {
   const activeFilterCount = countActiveTicketFilters(filters);
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">
-            Tickets Management
+            {t("Tickets Management")}
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            View and filter support tickets across the platform.
+            {t("View and filter support tickets across the platform.")}
           </p>
         </div>
 
@@ -129,7 +132,7 @@ export default function TicketsPage() {
             className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add Ticket
+            {t("Add Ticket")}
           </button>
         </PermissionGuard>
       </div>
@@ -139,7 +142,7 @@ export default function TicketsPage() {
           <SearchBarWithFilters
             value={search}
             onChange={setSearch}
-            placeholder="Search by user phone number or card number..."
+            placeholder={t("Search by user phone number or card number...")}
             onFilterClick={() => setPanelOpen((prev) => !prev)}
             activeFilterCount={activeFilterCount}
           />
@@ -158,7 +161,7 @@ export default function TicketsPage() {
 
         {isError ? (
           <QueryErrorState
-            title="Unable to load tickets"
+            title={t("Unable to load tickets")}
             error={error}
             onRetry={refetch}
           />
@@ -181,7 +184,7 @@ export default function TicketsPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="tickets"
+                itemLabel={t("tickets")}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -209,6 +212,6 @@ export default function TicketsPage() {
           serverErrors={serverErrors}
         />
       )}
-    </div>
+    </div></LocalizedPage>
   );
 }

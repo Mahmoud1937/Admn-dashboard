@@ -29,7 +29,7 @@ const DEFAULT_FILTERS = {
  *   Card Pool or Card Sold to scope clients to that batch.
  *   { id: number, sourceType: 1 | 2 } // 1 = card pool, 2 = sold card
  */
-export const useClientsQuery = (poolSource) => {
+export const useClientsQuery = (poolSource, language) => {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
   // resetKey ties the pagination hook's own "reset to page 1" effect to
@@ -59,9 +59,10 @@ export const useClientsQuery = (poolSource) => {
   );
 
   const query = useQuery({
-    queryKey: ["clients", queryParams],
+    queryKey: language ? ["clients", language, queryParams] : ["clients", queryParams],
     queryFn: () => clientsService.getClients(queryParams),
-    placeholderData: keepPreviousData,
+    placeholderData: (previousData, previousQuery) =>
+      !language || previousQuery?.queryKey[1] === language ? keepPreviousData(previousData) : undefined,
   });
 
   const updateFilters = (partial) => setFilters((prev) => ({ ...prev, ...partial }));

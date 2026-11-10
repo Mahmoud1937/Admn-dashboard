@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -105,6 +106,7 @@ export default function EmployeesTable({
   canUpdate = false,
   canManagePermissions = false,
 }) {
+  const { t } = useTranslation("adminPages");
   const showActions = canUpdate || canManagePermissions;
 
   return (
@@ -114,12 +116,12 @@ export default function EmployeesTable({
           <thead className="sticky top-0 z-10 bg-slate-100 text-left text-slate-700 shadow-[0_1px_0_0_rgb(226,232,240)]">
             <tr>
               <th className={`${TH} w-16`}>ID</th>
-              <th className={`${TH} text-left`}>Employee</th>
-              <th className={`${TH} text-left`}>Contact</th>
-              <th className={TH}>Group</th>
-              <th className={TH}>Last Login</th>
-              <th className={TH}>Status</th>
-              {showActions && <TableActionsCell as="th" className={TH}>Actions</TableActionsCell>}
+              <th className={`${TH} text-left`}>{t("Employee")}</th>
+              <th className={`${TH} text-left`}>{t("Contact")}</th>
+              <th className={TH}>{t("Group")}</th>
+              <th className={TH}>{t("Last Login")}</th>
+              <th className={TH}>{t("Status")}</th>
+              {showActions && <TableActionsCell as="th" className={TH}>{t("Actions")}</TableActionsCell>}
             </tr>
           </thead>
 
@@ -134,8 +136,8 @@ export default function EmployeesTable({
                 <td colSpan={showActions ? 7 : 6} className="px-4 py-16">
                   <div className="flex flex-col items-center gap-2 text-slate-400">
                     <FontAwesomeIcon icon={faUserSlash} className="text-3xl" />
-                    <p className="text-sm font-medium text-slate-500">No employees found</p>
-                    <p className="text-xs">Try changing your search or filter</p>
+                    <p className="text-sm font-medium text-slate-500">{t("No employees found")}</p>
+                    <p className="text-xs">{t("Try changing your search or filter")}</p>
                   </div>
                 </td>
               </tr>
@@ -168,7 +170,7 @@ export default function EmployeesTable({
                         />
                         <div className="min-w-0">
                           <p dir="auto" className="truncate font-medium text-slate-900">
-                            {name || <span className="text-slate-400">Unnamed</span>}
+                            {name || <span className="text-slate-400">{t("Unnamed")}</span>}
                           </p>
                         </div>
                       </div>
@@ -195,7 +197,7 @@ export default function EmployeesTable({
                           {timeAgo(e.lastLoginDate)}
                         </span>
                       ) : (
-                        <span className="text-slate-400">Never</span>
+                        <span className="text-slate-400">{t("Never")}</span>
                       )}
                     </td>
 
@@ -209,7 +211,7 @@ export default function EmployeesTable({
                             e.isBlocked ? "bg-red-500" : "bg-emerald-500"
                           }`}
                         />
-                        {e.isBlocked ? "Blocked" : "Active"}
+                        {e.isBlocked ? t("Blocked") : t("Active")}
                       </StatusBadge>
                     </td>
 
@@ -227,7 +229,7 @@ export default function EmployeesTable({
                               <button
                                 type="button"
                                 onClick={() => onEdit?.(e)}
-                                title="Edit employee"
+                                title={t("Edit employee")}
                                 className="rounded-lg p-1.5 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600"
                               >
                                 <FontAwesomeIcon icon={faPenToSquare} size="sm" />
@@ -235,7 +237,7 @@ export default function EmployeesTable({
                               <button
                                 type="button"
                                 onClick={() => onResetPassword?.(e)}
-                                title="Reset password"
+                                title={t("Reset password")}
                                 className="rounded-lg p-1.5 text-slate-400 transition hover:bg-amber-50 hover:text-amber-600"
                               >
                                 <FontAwesomeIcon icon={faKey} size="sm" />
@@ -246,7 +248,7 @@ export default function EmployeesTable({
                             <button
                               type="button"
                               onClick={() => onManagePermissions?.(e)}
-                              title="Manage permissions"
+                              title={t("Manage permissions")}
                               className="rounded-lg p-1.5 text-slate-400 transition hover:bg-indigo-50 hover:text-indigo-600"
                             >
                               <FontAwesomeIcon icon={faUserShield} size="sm" />
@@ -257,7 +259,7 @@ export default function EmployeesTable({
                               type="button"
                               onClick={() => onToggleStatus?.(e)}
                               disabled={togglingEmployeeId === id}
-                              title={e.isBlocked ? "Activate" : "Block"}
+                              title={e.isBlocked ? t("Activate") : t("Block")}
                               className={`rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 ${
                                 e.isBlocked
                                   ? "hover:text-green-700"

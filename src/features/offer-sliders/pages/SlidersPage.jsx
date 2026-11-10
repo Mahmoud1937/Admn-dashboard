@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -19,6 +21,7 @@ import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 
 const SlidersPage = () => {
+  const { t } = useTranslation("adminPages");
   const canUpdate = usePermission(PERMISSION_CODES.SLIDERS_UPDATE);
   const canDelete = usePermission(PERMISSION_CODES.SLIDERS_DELETE);
   const navigate = useNavigate();
@@ -100,16 +103,16 @@ const SlidersPage = () => {
   };
 
   return (
-    <div className="space-y-6 ">
+    <LocalizedPage><div className="space-y-6 ">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-            Sliders
+            {t("Sliders")}
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Manage homepage banner sliders in both languages.
+            {t("Manage homepage banner sliders in both languages.")}
           </p>
         </div>
 
@@ -120,7 +123,7 @@ const SlidersPage = () => {
             className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add Slider
+            {t("Add Slider")}
           </button>
         </PermissionGuard>
       </div>
@@ -139,7 +142,7 @@ const SlidersPage = () => {
         {/* Table / Error */}
         {isError ? (
           <QueryErrorState
-            title="Unable to load sliders"
+            title={t("Unable to load sliders")}
             error={error}
             onRetry={refetch}
           />
@@ -161,7 +164,7 @@ const SlidersPage = () => {
               totalPages={data.totalPages}
               totalCount={data.totalCount}
               pageSize={pageSize}
-              itemLabel="sliders"
+              itemLabel={t("sliders")}
               onGoToPage={(page) =>
                 goToPage(page, data.totalPages)
               }
@@ -192,10 +195,10 @@ const SlidersPage = () => {
         onCancel={() => setSliderToDelete(null)}
         onConfirm={confirmDelete}
         isLoading={deleteMutation.isPending}
-        title="Delete Slider"
+        title={t("Delete Slider")}
         message={`Are you sure you want to delete the slider for "${sliderToDelete?.providerNameEn}"?`}
       />}
-    </div>
+    </div></LocalizedPage>
   );
 };
 

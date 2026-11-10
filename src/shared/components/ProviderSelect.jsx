@@ -15,6 +15,10 @@ export default function ProviderSelect({
   disabled,
   className,
   highlighted,
+  rtl = false,
+  searchPlaceholder = "Search providers...",
+  labels,
+  getOptionLabel = optionLabel,
 }) {
   const select = (
     <SearchableAsyncSelect
@@ -24,10 +28,12 @@ export default function ProviderSelect({
       }
       value={value}
       onChange={onChange}
-      getOptionLabel={optionLabel}
+      getOptionLabel={getOptionLabel}
       getOptionValue={(item) => item.id}
       placeholder={placeholder}
-      searchPlaceholder="Search providers..."
+      searchPlaceholder={searchPlaceholder}
+      labels={labels}
+      rtl={rtl}
       disabled={disabled}
       highlighted={highlighted}
       error={error}

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useRef } from "react";
 import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilters";
 import InvoicesFiltersPanel from "./InvoicesFilters";
@@ -12,6 +13,7 @@ const InvoicesSearchBar = ({
   onClearFilters,
   activeFilterCount,
 }) => {
+  const { t } = useTranslation("adminPages");
   const [showFilters, setShowFilters] = useState(false);
   const panelRef = useRef(null);
 
@@ -20,7 +22,7 @@ const InvoicesSearchBar = ({
       <SearchBarWithFilters
         value={search}
         onChange={setSearch}
-        placeholder="Search by Invoice ID, Phone, or Card Number..."
+        placeholder={t("Search by Invoice ID, Phone, or Card Number...")}
         onFilterClick={() => setShowFilters((prev) => !prev)}
         activeFilterCount={activeFilterCount}
         stacked={false}

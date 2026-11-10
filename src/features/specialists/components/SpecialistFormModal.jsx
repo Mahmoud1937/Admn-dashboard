@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +9,7 @@ import { specialistSchema } from "../schema/specialistSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 
 export default function SpecialistFormModal({ isOpen, specialist, onSave, onClose, isSaving, serverErrors }) {
+  const { t } = useTranslation("adminPages");
   const isEditMode = !!specialist;
 
   const {
@@ -49,12 +51,12 @@ export default function SpecialistFormModal({ isOpen, specialist, onSave, onClos
 
   return (
     <FormModalShell
-      title={isEditMode ? "Edit Specialist" : "Add Specialist"}
+      title={isEditMode ? t("Edit Specialist") : t("Add Specialist")}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
     >
       <TextField
-        label="English Name"
+        label={t("English Name")}
         required
         autoFocus
         {...register("enName")}
@@ -62,7 +64,7 @@ export default function SpecialistFormModal({ isOpen, specialist, onSave, onClos
       />
 
       <TextField
-        label="Arabic Name"
+        label={t("Arabic Name")}
         required
         {...register("arName")}
         error={errors.arName?.message}
@@ -71,7 +73,7 @@ export default function SpecialistFormModal({ isOpen, specialist, onSave, onClos
       <FormActions
         onCancel={onClose}
         isSaving={isSaving}
-        submitLabel={isEditMode ? "Save Changes" : "Add Specialist"}
+        submitLabel={isEditMode ? t("Save Changes") : t("Add Specialist")}
       />
     </FormModalShell>
   );

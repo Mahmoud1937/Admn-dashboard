@@ -4,6 +4,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { normalizeArabic } from "../utils/Arabictext";
 import { getAllGovernorateCenters } from "../utils/GovernorateCenters";
+import useLanguage from "../../../localization/useLanguage";
+import useProviderMapText from "../../../localization/useProviderMapText";
+
+function governorateLabel(governorate, rtl) {
+  return rtl
+    ? `${governorate.nameAr} - ${governorate.nameEn}`
+    : `${governorate.nameEn} - ${governorate.nameAr}`;
+}
 
 export default function MapFilters({
   governorateId,
@@ -11,6 +19,9 @@ export default function MapFilters({
   search,
   onSearchChange,
 }) {
+  const t = useProviderMapText();
+  const { direction } = useLanguage();
+  const rtl = direction === "rtl";
   const [localSearch, setLocalSearch] = useState(search);
   const debouncedSearch = useDebouncedValue(localSearch, 400);
 
@@ -78,14 +89,14 @@ export default function MapFilters({
           onClick={() => setGovOpen((o) => !o)}
           className="flex items-center justify-between w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400 focus:bg-white"
         >
-          <span className="truncate text-left">
+          <span className="truncate text-start">
             {selectedGovernorate
-              ? `${selectedGovernorate.nameAr} - ${selectedGovernorate.nameEn}`
-              : "All Governorates"}
+              ? governorateLabel(selectedGovernorate, rtl)
+              : t("All Governorates")}
           </span>
           <FontAwesomeIcon
             icon={faChevronDown}
-            className={`ml-2 shrink-0 text-slate-400 transition-transform ${govOpen ? "rotate-180" : ""}`}
+            className={`ms-2 shrink-0 text-slate-400 transition-transform ${govOpen ? "rotate-180" : ""}`}
           />
         </button>
 
@@ -95,14 +106,15 @@ export default function MapFilters({
               <div className="relative">
                 <FontAwesomeIcon
                   icon={faSearch}
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400"
+                  className={`absolute top-1/2 -translate-y-1/2 text-xs text-slate-400 ${rtl ? "right-2.5" : "left-2.5"}`}
                 />
                 <input
                   ref={govInputRef}
                   value={govQuery}
                   onChange={(e) => setGovQuery(e.target.value)}
-                  placeholder="Search governorate / البحث عن محافظة..."
-                  className="w-full rounded-lg border border-slate-200 py-1.5 pl-7 pr-2 text-sm outline-none focus:border-blue-400"
+                  placeholder={t("Search governorate...")}
+                  aria-label={t("Search governorate...")}
+                  className={`w-full rounded-lg border border-slate-200 py-1.5 text-sm outline-none focus:border-blue-400 ${rtl ? "pr-7 pl-2" : "pl-7 pr-2"}`}
                 />
               </div>
             </div>
@@ -112,11 +124,11 @@ export default function MapFilters({
                 <button
                   type="button"
                   onClick={() => selectGovernorate(null)}
-                  className={`flex w-full items-center justify-between px-3 py-1.5 text-left text-sm hover:bg-blue-50 ${
+                  className={`flex w-full items-center justify-between px-3 py-1.5 text-start text-sm hover:bg-blue-50 ${
                     governorateId == null ? "bg-blue-50 font-medium text-blue-600" : "text-slate-700"
                   }`}
                 >
-                  All Governorates
+                  {t("All Governorates")}
                   {governorateId == null && (
                     <FontAwesomeIcon icon={faCheck} className="text-xs text-blue-500" />
                   )}
@@ -124,7 +136,7 @@ export default function MapFilters({
               </li>
 
               {filteredGovernorates.length === 0 && (
-                <li className="px-3 py-2 text-sm text-slate-400">No results / لا توجد نتائج</li>
+                <li className="px-3 py-2 text-sm text-slate-400">{t("No results")}</li>
               )}
 
               {filteredGovernorates.map((gov) => (
@@ -132,15 +144,13 @@ export default function MapFilters({
                   <button
                     type="button"
                     onClick={() => selectGovernorate(gov.id)}
-                    className={`flex w-full items-center justify-between px-3 py-1.5 text-left text-sm hover:bg-blue-50 ${
+                    className={`flex w-full items-center justify-between px-3 py-1.5 text-start text-sm hover:bg-blue-50 ${
                       String(governorateId) === String(gov.id)
                         ? "bg-blue-50 font-medium text-blue-600"
                         : "text-slate-700"
                     }`}
                   >
-                    <span>
-                      {gov.nameAr} <span className="text-slate-400">/ {gov.nameEn}</span>
-                    </span>
+                    <span>{governorateLabel(gov, rtl)}</span>
                     {String(governorateId) === String(gov.id) && (
                       <FontAwesomeIcon icon={faCheck} className="text-xs text-blue-500" />
                     )}
@@ -155,15 +165,16 @@ export default function MapFilters({
       <div className="relative w-full min-w-0 sm:min-w-[280px] sm:flex-1">
         <FontAwesomeIcon
           icon={faSearch}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+          className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${rtl ? "right-4" : "left-4"}`}
         />
 
         <input
           type="text"
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
-          placeholder="Search by Provider name or Branch address..."
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
+          placeholder={t("Search by Provider name or Branch address...")}
+          aria-label={t("Search by Provider name or Branch address...")}
+          className={`w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-sm outline-none focus:border-blue-400 focus:bg-white ${rtl ? "pr-11 pl-4" : "pl-11 pr-4"}`}
         />
       </div>
     </div>

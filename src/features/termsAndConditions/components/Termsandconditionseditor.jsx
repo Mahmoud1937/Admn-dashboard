@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState, useCallback } from "react";
 import {
   FileText, Save, Pencil, X, Globe, Bold, Italic, Underline, Strikethrough,
@@ -132,6 +133,7 @@ function ColorPopover({ label, onPick, onClose, currentColor, onClear }) {
 }
 
 function RichTextArea({ lang, value, onChange, placeholder, error, resetKey, minLength = 0 }) {
+  const { t } = useTranslation("adminPages");
   const ref = useRef(null);
   const [headingOpen, setHeadingOpen] = useState(false);
   const [textColorOpen, setTextColorOpen] = useState(false);
@@ -641,12 +643,12 @@ const applyColor = useCallback(
 
         <Divider />
 
-        <ToolbarButton icon={ListOrdered} label="Numbered list" active={blockState.list === "OL"}
+        <ToolbarButton icon={ListOrdered} label={t("Numbered list")} active={blockState.list === "OL"}
           onMouseDown={(e) => { e.preventDefault(); toggleList("OL"); }} />
-        <ToolbarButton icon={List} label="Bulleted list" active={blockState.list === "UL"}
+        <ToolbarButton icon={List} label={t("Bulleted list")} active={blockState.list === "UL"}
           onMouseDown={(e) => { e.preventDefault(); toggleList("UL"); }} />
-        <ToolbarButton icon={Outdent} label="Decrease indent" onMouseDown={(e) => { e.preventDefault(); exec("outdent"); }} />
-        <ToolbarButton icon={Indent} label="Increase indent" onMouseDown={(e) => { e.preventDefault(); exec("indent"); }} />
+        <ToolbarButton icon={Outdent} label={t("Decrease indent")} onMouseDown={(e) => { e.preventDefault(); exec("outdent"); }} />
+        <ToolbarButton icon={Indent} label={t("Increase indent")} onMouseDown={(e) => { e.preventDefault(); exec("indent"); }} />
 
         <Divider />
 
@@ -656,12 +658,12 @@ const applyColor = useCallback(
 
         <Divider />
 
-        <ToolbarButton icon={Quote} label="Quote" active={blockState.quote}
+        <ToolbarButton icon={Quote} label={t("Quote")} active={blockState.quote}
           onMouseDown={(e) => { e.preventDefault(); toggleBlock("BLOCKQUOTE"); }} />
-        <ToolbarButton icon={Code} label="Code" active={blockState.code}
+        <ToolbarButton icon={Code} label={t("Code")} active={blockState.code}
           onMouseDown={(e) => { e.preventDefault(); toggleBlock("PRE"); }} />
-        <ToolbarButton icon={LinkIcon} label="Insert link" onMouseDown={(e) => { e.preventDefault(); insertLink(); }} />
-        <ToolbarButton icon={RemoveFormatting} label="Clear formatting" onMouseDown={(e) => { e.preventDefault(); exec("removeFormat"); }} />
+        <ToolbarButton icon={LinkIcon} label={t("Insert link")} onMouseDown={(e) => { e.preventDefault(); insertLink(); }} />
+        <ToolbarButton icon={RemoveFormatting} label={t("Clear formatting")} onMouseDown={(e) => { e.preventDefault(); exec("removeFormat"); }} />
       </div>
 
       <div
@@ -691,6 +693,7 @@ const applyColor = useCallback(
 }
 
 function ReadOnlyContent({ lang, value, placeholder }) {
+  const { t } = useTranslation("adminPages");
   const isRTL = lang === "ar";
   const direction = isRTL ? "rtl" : "ltr";
   const hasContent = value && value.replace(/<[^>]*>/g, "").trim().length > 0;
@@ -705,7 +708,7 @@ function ReadOnlyContent({ lang, value, placeholder }) {
         dangerouslySetInnerHTML={{ __html: hasContent ? value : placeholder }}
       />
       <div className="flex items-center justify-end px-3 py-1.5 border-t border-gray-100 text-xs text-gray-400">
-        Read-only — click "Update" to edit
+        {t("Read-only — click \"Update\" to edit")}
       </div>
     </div>
   );
@@ -729,6 +732,7 @@ export default function TermsAndConditionsEditor({
   minLengthMessage = (min) => `Please enter at least ${min} characters.`,
   canUpdate = false,
 }) {
+  const { t } = useTranslation("adminPages");
   const [activeLang, setActiveLang] = useState("en");
   const [content, setContent] = useState({ en: initialValue?.en ?? "", ar: initialValue?.ar ?? "" });
   const [isInitialized, setIsInitialized] = useState(false);
@@ -821,17 +825,17 @@ export default function TermsAndConditionsEditor({
               disabled={saving}
               className="flex items-center gap-2 bg-white hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed text-gray-700 text-sm font-medium px-4 py-2.5 rounded-lg border border-gray-200 transition-colors"
             >
-              <X className="w-4 h-4" /> Cancel
+              <X className="w-4 h-4" /> {t("Cancel")}
             </button>
             <button
               type="button"
               onClick={handleSave}
               disabled={saveDisabled}
-              title={loading ? "Waiting for content to load..." : undefined}
+              title={loading ? t("Waiting for content to load...") : undefined}
               className="flex items-center gap-2 bg-blue-900 hover:bg-blue-950 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
             >
               <Save className="w-4 h-4" />
-              {loading ? "Loading..." : saving ? "Saving..." : "Save changes"}
+              {loading ? t("Loading...") : saving ? t("Saving...") : t("Save changes")}
             </button>
           </div>
         ) : canUpdate ? (
@@ -839,10 +843,10 @@ export default function TermsAndConditionsEditor({
             type="button"
             onClick={() => setIsEditing(true)}
             disabled={loading || !isInitialized}
-            title={loading ? "Waiting for content to load..." : undefined}
+            title={loading ? t("Waiting for content to load...") : undefined}
             className="flex items-center gap-2 bg-blue-900 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
           >
-            <Pencil className="w-4 h-4" /> {loading ? "Loading..." : "Update"}
+            <Pencil className="w-4 h-4" /> {loading ? t("Loading...") : t("Update")}
           </button>
         ) : null}
       </div>
@@ -865,7 +869,7 @@ export default function TermsAndConditionsEditor({
           </div>
           <span className="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-100 rounded-full px-3 py-1">
             <span className="w-1.5 h-1.5 rounded-full bg-gray-500" />
-            {activeLang === "en" ? "English version" : "Arabic version"}
+            {activeLang === "en" ? t("English version") : t("Arabic version")}
           </span>
         </div>
 
@@ -880,7 +884,7 @@ export default function TermsAndConditionsEditor({
           </div>
 
           {loading || !isInitialized ? (
-            <SkeletonText label="Loading content..." lines={8} className="min-h-[380px] space-y-4 rounded-lg border border-gray-200 p-4" />
+            <SkeletonText label={t("Loading content...")} lines={8} className="min-h-[380px] space-y-4 rounded-lg border border-gray-200 p-4" />
           ) : !isEditing ? (
             <ReadOnlyContent lang={activeLang} value={content[activeLang]} placeholder={activeMeta.placeholder} />
           ) : (

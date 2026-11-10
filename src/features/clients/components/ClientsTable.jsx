@@ -10,11 +10,13 @@ import ImageLightbox from "../../../shared/components/ImageLightbox";
 import ClientAvatar from "../../../shared/components/ClientAvatar";
 import { formatDate } from "../../../utils/formatDate";
 import Skeleton, { SkeletonTable } from "../../../shared/components/Skeleton";
+import useClientsText from "../../../localization/useClientsText";
 
-function TableSkeleton({ rows = 7 }) {
+function TableSkeleton({ rows = 7, label }) {
   return (
     <SkeletonTable
       rows={rows}
+      label={label}
       rowClassName="flex items-center gap-5 px-6 py-4"
     >
       <Skeleton className="h-9 w-9 shrink-0 rounded-full bg-slate-100" />
@@ -38,37 +40,39 @@ export default function ClientsTable({
   isLoading,
   onToggleBlock,
   togglingClientId,
+  rtl = false,
 }) {
+  const t = useClientsText();
   const navigate = useNavigate();
   const [previewImage, setPreviewImage] = useState(null);
 
   if (isLoading) {
-    return <TableSkeleton />;
+    return <TableSkeleton label={t("Loading clients...")} />;
   }
 
   if (!clients.length) {
     return (
       <TableEmptyState
         icon={faUsers}
-        title="No clients found"
+        title={t("No clients found")}
         hasActiveFilters={false}
-        emptyMessage="There are no clients to display."
+        emptyMessage={t("There are no clients to display.")}
       />
     );
   }
 
   return (
     <ScrollableTable maxHeight="60vh">
-      <table className="w-full min-w-[1100px] text-left text-sm">
+      <table className={`w-full min-w-[1100px] text-sm ${rtl ? "text-right" : "text-left"}`}>
         <thead className="sticky top-0 z-10 bg-slate-100">
           <tr className="border-b border-slate-200 text-xs font-medium text-slate-700">
-            <th className="px-6 py-3">Client</th>
-            <th className="px-4 py-3">Gender</th>
-            <th className="px-4 py-3">ID documents</th>
-            <th className="px-4 py-3">Card</th>
-            <th className="px-4 py-3">Birth date</th>
-            <th className="px-4 py-3">Joined</th>
-            <th className="px-6 py-3 text-center">Status</th>
+            <th className="px-6 py-3">{t("Client")}</th>
+            <th className="px-4 py-3">{t("Gender")}</th>
+            <th className="px-4 py-3">{t("ID documents")}</th>
+            <th className="px-4 py-3">{t("Card")}</th>
+            <th className="px-4 py-3">{t("Birth date")}</th>
+            <th className="px-4 py-3">{t("Joined")}</th>
+            <th className="px-6 py-3 text-center">{t("Status")}</th>
           </tr>
         </thead>
 
@@ -114,12 +118,13 @@ export default function ClientsTable({
                       <p
                         dir="auto"
                         title={fullName}
-                        className="truncate text-left font-semibold text-slate-900 hover:text-blue-800"
+                        style={{ textAlign: "start" }}
+                        className="truncate font-semibold text-slate-900 hover:text-blue-800"
                       >
                         {fullName || "-"}
                       </p>
                       <p className="text-xs tabular-nums text-slate-500">
-                        {client.phoneNumber || "No phone"}
+                        {client.phoneNumber || t("No phone")}
                       </p>
                     </div>
                   </div>
@@ -127,7 +132,7 @@ export default function ClientsTable({
 
                 {/* Gender */}
                 <td className="whitespace-nowrap px-4 py-3 text-slate-600">
-                  {client.isMale ? "Male" : "Female"}
+                  {t(client.isMale ? "Male" : "Female")}
                 </td>
 
                 {/* National ID + passport */}
@@ -137,7 +142,7 @@ export default function ClientsTable({
                   </p>
                   {client.passportNumber && (
                     <p className="text-xs text-slate-500">
-                      Passport {client.passportNumber}
+                      {t("Passport")} <span dir="ltr">{client.passportNumber}</span>
                     </p>
                   )}
                 </td>
@@ -150,11 +155,11 @@ export default function ClientsTable({
                         {client.cardNumber}
                       </p>
                       <p className="text-xs text-slate-500">
-                        Expires {formatDate(client.expiredAt)}
+                        {t("Expires")} {formatDate(client.expiredAt)}
                       </p>
                     </>
                   ) : (
-                    <Muted>No card</Muted>
+                    <Muted>{t("No card")}</Muted>
                   )}
                 </td>
 
@@ -168,8 +173,8 @@ export default function ClientsTable({
                   <p className="text-slate-700">{formatDate(client.joinDate)}</p>
                   <p className="text-xs text-slate-500">
                     {client.activatedAt
-                      ? `Activated ${formatDate(client.activatedAt)}`
-                      : "Not activated"}
+                      ? `${t("Activated")} ${formatDate(client.activatedAt)}`
+                      : t("Not activated")}
                   </p>
                 </td>
 
@@ -181,11 +186,11 @@ export default function ClientsTable({
                       size="sm"
                     >
                       <span
-                        className={`mr-1.5 h-1.5 w-1.5 rounded-full ${
+                        className={`me-1.5 h-1.5 w-1.5 rounded-full ${
                           client.isBlocked ? "bg-red-500" : "bg-emerald-500"
                         }`}
                       />
-                      {client.isBlocked ? "Blocked" : "Active"}
+                      {t(client.isBlocked ? "Blocked" : "Active")}
                     </StatusBadge>
 
                     {onToggleBlock && (
@@ -193,9 +198,9 @@ export default function ClientsTable({
                         type="button"
                         onClick={() => onToggleBlock(client)}
                         disabled={togglingClientId === client.clientId}
-                        title={client.isBlocked ? "Unblock client" : "Block client"}
+                        title={t(client.isBlocked ? "Unblock client" : "Block client")}
                         aria-label={
-                          client.isBlocked ? "Unblock client" : "Block client"
+                          t(client.isBlocked ? "Unblock client" : "Block client")
                         }
                         className={`flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors focus:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 ${
                           client.isBlocked
@@ -220,6 +225,7 @@ export default function ClientsTable({
       <ImageLightbox
         image={previewImage}
         onClose={() => setPreviewImage(null)}
+        closeLabel={t("Close image preview")}
       />
     </ScrollableTable>
   );

@@ -7,8 +7,11 @@ import FormModalShell from "../../../shared/components/FormModalShell";
 import ImageUploadField from "../../../shared/components/ImageUploadField";
 import TextField from "../../../shared/components/TextField";
 import FormActions from "../../../shared/components/FormActions";
+import useServiceCategoriesText from "../../../localization/useServiceCategoriesText";
 
 export default function ServiceCategoryFormModal({ isOpen, category, onSave, onClose, isSaving, serverErrors }) {
+  const t = useServiceCategoriesText();
+  const fieldError = (error) => error?.message ? (error.type === "server" ? error.message : t(error.message)) : undefined;
   const isEditMode = !!category;
 
   const [image, setImage] = useState(null);
@@ -37,6 +40,8 @@ export default function ServiceCategoryFormModal({ isOpen, category, onSave, onC
         arName: category?.arName ?? "",
         logo: isEditMode ? category?.imageUrl ?? null : null,
       });
+      // Reset the image preview when switching between add and edit.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPreview(category?.imageUrl || null);
       setImage(null);
     }
@@ -67,36 +72,48 @@ export default function ServiceCategoryFormModal({ isOpen, category, onSave, onC
 
   return (
     <FormModalShell
-      title={isEditMode ? "Edit Service Category" : "Add Service Category"}
+      title={t(isEditMode ? "Edit Service Category" : "Add Service Category")}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
-      formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
+      closeLabel={t("Close")}
+      formClassName="max-h-[70vh] overflow-y-auto pe-1 custom-scrollbar"
     >
       <ImageUploadField
         allowSvg
         preview={preview}
         onImageChange={handleImageChange}
-        alt="Service category logo"
-        error={errors.logo?.message}
+        alt={t("Service category logo")}
+        label={t("Upload Logo")}
+        labels={{
+          formatsWithSvg: t("PNG, JPEG, WebP, or SVG"),
+          processing: t("Processing..."),
+          compressing: t("Compressing image..."),
+          dragAndDrop: t("or drag and drop an image here"),
+          formatsOnly: (formats) => t("{{formats}} only", { formats }),
+          dropError: (formats) => t("Please drop an image file ({{formats}})", { formats }),
+        }}
+        error={fieldError(errors.logo)}
         disabled={isSaving}
       />
 
       <TextField
-        label="English Name"
+        label={t("English Name")}
         required
         autoFocus
         {...register("enName")}
-        error={errors.enName?.message}
+        error={fieldError(errors.enName)}
       />
 
       <TextField
-        label="Arabic Name"
+        label={t("Arabic Name")}
         required
+        dir="rtl"
+        style={{ textAlign: "right" }}
         {...register("arName")}
-        error={errors.arName?.message}
+        error={fieldError(errors.arName)}
       />
 
-      <FormActions onCancel={onClose} isSaving={isSaving} submitLabel="Save" />
+      <FormActions onCancel={onClose} isSaving={isSaving} submitLabel={t("Save")} savingLabel={t("Saving...")} cancelLabel={t("Cancel")} />
     </FormModalShell>
   );
 }

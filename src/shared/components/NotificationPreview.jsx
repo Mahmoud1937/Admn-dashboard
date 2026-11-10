@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 
 function LanguageTabs({ language, onChange }) {
+  const { t } = useTranslation("common");
   return (
     <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
       <button
@@ -15,7 +17,7 @@ function LanguageTabs({ language, onChange }) {
             : "text-gray-500 hover:bg-white hover:text-gray-700"
         }`}
       >
-        English
+        {t("English")}
       </button>
 
       <button
@@ -28,7 +30,7 @@ function LanguageTabs({ language, onChange }) {
             : "text-gray-500 hover:bg-white hover:text-gray-700"
         }`}
       >
-        Arabic
+        {t("Arabic")}
       </button>
     </div>
   );
@@ -56,6 +58,7 @@ function NotificationImage({ imageUrl }) {
 }
 
 function PhonePreview({ title, message, imageUrl, lang }) {
+  const { t } = useTranslation("common");
   const isArabic = lang === "ar";
 
   const currentTime = useMemo(
@@ -107,7 +110,7 @@ function PhonePreview({ title, message, imageUrl, lang }) {
                 }`}
               >
                 <span>•</span>
-                <span>now</span>
+                <span>{t("now")}</span>
               </div>
             </div>
 
@@ -115,14 +118,14 @@ function PhonePreview({ title, message, imageUrl, lang }) {
               dir={isArabic ? "rtl" : "ltr"}
               className={`w-full min-w-0 whitespace-normal break-words text-sm font-semibold leading-snug text-gray-900 ${isArabic ? "text-right" : "text-left"}`}
             >
-              {title || "Notification title"}
+              {title || t("Notification title")}
             </p>
 
             <p
               dir={isArabic ? "rtl" : "ltr"}
               className={`mt-1 w-full min-w-0 whitespace-normal break-words text-xs leading-relaxed text-gray-600 ${isArabic ? "text-right" : "text-left"}`}
             >
-              {message || "Your notification message will appear here."}
+              {message || t("Your notification message will appear here.")}
             </p>
 
             <NotificationImage key={imageUrl} imageUrl={imageUrl} />

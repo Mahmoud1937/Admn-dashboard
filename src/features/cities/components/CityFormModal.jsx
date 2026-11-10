@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +18,7 @@ export default function CityFormModal({
   isSaving,
   serverErrors,
 }) {
+  const { t } = useTranslation("adminPages");
   const isEditMode = !!city;
 
   const {
@@ -58,13 +60,13 @@ export default function CityFormModal({
 
   return (
     <FormModalShell
-      title={isEditMode ? "Edit City" : "Add City"}
+      title={isEditMode ? t("Edit City") : t("Add City")}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
    
     >
       <TextField
-        label="English Name"
+        label={t("English Name")}
         required
         autoFocus
         {...register("enName")}
@@ -72,7 +74,7 @@ export default function CityFormModal({
       />
 
       <TextField
-        label="Arabic Name"
+        label={t("Arabic Name")}
         required
         {...register("arName")}
         error={errors.arName?.message}
@@ -80,7 +82,7 @@ export default function CityFormModal({
 
       <div className="mb-5">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Governorate <span className="text-red-500">*</span>
+          {t("Governorate")} <span className="text-red-500">*</span>
         </label>
         <Controller
           name="governorateId"
@@ -90,7 +92,7 @@ export default function CityFormModal({
            
               value={field.value}
               onChange={field.onChange}
-              placeholder="Select governorate"
+              placeholder={t("Select governorate")}
               showArName
               className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400"
             />
@@ -104,7 +106,7 @@ export default function CityFormModal({
       <FormActions
         onCancel={onClose}
         isSaving={isSaving}
-        submitLabel={isEditMode ? "Save Changes" : "Add City"}
+        submitLabel={isEditMode ? t("Save Changes") : t("Add City")}
       />
     </FormModalShell>
   );

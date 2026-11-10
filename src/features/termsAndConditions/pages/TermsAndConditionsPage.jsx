@@ -1,3 +1,4 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
 import TermsAndConditionsEditor from "../components/Termsandconditionseditor";
 import { useTermsAndConditionsMutation, useTermsAndConditionsQuery } from "../hooks/Usetermsandconditions";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
@@ -21,7 +22,7 @@ export default function TermsAndConditionsPage() {
   };
 
   return (
-    <TermsAndConditionsEditor
+    <LocalizedPage><TermsAndConditionsEditor
       initialValue={
         data || {
           en: "",
@@ -33,6 +34,6 @@ export default function TermsAndConditionsPage() {
       loading={isLoading}
       serverErrors={serverErrors}
       canUpdate={canUpdate}
-    />
+    /></LocalizedPage>
   );
 }

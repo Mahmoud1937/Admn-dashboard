@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { useTicketDetailsQuery } from "../hooks/useTicketDetailsQuery";
 import {
@@ -45,6 +46,7 @@ export default function TicketDetailsModal({
   isSaving,
   serverErrors,
 }) {
+  const { t } = useTranslation("adminPages");
   const { data, isLoading, isError } = useTicketDetailsQuery(
     ticketId,
     !!ticketId
@@ -181,7 +183,7 @@ export default function TicketDetailsModal({
         htmlFor="ticket-status"
         className="text-[11px] font-semibold uppercase tracking-wide text-slate-400"
       >
-        Status
+        {t("Status")}
       </label>
       <select
         id="ticket-status"
@@ -191,8 +193,8 @@ export default function TicketDetailsModal({
           visibleFieldErrors.isClosed ? "border-red-400" : "border-slate-200"
         }`}
       >
-        <option value="false">Open</option>
-        <option value="true">Closed</option>
+        <option value="false">{t("Open")}</option>
+        <option value="true">{t("Closed")}</option>
       </select>
     </div>
     {visibleFieldErrors.isClosed && (
@@ -209,7 +211,7 @@ export default function TicketDetailsModal({
 
           {isError && (
             <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center text-sm text-red-600">
-              Failed to load ticket details.
+              {t("Failed to load ticket details.")}
             </p>
           )}
 
@@ -228,7 +230,7 @@ export default function TicketDetailsModal({
 
               {/* Description */}
               <Section
-                title="Description"
+                title={t("Description")}
                 right={
                   isEditingView && editValues ? (
                     <span className="text-[11px] text-slate-400">
@@ -270,7 +272,7 @@ export default function TicketDetailsModal({
               {/* Reply */}
               {isEditingView && editValues && (
                 <Section
-                  title="Reply"
+                  title={t("Reply")}
                   right={
                     <span className="text-[11px] text-slate-400">
                       {editValues.reply.length} / 500
@@ -282,7 +284,7 @@ export default function TicketDetailsModal({
                     onChange={(e) => setEditValue("reply", e.target.value)}
                     maxLength={500}
                     rows={5}
-                    placeholder="Write your reply..."
+                    placeholder={t("Write your reply...")}
                     dir="auto"
                     className={`h-36 w-full resize-none rounded-xl border bg-blue-50 p-3.5 text-sm leading-6 text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 ${
                       visibleFieldErrors.reply
@@ -299,7 +301,7 @@ export default function TicketDetailsModal({
               )}
 
               {/* Activity */}
-              <Section title="Activity">
+              <Section title={t("Activity")}>
                 <TicketTimeline
                   key={`${ticket.id}-${ticket.isClosed}-${timelines.length}`}
                   timelines={timelines}
@@ -323,7 +325,7 @@ export default function TicketDetailsModal({
               onClick={startEditing}
               className="cursor-pointer rounded-lg bg-blue-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-800"
             >
-              Update
+              {t("Update")}
             </button>
           )}
           {ticket && canEditTicket && isEditingView && (
@@ -333,7 +335,7 @@ export default function TicketDetailsModal({
                 onClick={cancelEditing}
                 className="cursor-pointer rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
-                Cancel
+                {t("Cancel")}
               </button>
               <button
                 type="button"
@@ -341,7 +343,7 @@ export default function TicketDetailsModal({
                 disabled={isSaving}
                 className="cursor-pointer rounded-lg bg-blue-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSaving ? "Saving..." : "Save Changes"}
+                {isSaving ? t("Saving...") : t("Save Changes")}
               </button>
             </>
           )}

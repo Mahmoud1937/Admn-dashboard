@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,6 +8,7 @@ import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
 
 const CardPoolCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors }) => {
+  const { t } = useTranslation("adminPages");
  const {
   register,
   handleSubmit,
@@ -38,7 +40,7 @@ useEffect(() => {
 
   return (
     <FormModalShell
-      title="Create Card Pool"
+      title={t("Create Card Pool")}
       onClose={onClose}
       onSubmit={handleSubmit(submitHandler)}
       className="max-w-sm"
@@ -46,7 +48,7 @@ useEffect(() => {
     >
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Number of Cards <span className="text-red-500">*</span>
+          {t("Number of Cards")} <span className="text-red-500">*</span>
         </label>
         <input
           type="number"
@@ -69,11 +71,11 @@ useEffect(() => {
 
       {serverErrors && Object.keys(errors).length === 0 && (
         <p className="text-red-500 text-sm">
-          {typeof serverErrors === "string" ? serverErrors : "Something went wrong"}
+          {typeof serverErrors === "string" ? serverErrors : t("Something went wrong")}
         </p>
       )}
 
-      <FormActions onCancel={onClose} isSaving={isSaving} submitLabel="Create" savingLabel="Creating..." />
+      <FormActions onCancel={onClose} isSaving={isSaving} submitLabel={t("Create")} savingLabel={t("Creating...")} />
     </FormModalShell>
   );
 };

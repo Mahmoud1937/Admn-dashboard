@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +16,7 @@ export default function TicketTypeFormModal({
   isSaving,
   serverErrors,
 }) {
+  const { t } = useTranslation("adminPages");
   const isEditMode = !!ticketType;
 
   const {
@@ -56,12 +58,12 @@ export default function TicketTypeFormModal({
 
   return (
     <FormModalShell
-      title={isEditMode ? "Edit Ticket Type" : "Add Ticket Type"}
+      title={isEditMode ? t("Edit Ticket Type") : t("Add Ticket Type")}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
     >
       <TextField
-        label="English Name"
+        label={t("English Name")}
         required
         autoFocus
         {...register("enName")}
@@ -69,7 +71,7 @@ export default function TicketTypeFormModal({
       />
 
       <TextField
-        label="Arabic Name"
+        label={t("Arabic Name")}
         required
         dir="rtl"
         {...register("arName")}
@@ -79,7 +81,7 @@ export default function TicketTypeFormModal({
       <FormActions
         onCancel={onClose}
         isSaving={isSaving}
-        submitLabel={isEditMode ? "Save Changes" : "Add Ticket Type"}
+        submitLabel={isEditMode ? t("Save Changes") : t("Add Ticket Type")}
       />
     </FormModalShell>
   );

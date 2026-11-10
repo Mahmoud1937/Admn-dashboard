@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faChevronDown, faPenToSquare, faPowerOff, faSpinner } from "@fortawesome/free-solid-svg-icons";
@@ -13,6 +14,7 @@ const MESSAGE_LANGUAGES = [
 ];
 
 function StatusBadge({ isDeleted }) {
+  const { t } = useTranslation("adminPages");
   if (typeof isDeleted !== "boolean") return null;
   return (
     <span
@@ -21,14 +23,15 @@ function StatusBadge({ isDeleted }) {
       }`}
     >
       <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${isDeleted ? "bg-slate-400" : "bg-emerald-500"}`} />
-      {isDeleted ? "Inactive" : "Active"}
+      {isDeleted ? t("Inactive") : t("Active")}
     </span>
   );
 }
 
 function LanguageToggle({ value, onChange }) {
+  const { t } = useTranslation("adminPages");
   return (
-    <div role="group" aria-label="Preview language" className="inline-flex rounded-lg bg-slate-200/60 p-0.5">
+    <div role="group" aria-label={t("Preview language")} className="inline-flex rounded-lg bg-slate-200/60 p-0.5">
       {MESSAGE_LANGUAGES.map(({ key, label, fullLabel }) => {
         const active = value === key;
         return (
@@ -62,6 +65,7 @@ function TemplateCard({
   togglingId,
   onPreviewImage,
 }) {
+  const { t } = useTranslation("adminPages");
   const [langKey, setLangKey] = useState("messageEn");
   const [expanded, setExpanded] = useState(false);
 
@@ -98,7 +102,7 @@ function TemplateCard({
       <div className="flex-1 px-5 pb-4 pt-4">
         <div className="rounded-xl bg-slate-100/80 p-3 ring-1 ring-inset ring-slate-200/70">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Preview</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{t("Preview")}</span>
             <LanguageToggle value={langKey} onChange={setLangKey} />
           </div>
 
@@ -107,13 +111,13 @@ function TemplateCard({
               {template.imageUrl ? (
                 <LazyImageCell
                   url={template.imageUrl}
-                  label={template.title || "Notification template"}
+                  label={template.title || t("Notification template")}
                   size="h-11 w-11"
                   onPreview={onPreviewImage}
                 />
               ) : (
                 <span
-                  aria-label="No image"
+                  aria-label={t("No image")}
                   className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-900 text-white"
                 >
                   <FontAwesomeIcon icon={faBell} aria-hidden="true" />
@@ -123,8 +127,8 @@ function TemplateCard({
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Notification</span>
-                <span className="text-[10px] text-slate-400">now</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{t("Notification")}</span>
+                <span className="text-[10px] text-slate-400">{t("now")}</span>
               </div>
               <p dir="auto" title={title} className="mt-0.5 line-clamp-1 break-words text-sm font-semibold text-slate-900">
                 {title}
@@ -150,7 +154,7 @@ function TemplateCard({
               onClick={() => setExpanded((v) => !v)}
               className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-blue-800 hover:text-blue-950 focus-visible:outline-2 focus-visible:outline-blue-600"
             >
-              {expanded ? "Show less" : "Show full message"}
+              {expanded ? t("Show less") : t("Show full message")}
               <FontAwesomeIcon icon={faChevronDown} className={`text-[10px] transition-transform ${expanded ? "rotate-180" : ""}`} />
             </button>
           )}
@@ -159,13 +163,13 @@ function TemplateCard({
 
       {/* Footer */}
       <footer className="mt-auto flex items-center justify-between gap-2 border-t border-slate-100 px-5 py-3">
-        <span className="text-xs tabular-nums text-slate-400">Template #{template.id}</span>
+        <span className="text-xs tabular-nums text-slate-400">{t("Template #")}{template.id}</span>
         <div className="flex items-center gap-0.5">
           {canEdit && (
             <button
               type="button"
               aria-label={`Edit template ${template.title || template.id}`}
-              title="Edit template"
+              title={t("Edit template")}
               disabled={editDisabled}
               onClick={() => onEdit(template)}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
@@ -207,6 +211,7 @@ export default function NotificationTemplatesTable({
   isToggling = false,
   togglingId,
 }) {
+  const { t } = useTranslation("adminPages");
   const [previewImage, setPreviewImage] = useState(null);
 
   if (templates.length === 0) {
@@ -214,8 +219,8 @@ export default function NotificationTemplatesTable({
       <div className="flex min-h-[360px] items-center justify-center">
         <TableEmptyState
           icon={faBell}
-          title="No notification templates found"
-          emptyMessage="There are no notification templates to display."
+          title={t("No notification templates found")}
+          emptyMessage={t("There are no notification templates to display.")}
         />
       </div>
     );
@@ -223,7 +228,7 @@ export default function NotificationTemplatesTable({
 
   return (
     <>
-      <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3" aria-label="Notification templates">
+      <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3" aria-label={t("Notification templates")}>
         {templates.map((template) => (
           <li key={template.id} className="flex">
             <TemplateCard

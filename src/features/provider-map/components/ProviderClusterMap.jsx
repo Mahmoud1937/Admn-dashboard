@@ -15,6 +15,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CATEGORY_COLOR_BY_NAME, FALLBACK_CATEGORY_COLOR } from "./CategoryTabs";
 import { resolveGovernorateFromCoords } from "../utils/Resolvegovernorate";
 import { getLocationFromCoords } from "../utils/Reversegeocode";
+import useLanguage from "../../../localization/useLanguage";
+import useProviderMapText from "../../../localization/useProviderMapText";
 
 const EGYPT_CENTER = [26.8, 30.8];
 const DEFAULT_ZOOM = 6;
@@ -95,7 +97,7 @@ const CLIENT_BUBBLE_PIXEL_OFFSET = 44;
 // Groups the branches inside a cluster by their provider (not just by Arabic
 // name, which can collide across different providers) and keeps both the
 // Arabic and English name so the tooltip can show both.
-function buildClusterIconHtml(count, color, size, providersInCluster) {
+function buildClusterIconHtml(count, color, size, providersInCluster, providerLabel, rtl) {
   const grouped = new Map();
   for (const p of providersInCluster) {
     const key = p.providerId ?? p.nameAr;
@@ -109,10 +111,10 @@ function buildClusterIconHtml(count, color, size, providersInCluster) {
       ({ nameAr, nameEn, count: groupCount }) => `
       <div style="padding:3px 0;">
         <div style="display:flex;justify-content:space-between;gap:8px;">
-          <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">${nameAr}</span>
+          <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">${rtl ? (nameAr || nameEn) : (nameEn || nameAr)}</span>
           <span style="flex-shrink:0;opacity:0.5;">${groupCount}</span>
         </div>
-        ${nameEn ? `<div style="font-size:11px;color:#9ca3af;direction:ltr;text-align:right;">${nameEn}</div>` : ""}
+        ${nameEn && nameAr ? `<div style="font-size:11px;color:#9ca3af;direction:${rtl ? "ltr" : "rtl"};text-align:start;">${rtl ? nameEn : nameAr}</div>` : ""}
       </div>`
     )
     .join("");
@@ -123,10 +125,10 @@ function buildClusterIconHtml(count, color, size, providersInCluster) {
         padding:8px 12px;min-width:170px;max-width:230px;z-index:10000;
         border:1px solid #e5e7eb;pointer-events:none;
         font-family:sans-serif;font-size:12px;color:#374151;
-        direction:rtl;text-align:right;
+        direction:${rtl ? "rtl" : "ltr"};text-align:start;
       ">
         <div style="font-weight:700;margin-bottom:4px;border-bottom:1px solid #f3f4f6;padding-bottom:4px;">
-          ${grouped.size} Provider
+          ${grouped.size} ${providerLabel}
         </div>
         <div style="max-height:192px;overflow-y:auto;">${tooltipRows}</div>
       </div>`
@@ -163,10 +165,17 @@ function createProviderIcon(type, imageUrl) {
 }
 
 function BranchPopupCard({ p }) {
+  const t = useProviderMapText();
+  const { direction } = useLanguage();
+  const rtl = direction === "rtl";
   const color = CATEGORY_COLOR_BY_NAME[(p.type || "").toLowerCase()] || FALLBACK_CATEGORY_COLOR;
+  const primaryName = rtl ? (p.nameAr || p.nameEn) : (p.nameEn || p.nameAr);
+  const secondaryName = p.nameAr && p.nameEn ? (rtl ? p.nameEn : p.nameAr) : null;
+  const primaryCategory = rtl ? (p.categoryAr || p.categoryEn || p.type) : (p.categoryEn || p.categoryAr || p.type);
+  const secondaryCategory = p.categoryAr && p.categoryEn ? (rtl ? p.categoryEn : p.categoryAr) : null;
 
   return (
-    <div className="w-64 overflow-hidden rounded-xl font-sans" dir="rtl">
+    <div className="w-64 overflow-hidden rounded-xl font-sans" dir={direction}>
       <div
         className="flex items-center gap-3 p-3"
         style={{ background: `linear-gradient(135deg, ${color}1a, ${color}05)` }}
@@ -178,7 +187,7 @@ function BranchPopupCard({ p }) {
           {p.imageUrl ? (
             <img
               src={p.imageUrl}
-              alt={p.nameAr}
+              alt={primaryName}
               className="h-full w-full object-cover"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
@@ -189,11 +198,9 @@ function BranchPopupCard({ p }) {
         <div className="min-w-0">
           <div className="flex flex-col text-start">
             <span className="text-base font-semibold text-gray-900 leading-tight">
-              {p.nameEn}
+              {primaryName}
             </span>
-            <span className="text-sm text-gray-500 leading-tight">
-              {p.nameAr}
-            </span>
+            {secondaryName && <span className="text-sm text-gray-500 leading-tight">{secondaryName}</span>}
           </div>
 
           <div className="mt-1 flex flex-col items-center gap-1">
@@ -201,12 +208,10 @@ function BranchPopupCard({ p }) {
               className="inline-flex justify-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
               style={{ background: `${color}22`, color: color }}
             >
-              {p.categoryEn || p.type}
+              {primaryCategory}
             </span>
 
-            <span>
-              {p.categoryAr || p.type}
-            </span>
+            {secondaryCategory && <span>{secondaryCategory}</span>}
           </div>
         </div>
       </div>
@@ -237,11 +242,11 @@ function BranchPopupCard({ p }) {
       <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-3 py-1.5 text-[10px] text-gray-400">
         <span className="flex items-center gap-1">
           <FontAwesomeIcon icon={faBuilding} className="h-2.5 w-2.5" />
-          Provider #{p.providerId}
+          {t("Provider")} <bdi dir="ltr">#{p.providerId}</bdi>
         </span>
         <span className="flex items-center gap-1">
           <FontAwesomeIcon icon={faHashtag} className="h-2.5 w-2.5" />
-          Branch #{p.branchId}
+          {t("Branch")} <bdi dir="ltr">#{p.branchId}</bdi>
         </span>
       </div>
     </div>
@@ -375,6 +380,9 @@ function useDeclutteredBubblePositions(bubbles) {
 }
 
 function GovernorateBubble({ bubble, displayLatLng, onSelectGovernorate }) {
+  const t = useProviderMapText();
+  const { direction } = useLanguage();
+  const rtl = direction === "rtl";
   const position = displayLatLng ?? [bubble.centerLat, bubble.centerLng];
 
   return (
@@ -391,20 +399,21 @@ function GovernorateBubble({ bubble, displayLatLng, onSelectGovernorate }) {
       }}
     >
       <Tooltip direction="top" offset={[0, -6]} opacity={1}>
-        <div className="w-56 text-sm" dir="rtl">
-          <p className="mb-1 font-semibold text-gray-900">{bubble.governorateNameAr}</p>
-          <p className="mb-1 font-semibold text-gray-900">{bubble.governorateNameEn}</p>
-          <p className="mb-2 text-xs text-gray-500">{bubble.count} Branch</p>
+        <div className="w-56 text-sm" dir={direction}>
+          <p className="mb-1 font-semibold text-gray-900">{rtl ? bubble.governorateNameAr : bubble.governorateNameEn}</p>
+          <p className="mb-1 text-xs text-gray-500">{rtl ? bubble.governorateNameEn : bubble.governorateNameAr}</p>
+          <p className="mb-2 text-xs text-gray-500"><bdi dir="ltr">{bubble.count}</bdi> {t("Branch")}</p>
           <div className="max-h-48 space-y-1 overflow-y-auto">
             {bubble.providers.map((p) => (
               <div
                 key={p.providerId}
                 className="flex items-center justify-between px-2 py-1 text-xs"
               >
-                <span className="truncate">
-                  {p.nameAr} <span className="text-gray-400">/ {p.nameEn}</span>
+                <span className="min-w-0 truncate">
+                  <span className="block truncate">{rtl ? (p.nameAr || p.nameEn) : (p.nameEn || p.nameAr)}</span>
+                  {p.nameAr && p.nameEn && <span className="block truncate text-gray-400">{rtl ? p.nameEn : p.nameAr}</span>}
                 </span>
-                <span className="shrink-0 text-gray-400">{p.count}</span>
+                <span className="shrink-0 text-gray-400"><bdi dir="ltr">{p.count}</bdi></span>
               </div>
             ))}
           </div>
@@ -415,6 +424,9 @@ function GovernorateBubble({ bubble, displayLatLng, onSelectGovernorate }) {
 }
 
 function CountryBubble({ bubble }) {
+  const t = useProviderMapText();
+  const { direction } = useLanguage();
+  const rtl = direction === "rtl";
   const map = useMap();
 
   return (
@@ -426,18 +438,21 @@ function CountryBubble({ bubble }) {
       }}
     >
       <Tooltip direction="top" offset={[0, -6]} opacity={1}>
-        <div className="w-56 text-sm" dir="rtl">
-          <p className="mb-1 font-semibold text-gray-900">{bubble.governorateNameAr}</p>
-          <p className="mb-2 text-xs text-gray-500">{bubble.count} Branch</p>
+        <div className="w-56 text-sm" dir={direction}>
+          <p className="mb-1 font-semibold text-gray-900">{rtl ? bubble.governorateNameAr : bubble.governorateNameEn}</p>
+          <p className="mb-1 text-xs text-gray-500">{rtl ? bubble.governorateNameEn : bubble.governorateNameAr}</p>
+          <p className="mb-2 text-xs text-gray-500"><bdi dir="ltr">{bubble.count}</bdi> {t("Branch")}</p>
           <div className="max-h-48 space-y-1 overflow-y-auto">
             {bubble.providers.map((p) => (
               <div
                 key={p.providerId}
                 className="flex items-center justify-between px-2 py-1 text-xs"
               >
-                <span className="truncate">{p.nameAr}</span>
-                <span className="truncate">{p.nameEn}</span>
-                <span className="shrink-0 text-gray-400">{p.count}</span>
+                <span className="min-w-0 truncate">
+                  <span className="block truncate">{rtl ? (p.nameAr || p.nameEn) : (p.nameEn || p.nameAr)}</span>
+                  {p.nameAr && p.nameEn && <span className="block truncate text-gray-400">{rtl ? p.nameEn : p.nameAr}</span>}
+                </span>
+                <span className="shrink-0 text-gray-400"><bdi dir="ltr">{p.count}</bdi></span>
               </div>
             ))}
           </div>
@@ -476,74 +491,77 @@ function GovernorateBubbleLayer({ bubbles, onSelectGovernorate, renderBubble }) 
 // ---------------------------------------------------------------------------
 
 function ClientBubblePopup({ bubble, area, isLoading }) {
+  const t = useProviderMapText();
+  const { direction } = useLanguage();
+  const rtl = direction === "rtl";
   const primaryGovernorate = bubble.governorates[0];
   const hasMultipleGovernorates = bubble.governorates.length > 1;
 
   return (
-    <div className="w-56 overflow-hidden rounded-lg font-sans" dir="rtl">
-      <div className="flex items-center gap-2.5 bg-blue-600 px-3 py-2.5 text-right text-white">
+    <div className="w-56 overflow-hidden rounded-lg font-sans" dir={direction}>
+      <div className="flex items-center gap-2.5 bg-blue-600 px-3 py-2.5 text-start text-white">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold ring-1 ring-white/30">
-          {bubble.count}
+          <bdi dir="ltr">{bubble.count}</bdi>
         </span>
         <div className="min-w-0">
-          <p className="text-sm font-semibold leading-tight">Users within 200m</p>
-          <p className="text-[11px] text-blue-100">{bubble.count} client locations</p>
+          <p className="text-sm font-semibold leading-tight">{t("Users within 200m")}</p>
+          <p className="text-[11px] text-blue-100">{t("{{value}} client locations", { value: bubble.count })}</p>
         </div>
         <FontAwesomeIcon icon={faUsers} className="h-4 w-4 text-blue-100" />
       </div>
 
       <div className="space-y-2 bg-white px-2.5 py-2 text-xs text-slate-700">
         <div className="grid grid-cols-2 gap-2">
-          <div className="min-w-0 rounded-md bg-blue-50 px-2 py-1.5 text-right">
+          <div className="min-w-0 rounded-md bg-blue-50 px-2 py-1.5 text-start">
             <div className="mb-0.5 flex items-center gap-1 text-[10px] font-medium text-blue-600">
               <FontAwesomeIcon icon={faLocationDot} className="h-2.5 w-2.5" />
-              Governorate
+              {t("Governorate")}
             </div>
             <p className="truncate font-semibold text-slate-900">
-              {primaryGovernorate?.nameAr ?? "N/A"}
+              {(rtl ? primaryGovernorate?.nameAr || primaryGovernorate?.nameEn : primaryGovernorate?.nameEn || primaryGovernorate?.nameAr) || t("N/A")}
               {hasMultipleGovernorates && ` +${bubble.governorates.length - 1}`}
             </p>
-            {primaryGovernorate?.nameEn && (
-              <p className="truncate text-[10px] text-slate-400" dir="ltr">{primaryGovernorate.nameEn}</p>
+            {primaryGovernorate?.nameAr && primaryGovernorate?.nameEn && (
+              <p className="truncate text-[10px] text-slate-400" dir={rtl ? "ltr" : "rtl"}>{rtl ? primaryGovernorate.nameEn : primaryGovernorate.nameAr}</p>
             )}
           </div>
 
-          <div className="min-w-0 rounded-md bg-blue-50 px-2 py-1.5 text-right">
+          <div className="min-w-0 rounded-md bg-blue-50 px-2 py-1.5 text-start">
             <div className="mb-0.5 flex items-center gap-1 text-[10px] font-medium text-blue-600">
               <FontAwesomeIcon icon={faCity} className="h-2.5 w-2.5" />
-              City
+              {t("City")}
             </div>
             <p className="truncate font-semibold text-slate-900">
-              {isLoading ? "Resolving..." : area?.cityAr ?? "N/A"}
+              {isLoading ? t("Resolving...") : (rtl ? area?.cityAr || area?.cityEn : area?.cityEn || area?.cityAr) || t("N/A")}
             </p>
-            {!isLoading && area?.cityEn && (
-              <p className="truncate text-[10px] text-slate-400" dir="ltr">{area.cityEn}</p>
+            {!isLoading && area?.cityAr && area?.cityEn && (
+              <p className="truncate text-[10px] text-slate-400" dir={rtl ? "ltr" : "rtl"}>{rtl ? area.cityEn : area.cityAr}</p>
             )}
           </div>
         </div>
 
         <div className="border-t border-slate-100 pt-2">
-          <div className="min-w-0 text-right">
-            <p className="text-[10px] font-medium text-blue-600">District</p>
+          <div className="min-w-0 text-start">
+            <p className="text-[10px] font-medium text-blue-600">{t("District")}</p>
             <p className="truncate font-medium text-slate-800">
-              {isLoading ? "Resolving..." : area?.districtAr ?? "N/A"}
+              {isLoading ? t("Resolving...") : (rtl ? area?.districtAr || area?.districtEn : area?.districtEn || area?.districtAr) || t("N/A")}
             </p>
-            {!isLoading && area?.districtEn && (
-              <p className="truncate text-[10px] text-slate-400" dir="ltr">{area.districtEn}</p>
+            {!isLoading && area?.districtAr && area?.districtEn && (
+              <p className="truncate text-[10px] text-slate-400" dir={rtl ? "ltr" : "rtl"}>{rtl ? area.districtEn : area.districtAr}</p>
             )}
           </div>
         </div>
 
         {hasMultipleGovernorates && (
           <div className="border-t border-slate-100 pt-2">
-            <p className="mb-1 font-medium text-slate-500">Governorates in cluster</p>
+            <p className="mb-1 font-medium text-slate-500">{t("Governorates in cluster")}</p>
             <div className="flex flex-wrap gap-1">
               {bubble.governorates.map((governorate) => (
                 <span
                   key={governorate.id}
                   className="rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700"
                 >
-                  {governorate.nameAr} ({governorate.count})
+                  {rtl ? governorate.nameAr : governorate.nameEn} (<bdi dir="ltr">{governorate.count}</bdi>)
                 </span>
               ))}
             </div>
@@ -616,6 +634,10 @@ function ClusterClickFlyer({ children, ...clusterProps }) {
 }
 
 function ProviderMarkerLayer({ providers, zoom }) {
+  const t = useProviderMapText();
+  const { direction } = useLanguage();
+  const rtl = direction === "rtl";
+  const providerLabel = t("Provider");
   const map = useMap();
 
   const markerProviders = useMemo(() => {
@@ -683,11 +705,11 @@ function ProviderMarkerLayer({ providers, zoom }) {
       .filter(Boolean);
 
     return L.divIcon({
-      html: buildClusterIconHtml(count, color, size, providersInCluster),
+      html: buildClusterIconHtml(count, color, size, providersInCluster, providerLabel, rtl),
       className: "",
       iconSize: [size, size],
     });
-  }, [providerByKey]);
+  }, [providerByKey, providerLabel, rtl]);
 
   return (
     <ClusterClickFlyer
@@ -735,6 +757,7 @@ export default function ProviderClusterMap({
   clientLocationBubbles = [],
   showUsers = false,
 }) {
+  const t = useProviderMapText();
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
 
   const showIndividualPins = zoom >= INDIVIDUAL_PIN_ZOOM || !!selectedGovernorate;
@@ -747,7 +770,7 @@ export default function ProviderClusterMap({
   const handleZoomChange = useCallback((z) => setZoom(z), []);
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full" dir="ltr">
       <style>{`
         .branch-popup .leaflet-popup-content-wrapper {
           padding: 0;
@@ -791,7 +814,7 @@ export default function ProviderClusterMap({
           onSelectGovernorate={onSelectGovernorate}
         />
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+          attribution={`&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> ${t("contributors")}`}
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 

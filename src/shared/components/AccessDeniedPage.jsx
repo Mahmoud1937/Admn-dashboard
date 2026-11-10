@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ArrowRight, KeyRound, LockKeyhole, LogOut, PanelLeft, RefreshCw, ShieldCheck, ShieldX } from "lucide-react";
 import { Link, useOutletContext } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Logo from "../../assets/logo.png";
 import { useAuth } from "../../features/auth/context/Authcontext";
 import useAuthMutations from "../../features/auth/hooks/useAuthMutations";
@@ -9,6 +10,8 @@ import { getVisibleNavigation } from "../../sidebar/navigation";
 const MAX_SUGGESTED = 6;
 
 function SuggestedPages() {
+  const { t } = useTranslation("common");
+  const { t: translateNavigation } = useTranslation("sidebar");
   const { hasPermission } = useAuth();
   const { sidebarCollapsed, setSidebarCollapsed } = useOutletContext() ?? {};
   const seen = new Set();
@@ -31,12 +34,12 @@ function SuggestedPages() {
       {suggestedPages.length > 0 ? (
         <>
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-slate-700">Some of your available pages</h2>
+            <h2 className="text-sm font-semibold text-slate-700">{t("Some of your available pages")}</h2>
             <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500">
-              Showing {suggestedPages.length} of {authorizedPages.length}
+              {t("Showing {{count}} of {{total}}", { count: suggestedPages.length, total: authorizedPages.length })}
             </span>
           </div>
-          <nav aria-label="Suggested pages" className="grid gap-2 sm:grid-cols-2">
+          <nav aria-label={t("Suggested pages")} className="grid gap-2 sm:grid-cols-2">
             {suggestedPages.map((page) => (
               <Link
                 key={page.path}
@@ -45,7 +48,7 @@ function SuggestedPages() {
               >
                 <span className="flex min-w-0 items-center gap-3">
                   {page.icon && <FontAwesomeIcon icon={page.icon} className="w-4 shrink-0 text-slate-400 group-hover:text-primary-600" aria-hidden="true" />}
-                  <span className="truncate">{page.title}</span>
+                  <span className="truncate">{translateNavigation(page.title)}</span>
                 </span>
                 <ArrowRight size={15} className="shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-primary-600" aria-hidden="true" />
               </Link>
@@ -56,8 +59,8 @@ function SuggestedPages() {
               <PanelLeft size={18} aria-hidden="true" />
             </span>
             <p className="min-w-0 flex-1 text-sm leading-5 text-slate-600">
-              <span className="font-semibold text-slate-800">{hasMore ? "Looking for something else?" : "Need to go elsewhere?"}</span>{" "}
-              {canExpandSidebar ? "Expand the sidebar to see and choose from all your pages." : "Use the sidebar to see and choose from all your pages."}
+              <span className="font-semibold text-slate-800">{hasMore ? t("Looking for something else?") : t("Need to go elsewhere?")}</span>{" "}
+              {canExpandSidebar ? t("Expand the sidebar to see and choose from all your pages.") : t("Use the sidebar to see and choose from all your pages.")}
             </p>
             {canExpandSidebar && (
               <button
@@ -66,14 +69,14 @@ function SuggestedPages() {
                 className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-primary-700 shadow-sm ring-1 ring-primary-600/20 transition hover:bg-primary-600 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
               >
                 <PanelLeft size={14} aria-hidden="true" />
-                Open sidebar
+                {t("Open sidebar")}
               </button>
             )}
           </div>
         </>
       ) : (
         <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-500">
-          There are no other pages available for your account right now. Please contact your system administrator for access.
+          {t("There are no other pages available for your account right now. Please contact your system administrator for access.")}
         </p>
       )}
     </div>
@@ -81,6 +84,7 @@ function SuggestedPages() {
 }
 
 function NoPageAccessState() {
+  const { t } = useTranslation("common");
   const { user, refreshPermissions, isPermissionsInitializing } = useAuth();
   const { logout, isLoggingOut } = useAuthMutations();
   const isBusy = isPermissionsInitializing || isLoggingOut;
@@ -93,7 +97,7 @@ function NoPageAccessState() {
           <img src={Logo} alt="MediCard" className="h-12 w-auto max-w-[190px] object-contain sm:h-14" />
           <span className="flex items-center gap-2 text-xs font-medium text-slate-500">
             <ShieldCheck size={16} className="text-[#2caba2]" aria-hidden="true" />
-            Secure workspace
+            {t("Secure workspace")}
           </span>
         </header>
 
@@ -103,7 +107,7 @@ function NoPageAccessState() {
             <div aria-hidden="true" className="pointer-events-none absolute -bottom-12 -left-12 h-56 w-56 rounded-full border border-white/10" />
             <span className="relative inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-blue-100">
               <span className="h-1.5 w-1.5 rounded-full bg-[#61d5ca]" aria-hidden="true" />
-              Account signed in
+              {t("Account signed in")}
             </span>
 
             <div className="relative my-8 flex items-center gap-5 md:my-12 md:flex-col md:items-start md:gap-8">
@@ -111,25 +115,25 @@ function NoPageAccessState() {
                 <LockKeyhole className="h-9 w-9 text-[#8be3da] md:h-12 md:w-12" strokeWidth={1.5} />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8be3da]">Workspace access</p>
-                <h2 className="mt-2 text-xl font-semibold leading-snug sm:text-2xl">The right access.<br />For your role.</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8be3da]">{t("Workspace access")}</p>
+                <h2 className="mt-2 text-xl font-semibold leading-snug sm:text-2xl">{t("The right access.")}<br />{t("For your role.")}</h2>
               </div>
             </div>
 
-            <p className="relative max-w-xs text-xs leading-6 text-blue-100/80">Your administrator manages which areas of MediCard are available to your account.</p>
+            <p className="relative max-w-xs text-xs leading-6 text-blue-100/80">{t("Your administrator manages which areas of MediCard are available to your account.")}</p>
           </div>
 
           <div className="min-w-0 p-7 sm:p-10 lg:p-12">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 ring-1 ring-inset ring-amber-200/70">
               <KeyRound size={13} aria-hidden="true" />
-              Permissions required
+              {t("Permissions required")}
             </span>
-            <h1 id="no-page-access-title" className="mt-5 text-2xl font-bold leading-tight tracking-tight text-slate-900 sm:text-3xl">No pages available yet</h1>
-            <p className="mt-4 text-sm leading-7 text-slate-500">You are signed in, but your account does not currently have access to any dashboard pages.</p>
+            <h1 id="no-page-access-title" className="mt-5 text-2xl font-bold leading-tight tracking-tight text-slate-900 sm:text-3xl">{t("No pages available yet")}</h1>
+            <p className="mt-4 text-sm leading-7 text-slate-500">{t("You are signed in, but your account does not currently have access to any dashboard pages.")}</p>
 
             {user?.email && (
               <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Signed in as</p>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">{t("Signed in as")}</p>
                 <p className="mt-1 break-all text-sm font-medium text-slate-700">{user.email}</p>
               </div>
             )}
@@ -137,8 +141,8 @@ function NoPageAccessState() {
             <div className="mt-6 flex items-start gap-3 rounded-xl border border-[#2caba2]/20 bg-[#f2faf9] p-4">
               <ShieldCheck size={20} className="mt-0.5 shrink-0 text-[#228d86]" aria-hidden="true" />
               <div>
-                <h2 className="text-sm font-semibold text-slate-800">Ask your administrator for access</h2>
-                <p className="mt-1 text-xs leading-6 text-slate-500">Let them know which pages you need. Once permissions are assigned, select Check access to continue.</p>
+                <h2 className="text-sm font-semibold text-slate-800">{t("Ask your administrator for access")}</h2>
+                <p className="mt-1 text-xs leading-6 text-slate-500">{t("Let them know which pages you need. Once permissions are assigned, select Check access to continue.")}</p>
               </div>
             </div>
 
@@ -150,7 +154,7 @@ function NoPageAccessState() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1b4477] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#14365f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b4477] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <RefreshCw size={16} className={isPermissionsInitializing ? "animate-spin" : ""} aria-hidden="true" />
-                {isPermissionsInitializing ? "Checking access..." : "Check access"}
+                {isPermissionsInitializing ? t("Checking access...") : t("Check access")}
                 <ArrowRight size={15} aria-hidden="true" />
               </button>
               <button
@@ -160,20 +164,21 @@ function NoPageAccessState() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1b4477] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <LogOut size={16} aria-hidden="true" />
-                {isLoggingOut ? "Logging out..." : "Logout"}
+                {isLoggingOut ? t("Logging out...") : t("Logout")}
               </button>
             </div>
-            <p className="mt-4 text-xs leading-6 text-slate-400">Using a different account? Log out to sign in again.</p>
+            <p className="mt-4 text-xs leading-6 text-slate-400">{t("Using a different account? Log out to sign in again.")}</p>
           </div>
         </section>
 
-        <footer className="mt-8 text-center text-xs text-slate-400">MediCard Administration <span aria-hidden="true" className="mx-2">&middot;</span> Managed access</footer>
+        <footer className="mt-8 text-center text-xs text-slate-400">{t("MediCard Administration")} <span aria-hidden="true" className="mx-2">&middot;</span> {t("Managed access")}</footer>
       </div>
     </main>
   );
 }
 
 export default function AccessDeniedPage({ noPageAccess = false }) {
+  const { t } = useTranslation("common");
   const year = new Date().getFullYear();
 
   if (noPageAccess) return <NoPageAccessState />;
@@ -189,7 +194,7 @@ export default function AccessDeniedPage({ noPageAccess = false }) {
               className="h-20 w-auto max-w-[260px] object-contain sm:h-24"
             />
             <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#2caba2]">
-              Secure access
+              {t("Secure access")}
             </span>
           </div>
 
@@ -204,22 +209,20 @@ export default function AccessDeniedPage({ noPageAccess = false }) {
           </div>
 
           <p className="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-primary-600">
-            Restricted area
+            {t("Restricted area")}
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            Access denied
+            {t("Access denied")}
           </h1>
           <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-slate-500 sm:text-base">
-            Your account does not have the permission required to view this page.
-            You can jump to one of the pages below, or use the sidebar to see
-            everything available to you.
+            {t("Your account does not have the permission required to view this page. You can jump to one of the pages below, or use the sidebar to see everything available to you.")}
           </p>
           <SuggestedPages />
         </div>
       </div>
 
       <footer className="mt-8 border-t border-slate-100 pt-5 text-center text-xs text-slate-400">
-        © {year} All rights reserved by{" "}
+        © {year} {t("All rights reserved by")}{" "}
         <span className="font-semibold text-slate-500">Khusm</span>
       </footer>
     </section>

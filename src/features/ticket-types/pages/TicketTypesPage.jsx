@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +19,7 @@ import { useTicketTypesQuery } from "../hooks/useTicketTypesQuery";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function TicketTypesPage() {
+  const { t } = useTranslation("adminPages");
   const canUpdate = usePermission(PERMISSION_CODES.TICKET_TYPES_UPDATE);
   const canDelete = usePermission(PERMISSION_CODES.TICKET_TYPES_DELETE);
   const [search, setSearch] = useState("");
@@ -90,14 +93,14 @@ export default function TicketTypesPage() {
   };
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">
-            Ticket Types Management
+            {t("Ticket Types Management")}
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            View and search support ticket types across the platform.
+            {t("View and search support ticket types across the platform.")}
           </p>
         </div>
 
@@ -107,7 +110,7 @@ export default function TicketTypesPage() {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add Ticket Type
+            {t("Add Ticket Type")}
           </button>
         </PermissionGuard>
       </div>
@@ -116,12 +119,12 @@ export default function TicketTypesPage() {
         <TicketTypesFilters search={search} onSearchChange={setSearch} />
 
         {isLoading && (
-          <SkeletonTable label="Loading ticket types..." columns={5} />
+          <SkeletonTable label={t("Loading ticket types...")} columns={5} />
         )}
 
         {isError && (
           <QueryErrorState
-            title="Unable to load ticket types"
+            title={t("Unable to load ticket types")}
             error={error}
             onRetry={refetch}
           />
@@ -146,7 +149,7 @@ export default function TicketTypesPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="ticket types"
+                itemLabel={t("ticket types")}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -167,14 +170,14 @@ export default function TicketTypesPage() {
 
       {canDelete && <ConfirmDeleteModal
         isOpen={!!ticketTypeToDelete}
-        title="Delete Ticket Type"
+        title={t("Delete Ticket Type")}
         message={`Are you sure you want to delete "${ticketTypeToDelete?.enName}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setTicketTypeToDelete(null)}
       />}
-    </div>
+    </div></LocalizedPage>
   );
 }

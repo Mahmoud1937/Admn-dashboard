@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +28,7 @@ export default function EmployeeFormModal({
   isSaving,
   serverErrors,
 }) {
+  const { t } = useTranslation("adminPages");
   const isEditMode = Boolean(employee);
 
   const {
@@ -70,25 +72,25 @@ export default function EmployeeFormModal({
 
   return (
     <FormModalShell
-      title={isEditMode ? "Edit Employee" : "Add Employee"}
+      title={isEditMode ? t("Edit Employee") : t("Add Employee")}
       onClose={onClose}
       onSubmit={handleSubmit(onSave)}
     >
       <TextField
-        label="First Name"
+        label={t("First Name")}
         required
         autoFocus
         {...register("firstName")}
         error={errors.firstName?.message}
       />
       <TextField
-        label="Last Name"
+        label={t("Last Name")}
         required
         {...register("lastName")}
         error={errors.lastName?.message}
       />
       <TextField
-        label="Email"
+        label={t("Email")}
         required
         type="email"
         sanitize={false}
@@ -96,7 +98,7 @@ export default function EmployeeFormModal({
         error={errors.email?.message}
       />
       <TextField
-        label="Phone Number"
+        label={t("Phone Number")}
         required
         sanitize={false}
         {...register("phoneNumber")}
@@ -105,7 +107,7 @@ export default function EmployeeFormModal({
 
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Employee Group <span className="text-red-500">*</span>
+          {t("Employee Group")} <span className="text-red-500">*</span>
         </label>
         <Controller
           name="employeeGroupId"
@@ -115,7 +117,7 @@ export default function EmployeeFormModal({
               queryKey={["employee-groups", "employee-edit"]}
               value={field.value}
               onChange={field.onChange}
-              placeholder="Select employee group"
+              placeholder={t("Select employee group")}
               error={errors.employeeGroupId?.message}
             />
           )}
@@ -125,7 +127,7 @@ export default function EmployeeFormModal({
       <FormActions
         onCancel={onClose}
         isSaving={isSaving}
-        submitLabel={isEditMode ? "Save Changes" : "Add Employee"}
+        submitLabel={isEditMode ? t("Save Changes") : t("Add Employee")}
       />
     </FormModalShell>
   );

@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -74,6 +76,7 @@ function buildSocialUrl(baseUrl, path) {
 }
 
 export default function ContactUsPage() {
+  const { t } = useTranslation("adminPages");
   const canUpdate = usePermission(PERMISSION_CODES.CONTACT_US_UPDATE);
   const { contactUs, isLoading, isError, error ,refetch} = useContactUsQuery();
   const [isEditing, setIsEditing] = useState(false);
@@ -127,28 +130,28 @@ export default function ContactUsPage() {
 
   if (isLoading) {
     return (
-      <SkeletonText label="Loading contact information..." lines={6} />
+      <LocalizedPage><SkeletonText label={t("Loading contact information...")} lines={6} /></LocalizedPage>
     );
   }
 
 if (isError) {
   return (
-    <QueryErrorState
-      title="Unable to load contact information"
+    <LocalizedPage><QueryErrorState
+      title={t("Unable to load contact information")}
       error={error}
       onRetry={refetch}
-    />
+    /></LocalizedPage>
   );
 }
   const hasFieldErrors = Object.keys(errors).length > 0;
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">Contact Us</h1>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">{t("Contact Us")}</h1>
           <p className="mt-1 text-sm text-slate-500 sm:text-sm">
-            Contact details and social links shown to your users.
+            {t("Contact details and social links shown to your users.")}
           </p>
         </div>
 
@@ -159,7 +162,7 @@ if (isError) {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPen} />
-            Update
+            {t("Update")}
           </button>
         )}
       </div>
@@ -171,11 +174,11 @@ if (isError) {
         <div className="space-y-8 p-6">
           {hasFieldErrors && (
             <div className="text-sm text-red-500">
-              Please fix the highlighted fields below.
+              {t("Please fix the highlighted fields below.")}
             </div>
           )}
 
-          <Section title="Contact information">
+          <Section title={t("Contact information")}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {PRIMARY_FIELDS.map((field) => (
                 <FieldRow
@@ -190,7 +193,7 @@ if (isError) {
             </div>
           </Section>
 
-          <Section title="Social media">
+          <Section title={t("Social media")}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {SOCIAL_FIELDS.map((field) => (
                 <FieldRow
@@ -207,7 +210,7 @@ if (isError) {
 
           {contactUs?.updatedAt && !contactUs.updatedAt.startsWith("0001") && (
             <p className="text-xs text-slate-400">
-              Last updated {new Date(contactUs.updatedAt).toLocaleString()}
+              {t("Last updated")} {new Date(contactUs.updatedAt).toLocaleString()}
             </p>
           )}
         </div>
@@ -221,7 +224,7 @@ if (isError) {
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition hover:text-slate-800 disabled:opacity-50"
             >
               <FontAwesomeIcon icon={faXmark} />
-              Cancel
+              {t("Cancel")}
             </button>
             <button
               type="submit"
@@ -229,12 +232,12 @@ if (isError) {
               className="inline-flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-50"
             >
               <FontAwesomeIcon icon={isSaving ? faSpinner : faFloppyDisk} spin={isSaving} />
-              Save changes
+              {t("Save changes")}
             </button>
           </div>
         )}
       </form>
-    </div>
+    </div></LocalizedPage>
   );
 }
 
@@ -250,11 +253,13 @@ function Section({ title, children }) {
 }
 
 function FieldRow({ field, isEditing, register, error, value }) {
+  const { t } = useTranslation("adminPages");
+  const label = t(field.label);
   return (
     <div>
       <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-700">
         <FontAwesomeIcon icon={field.icon} className="w-4 text-slate-400" />
-        {field.label}
+        {label}
         {field.required && <span className="text-red-500">*</span>}
       </label>
 
@@ -269,7 +274,7 @@ function FieldRow({ field, isEditing, register, error, value }) {
               </span>
               <input
                 type="text"
-                placeholder="/medicard"
+                placeholder={t("/medicard")}
                 {...register(field.key)}
                 className="min-w-0 flex-1 px-3 py-2 outline-none"
               />
@@ -277,7 +282,7 @@ function FieldRow({ field, isEditing, register, error, value }) {
           ) : (
             <input
               type={field.type || "text"}
-              placeholder={field.label}
+              placeholder={label}
               {...register(field.key)}
               className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-blue-400/30 ${
                 error ? "border-red-300 focus:border-red-400" : "border-slate-200 focus:border-blue-400"
@@ -288,7 +293,7 @@ function FieldRow({ field, isEditing, register, error, value }) {
         </>
       ) : (
         <p className="flex min-h-[2.25rem] items-center break-all rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-800">
-          {value || <span className="text-slate-400">Not set</span>}
+          {value || <span className="text-slate-400">{t("Not set")}</span>}
         </p>
       )}
     </div>

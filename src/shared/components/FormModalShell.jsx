@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { useTranslation } from "react-i18next";
 
 export default function FormModalShell({
   title,
@@ -15,6 +16,7 @@ export default function FormModalShell({
   isSaving = false,
   children,
 }) {
+  const { t } = useTranslation("common");
   const dialogRef = useRef(null);
   useEffect(() => {
     if (!native) return;
@@ -59,7 +61,7 @@ export default function FormModalShell({
             type={native ? "button" : undefined}
             onClick={onClose}
             disabled={isSaving}
-            aria-label={closeLabel}
+            aria-label={closeLabel ?? t("Close")}
             className={native
               ? "rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
               : "rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"}

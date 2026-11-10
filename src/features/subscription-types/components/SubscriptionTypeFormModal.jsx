@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +25,7 @@ export default function SubscriptionTypeFormModal({
   isSaving,
   serverErrors,
 }) {
+  const { t } = useTranslation("adminPages");
   const isEditMode = !!subscriptionType;
 
   const {
@@ -80,13 +82,13 @@ export default function SubscriptionTypeFormModal({
 
   return (
     <FormModalShell
-      title={isEditMode ? "Edit Subscription Type" : "Add Subscription Type"}
+      title={isEditMode ? t("Edit Subscription Type") : t("Add Subscription Type")}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
       formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
     >
       <TextField
-        label="English Name"
+        label={t("English Name")}
         required
         autoFocus
         {...register("nameEn")}
@@ -94,7 +96,7 @@ export default function SubscriptionTypeFormModal({
       />
 
       <TextField
-        label="Arabic Name"
+        label={t("Arabic Name")}
         required
         dir="rtl"
         {...register("nameAr")}
@@ -103,7 +105,7 @@ export default function SubscriptionTypeFormModal({
 
       <div className="mb-4 grid gap-3 sm:grid-cols-2">
         <TextField
-          label="Price Before"
+          label={t("Price Before")}
           required
           type="number"
           min="1"
@@ -114,7 +116,7 @@ export default function SubscriptionTypeFormModal({
         />
 
         <TextField
-          label="Discount %"
+          label={t("Discount %")}
           required
           type="number"
           min="1"
@@ -129,7 +131,7 @@ export default function SubscriptionTypeFormModal({
       <div className="mb-4">
         <div className="mb-1.5 flex items-center justify-between">
           <label className="block text-sm font-medium text-slate-700">
-            English Description <span className="text-red-500">*</span>
+            {t("English Description")} <span className="text-red-500">*</span>
           </label>
           <span className="text-[11px] text-slate-400">
             {descriptionEn.length} / 500
@@ -154,7 +156,7 @@ export default function SubscriptionTypeFormModal({
       <div className="mb-4">
         <div className="mb-1.5 flex items-center justify-between">
           <label className="block text-sm font-medium text-slate-700">
-            Arabic Description <span className="text-red-500">*</span>
+            {t("Arabic Description")} <span className="text-red-500">*</span>
           </label>
           <span className="text-[11px] text-slate-400">
             {descriptionAr.length} / 500
@@ -179,7 +181,7 @@ export default function SubscriptionTypeFormModal({
       <FormActions
         onCancel={onClose}
         isSaving={isSaving}
-        submitLabel={isEditMode ? "Save Changes" : "Add Subscription Type"}
+        submitLabel={isEditMode ? t("Save Changes") : t("Add Subscription Type")}
       />
     </FormModalShell>
   );

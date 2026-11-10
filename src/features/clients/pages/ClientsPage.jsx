@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faArrowLeft,faFileExcel,faSpinner,faUndo,} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft,faArrowRight,faFileExcel,faSpinner,faUndo,} from "@fortawesome/free-solid-svg-icons";
 import { emptyFilters, useClientsQuery } from "../hooks/useClientsQuery";
 import { useExportClients } from "../hooks/useExportClients";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
@@ -14,8 +14,14 @@ import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import usePermission from "../../auth/hooks/usePermission";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
+import LocalizedPage from "../../../localization/LocalizedPage";
+import useLanguage from "../../../localization/useLanguage";
+import useClientsText from "../../../localization/useClientsText";
 
 const ClientsPage = () => {
+  const t = useClientsText();
+  const { language, direction } = useLanguage();
+  const rtl = direction === "rtl";
   const canUpdate = usePermission(PERMISSION_CODES.CLIENTS_UPDATE);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,7 +57,7 @@ const ClientsPage = () => {
     goToPage,
     handlePageSizeChange,
     getPageNumbers,
-  } = useClientsQuery(poolSource);
+  } = useClientsQuery(poolSource, language);
   const { exportToExcel, isExporting } = useExportClients();
 
   // --- search box (debounced, applied straight to filters.searchTerm) ---
@@ -107,7 +113,7 @@ const ClientsPage = () => {
 
   // --- block / activate confirmation ---
   const [clientPendingToggle, setClientPendingToggle] = useState(null);
-  const blockMutation = useClientBlockMutation();
+  const blockMutation = useClientBlockMutation(t);
 
   const confirmToggleBlock = () => {
     if (!clientPendingToggle) return;
@@ -121,7 +127,7 @@ const ClientsPage = () => {
   };
 
   return (
-    <div className=" ">
+    <LocalizedPage>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           {poolSource && (
@@ -132,13 +138,13 @@ const ClientsPage = () => {
               }
               className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
             >
-              <FontAwesomeIcon icon={faArrowLeft} />
-              Back to {poolSource.sourceType === 1 ? "Card Pool" : "Sold Card"}
+              <FontAwesomeIcon icon={rtl ? faArrowRight : faArrowLeft} />
+              {t(poolSource.sourceType === 1 ? "Back to Card Pool" : "Back to Sold Card")}
             </button>
           )}
 
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">Clients</h1>
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">{t("Clients")}</h1>
 
             {poolSource && (
               <button
@@ -147,7 +153,7 @@ const ClientsPage = () => {
                 className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-800"
               >
                 <FontAwesomeIcon icon={faUndo} className="text-[11px]" />
-                Reset
+                {t("Reset")}
               </button>
             )}
           </div>
@@ -155,15 +161,12 @@ const ClientsPage = () => {
           <p className="mt-1 text-sm text-slate-500">
             {poolSource && from && to ? (
               <>
-                <span className="font-semibold text-slate-700">{count ?? 0}</span> activated
-                cards from{" "}
-                <span className="font-medium text-slate-700">{from}</span> to{" "}
-                <span className="font-medium text-slate-700">{to}</span>.
+                {t("{{count}} activated cards from {{from}} to {{to}}.", { count: count ?? 0, from, to })}
               </>
             ) : poolSource ? (
-              <>Showing activated clients.</>
+              <>{t("Showing activated clients.")}</>
             ) : (
-              "All clients."
+              t("All clients.")
             )}
           </p>
         </div>
@@ -178,13 +181,13 @@ const ClientsPage = () => {
           }
           disabled={isExporting}
           className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-          title="Export clients to Excel"
+          title={t("Export clients to Excel")}
         >
           <FontAwesomeIcon
             icon={isExporting ? faSpinner : faFileExcel}
             spin={isExporting}
           />
-          {isExporting ? "Exporting..." : "Export"}
+          {isExporting ? t("Exporting...") : t("Export")}
         </button>
       </div>
 
@@ -193,7 +196,9 @@ const ClientsPage = () => {
           <SearchBarWithFilters
             value={searchInput}
             onChange={setSearchInput}
-            placeholder="Search by client name, phone and card no..."
+            placeholder={t("Search by client name, phone and card no...")}
+            filterLabel={t("Filters")}
+            rtl={rtl}
             onFilterClick={panelOpen ? closePanel : openPanel}
             activeFilterCount={activeFilterCount}
           />
@@ -212,13 +217,17 @@ const ClientsPage = () => {
 
         {isError ? (
           <QueryErrorState
-            title="Unable to load clients"
+            title={t("Unable to load clients")}
             error={error}
             onRetry={refetch}
+            loadErrorMessage={t("We couldn't load the data. Please try again.")}
+            connectionErrorMessage={t("We couldn't connect to the server. Please check your internet connection and try again.")}
+            retryLabel={t("Try Again")}
           />
         ) : (
           <ClientsTable
             clients={clients}
+            rtl={rtl}
             isLoading={isLoading}
             onToggleBlock={canUpdate ? setClientPendingToggle : undefined}
             togglingClientId={
@@ -232,7 +241,11 @@ const ClientsPage = () => {
           totalPages={totalPages}
           totalCount={totalCount}
           pageSize={pageSize}
-          itemLabel="clients"
+          summary={t("Showing page {{page}} of {{totalPages}} ({{count}} clients)", { page: pageNumber, totalPages, count: totalCount })}
+          rowsPerPageLabel={t("Rows per page")}
+          previousLabel={t("Previous")}
+          nextLabel={t("Next")}
+          rtl={rtl}
           onGoToPage={(page) => goToPage(page, totalPages)}
           onPageSizeChange={handlePageSizeChange}
           getPageNumbers={getPageNumbers}
@@ -243,18 +256,20 @@ const ClientsPage = () => {
         <ConfirmDeleteModal
           isOpen
           variant={clientPendingToggle.isBlocked ? "success" : "danger"}
-          title={clientPendingToggle.isBlocked ? "Activate client?" : "Block client?"}
-          message={`Are you sure you want to ${
-            clientPendingToggle.isBlocked ? "activate" : "block"
-          } ${clientPendingToggle.userName ?? ""}?`}
-          confirmLabel={clientPendingToggle.isBlocked ? "Activate" : "Block"}
+          title={t(clientPendingToggle.isBlocked ? "Activate client?" : "Block client?")}
+          message={t(clientPendingToggle.isBlocked
+            ? "Are you sure you want to activate {{name}}?"
+            : "Are you sure you want to block {{name}}?", { name: clientPendingToggle.userName ?? "" })}
+          confirmLabel={t(clientPendingToggle.isBlocked ? "Activate" : "Block")}
+          cancelLabel={t("Cancel")}
+          loadingLabel={t("Processing...")}
           isLoading={blockMutation.isPending}
           onConfirm={confirmToggleBlock}
           onCancel={() => setClientPendingToggle(null)}
         />
       )}
 
-    </div>
+    </LocalizedPage>
   );
 };
 

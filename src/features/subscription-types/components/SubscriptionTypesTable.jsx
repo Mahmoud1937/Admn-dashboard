@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { Fragment, useState } from "react";
 import { faBan, faCheck, faChevronDown, faCreditCard } from "@fortawesome/free-solid-svg-icons";
@@ -12,12 +13,13 @@ const formatMoney = (value) => `${Number(value || 0).toFixed(2)} EGP`;
 const formatPercentage = (value) => `${Number(value || 0).toFixed(2)}%`;
 
 function ExpandedDescription({ language, value }) {
+  const { t } = useTranslation("adminPages");
   const isArabic = language === "Arabic";
 
   return (
     <div className="min-w-0 rounded-lg border border-slate-200 bg-white p-4">
       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-        {language} description
+        {language} {t("description")}
       </p>
       <p
         dir={isArabic ? "rtl" : "ltr"}
@@ -39,15 +41,16 @@ export default function SubscriptionTypesTable({
   onToggleStatus,
   togglingId,
 }) {
+  const { t } = useTranslation("adminPages");
   const [expandedId, setExpandedId] = useState(null);
 
   if (subscriptionTypes.length === 0) {
     return (
       <TableEmptyState
         icon={faCreditCard}
-        title="No subscription types found"
+        title={t("No subscription types found")}
         hasActiveFilters={hasActiveFilters}
-        emptyMessage="There are no subscription types to display."
+        emptyMessage={t("There are no subscription types to display.")}
       />
     );
   }
@@ -58,16 +61,16 @@ export default function SubscriptionTypesTable({
         <thead className="sticky top-0 z-10 bg-slate-100">
           <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
       
-            <th className="px-6 py-3 text-center">English Name</th>
-            <th className="px-6 py-3 text-center">Arabic Name</th>
-            <th className="px-6 py-3 text-center">Price Before</th>
-            <th className="px-6 py-3 text-center">Price After</th>
-            <th className="px-6 py-3 text-center">Discount</th>
-            <th className="px-6 py-3 text-center">Description</th>
-            <th className="px-6 py-3 text-center">Created At</th>
-            <th className="px-6 py-3 text-center">Subscriptions</th>
-            <th className="px-6 py-3 text-center">Status</th>
-            <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>
+            <th className="px-6 py-3 text-center">{t("English Name")}</th>
+            <th className="px-6 py-3 text-center">{t("Arabic Name")}</th>
+            <th className="px-6 py-3 text-center">{t("Price Before")}</th>
+            <th className="px-6 py-3 text-center">{t("Price After")}</th>
+            <th className="px-6 py-3 text-center">{t("Discount")}</th>
+            <th className="px-6 py-3 text-center">{t("Description")}</th>
+            <th className="px-6 py-3 text-center">{t("Created At")}</th>
+            <th className="px-6 py-3 text-center">{t("Subscriptions")}</th>
+            <th className="px-6 py-3 text-center">{t("Status")}</th>
+            <TableActionsCell as="th" className="px-6 py-3 text-center">{t("Actions")}</TableActionsCell>
           </tr>
         </thead>
 
@@ -106,7 +109,7 @@ export default function SubscriptionTypesTable({
               <td className="max-w-[320px] px-6 py-3 text-slate-600">
                 <button
                   type="button"
-                  aria-label={expanded ? "Hide descriptions" : "Show descriptions"}
+                  aria-label={expanded ? t("Hide descriptions") : t("Show descriptions")}
                   aria-expanded={expanded}
                   aria-controls={expanded ? detailsId : undefined}
                   onClick={(event) => {
@@ -142,14 +145,14 @@ export default function SubscriptionTypesTable({
                   <StatusBadge
                     tone={subscriptionType.isActive ? "success" : "inactive"}
                   >
-                    {subscriptionType.isActive ? "Active" : "Inactive"}
+                    {subscriptionType.isActive ? t("Active") : t("Inactive")}
                   </StatusBadge>
                   {onToggleStatus && (
                     <button
                       type="button"
                       onClick={() => onToggleStatus(subscriptionType)}
                       disabled={togglingId === subscriptionType.id}
-                      title={subscriptionType.isActive ? "Deactivate" : "Activate"}
+                      title={subscriptionType.isActive ? t("Deactivate") : t("Activate")}
                       className={`rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 ${
                         subscriptionType.isActive
                           ? "hover:text-red-700"

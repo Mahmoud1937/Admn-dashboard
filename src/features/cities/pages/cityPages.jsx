@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -22,6 +24,7 @@ import { SkeletonTable } from "../../../shared/components/Skeleton";
 const EMPTY_FILTERS = { governorateId: "" };
 
 export default function CitiesPage() {
+  const { t } = useTranslation("adminPages");
   const canUpdate = usePermission(PERMISSION_CODES.CITIES_UPDATE);
   const canDelete = usePermission(PERMISSION_CODES.CITIES_DELETE);
   const [search, setSearch] = useState("");
@@ -109,12 +112,12 @@ export default function CitiesPage() {
   const hasActiveFilters = !!(searchTerm || governorateFilter);
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">Cities Management</h1>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">{t("Cities Management")}</h1>
           <p className="mt-1 text-sm text-slate-500 sm:sm-sm">
-            Manage all cities across the platform.
+            {t("Manage all cities across the platform.")}
           </p>
         </div>
 
@@ -124,7 +127,7 @@ export default function CitiesPage() {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add City
+            {t("Add City")}
           </button>
         </PermissionGuard>
       </div>
@@ -134,7 +137,7 @@ export default function CitiesPage() {
           <SearchBarWithFilters
             value={search}
             onChange={setSearch}
-            placeholder="Search cities by name (EN/AR)..."
+            placeholder={t("Search cities by name (EN/AR)...")}
             onFilterClick={toggleFilters}
             filterButtonRef={triggerRef}
             activeFilterCount={governorateFilter ? 1 : 0}
@@ -152,12 +155,12 @@ export default function CitiesPage() {
         </div>
 
         {isLoading && (
-          <SkeletonTable label="Loading cities..." columns={4} />
+          <SkeletonTable label={t("Loading cities...")} columns={4} />
         )}
 
 {isError && (
   <QueryErrorState
-    title="Unable to load cities"
+    title={t("Unable to load cities")}
     error={error}
     onRetry={refetch}
   />
@@ -178,7 +181,7 @@ export default function CitiesPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="cities"
+                itemLabel={t("cities")}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -199,14 +202,14 @@ export default function CitiesPage() {
 
       {canDelete && <ConfirmDeleteModal
         isOpen={!!cityToDelete}
-        title="Delete City"
+        title={t("Delete City")}
         message={`Are you sure you want to delete "${cityToDelete?.enName}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setCityToDelete(null)}
       />}
-    </div>
+    </div></LocalizedPage>
   );
 }

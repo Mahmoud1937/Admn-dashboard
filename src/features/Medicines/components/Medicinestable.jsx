@@ -6,20 +6,24 @@ import AvatarImage from "../../../shared/components/AvatarImage";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import StatusBadge from "../../../shared/components/StatusBadge";
 import { getMedicineUnitName } from "../constants/medicineUnits";
+import useMedicinesText from "../../../localization/useMedicinesText";
 
 export default function MedicinesTable({
   medicines,
   hasActiveFilters,
   onEdit,
   onDeleteRequest,
+  rtl = false,
 }) {
+  const t = useMedicinesText();
   if (medicines.length === 0) {
     return (
       <TableEmptyState
         icon={faPills}
-        title="No medicines found"
+        title={t("No medicines found")}
         hasActiveFilters={hasActiveFilters}
-        emptyMessage="Get started by adding a new medicine."
+        emptyMessage={t("Get started by adding a new medicine.")}
+        filterMessage={t("Try a different search term.")}
       />
     );
   }
@@ -31,12 +35,12 @@ export default function MedicinesTable({
       <table className="w-full min-w-[900px] table-fixed text-center text-sm">
         <thead className="sticky top-0 z-10 bg-slate-100">
           <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
-            <th scope="col" className="w-[300px] px-4 py-3 text-left">Medicine</th>
-            <th scope="col" className="w-[100px] px-4 py-3 text-center">Form</th>
-            <th scope="col" className="w-[100px] px-4 py-3 text-center">Unit</th>
-            <th scope="col" className="w-[140px] px-4 py-3 text-center">Origin</th>
-            <th scope="col" className="w-[130px] px-4 py-3 text-center">Price</th>
-            {showActions && <TableActionsCell as="th" scope="col" className="w-[130px] px-4 py-3 text-center">Actions</TableActionsCell>}
+            <th scope="col" className="w-[300px] px-4 py-3 text-start">{t("Medicine")}</th>
+            <th scope="col" className="w-[100px] px-4 py-3 text-center">{t("Form")}</th>
+            <th scope="col" className="w-[100px] px-4 py-3 text-center">{t("Unit")}</th>
+            <th scope="col" className="w-[140px] px-4 py-3 text-center">{t("Origin")}</th>
+            <th scope="col" className="w-[130px] px-4 py-3 text-center">{t("Price")}</th>
+            {showActions && <TableActionsCell as="th" side={rtl ? "left" : "right"} scope="col" className="w-[130px] px-4 py-3 text-center">{t("Actions")}</TableActionsCell>}
           </tr>
         </thead>
 
@@ -47,26 +51,26 @@ export default function MedicinesTable({
               className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60"
             >
               {/* Image + names */}
-              <td className="px-4 py-3 text-left">
-                <div className="flex w-full max-w-[260px] items-center gap-3 text-left">
+              <td className="px-4 py-3 text-start">
+                <div className="flex w-full max-w-[260px] items-center gap-3 text-start">
                   <AvatarImage
                     src={medicine.medicineImageUrl}
-                    alt={medicine.enName}
+                    alt={rtl ? (medicine.arName || medicine.enName) : medicine.enName}
                     size="h-10 w-10 shrink-0"
                     loading="lazy"
                   />
                   <div className="min-w-0 flex-1">
-                    <p title={medicine.enName} className="truncate font-semibold text-slate-900">
-                      {medicine.enName}
+                    <p title={rtl ? medicine.arName || medicine.enName : medicine.enName} className="truncate font-semibold text-slate-900">
+                      {rtl ? medicine.arName || medicine.enName : medicine.enName}
                     </p>
                     <p
-                      dir="rtl"
-                      lang="ar"
-                      title={medicine.arName}
-                      className="mt-0.5 truncate text-left text-xs text-slate-400"
-                      style={{ textAlign: "left" }}
+                      dir={rtl ? "ltr" : "rtl"}
+                      lang={rtl ? "en" : "ar"}
+                      title={rtl ? medicine.enName : medicine.arName}
+                      className="mt-0.5 truncate text-xs text-slate-400"
+                      style={{ textAlign: rtl ? "right" : "left" }}
                     >
-                      {medicine.arName || "—"}
+                      {(rtl ? medicine.enName : medicine.arName) || "—"}
                     </p>
                   </div>
                 </div>
@@ -89,7 +93,7 @@ export default function MedicinesTable({
 
               <td className="px-4 py-3 text-center">
                 <StatusBadge tone={medicine.isLocal === true ? "emerald" : medicine.isLocal === false ? "primary" : "neutral"}>
-                  {medicine.isLocal === true ? "local" : medicine.isLocal === false ? "Imported" : "Not specified"}
+                  {t(medicine.isLocal === true ? "local" : medicine.isLocal === false ? "Imported" : "Not specified")}
                 </StatusBadge>
               </td>
 
@@ -104,7 +108,7 @@ export default function MedicinesTable({
 
               {/* Actions */}
               {showActions && (
-                <TableActionsCell className="px-4 py-3 text-center">
+                <TableActionsCell side={rtl ? "left" : "right"} className="px-4 py-3 text-center">
                   <RowActions
                     onEdit={onEdit ? () => onEdit(medicine) : undefined}
                     onDelete={
@@ -112,6 +116,8 @@ export default function MedicinesTable({
                         ? () => onDeleteRequest(medicine)
                         : undefined
                     }
+                    editLabel={t("Edit")}
+                    deleteLabel={t("Delete")}
                   />
                 </TableActionsCell>
               )}

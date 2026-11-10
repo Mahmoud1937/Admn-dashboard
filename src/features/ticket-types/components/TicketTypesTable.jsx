@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { faTicket } from "@fortawesome/free-solid-svg-icons";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
@@ -11,13 +12,14 @@ export default function TicketTypesTable({
   onEdit,
   onDeleteRequest,
 }) {
+  const { t } = useTranslation("adminPages");
   if (ticketTypes.length === 0) {
     return (
       <TableEmptyState
         icon={faTicket}
-        title="No ticket types found"
+        title={t("No ticket types found")}
         hasActiveFilters={hasActiveFilters}
-        emptyMessage="There are no ticket types to display."
+        emptyMessage={t("There are no ticket types to display.")}
       />
     );
   }
@@ -28,11 +30,11 @@ export default function TicketTypesTable({
         <thead className="sticky top-0 z-10 bg-slate-100">
           <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
 
-            <th className="px-6 py-3 text-center">English Name</th>
-            <th className="px-6 py-3 text-center">Arabic Name</th>
-            <th className="px-6 py-3 text-center">Created At</th>
-            <th className="px-6 py-3 text-center">Created By</th>
-            <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>
+            <th className="px-6 py-3 text-center">{t("English Name")}</th>
+            <th className="px-6 py-3 text-center">{t("Arabic Name")}</th>
+            <th className="px-6 py-3 text-center">{t("Created At")}</th>
+            <th className="px-6 py-3 text-center">{t("Created By")}</th>
+            <TableActionsCell as="th" className="px-6 py-3 text-center">{t("Actions")}</TableActionsCell>
           </tr>
         </thead>
 

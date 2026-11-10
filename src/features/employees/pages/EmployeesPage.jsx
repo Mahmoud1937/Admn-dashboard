@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import useEmployeesQuery from "../hooks/useEmployeesQuery";
@@ -50,6 +52,7 @@ const extractPassword = (response) => {
 };
 
 export default function EmployeesPage() {
+  const { t } = useTranslation("adminPages");
   const canViewEmployees = usePermission(PERMISSION_CODES.EMPLOYEES_READ);
   const canCreateEmployees = usePermission(PERMISSION_CODES.EMPLOYEES_CREATE);
   const canUpdateEmployees = usePermission(PERMISSION_CODES.EMPLOYEES_UPDATE);
@@ -139,9 +142,9 @@ export default function EmployeesPage() {
   };
 
   return (
-    <div className="space-y-4 p-4">
+    <LocalizedPage><div className="space-y-4 p-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-800">Employees</h1>
+        <h1 className="text-xl font-semibold text-slate-800">{t("Employees")}</h1>
         {canCreateEmployees && (
           <button
             type="button"
@@ -152,7 +155,7 @@ export default function EmployeesPage() {
             className="flex items-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add Employee
+            {t("Add Employee")}
           </button>
         )}
       </div>
@@ -161,7 +164,7 @@ export default function EmployeesPage() {
         <SearchBarWithFilters
           value={search}
           onChange={setSearch}
-          placeholder="Search by name, phone or email..."
+          placeholder={t("Search by name, phone or email...")}
           showFilterButton={false}
         >
           <div className="w-full shrink-0 sm:w-64">
@@ -169,7 +172,7 @@ export default function EmployeesPage() {
               queryKey={["employee-groups-lookup", "employees-filter"]}
               value={groupId}
               onChange={(id) => setGroupId(id ?? "")}
-              placeholder="All groups"
+              placeholder={t("All groups")}
               clearable
             />
           </div>
@@ -178,7 +181,7 @@ export default function EmployeesPage() {
 
       {isError && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error?.message || "Failed to load employees"}
+          {error?.message || t("Failed to load employees")}
         </div>
       )}
 
@@ -255,11 +258,11 @@ export default function EmployeesPage() {
         <ConfirmDeleteModal
           isOpen
           variant={employeePendingToggle.isBlocked ? "success" : "danger"}
-          title={employeePendingToggle.isBlocked ? "Activate employee?" : "Block employee?"}
+          title={employeePendingToggle.isBlocked ? t("Activate employee?") : t("Block employee?")}
           message={`Are you sure you want to ${
             employeePendingToggle.isBlocked ? "activate" : "block"
           } ${getEmployeeLabel(employeePendingToggle)}?`}
-          confirmLabel={employeePendingToggle.isBlocked ? "Activate" : "Block"}
+          confirmLabel={employeePendingToggle.isBlocked ? t("Activate") : t("Block")}
           isLoading={toggleMutation.isPending}
           onConfirm={confirmToggleStatus}
           onCancel={() => setEmployeePendingToggle(null)}
@@ -270,11 +273,11 @@ export default function EmployeesPage() {
         <ConfirmDeleteModal
           isOpen
           variant="danger"
-          title="Reset password?"
+          title={t("Reset password?")}
           message={`A new password will be generated for ${getEmployeeLabel(
             employeePendingReset
           )} and the current one will stop working immediately.`}
-          confirmLabel="Reset Password"
+          confirmLabel={t("Reset Password")}
           isLoading={resetMutation.isPending}
           onConfirm={confirmResetPassword}
           onCancel={() => setEmployeePendingReset(null)}
@@ -286,11 +289,11 @@ export default function EmployeesPage() {
         totalPages={totalPages}
         totalCount={totalCount}
         pageSize={pageSize}
-        itemLabel="employees"
+        itemLabel={t("employees")}
         onGoToPage={(page) => goToPage(page, totalPages)}
         onPageSizeChange={handlePageSizeChange}
         getPageNumbers={getPageNumbers}
       />
-    </div>
+    </div></LocalizedPage>
   );
 }

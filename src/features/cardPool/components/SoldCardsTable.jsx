@@ -1,18 +1,20 @@
+import { useTranslation } from "react-i18next";
 import { faCreditCard } from "@fortawesome/free-solid-svg-icons";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 const SoldCardsTable = ({ items, isLoading, hasActiveFilters = false }) => {
+  const { t } = useTranslation("adminPages");
   if (isLoading) {
-    return <SkeletonTable label="Loading sold cards..." columns={3} />;
+    return <SkeletonTable label={t("Loading sold cards...")} columns={3} />;
   }
 
   if (!items?.length) {
     return (
       <TableEmptyState
         icon={faCreditCard}
-        title="No sold cards found"
+        title={t("No sold cards found")}
         hasActiveFilters={hasActiveFilters}
       />
     );
@@ -24,9 +26,9 @@ const SoldCardsTable = ({ items, isLoading, hasActiveFilters = false }) => {
         <table className="min-w-full text-center text-sm">
           <thead className="sticky top-0 z-10 bg-slate-100">
             <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
-              <th className="px-4 py-3 text-center">Card Number</th>
-              <th className="px-4 py-3 text-center">Client Name</th>
-              <th className="px-4 py-3 text-center">Client Phone</th>
+              <th className="px-4 py-3 text-center">{t("Card Number")}</th>
+              <th className="px-4 py-3 text-center">{t("Client Name")}</th>
+              <th className="px-4 py-3 text-center">{t("Client Phone")}</th>
             </tr>
           </thead>
           <tbody>

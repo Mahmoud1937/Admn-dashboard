@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useState } from "react";
@@ -5,6 +6,7 @@ import { handleMutationError } from "../../../shared/utils/handleMutationError";
 import { updateEmployee } from "../services/employeesService";
 
 export default function useEmployeeUpdateMutation({ onSuccess } = {}) {
+  const { t } = useTranslation("adminPages");
   const queryClient = useQueryClient();
   const [serverErrors, setServerErrors] = useState(null);
 
@@ -12,7 +14,7 @@ export default function useEmployeeUpdateMutation({ onSuccess } = {}) {
     mutationFn: updateEmployee,
     onSuccess: (response, variables) => {
       setServerErrors(null);
-      toast.success(response?.message || "Employee updated successfully.");
+      toast.success(response?.message || t("Employee updated successfully."));
       queryClient.setQueriesData({ queryKey: ["employees"] }, (current) => {
         if (!current?.items) return current;
 
@@ -30,7 +32,7 @@ export default function useEmployeeUpdateMutation({ onSuccess } = {}) {
       onSuccess?.();
     },
     onError: (error) =>
-      handleMutationError(error, "Failed to update employee.", setServerErrors),
+      handleMutationError(error, t("Failed to update employee."), setServerErrors),
   });
 
   return {

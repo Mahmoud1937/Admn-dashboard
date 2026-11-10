@@ -1,14 +1,15 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 
-export default function RowActions({ onEdit, onDelete }) {
+export default function RowActions({ onEdit, onDelete, editLabel = "Edit", deleteLabel = "Delete" }) {
   return (
     <div className="flex items-center justify-center gap-2">
       {onEdit && (
         <button
           onClick={onEdit}
           className="rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
-          title="Edit"
+          title={editLabel}
+          aria-label={editLabel}
         >
           <FontAwesomeIcon icon={faPenToSquare} />
         </button>
@@ -17,7 +18,8 @@ export default function RowActions({ onEdit, onDelete }) {
         <button
           onClick={onDelete}
           className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
-          title="Delete"
+          title={deleteLabel}
+          aria-label={deleteLabel}
         >
           <FontAwesomeIcon icon={faTrash} />
         </button>

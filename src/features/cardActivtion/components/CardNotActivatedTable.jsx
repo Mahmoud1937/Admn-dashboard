@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { faSearch, faSpinner, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -39,6 +40,7 @@ const CardNotActivatedTable = ({
   pageNumber,
   pageSize,
 }) => {
+  const { t } = useTranslation("adminPages");
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async () => {
@@ -73,7 +75,7 @@ const CardNotActivatedTable = ({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search card number..."
+            placeholder={t("Search card number...")}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none transition focus:border-blue-400 focus:bg-white"
           />
         </div>
@@ -82,21 +84,21 @@ const CardNotActivatedTable = ({
           type="button"
           onClick={handleExport}
           disabled={isExporting}
-          title="Download Excel file"
+          title={t("Download Excel file")}
           className="flex items-center cursor-pointer justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-green-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <FontAwesomeIcon
             icon={isExporting ? faSpinner : faFileExcel}
             className={isExporting ? "animate-spin" : ""}
           />
-          {isExporting ? "Exporting..." : "Export"}
+          {isExporting ? t("Exporting...") : t("Export")}
         </button>
       </div>
 
       {/* Empty */}
       {!items?.length ? (
         <div className="py-8 text-center text-sm text-slate-400">
-          No not-activated cards found
+          {t("No not-activated cards found")}
         </div>
       ) : (
         <div className="min-w-0">
@@ -109,11 +111,11 @@ const CardNotActivatedTable = ({
                   </th>
 
                   <th className="px-4 py-3 text-center">
-                    Card Number
+                    {t("Card Number")}
                   </th>
 
                   <th className="px-4 py-3 text-center">
-                    Status
+                    {t("Status")}
                   </th>
                 </tr>
               </thead>
@@ -134,7 +136,7 @@ const CardNotActivatedTable = ({
 
                     <td className="px-4 py-3 text-center">
                       <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
-                        Not Activated
+                        {t("Not Activated")}
                       </span>
                     </td>
                   </tr>

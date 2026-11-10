@@ -14,9 +14,15 @@ import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
+import LocalizedPage from "../../../localization/LocalizedPage";
+import useLanguage from "../../../localization/useLanguage";
+import useMedicinesText from "../../../localization/useMedicinesText";
 
 
 export default function MedicinesPage() {
+  const t = useMedicinesText();
+  const { language, direction } = useLanguage();
+  const rtl = direction === "rtl";
   const canUpdate = usePermission(PERMISSION_CODES.MEDICINES_UPDATE);
   const canDelete = usePermission(PERMISSION_CODES.MEDICINES_DELETE);
   const [search, setSearch] = useState("");
@@ -42,7 +48,7 @@ export default function MedicinesPage() {
     error,
     refetch,
     isPlaceholderData,
-  } = useMedicinesQuery({ pageNumber, pageSize, search });
+  } = useMedicinesQuery({ pageNumber, pageSize, search, language });
 
 
   const closeForm = () => {
@@ -59,6 +65,7 @@ export default function MedicinesPage() {
     serverErrors,
     clearServerErrors,
   } = useMedicineMutations({
+    t,
     onCreateSuccess: closeForm,
     onUpdateSuccess: closeForm,
     onDeleteSuccess: () => setMedicineToDelete(null),
@@ -113,12 +120,12 @@ export default function MedicinesPage() {
   };
 
   return (
-    <div>
+    <LocalizedPage>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-2x">Medicines Management</h1>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-2x">{t("Medicines Management")}</h1>
           <p className="mt-1 text-sm text-slate-500 sm:text-sm">
-            Manage all medicines across the platform.
+            {t("Manage all medicines across the platform.")}
           </p>
         </div>
 
@@ -128,7 +135,7 @@ export default function MedicinesPage() {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add Medicine
+            {t("Add Medicine")}
           </button>
         </PermissionGuard>
       </div>
@@ -140,20 +147,24 @@ export default function MedicinesPage() {
         />
 
         {isLoading && (
-          <SkeletonTable label="Loading medicines..." columns={6} />
+          <SkeletonTable label={t("Loading medicines...")} columns={6} />
         )}
 
 {isError && (
   <QueryErrorState
-    title="Unable to load medicines"
+    title={t("Unable to load medicines")}
     error={error}
     onRetry={refetch}
+    loadErrorMessage={t("We couldn't load the data. Please try again.")}
+    connectionErrorMessage={t("We couldn't connect to the server. Please check your internet connection and try again.")}
+    retryLabel={t("Try Again")}
   />
 )}
         {!isLoading && !isError && (
           <div className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>
             <MedicinesTable
               medicines={medicines}
+              rtl={rtl}
               hasActiveFilters={!!search}
               onEdit={canUpdate ? openEditForm : undefined}
               onDeleteRequest={canDelete ? setMedicineToDelete : undefined}
@@ -165,7 +176,11 @@ export default function MedicinesPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="medicines"
+                summary={t("Showing page {{page}} of {{totalPages}} ({{count}} medicines)", { page: pageNumber, totalPages, count: totalCount })}
+                rowsPerPageLabel={t("Rows per page")}
+                previousLabel={t("Previous")}
+                nextLabel={t("Next")}
+                rtl={rtl}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -186,14 +201,18 @@ export default function MedicinesPage() {
 
       {canDelete && <ConfirmDeleteModal
         isOpen={!!medicineToDelete}
-        title="Delete Medicine"
-        message={`Are you sure you want to delete "${medicineToDelete?.enName}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t("Delete Medicine")}
+        message={t('Are you sure you want to delete "{{name}}"? This action cannot be undone.', {
+          name: rtl ? (medicineToDelete?.arName || medicineToDelete?.enName) : (medicineToDelete?.enName || medicineToDelete?.arName),
+        })}
+        confirmLabel={t("Delete")}
+        cancelLabel={t("Cancel")}
+        loadingLabel={t("Deleting...")}
         variant="danger"
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setMedicineToDelete(null)}
       />}
-    </div>
+    </LocalizedPage>
   );
 }

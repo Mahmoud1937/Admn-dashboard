@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +21,7 @@ const defaultValues = (mode) => ({
 });
 
 const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, clearServerErrors }) => {
+  const { t } = useTranslation("adminPages");
   const [mode, setMode] = useState("count");
 
   const {
@@ -117,7 +119,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
 
   return (
     <FormModalShell
-      title="Sell Cards"
+      title={t("Sell Cards")}
       onClose={onClose}
       onSubmit={handleSubmit(submitHandler)}
       className="max-w-md"
@@ -130,7 +132,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
     className={`flex-1 rounded-md py-1.5 ${mode === "count" ? "bg-blue-900 text-white" : "text-gray-500 hover:bg-gray-50"
       }`}
   >
-    By Count
+    {t("By Count")}
   </button>
   <button
     type="button"
@@ -138,7 +140,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
     className={`flex-1 rounded-md py-1.5 ${mode === "numbers" ? "bg-blue-900 text-white" : "text-gray-500 hover:bg-gray-50"
       }`}
   >
-    By Card Numbers
+    {t("By Card Numbers")}
   </button>
 </div>
 
@@ -147,7 +149,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
       {mode === "count" ? (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Count <span className="text-red-500">*</span>
+            {t("Count")} <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
@@ -174,7 +176,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
       ) : (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Card Numbers <span className="text-red-500">*</span>
+            {t("Card Numbers")} <span className="text-red-500">*</span>
           </label>
 
           <div className="space-y-2">
@@ -195,7 +197,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
                   onClick={() => handleRemoveCardNumber(index)}
                   disabled={fields.length === 1}
                   className="cursor-pointer rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30"
-                  title="Remove"
+                  title={t("Remove")}
                 >
                   <FontAwesomeIcon icon={faTrash} />
                 </button>
@@ -209,7 +211,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
             className="mt-2 inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add Card Number
+            {t("Add Card Number")}
           </button>
 
           {errors.cardNumbers?.message && (
@@ -220,7 +222,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
               (e, i) =>
                 e?.value && (
                   <p key={i} className="text-red-500 text-sm mt-1">
-                    Card number {i + 1}: {e.value.message}
+                    {t("Card number")} {i + 1}: {e.value.message}
                   </p>
                 )
             )}
@@ -229,13 +231,13 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Client Name <span className="text-red-500">*</span>
+          {t("Client Name")} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
           {...register("clientName")}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Client name"
+          placeholder={t("Client name")}
         />
         {errors.clientName && (
           <p className="text-red-500 text-sm mt-1">{errors.clientName.message}</p>
@@ -244,7 +246,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Client Phone <span className="text-red-500">*</span>
+          {t("Client Phone")} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -259,13 +261,13 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Proof of Payment <span className="text-red-500">*</span>
+          {t("Proof of Payment")} <span className="text-red-500">*</span>
         </label>
         <ImageUploadField
           preview={proofPreview}
           onImageChange={handleProofChange}
-          label="Upload Proof of Payment"
-          alt="Proof of payment"
+          label={t("Upload Proof of Payment")}
+          alt={t("Proof of payment")}
           error={errors.proofPayment?.message}
           disabled={isSaving}
         />
@@ -275,12 +277,12 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
         <p role="alert" className="text-red-500 text-sm">
           {typeof serverErrors === "string" ? serverErrors : getApiErrorMessage(
             { response: { data: { errors: serverErrors } } },
-            { details: true, fallback: "Unable to sell cards. Please try again." },
+            { details: true, fallback: t("Unable to sell cards. Please try again.") },
           )}
         </p>
       )}
 
-      <FormActions onCancel={onClose} isSaving={isSaving} submitLabel="Sell" savingLabel="Saving..." />
+      <FormActions onCancel={onClose} isSaving={isSaving} submitLabel={t("Sell")} savingLabel={t("Saving...")} />
     </FormModalShell>
   );
 };

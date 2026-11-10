@@ -8,9 +8,14 @@ import MapFilters from "../components/MapFilters";
 import ProviderClusterMap from "../components/ProviderClusterMap";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import { SkeletonText } from "../../../shared/components/Skeleton";
+import LocalizedPage from "../../../localization/LocalizedPage";
+import useLanguage from "../../../localization/useLanguage";
+import useProviderMapText from "../../../localization/useProviderMapText";
 
 
 export default function ProviderMapPage() {
+  const t = useProviderMapText();
+  const { language } = useLanguage();
   const [providerCategoryId, setProviderCategoryId] = useState(null); 
   const [governorateId, setGovernorateId] = useState(null);
   const [search, setSearch] = useState("");
@@ -29,7 +34,7 @@ const {
   isError,
   error,
   refetch,
-} = useProvidersMapQuery({ providerCategoryId, governorateId, search });
+} = useProvidersMapQuery({ providerCategoryId, governorateId, search, language });
 
   const {
     locationBubbles: clientLocationBubbles,
@@ -37,14 +42,14 @@ const {
     isError: clientsError,
     refetch: refetchClients,
     totalCount: clientTotalCount,
-  } = useClientLocationsQuery(showUsers);
+  } = useClientLocationsQuery(showUsers, language);
 
   return (
-    <div className="flex min-h-[calc(100dvh-7rem)] flex-col gap-3 p-0 sm:gap-4 sm:p-4">
+    <LocalizedPage className="flex min-h-[calc(100dvh-7rem)] flex-col gap-3 p-0 sm:gap-4 sm:p-4">
       <div>
-        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Provider Directory Map</h1>
+        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{t("Provider Directory Map")}</h1>
         <p className="text-sm text-gray-500">
-          Visualize healthcare providers across Egyptian governorates
+          {t("Visualize healthcare providers across Egyptian governorates")}
         </p>
       </div>
 
@@ -68,9 +73,9 @@ const {
             }`}
           >
             <FontAwesomeIcon icon={faUsers} className="h-3.5 w-3.5" />
-            Users
+            {t("Users")}
             {showUsers && clientsLoading && (
-              <span className="text-xs opacity-75">(loading...)</span>
+              <span className="text-xs opacity-75">{t("(loading...)")}</span>
             )}
           </button>
         </div>
@@ -78,10 +83,10 @@ const {
 
 <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500">
   <span>
-    Showing {providers.length} of {totalCount} providers
+    {t("Showing {{shown}} of {{total}} providers", { shown: providers.length, total: totalCount })}
     {showUsers &&
       !clientsLoading &&
-      ` · ${clientTotalCount} client locations`}
+      ` · ${t("{{value}} client locations", { value: clientTotalCount })}`}
   </span>
   {showUsers && clientsError && (
     <button
@@ -89,7 +94,7 @@ const {
       onClick={() => refetchClients()}
       className="text-xs font-medium text-red-600 hover:underline"
     >
-      Unable to load client locations. Retry
+      {t("Unable to load client locations. Retry")}
     </button>
   )}
 </div>
@@ -97,16 +102,19 @@ const {
  <div className="relative h-[55dvh] min-h-[22rem] overflow-hidden rounded-lg border border-gray-200 sm:h-[60dvh] sm:min-h-[30rem] lg:h-[calc(100dvh-15rem)]">
   {isLoading && (
     <div className="absolute inset-0 z-[500] flex items-center justify-center bg-white/70">
-      <SkeletonText label="Loading providers..." lines={6} />
+      <SkeletonText label={t("Loading providers...")} lines={6} />
     </div>
   )}
 
 {isError ? (
   <div className="absolute inset-0 z-[600]">
     <QueryErrorState
-      title="Unable to load providers"
+      title={t("Unable to load providers")}
       error={error}
       onRetry={refetch}
+      loadErrorMessage={t("We couldn't load the data. Please try again.")}
+      connectionErrorMessage={t("We couldn't connect to the server. Please check your internet connection and try again.")}
+      retryLabel={t("Try Again")}
     />
   </div>
 ) : (
@@ -121,6 +129,6 @@ const {
   />
 )}
 </div>
-    </div>
+    </LocalizedPage>
   );
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSelect";
 import { getBranchesLookup } from "../../branches/services/providerBranchesService";
 
@@ -11,6 +12,7 @@ export default function ProviderBranchSelect({
   disabled,
   className = "w-full sm:w-72",
 }) {
+  const { t } = useTranslation("adminPages");
   return (
     <div className={className}>
       <SearchableAsyncSelect
@@ -22,8 +24,8 @@ export default function ProviderBranchSelect({
         onChange={onChange}
         getOptionLabel={(item) => item.branchName || ""}
         getOptionValue={(item) => item.providerBranchId}
-        placeholder={providerId ? placeholder : "Select a provider first"}
-        searchPlaceholder="Search branches..."
+        placeholder={providerId ? placeholder : t("Select a provider first")}
+        searchPlaceholder={t("Search branches...")}
         disabled={disabled || !providerId}
         error={error}
       />

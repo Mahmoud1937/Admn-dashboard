@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -92,6 +93,7 @@ function SkeletonGroups() {
 
 /* ---------- modal ---------- */
 export default function EmployeePermissionsModal({ employee, onClose, onSave, isSaving = false }) {
+  const { t } = useTranslation("adminPages");
   const canManagePermissions = usePermission(
     PERMISSION_CODES.EMPLOYEES_MANAGE_PERMISSIONS
   );
@@ -202,10 +204,10 @@ export default function EmployeePermissionsModal({ employee, onClose, onSave, is
                 id="employee-permissions-title"
                 className="text-base font-semibold text-slate-900"
               >
-                Manage Permissions
+                {t("Manage Permissions")}
               </h2>
               <p className="mt-0.5 text-xs text-slate-500">
-                Choose what this employee can access.
+                {t("Choose what this employee can access.")}
               </p>
             </div>
           </div>
@@ -214,7 +216,7 @@ export default function EmployeePermissionsModal({ employee, onClose, onSave, is
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            aria-label="Close"
+            aria-label={t("Close")}
             className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <FontAwesomeIcon icon={faXmark} />
@@ -250,7 +252,7 @@ export default function EmployeePermissionsModal({ employee, onClose, onSave, is
                 type="text"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search permissions..."
+                placeholder={t("Search permissions...")}
                 disabled={isLoading || isError}
                 className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-900 focus:ring-4 focus:ring-blue-900/10 disabled:bg-slate-50"
               />
@@ -258,7 +260,7 @@ export default function EmployeePermissionsModal({ employee, onClose, onSave, is
 
             <div className="flex items-center justify-between gap-3 text-xs sm:justify-end">
               <span className="font-medium text-slate-600">
-                {selected.size} / {permissions.length} selected
+                {selected.size} / {permissions.length} {t("selected")}
               </span>
               <button
                 type="button"
@@ -266,7 +268,7 @@ export default function EmployeePermissionsModal({ employee, onClose, onSave, is
                 disabled={isLoading || isError || isSaving}
                 className="cursor-pointer font-medium text-blue-900 transition hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Select all
+                {t("Select all")}
               </button>
               <button
                 type="button"
@@ -274,7 +276,7 @@ export default function EmployeePermissionsModal({ employee, onClose, onSave, is
                 disabled={isLoading || isError || isSaving}
                 className="cursor-pointer font-medium text-slate-500 transition hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Clear
+                {t("Clear")}
               </button>
             </div>
           </div>
@@ -286,20 +288,20 @@ export default function EmployeePermissionsModal({ employee, onClose, onSave, is
 
           {isError && (
             <div className="flex flex-col items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-8 text-center">
-              <p className="text-sm text-red-700">Failed to load permissions.</p>
+              <p className="text-sm text-red-700">{t("Failed to load permissions.")}</p>
               <button
                 type="button"
                 onClick={() => refetch()}
                 className="cursor-pointer rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-red-700 ring-1 ring-red-200 transition hover:bg-red-100"
               >
-                Try again
+                {t("Try again")}
               </button>
             </div>
           )}
 
           {!isLoading && !isError && visibleGroups.length === 0 && (
             <p className="py-10 text-center text-sm text-slate-500">
-              No permissions match your search.
+              {t("No permissions match your search.")}
             </p>
           )}
 
@@ -368,7 +370,7 @@ export default function EmployeePermissionsModal({ employee, onClose, onSave, is
             disabled={isSaving}
             className="cursor-pointer rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="button"
@@ -379,10 +381,10 @@ export default function EmployeePermissionsModal({ employee, onClose, onSave, is
             {isSaving ? (
               <>
                 <FontAwesomeIcon icon={faSpinner} spin />
-                Saving...
+                {t("Saving...")}
               </>
             ) : (
-              "Save Permissions"
+              t("Save Permissions")
             )}
           </button>
         </div>

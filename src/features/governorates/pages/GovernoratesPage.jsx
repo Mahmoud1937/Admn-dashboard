@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
@@ -16,6 +18,7 @@ import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 
 export default function GovernoratesPage() {
+  const { t } = useTranslation("adminPages");
   const canUpdate = usePermission(PERMISSION_CODES.GOVERNORATES_UPDATE);
   const canDelete = usePermission(PERMISSION_CODES.GOVERNORATES_DELETE);
   const [search, setSearch] = useState("");
@@ -90,12 +93,12 @@ export default function GovernoratesPage() {
   const hasActiveFilters = !!search;
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">Governorates Management</h1>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">{t("Governorates Management")}</h1>
           <p className="mt-1 text-sm text-slate-500 sm:text-sm">
-            Manage all governorates across the platform.
+            {t("Manage all governorates across the platform.")}
           </p>
         </div>
 
@@ -105,7 +108,7 @@ export default function GovernoratesPage() {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add Governorate
+            {t("Add Governorate")}
           </button>
         </PermissionGuard>
       </div>
@@ -121,19 +124,19 @@ export default function GovernoratesPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search governorates by name (EN/AR)..."
+              placeholder={t("Search governorates by name (EN/AR)...")}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
             />
           </div>
         </div>
 
         {isLoading && (
-          <SkeletonTable label="Loading governorates..." columns={3} />
+          <SkeletonTable label={t("Loading governorates...")} columns={3} />
         )}
 
 {isError && (
   <QueryErrorState
-    title="Unable to load governorates"
+    title={t("Unable to load governorates")}
     error={error}
     onRetry={refetch}
   />
@@ -154,7 +157,7 @@ export default function GovernoratesPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="governorates"
+                itemLabel={t("governorates")}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -175,14 +178,14 @@ export default function GovernoratesPage() {
 
       {canDelete && <ConfirmDeleteModal
         isOpen={!!governorateToDelete}
-        title="Delete Governorate"
+        title={t("Delete Governorate")}
         message={`Are you sure you want to delete "${governorateToDelete?.enName}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setGovernorateToDelete(null)}
       />}
-    </div>
+    </div></LocalizedPage>
   );
 }

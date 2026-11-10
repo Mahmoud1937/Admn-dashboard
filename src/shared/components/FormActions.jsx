@@ -1,12 +1,13 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { useTranslation } from "react-i18next";
 
 export default function FormActions({
   onCancel,
   isSaving,
   submitLabel,
-  savingLabel = "Saving...",
-  cancelLabel = "Cancel",
+  savingLabel,
+  cancelLabel,
   showCancel = true,
   submitFirst = false,
   submitDisabled = false,
@@ -16,13 +17,14 @@ export default function FormActions({
   cancelClassName = "text-sm font-medium text-slate-500 hover:text-slate-700",
   children,
 }) {
+  const { t } = useTranslation("common");
   const cancel = showCancel && (
-    <button type="button" onClick={onCancel} className={cancelClassName}>{cancelLabel}</button>
+    <button type="button" onClick={onCancel} className={cancelClassName}>{cancelLabel ?? t("Cancel")}</button>
   );
   const submit = (
     <button type="submit" disabled={isSaving || submitDisabled} className={submitClassName}>
       {submitIcon && <FontAwesomeIcon icon={isSaving ? faSpinner : submitIcon} spin={Boolean(isSaving)} />}
-      {isSaving ? savingLabel : submitLabel}
+      {isSaving ? savingLabel ?? t("Saving...") : submitLabel}
     </button>
   );
   return (

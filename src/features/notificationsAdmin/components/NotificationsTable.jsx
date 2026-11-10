@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -68,6 +69,7 @@ function NotificationIcon({ imageUrl, isActive }) {
 }
 
 function StatusPill({ isActive }) {
+  const { t } = useTranslation("adminPages");
   if (typeof isActive !== "boolean") return null;
 
   return (
@@ -83,18 +85,19 @@ function StatusPill({ isActive }) {
           isActive ? "bg-emerald-500" : "bg-slate-400"
         }`}
       />
-      {isActive ? "Active" : "Inactive"}
+      {isActive ? t("Active") : t("Inactive")}
     </span>
   );
 }
 
 function MessagePreview({ value, language }) {
+  const { t } = useTranslation("adminPages");
   const isArabic = language === "AR";
 
   return (
     <div className="min-w-0">
       <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-        {isArabic ? "Arabic" : "English"}
+        {isArabic ? t("Arabic") : t("English")}
       </p>
       <p
         dir={isArabic ? "rtl" : "ltr"}
@@ -110,6 +113,7 @@ function MessagePreview({ value, language }) {
 }
 
 function ScheduleCell({ scheduledAt, durationDay }) {
+  const { t } = useTranslation("adminPages");
   const date = scheduledAt ? new Date(scheduledAt) : null;
   const hasDate =
     date &&
@@ -137,12 +141,12 @@ function ScheduleCell({ scheduledAt, durationDay }) {
           </div>
         </>
       ) : (
-        <span className="text-sm text-slate-400">Not scheduled</span>
+        <span className="text-sm text-slate-400">{t("Not scheduled")}</span>
       )}
       {durationDay != null && (
         <div className="flex items-center gap-2 whitespace-nowrap text-xs text-slate-500">
           <FontAwesomeIcon icon={faRotate} className="w-3.5 text-slate-400" />
-          Every {durationDay} {durationDay === 1 ? "day" : "days"}
+          {t("Every")} {durationDay} {durationDay === 1 ? t("day") : t("days")}
         </div>
       )}
     </div>
@@ -150,12 +154,13 @@ function ScheduleCell({ scheduledAt, durationDay }) {
 }
 
 function ExpandedMessage({ language, value }) {
+  const { t } = useTranslation("adminPages");
   const isArabic = language === "Arabic";
 
   return (
     <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-        {language} message
+        {language} {t("message")}
       </p>
       <p
         dir={isArabic ? "rtl" : "ltr"}
@@ -197,6 +202,7 @@ function ActionButton({ label, title, onClick, tone = "neutral", iconClass = "te
 }
 
 function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, canToggle, onToggleActive, isToggling, canDelete, onDelete, canSend, onSendNow, isSending, sendingId }) {
+  const { t } = useTranslation("adminPages");
   const {
     notificationId,
     title,
@@ -231,7 +237,7 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
                 title={title}
                 className="line-clamp-2 break-words text-sm font-semibold text-slate-900"
               >
-                {title || "Untitled notification"}
+                {title || t("Untitled notification")}
               </p>
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 <span className="text-xs tabular-nums text-slate-400">
@@ -262,7 +268,7 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
                 tone="blue"
                 iconClass="text-blue-700"
                 label={`Send notification ${label} now`}
-                title={isSendingThis ? "Sending..." : "Send now"}
+                title={isSendingThis ? t("Sending...") : t("Send now")}
                 disabled={isSending}
                 aria-busy={isSendingThis}
                 onClick={(event) => {
@@ -277,7 +283,7 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
               <ActionButton
                 tone="blue"
                 label={`Edit notification ${label}`}
-                title="Edit notification"
+                title={t("Edit notification")}
                 onClick={(event) => {
                   event.stopPropagation();
                   onEdit(notification);
@@ -293,10 +299,10 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
                 label={`${isActive === true ? "Deactivate" : isActive === false ? "Activate" : "Toggle status of"} notification ${label}`}
                 title={
                   isActive === true
-                    ? "Deactivate notification"
+                    ? t("Deactivate notification")
                     : isActive === false
-                      ? "Activate notification"
-                      : "Toggle notification status"
+                      ? t("Activate notification")
+                      : t("Toggle notification status")
                 }
                 disabled={isToggling}
                 onClick={(event) => {
@@ -311,7 +317,7 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
               <ActionButton
                 tone="red"
                 label={`Delete notification ${label}`}
-                title="Delete notification"
+                title={t("Delete notification")}
                 onClick={(event) => {
                   event.stopPropagation();
                   onDelete(notification);
@@ -321,7 +327,7 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
               </ActionButton>
             )}
             <ActionButton
-              label={expanded ? "Hide notification details" : "Show notification details"}
+              label={expanded ? t("Hide notification details") : t("Show notification details")}
               aria-expanded={expanded}
               aria-controls={expanded ? detailsId : undefined}
               onClick={(event) => {
@@ -372,20 +378,21 @@ export default function NotificationsTable({
   sendingId,
   hasActiveFilters = false,
 }) {
+  const { t } = useTranslation("adminPages");
   const [expandedId, setExpandedId] = useState(null);
 
   if (isLoading) return <TableSkeleton />;
   if (isError) {
-    return <QueryErrorState title="Unable to load notifications" error={error} onRetry={onRetry} />;
+    return <QueryErrorState title={t("Unable to load notifications")} error={error} onRetry={onRetry} />;
   }
   if (!items?.length) {
     return (
       <div className="flex min-h-[360px] items-center justify-center">
         <TableEmptyState
           icon={faBell}
-          title="No notifications found"
+          title={t("No notifications found")}
           hasActiveFilters={hasActiveFilters}
-          emptyMessage="No notifications have been created yet."
+          emptyMessage={t("No notifications have been created yet.")}
         />
       </div>
     );
@@ -403,11 +410,11 @@ export default function NotificationsTable({
         </colgroup>
         <thead className="sticky top-0 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 shadow-[0_1px_0_0_rgb(226,232,240)]">
           <tr>
-            <th scope="col" className="px-6 py-3">Notification</th>
-            <th scope="col" className="px-4 py-3">English message</th>
-            <th scope="col" className="px-4 py-3">Arabic message</th>
-            <th scope="col" className="px-4 py-3">Schedule</th>
-            <TableActionsCell as="th" scope="col" className="px-4 py-3 text-right">Actions</TableActionsCell>
+            <th scope="col" className="px-6 py-3">{t("Notification")}</th>
+            <th scope="col" className="px-4 py-3">{t("English message")}</th>
+            <th scope="col" className="px-4 py-3">{t("Arabic message")}</th>
+            <th scope="col" className="px-4 py-3">{t("Schedule")}</th>
+            <TableActionsCell as="th" scope="col" className="px-4 py-3 text-right">{t("Actions")}</TableActionsCell>
           </tr>
         </thead>
         <tbody>

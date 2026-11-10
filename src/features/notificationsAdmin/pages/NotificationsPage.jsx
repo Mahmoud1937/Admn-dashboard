@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -41,6 +43,7 @@ function Toast({ toast, onClose }) {
 }
 
 function ConfirmDelete({ target, onCancel, onConfirm, isDeleting }) {
+  const { t } = useTranslation("adminPages");
   if (!target) return null;
 
   return (
@@ -56,12 +59,12 @@ function ConfirmDelete({ target, onCancel, onConfirm, isDeleting }) {
             <FontAwesomeIcon icon={faTriangleExclamation} />
           </span>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Delete notification?</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t("Delete notification?")}</h3>
             <p className="mt-1 text-sm text-gray-600">
               <span dir="auto" className="font-medium">
                 &ldquo;{target.title}&rdquo;
               </span>{" "}
-              will be permanently removed. This action cannot be undone.
+              {t("will be permanently removed. This action cannot be undone.")}
             </p>
           </div>
         </div>
@@ -72,7 +75,7 @@ function ConfirmDelete({ target, onCancel, onConfirm, isDeleting }) {
             disabled={isDeleting}
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="button"
@@ -81,7 +84,7 @@ function ConfirmDelete({ target, onCancel, onConfirm, isDeleting }) {
             className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
           >
             {isDeleting && <FontAwesomeIcon icon={faSpinner} spin />}
-            Delete
+            {t("Delete")}
           </button>
         </div>
       </div>
@@ -90,6 +93,7 @@ function ConfirmDelete({ target, onCancel, onConfirm, isDeleting }) {
 }
 
 export default function NotificationsPage() {
+  const { t } = useTranslation("adminPages");
   
   const { hasPermission } = useAuth();
   const canCreate = hasPermission(PERMISSION_CODES.NOTIFICATION_MARKETING_CREATE);
@@ -133,12 +137,12 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="min-w-0 space-y-6">
+    <LocalizedPage><div className="min-w-0 space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t("Notifications")}</h1>
           <p className="text-sm text-gray-500">
-            Create and manage marketing push notifications sent to app users.
+            {t("Create and manage marketing push notifications sent to app users.")}
           </p>
         </div>
         {canCreate && (
@@ -148,7 +152,7 @@ export default function NotificationsPage() {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-950"
           >
             <FontAwesomeIcon icon={faPlus} />
-            New notification
+            {t("New notification")}
           </button>
         )}
       </div>
@@ -156,13 +160,13 @@ export default function NotificationsPage() {
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         {isError ? (
           <div className="px-4 py-16 text-center">
-            <p className="font-medium text-gray-800">Could not load notifications</p>
+            <p className="font-medium text-gray-800">{t("Could not load notifications")}</p>
             <button
               type="button"
               onClick={() => refetch()}
               className="mt-3 text-sm font-medium text-blue-600 hover:underline"
             >
-              Try again
+              {t("Try again")}
             </button>
           </div>
         ) : (
@@ -209,6 +213,6 @@ export default function NotificationsPage() {
         />
       )}
       <Toast toast={toast} onClose={() => setToast(null)} />
-    </div>
+    </div></LocalizedPage>
   );
 }

@@ -415,7 +415,6 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                 </tbody>
               </table>
             </ScrollableTable>
-
             <div className="border-t border-slate-100">
               <Pagination
                 pageNumber={pageNumber}

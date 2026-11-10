@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,6 +31,7 @@ export default function TicketFormModal({
   isSaving,
   serverErrors,
 }) {
+  const { t } = useTranslation("adminPages");
   const {
     register,
     handleSubmit,
@@ -77,14 +79,14 @@ export default function TicketFormModal({
 
   return (
     <FormModalShell
-      title="Add Ticket"
+      title={t("Add Ticket")}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
       formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
     >
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Ticket Type <span className="text-red-500">*</span>
+          {t("Ticket Type")} <span className="text-red-500">*</span>
         </label>
         <Controller
           name="ticketTypeId"
@@ -94,7 +96,7 @@ export default function TicketFormModal({
               queryKey={["ticket-form", "ticket-types"]}
               value={field.value}
               onChange={field.onChange}
-              placeholder="Select ticket type"
+              placeholder={t("Select ticket type")}
               error={errors.ticketTypeId?.message}
             />
           )}
@@ -103,7 +105,7 @@ export default function TicketFormModal({
 
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Client <span className="text-red-500">*</span>
+          {t("Client")} <span className="text-red-500">*</span>
         </label>
         <Controller
           name="userId"
@@ -120,7 +122,7 @@ export default function TicketFormModal({
                   { shouldValidate: true }
                 );
               }}
-              placeholder="Select client"
+              placeholder={t("Select client")}
               error={errors.userId?.message}
             />
           )}
@@ -128,7 +130,7 @@ export default function TicketFormModal({
       </div>
 
       <TextField
-        label="User Phone Number"
+        label={t("User Phone Number")}
         required
         inputMode="numeric"
         sanitize={false}
@@ -138,7 +140,7 @@ export default function TicketFormModal({
 
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Provider
+          {t("Provider")}
         </label>
         <Controller
           name="providerId"
@@ -148,7 +150,7 @@ export default function TicketFormModal({
               queryKey={["ticket-form", "providers"]}
               value={field.value}
               onChange={field.onChange}
-              placeholder="No provider"
+              placeholder={t("No provider")}
               error={errors.providerId?.message}
             />
           )}
@@ -157,7 +159,7 @@ export default function TicketFormModal({
 
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Assigned Group
+          {t("Assigned Group")}
         </label>
         <Controller
           name="assignedToGroupId"
@@ -167,7 +169,7 @@ export default function TicketFormModal({
               queryKey={["ticket-form", "employee-groups"]}
               value={field.value}
               onChange={field.onChange}
-              placeholder="No assigned group"
+              placeholder={t("No assigned group")}
               error={errors.assignedToGroupId?.message}
                   clearable
             />
@@ -177,7 +179,7 @@ export default function TicketFormModal({
 
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Priority <span className="text-red-500">*</span>
+          {t("Priority")} <span className="text-red-500">*</span>
         </label>
         <select {...register("priority")} className={fieldClass}>
           {PRIORITY_OPTIONS.map(({ value, label }) => (
@@ -194,7 +196,7 @@ export default function TicketFormModal({
       <div className="mb-4">
         <div className="mb-1.5 flex items-center justify-between">
           <label className="block text-sm font-medium text-slate-700">
-            Description <span className="text-red-500">*</span>
+            {t("Description")} <span className="text-red-500">*</span>
           </label>
           <span className="text-[11px] text-slate-400">
             {description.length} / 500
@@ -218,7 +220,7 @@ export default function TicketFormModal({
       <FormActions
         onCancel={onClose}
         isSaving={isSaving}
-        submitLabel="Add Ticket"
+        submitLabel={t("Add Ticket")}
       />
     </FormModalShell>
   );

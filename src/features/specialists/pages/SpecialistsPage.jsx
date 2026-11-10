@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -16,6 +18,7 @@ import usePermission from "../../auth/hooks/usePermission";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function SpecialistsPage() {
+  const { t } = useTranslation("adminPages");
   const canUpdate = usePermission(PERMISSION_CODES.SPECIALISTS_UPDATE);
   const canDelete = usePermission(PERMISSION_CODES.SPECIALISTS_DELETE);
   const [search, setSearch] = useState("");
@@ -90,12 +93,12 @@ export default function SpecialistsPage() {
   };
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Specialists Management</h1>
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">{t("Specialists Management")}</h1>
           <p className="mt-1 text-sm text-slate-500 sm:text-sm">
-            Manage all specialists across the platform.
+            {t("Manage all specialists across the platform.")}
           </p>
         </div>
 
@@ -105,7 +108,7 @@ export default function SpecialistsPage() {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add Specialist
+            {t("Add Specialist")}
           </button>
         </PermissionGuard>
       </div>
@@ -114,12 +117,12 @@ export default function SpecialistsPage() {
         <SpecialistsFilters search={search} onSearchChange={setSearch} />
 
         {isLoading && (
-          <SkeletonTable label="Loading specialists..." columns={3} />
+          <SkeletonTable label={t("Loading specialists...")} columns={3} />
         )}
 
         {isError && (
   <QueryErrorState
-  title="Unable to load services"
+  title={t("Unable to load services")}
   error={error}
   onRetry={refetch}
 />
@@ -140,7 +143,7 @@ export default function SpecialistsPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="specialists"
+                itemLabel={t("specialists")}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -161,14 +164,14 @@ export default function SpecialistsPage() {
 
       {canDelete && <ConfirmDeleteModal
         isOpen={!!specialistToDelete}
-        title="Delete Specialist"
+        title={t("Delete Specialist")}
         message={`Are you sure you want to delete "${specialistToDelete?.enName}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setSpecialistToDelete(null)}
       />}
-    </div>
+    </div></LocalizedPage>
   );
 }

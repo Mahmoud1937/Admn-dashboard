@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from 'react'
 import { faImage } from '@fortawesome/free-solid-svg-icons'
@@ -22,11 +23,12 @@ import { SkeletonTable } from "../../../shared/components/Skeleton";
 // }
 
 const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
+  const { t } = useTranslation("adminPages");
   const [previewImage, setPreviewImage] = useState(null)
 
   if (isLoading) {
     return (
-      <SkeletonTable label="Loading sliders..." columns={6} />
+      <SkeletonTable label={t("Loading sliders...")} columns={6} />
     )
   }
 
@@ -34,8 +36,8 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
     return (
       <TableEmptyState
         icon={faImage}
-        title="No sliders found"
-        emptyMessage="Get started by adding a new slider."
+        title={t("No sliders found")}
+        emptyMessage={t("Get started by adding a new slider.")}
       />
     )
   }
@@ -47,11 +49,11 @@ const SlidersTable = ({ sliders, isLoading, onView, onEdit, onDelete }) => {
           <thead className="sticky top-0 z-10 bg-slate-100">
             <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
               <th className="w-10 px-4 py-3">#</th>
-              <th className="px-4 py-3">EN Image</th>
-              <th className="px-4 py-3">AR Image</th>
-              <th className="px-4 py-3">Provider</th>
-              <th className="px-4 py-3">Created</th>
-              <TableActionsCell as="th" className="px-4 py-3">Actions</TableActionsCell>
+              <th className="px-4 py-3">{t("EN Image")}</th>
+              <th className="px-4 py-3">{t("AR Image")}</th>
+              <th className="px-4 py-3">{t("Provider")}</th>
+              <th className="px-4 py-3">{t("Created")}</th>
+              <TableActionsCell as="th" className="px-4 py-3">{t("Actions")}</TableActionsCell>
             </tr>
           </thead>
 

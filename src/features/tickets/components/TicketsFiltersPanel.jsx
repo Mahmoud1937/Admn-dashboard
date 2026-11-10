@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import FilterPanel from "../../../shared/components/FilterPanel";
 import FilterPanelFooter from "../../../shared/components/FilterPanelFooter";
 import FilterPanelHeader from "../../../shared/components/FilterPanelHeader";
@@ -15,6 +16,7 @@ export default function TicketsFiltersPanel({
   onClose,
   panelRef,
 }) {
+  const { t } = useTranslation("adminPages");
   const set = (field) => (e) =>
     onChange((prev) => ({ ...prev, [field]: e.target.value }));
 
@@ -27,81 +29,81 @@ export default function TicketsFiltersPanel({
 
       <div className="mb-4">
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
-          Client
+          {t("Client")}
         </label>
         <ClientSelect
           queryKey={["tickets", "clients"]}
           value={draft.userId}
           onChange={setValue("userId")}
-          placeholder="All clients"
+          placeholder={t("All clients")}
         />
       </div>
 
       <div className="mb-4">
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
-          Ticket Type
+          {t("Ticket Type")}
         </label>
         <TicketTypeSelect
           queryKey={["tickets", "ticket-types"]}
           value={draft.ticketTypeId}
           onChange={setValue("ticketTypeId")}
-          placeholder="All ticket types"
+          placeholder={t("All ticket types")}
         />
       </div>
 
       <div className="mb-4">
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
-          Provider
+          {t("Provider")}
         </label>
         <ProviderSelect
           queryKey={["tickets", "providers"]}
           value={draft.providerId}
           onChange={setValue("providerId")}
-          placeholder="All providers"
+          placeholder={t("All providers")}
         />
       </div>
 
       <div className="mb-4">
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
-          Employee Group
+          {t("Employee Group")}
         </label>
         <EmployeeGroupSelect
           queryKey={["tickets", "employee-groups"]}
           value={draft.employeeGroupId}
           onChange={setValue("employeeGroupId")}
-          placeholder="All employee groups"
+          placeholder={t("All employee groups")}
               clearable
         />
       </div>
 
       <div className="mb-4">
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
-          Priority
+          {t("Priority")}
         </label>
         <select
           value={draft.priority}
           onChange={set("priority")}
           className={fieldClass}
         >
-          <option value="">All priorities</option>
-          <option value="0">Low</option>
-          <option value="1">Medium</option>
-          <option value="2">High</option>
+          <option value="">{t("All priorities")}</option>
+          <option value="0">{t("Low")}</option>
+          <option value="1">{t("Medium")}</option>
+          <option value="2">{t("High")}</option>
         </select>
       </div>
 
       <div className="mb-4">
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
-          Status
+          {t("Status")}
         </label>
         <select
           value={draft.isClosed}
           onChange={set("isClosed")}
           className={fieldClass}
         >
-          <option value="">All statuses</option>
-          <option value="false">Open</option>
-          <option value="true">Closed</option>
+          <option value="">{t("All statuses")}</option>
+          <option value="false">{t("Open")}</option>
+          <option value="true">{t("Closed")}</option>
         </select>
       </div>
 

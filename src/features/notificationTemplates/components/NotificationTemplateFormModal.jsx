@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -61,13 +62,14 @@ function CharCounter({ id, length, recommended }) {
 }
 
 function PlaceholderChips({ names, onInsert, disabled }) {
+  const { t } = useTranslation("adminPages");
   if (names.length === 0) return null;
 
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-1.5">
       <span className="flex items-center gap-1 text-[11px] font-medium text-gray-500">
         <FontAwesomeIcon icon={faWandMagicSparkles} className="text-[#2caba2]" aria-hidden="true" />
-        Insert variable
+        {t("Insert variable")}
       </span>
       {names.map((name) => (
         <button
@@ -88,6 +90,7 @@ function PlaceholderChips({ names, onInsert, disabled }) {
 }
 
 function ImageUrlPreview({ url }) {
+  const { t } = useTranslation("adminPages");
   const [status, setStatus] = useState("loading");
   const trimmed = (url || "").trim();
 
@@ -99,7 +102,7 @@ function ImageUrlPreview({ url }) {
         {status !== "error" ? (
           <img
             src={trimmed}
-            alt="Notification image preview"
+            alt={t("Notification image preview")}
             onLoad={() => setStatus("ok")}
             onError={() => setStatus("error")}
             className="h-full w-full object-cover"
@@ -112,10 +115,10 @@ function ImageUrlPreview({ url }) {
         {status === "error" ? (
           <p role="alert" className="flex items-center gap-1.5 font-medium text-amber-700">
             <FontAwesomeIcon icon={faTriangleExclamation} aria-hidden="true" />
-            Couldn't load this image. Check the URL.
+            {t("Couldn't load this image. Check the URL.")}
           </p>
         ) : (
-          <p className="font-medium text-gray-700">{status === "loading" ? "Loading preview..." : "Image preview"}</p>
+          <p className="font-medium text-gray-700">{status === "loading" ? t("Loading preview...") : t("Image preview")}</p>
         )}
         <p dir="ltr" title={trimmed} className="mt-0.5 truncate text-gray-400">{trimmed}</p>
       </div>
@@ -124,6 +127,7 @@ function ImageUrlPreview({ url }) {
 }
 
 export default function NotificationTemplateFormModal({ template, mutation, onSave, onClose }) {
+  const { t } = useTranslation("adminPages");
   const isEditing = Boolean(template);
   const { register, handleSubmit, control, setError, clearErrors, setValue, getValues, formState: { errors } } = useForm({
     resolver: zodResolver(isEditing ? notificationTemplateUpdateSchema : notificationTemplateSchema),
@@ -207,12 +211,12 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1b4477] text-white shadow-lg shadow-blue-900/20">
             <FontAwesomeIcon icon={faBell} />
           </span>
-          {isEditing ? "Edit notification template" : "Add notification template"}
+          {isEditing ? t("Edit notification template") : t("Add notification template")}
         </span>
       }
-      description={isEditing ? "Update the content of this notification template." : "Create reusable Arabic and English notification content."}
+      description={isEditing ? t("Update the content of this notification template.") : t("Create reusable Arabic and English notification content.")}
       titleId="notification-template-form-title"
-      closeLabel="Close notification template form"
+      closeLabel={t("Close notification template form")}
       onClose={requestClose}
       onSubmit={handleSubmit(onSave)}
       isSaving={mutation.isPending}
@@ -222,11 +226,11 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
       <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#1b4477] via-blue-500 to-[#2caba2]" />
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-8 overflow-y-auto pb-6 lg:grid-cols-[minmax(0,1fr)_310px]">
         <fieldset disabled={mutation.isPending} aria-busy={mutation.isPending} className="min-w-0 space-y-6">
-          <TemplateSection title="Content" description={isEditing ? "Update the messages users will see for this event." : "Choose an event and write the messages users will see."}>
+          <TemplateSection title={t("Content")} description={isEditing ? t("Update the messages users will see for this event.") : t("Choose an event and write the messages users will see.")}>
             <div className="space-y-4">
               {isEditing ? (
                 <div>
-                  <p className="mb-1.5 text-sm font-medium text-slate-700">Notification event</p>
+                  <p className="mb-1.5 text-sm font-medium text-slate-700">{t("Notification event")}</p>
                   <EventBadge tone={event?.tone} className="gap-1.5">
                     {event?.icon && <FontAwesomeIcon icon={event.icon} aria-hidden="true" />}
                     {event?.label ?? template.notificationEvent ?? "—"}
@@ -235,7 +239,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
               ) : (
                 <div>
                   <label htmlFor="template-notification-event" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Notification event <span className="text-red-500">*</span>
+                    {t("Notification event")} <span className="text-red-500">*</span>
                   </label>
                   <select
                     id="template-notification-event"
@@ -244,7 +248,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                     aria-describedby={errors.notificationEvent ? "template-event-error" : undefined}
                     className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-800 outline-none transition-colors focus:border-[#1b4477] focus:ring-2 focus:ring-[#1b4477]/15 ${errors.notificationEvent ? "border-red-400" : "border-gray-300"}`}
                   >
-                    <option value="">Select event</option>
+                    <option value="">{t("Select event")}</option>
                     {NOTIFICATION_EVENTS.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
                   </select>
                   {event && (
@@ -260,7 +264,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
               )}
 
               <div>
-                <TextField label="Title" required sanitize={false} maxLength={null} placeholder="e.g. Invoice used successfully" {...register("title")} error={errors.title?.message} />
+                <TextField label={t("Title")} required sanitize={false} maxLength={null} placeholder={t("e.g. Invoice used successfully")} {...register("title")} error={errors.title?.message} />
                 <div className="mt-1 flex justify-end">
                   <CharCounter id="template-title-count" length={(title ?? "").length} recommended={TITLE_RECOMMENDED} />
                 </div>
@@ -268,30 +272,30 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
 
               {!event ? (
                 <p role="status" className="text-xs text-gray-500">
-                  {isEditing ? "Placeholder suggestions are unavailable for this event." : "Select an event to see available placeholders."}
+                  {isEditing ? t("Placeholder suggestions are unavailable for this event.") : t("Select an event to see available placeholders.")}
                 </p>
               ) : variablesQuery.isPending ? (
-                <SkeletonText label="Loading placeholders..." lines={1} className="max-w-sm space-y-2" />
+                <SkeletonText label={t("Loading placeholders...")} lines={1} className="max-w-sm space-y-2" />
               ) : variablesQuery.isError ? (
                 <div role="alert" className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                  <p>{getApiErrorMessage(variablesQuery.error, { details: true, fallback: "Unable to load placeholders." })}</p>
+                  <p>{getApiErrorMessage(variablesQuery.error, { details: true, fallback: t("Unable to load placeholders.") })}</p>
                   <button
                     type="button"
                     onClick={() => variablesQuery.refetch()}
                     disabled={variablesQuery.isFetching || mutation.isPending}
                     className="font-medium underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Retry variables
+                    {t("Retry variables")}
                   </button>
                 </div>
               ) : placeholders.length === 0 ? (
-                <p role="status" className="text-xs text-gray-500">No placeholders are available for this event.</p>
+                <p role="status" className="text-xs text-gray-500">{t("No placeholders are available for this event.")}</p>
               ) : null}
 
               <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                 <div>
                   <label htmlFor="template-message-ar" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Arabic message <span className="text-red-500">*</span>
+                    {t("Arabic message")} <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     id="template-message-ar"
@@ -303,7 +307,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                     dir="ltr"
                     lang="ar"
                     rows={5}
-                    placeholder="Write the Arabic message..."
+                    placeholder={t("Write the Arabic message...")}
                     aria-invalid={Boolean(errors.messageAr)}
                     aria-describedby={errors.messageAr ? "template-message-ar-error" : undefined}
                     className={`w-full resize-y rounded-lg border border-r-4 border-r-[#2caba2] bg-white px-3 py-2.5 text-sm leading-relaxed text-gray-800 outline-none focus:border-[#2caba2] focus:ring-2 focus:ring-[#2caba2]/20 ${errors.messageAr ? "border-red-400" : "border-gray-300"}`}
@@ -317,7 +321,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
 
                 <div>
                   <label htmlFor="template-message-en" className="mb-1.5 block text-sm font-medium text-slate-700">
-                    English message <span className="text-red-500">*</span>
+                    {t("English message")} <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     id="template-message-en"
@@ -329,7 +333,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                     dir="ltr"
                     lang="en"
                     rows={5}
-                    placeholder="Write the English message..."
+                    placeholder={t("Write the English message...")}
                     aria-invalid={Boolean(errors.messageEn)}
                     aria-describedby={errors.messageEn ? "template-message-en-error" : undefined}
                     className={`w-full resize-y rounded-lg border border-l-4 border-l-[#1b4477] bg-white px-3 py-2.5 text-sm leading-relaxed text-gray-800 outline-none focus:border-[#1b4477] focus:ring-2 focus:ring-[#1b4477]/15 ${errors.messageEn ? "border-red-400" : "border-gray-300"}`}
@@ -342,17 +346,17 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                 </div>
               </div>
               <p className="text-xs leading-relaxed text-gray-500">
-                Available placeholders are replaced with real values when the notification is sent. The character counts are recommendations; longer text may be truncated on some devices.
+                {t("Available placeholders are replaced with real values when the notification is sent. The character counts are recommendations; longer text may be truncated on some devices.")}
               </p>
             </div>
           </TemplateSection>
-          <TemplateSection title="Media" description="Optionally include an image with the notification.">
+          <TemplateSection title={t("Media")} description={t("Optionally include an image with the notification.")}>
             <Controller
               name="imageUrl"
               control={control}
               render={({ field }) => (
                 <div className="space-y-3">
-                  <label htmlFor="template-image-file" className="block text-sm font-medium text-slate-700">Image (optional)</label>
+                  <label htmlFor="template-image-file" className="block text-sm font-medium text-slate-700">{t("Image (optional)")}</label>
                   <input
                     id="template-image-file"
                     type="file"
@@ -372,12 +376,12 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                     aria-describedby={errors.imageUrl ? "template-image-help template-image-error" : "template-image-help"}
                     className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:font-medium file:text-blue-900 hover:file:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
                   />
-                  <p id="template-image-help" className="text-xs text-gray-500">JPG, PNG, or WebP. Maximum 5 MB.</p>
-                  {template?.imageUrl && !imageRemoved && <p className="text-xs text-gray-500">Choose a new image to replace the current one, or remove it below.</p>}
-                  {imageRemoved && <p role="status" className="text-xs text-gray-500">Image removed from this form.</p>}
+                  <p id="template-image-help" className="text-xs text-gray-500">{t("JPG, PNG, or WebP. Maximum 5 MB.")}</p>
+                  {template?.imageUrl && !imageRemoved && <p className="text-xs text-gray-500">{t("Choose a new image to replace the current one, or remove it below.")}</p>}
+                  {imageRemoved && <p role="status" className="text-xs text-gray-500">{t("Image removed from this form.")}</p>}
                   {errors.imageUrl && <p id="template-image-error" role="alert" className="text-xs text-red-600">{errors.imageUrl.message}</p>}
                   {imagePreview ? (
-                    <img src={imagePreview} alt="Notification image preview" className="max-h-40 rounded-xl border border-gray-200 object-contain" />
+                    <img src={imagePreview} alt={t("Notification image preview")} className="max-h-40 rounded-xl border border-gray-200 object-contain" />
                   ) : template?.imageUrl && !imageRemoved ? (
                     <ImageUrlPreview key={template.imageUrl} url={template.imageUrl} />
                   ) : null}
@@ -385,12 +389,12 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                     {(field.value || (template?.imageUrl && !imageRemoved)) && (
                       <button type="button" onClick={() => handleImageChange(template?.imageUrl ? "" : null, field.onChange)} disabled={mutation.isPending} className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50">
                         <FontAwesomeIcon icon={faTrashCan} aria-hidden="true" />
-                        Remove image
+                        {t("Remove image")}
                       </button>
                     )}
                     {template?.imageUrl && (field.value || imageRemoved) && (
                       <button type="button" onClick={() => handleImageChange(null, field.onChange)} disabled={mutation.isPending} className="text-xs font-medium text-slate-600 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50">
-                        {imageRemoved ? "Undo removal" : "Cancel replacement"}
+                        {imageRemoved ? t("Undo removal") : t("Cancel replacement")}
                       </button>
                     )}
                   </div>
@@ -410,8 +414,8 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
       <FormActions
         onCancel={requestClose}
         isSaving={mutation.isPending}
-        submitLabel={isEditing ? "Save changes" : "Add template"}
-        savingLabel={isEditing ? "Saving..." : "Adding..."}
+        submitLabel={isEditing ? t("Save changes") : t("Add template")}
+        savingLabel={isEditing ? t("Saving...") : t("Adding...")}
         submitIcon={isEditing ? faFloppyDisk : faPlus}
         className="-mx-6 -mb-6 flex shrink-0 items-center justify-end gap-3 border-t border-gray-200 bg-gray-50/80 px-6 py-4"
         cancelClassName="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"

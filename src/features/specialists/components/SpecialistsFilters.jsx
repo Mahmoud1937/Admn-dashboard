@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 
 export default function SpecialistsFilters({ search, onSearchChange }) {
+  const { t } = useTranslation("adminPages");
   return (
     <div className="border-b border-slate-200 p-4">
       <div className="relative">
@@ -13,7 +15,7 @@ export default function SpecialistsFilters({ search, onSearchChange }) {
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search specialists by name (EN/AR)..."
+          placeholder={t("Search specialists by name (EN/AR)...")}
           className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
         />
       </div>

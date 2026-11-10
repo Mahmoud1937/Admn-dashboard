@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import StatusBadge from "../../../../shared/components/StatusBadge";
 
@@ -7,6 +8,7 @@ export default function TicketDetailsHeader({
   colorStyle,
   onClose,
 }) {
+  const { t } = useTranslation("adminPages");
   const hasColor = Boolean(colorStyle);
 
   return (
@@ -21,14 +23,14 @@ export default function TicketDetailsHeader({
             hasColor ? colorStyle.title : "text-white"
           }`}
         >
-          Ticket Details
+          {t("Ticket Details")}
         </h3>
         <p
           className={`mt-1 flex items-center gap-2 text-sm ${
             hasColor ? `${colorStyle.title} opacity-80` : "text-slate-300"
           }`}
         >
-          <span>Ticket ID</span>
+          <span>{t("Ticket ID")}</span>
           <span
             className={`rounded-md bg-white px-2 py-0.5 font-mono text-xs font-semibold ${
               hasColor ? colorStyle.title : "text-blue-900"
@@ -38,7 +40,7 @@ export default function TicketDetailsHeader({
           </span>
           {typeof isClosed === "boolean" && (
             <StatusBadge tone={isClosed ? "success" : "warning"}>
-              {isClosed ? "Closed" : "Open"}
+              {isClosed ? t("Closed") : t("Open")}
             </StatusBadge>
           )}
         </p>

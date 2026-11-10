@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from 'react'
 import { faTicket } from '@fortawesome/free-solid-svg-icons'
 import {
@@ -70,6 +71,7 @@ function getInitials(name = '') {
     .toUpperCase()
 }
 function TicketCard({ ticket, onViewTicket, onPreview ,color}) {
+  const { t } = useTranslation("adminPages");
   const clientName = ticket.userName || ''
   const hasImage =
     typeof ticket.clientImage === 'string' &&
@@ -89,7 +91,7 @@ function TicketCard({ ticket, onViewTicket, onPreview ,color}) {
           {ticket.priorityName || '-'}
         </StatusBadge>
         <StatusBadge tone={ticket.isClosed ? 'success' : 'warning'}>
-          {ticket.isClosed ? 'Closed' : 'Open'}
+          {ticket.isClosed ? t("Closed") : t("Open")}
         </StatusBadge>
       </div>
 
@@ -193,6 +195,7 @@ export default function TicketsBoard({
   hasActiveFilters,
   onViewTicket,
 }) {
+  const { t } = useTranslation("adminPages");
   const [previewImage, setPreviewImage] = useState(null)
   const [groupBy, setGroupBy] = useState('group')
 
@@ -222,7 +225,7 @@ export default function TicketsBoard({
   if (isLoading) {
     return (
       <div role="status" aria-busy="true" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <span className="sr-only">Loading tickets...</span>
+        <span className="sr-only">{t("Loading tickets...")}</span>
         {Array.from({ length: 3 }, (_, index) => (
           <SkeletonText key={index} lines={6} className="min-w-0 space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4" />
         ))}
@@ -234,9 +237,9 @@ export default function TicketsBoard({
     return (
       <TableEmptyState
         icon={faTicket}
-        title="No tickets found"
+        title={t("No tickets found")}
         hasActiveFilters={hasActiveFilters}
-        emptyMessage="There are no tickets to display."
+        emptyMessage={t("There are no tickets to display.")}
       />
     )
   }
@@ -246,7 +249,7 @@ export default function TicketsBoard({
       {/* group-by toggle */}
       <div className="mb-3 flex items-center gap-2 px-1">
         <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
-          Group by
+          {t("Group by")}
         </span>
         <div className="flex rounded-lg bg-slate-100 p-0.5">
           {GROUP_OPTIONS.map((option) => {

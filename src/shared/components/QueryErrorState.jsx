@@ -1,11 +1,14 @@
+import { useTranslation } from "react-i18next";
+
 export default function QueryErrorState({
-  title = "Unable to load data",
+  title,
   error,
   onRetry,
-  loadErrorMessage = "We couldn't load the data. Please try again.",
-  connectionErrorMessage = "We couldn't connect to the server. Please check your internet connection and try again.",
-  retryLabel = "Try Again",
+  loadErrorMessage,
+  connectionErrorMessage,
+  retryLabel,
 }) {
+  const { t } = useTranslation("common");
   return (
     <div className="flex min-h-[300px] items-center justify-center bg-white">
       <div className="flex max-w-md flex-col items-center px-6 text-center">
@@ -14,13 +17,13 @@ export default function QueryErrorState({
         </div>
 
         <h3 className="text-lg font-semibold text-gray-900">
-          {title}
+          {title ?? t("Unable to load data")}
         </h3>
 
         <p className="mt-2 text-sm leading-6 text-gray-500">
           {error?.response
-            ? loadErrorMessage
-            : connectionErrorMessage}
+            ? loadErrorMessage ?? t("We couldn't load the data. Please try again.")
+            : connectionErrorMessage ?? t("We couldn't connect to the server. Please check your internet connection and try again.")}
         </p>
 
         <button
@@ -28,7 +31,7 @@ export default function QueryErrorState({
           onClick={onRetry}
           className="mt-5 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-800"
         >
-          {retryLabel}
+          {retryLabel ?? t("Try Again")}
         </button>
       </div>
     </div>

@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +19,7 @@ import BrokerFormModal from "../components/BrokerFormModal";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function BrokersPage() {
+  const { t } = useTranslation("adminPages");
   const canRead = usePermission(PERMISSION_CODES.BROKERS_READ);
   const canCreate = usePermission(PERMISSION_CODES.BROKERS_CREATE);
   const canUpdate = usePermission(PERMISSION_CODES.BROKERS_UPDATE);
@@ -63,28 +66,28 @@ export default function BrokersPage() {
   };
 
   if (!canRead || (isError && error?.response?.status === 403)) {
-    return <AccessDeniedPage />;
+    return <LocalizedPage><AccessDeniedPage /></LocalizedPage>;
   }
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Brokers Management</h1>
-          <p className="mt-1 text-sm text-slate-500">View and manage brokers.</p>
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">{t("Brokers Management")}</h1>
+          <p className="mt-1 text-sm text-slate-500">{t("View and manage brokers.")}</p>
         </div>
         {canCreate && (
           <button type="button" onClick={() => openForm()} className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-800">
-            <FontAwesomeIcon icon={faPlus} /> Add Broker
+            <FontAwesomeIcon icon={faPlus} /> {t("Add Broker")}
           </button>
         )}
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <SearchBarWithFilters value={search} onChange={setSearch} placeholder="Search by name or phone number..." showFilterButton={false} />
-        {isLoading && <SkeletonTable label="Loading brokers..." columns={4} />}
+        <SearchBarWithFilters value={search} onChange={setSearch} placeholder={t("Search by name or phone number...")} showFilterButton={false} />
+        {isLoading && <SkeletonTable label={t("Loading brokers...")} columns={4} />}
         {isError && error?.response?.status !== 403 && (
-          <QueryErrorState title="Unable to load brokers" error={error} onRetry={refetch} />
+          <QueryErrorState title={t("Unable to load brokers")} error={error} onRetry={refetch} />
         )}
         {!isLoading && !isError && (
           <div className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>
@@ -102,7 +105,7 @@ export default function BrokersPage() {
               totalPages={totalPages}
               totalCount={totalCount}
               pageSize={pageSize}
-              itemLabel="brokers"
+              itemLabel={t("brokers")}
               onGoToPage={(page) => goToPage(page, totalPages)}
               onPageSizeChange={handlePageSizeChange}
               getPageNumbers={getPageNumbers}
@@ -125,9 +128,9 @@ export default function BrokersPage() {
       {canDelete && (
         <ConfirmDeleteModal
           isOpen={!!brokerToDelete}
-          title="Delete Broker"
+          title={t("Delete Broker")}
           message={`Are you sure you want to delete "${brokerToDelete?.name}"? This action cannot be undone.`}
-          confirmLabel="Delete"
+          confirmLabel={t("Delete")}
           isLoading={deleteMutation.isPending}
           onConfirm={() => brokerToDelete && deleteMutation.mutate(brokerToDelete.id)}
           onCancel={() => {
@@ -136,6 +139,6 @@ export default function BrokersPage() {
           }}
         />
       )}
-    </div>
+    </div></LocalizedPage>
   );
 }

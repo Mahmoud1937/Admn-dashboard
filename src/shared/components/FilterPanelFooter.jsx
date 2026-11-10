@@ -1,4 +1,7 @@
-export default function FilterPanelFooter({ onClear, onApply, clearLabel = "Clear all", applyLabel = "Apply" }) {
+import { useTranslation } from "react-i18next";
+
+export default function FilterPanelFooter({ onClear, onApply, clearLabel, applyLabel }) {
+  const { t } = useTranslation("common");
   return (
     <div className="flex items-center justify-between border-t border-slate-100 pt-4">
       <button
@@ -6,14 +9,14 @@ export default function FilterPanelFooter({ onClear, onApply, clearLabel = "Clea
         onClick={onClear}
         className="text-sm font-medium text-slate-500 hover:text-slate-700"
       >
-        {clearLabel}
+        {clearLabel ?? t("Clear all")}
       </button>
       <button
         type="button"
         onClick={onApply}
         className="rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
       >
-        {applyLabel}
+        {applyLabel ?? t("Apply")}
       </button>
     </div>
   );

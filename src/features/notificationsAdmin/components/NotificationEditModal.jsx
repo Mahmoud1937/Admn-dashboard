@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +26,7 @@ function Field({ id, label, error, required = false, children }) {
 }
 
 export default function NotificationEditModal({ notification, onClose, onSubmit, isSaving }) {
+  const { t } = useTranslation("adminPages");
   const { register, handleSubmit, reset, control, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(updateNotificationSchema),
     defaultValues: {
@@ -60,15 +62,15 @@ export default function NotificationEditModal({ notification, onClose, onSubmit,
   });
 
   return (
-    <FormModalShell title="Edit notification" onClose={onClose} onSubmit={submit} className="max-h-[90vh] max-w-xl overflow-y-auto">
+    <FormModalShell title={t("Edit notification")} onClose={onClose} onSubmit={submit} className="max-h-[90vh] max-w-xl overflow-y-auto">
       <div className="space-y-4">
-        <Field id="edit-notification-title" label="Title" required error={errors.title?.message}>
+        <Field id="edit-notification-title" label={t("Title")} required error={errors.title?.message}>
           <input id="edit-notification-title" maxLength={100} {...register("title")} className={fieldClassName} />
         </Field>
-        <Field id="edit-notification-en" label="English message" required error={errors.messageEn?.message}>
+        <Field id="edit-notification-en" label={t("English message")} required error={errors.messageEn?.message}>
           <textarea id="edit-notification-en" rows={3} maxLength={500} {...register("messageEn")} className={fieldClassName} />
         </Field>
-        <Field id="edit-notification-ar" label="Arabic message" required error={errors.messageAr?.message}>
+        <Field id="edit-notification-ar" label={t("Arabic message")} required error={errors.messageAr?.message}>
           <textarea id="edit-notification-ar" rows={3} maxLength={500} dir="ltr" {...register("messageAr")} className={fieldClassName} />
         </Field>
         <Controller
@@ -89,10 +91,10 @@ export default function NotificationEditModal({ notification, onClose, onSubmit,
             />
           )}
         />
-        <Field id="edit-notification-duration" label="Repeat after (days)" error={errors.durationDay?.message}>
+        <Field id="edit-notification-duration" label={t("Repeat after (days)")} error={errors.durationDay?.message}>
           <input id="edit-notification-duration" type="number" min="1" max="365" step="1" {...register("durationDay")} className={fieldClassName} />
         </Field>
-        <FormActions onCancel={onClose} isSaving={isSaving} submitLabel="Save changes" />
+        <FormActions onCancel={onClose} isSaving={isSaving} submitLabel={t("Save changes")} />
       </div>
     </FormModalShell>
   );

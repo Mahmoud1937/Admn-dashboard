@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { useTranslation } from "react-i18next";
 
 export default function SearchBarWithFilters({
   value,
@@ -11,10 +12,11 @@ export default function SearchBarWithFilters({
   stacked = true,
   alignEnd = false,
   showFilterButton = true,
-  filterLabel = "Filters",
+  filterLabel,
   rtl = false,
   children,
 }) {
+  const { t } = useTranslation("common");
   return (
     <div
       className={`flex items-center gap-3 border-b border-slate-200 p-4 ${
@@ -48,7 +50,7 @@ export default function SearchBarWithFilters({
           className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
           <FontAwesomeIcon icon={faFilter} />
-          <span>{filterLabel}</span>
+          <span>{filterLabel ?? t("Filters")}</span>
           {activeFilterCount > 0 && (
             <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-xs font-semibold text-white">
               {activeFilterCount}

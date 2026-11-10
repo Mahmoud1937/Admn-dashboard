@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
@@ -20,6 +22,7 @@ const SOURCE_TYPE_BACK_PATH = {
 };
 
 export default function CardActivationPage() {
+  const { t } = useTranslation("adminPages");
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -70,7 +73,7 @@ export default function CardActivationPage() {
   const backPath = SOURCE_TYPE_BACK_PATH[sourceType];
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6">
         {id && backPath && (
           <button
@@ -79,12 +82,12 @@ export default function CardActivationPage() {
             className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
           >
             <FontAwesomeIcon icon={faArrowLeft} />
-            Back to {SOURCE_TYPE_LABELS[sourceType]}
+            {t("Back to")} {SOURCE_TYPE_LABELS[sourceType]}
           </button>
         )}
 
         <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">
-          Not Activated Cards
+          {t("Not Activated Cards")}
         </h1>
 
         <p className="mt-1 text-sm text-slate-500">
@@ -93,20 +96,20 @@ export default function CardActivationPage() {
               <span className="font-semibold text-slate-700">
                 {count ?? 0}
               </span>{" "}
-              not-activated cards from{" "}
+              {t("not-activated cards from")}{" "}
               <span className="font-medium text-slate-700">
                 {from}
               </span>{" "}
-              to{" "}
+              {t("to")}{" "}
               <span className="font-medium text-slate-700">
                 {to}
               </span>
               .
             </>
           ) : id ? (
-            <>Showing not-activated cards.</>
+            <>{t("Showing not-activated cards.")}</>
           ) : (
-            "No source specified."
+            t("No source specified.")
           )}
         </p>
       </div>
@@ -114,17 +117,17 @@ export default function CardActivationPage() {
       <div className="rounded-xl border border-slate-200 bg-white">
         {!id && (
           <p className="p-8 text-center text-sm text-slate-400">
-            Navigate here from a Card Pool or Sold Card row.
+            {t("Navigate here from a Card Pool or Sold Card row.")}
           </p>
         )}
 
         {id && isLoading && (
-          <SkeletonTable label="Loading cards..." columns={3} />
+          <SkeletonTable label={t("Loading cards...")} columns={3} />
         )}
 
         {id && isError && (
           <p className="p-8 text-center text-sm text-red-500">
-            {error?.message || "Failed to load cards."}
+            {error?.message || t("Failed to load cards.")}
           </p>
         )}
 
@@ -152,7 +155,7 @@ export default function CardActivationPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="cards"
+                itemLabel={t("cards")}
                 onGoToPage={(page) =>
                   goToPage(page, totalPages)
                 }
@@ -163,6 +166,6 @@ export default function CardActivationPage() {
           </div>
         )}
       </div>
-    </div>
+    </div></LocalizedPage>
   );
 }

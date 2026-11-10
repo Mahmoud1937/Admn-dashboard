@@ -11,9 +11,9 @@ const EGYPT_CENTER_LNG = 30.8;
 const CLIENT_GRID_SIZE_METERS = 200;
 const EARTH_RADIUS_METERS = 6_378_137;
 
-export const useClientLocationsQuery = (enabled) => {
+export const useClientLocationsQuery = (enabled, language) => {
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["client-locations"],
+    queryKey: ["client-locations", language],
     queryFn: getClientLocations,
     enabled,
     staleTime: 5 * 60_000,

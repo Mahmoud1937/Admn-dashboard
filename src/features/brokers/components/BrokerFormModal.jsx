@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +9,7 @@ import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import { brokerSchema } from "../schema/brokerSchema";
 
 export default function BrokerFormModal({ isOpen, broker, onSave, onClose, isSaving, serverErrors }) {
+  const { t } = useTranslation("adminPages");
   const { register, handleSubmit, reset, setError, formState: { errors } } = useForm({
     resolver: zodResolver(brokerSchema),
     defaultValues: { name: "", phoneNumber: "" },
@@ -27,19 +29,19 @@ export default function BrokerFormModal({ isOpen, broker, onSave, onClose, isSav
 
   return (
     <FormModalShell
-      title={broker ? "Edit Broker" : "Add Broker"}
+      title={broker ? t("Edit Broker") : t("Add Broker")}
       onClose={onClose}
       onSubmit={handleSubmit((values) => onSave({ id: broker?.id, ...values }))}
     >
       <TextField
-        label="Name"
+        label={t("Name")}
         required
         autoFocus
         error={errors.name?.message}
         {...register("name")}
       />
       <TextField
-        label="Phone Number"
+        label={t("Phone Number")}
         required
         inputMode="numeric"
         maxLength={11}
@@ -50,7 +52,7 @@ export default function BrokerFormModal({ isOpen, broker, onSave, onClose, isSav
       <FormActions
         onCancel={onClose}
         isSaving={isSaving}
-        submitLabel={broker ? "Save Changes" : "Add Broker"}
+        submitLabel={broker ? t("Save Changes") : t("Add Broker")}
       />
     </FormModalShell>
   );

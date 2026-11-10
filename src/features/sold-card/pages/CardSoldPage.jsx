@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -19,6 +21,7 @@ import QueryErrorState from "../../../shared/components/QueryErrorState";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function CardSoldPage() {
+  const { t } = useTranslation("adminPages");
   const canDelete = usePermission(PERMISSION_CODES.CARD_SALES_DELETE);
   const countActiveSoldFilters = (filters) =>
   Object.values(filters).filter((value) => value !== "" && value !== null && value !== undefined).length;
@@ -127,12 +130,12 @@ export default function CardSoldPage() {
   const hasActiveFilters = !!search || countActiveSoldFilters(filters) > 0;
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">Sold Cards</h1>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">{t("Sold Cards")}</h1>
           <p className="mt-1 text-sm text-slate-500 sm:sm-sm">
-            Manage sold cards and export them for records.
+            {t("Manage sold cards and export them for records.")}
           </p>
         </div>
 
@@ -142,7 +145,7 @@ export default function CardSoldPage() {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Sell Cards
+            {t("Sell Cards")}
           </button>
         </PermissionGuard>
       </div>
@@ -152,7 +155,7 @@ export default function CardSoldPage() {
           <SearchBarWithFilters
             value={search}
             onChange={setSearch}
-            placeholder="Search by sold cards, client name or client phone..."
+            placeholder={t("Search by sold cards, client name or client phone...")}
             onFilterClick={openFilters}
             activeFilterCount={countActiveSoldFilters(filters)}
             stacked={false}
@@ -171,12 +174,12 @@ export default function CardSoldPage() {
         </div>
 
         {isLoading && (
-          <SkeletonTable label="Loading sold cards..." columns={6} />
+          <SkeletonTable label={t("Loading sold cards...")} columns={6} />
         )}
 
         {isError && (
 <QueryErrorState
-  title="Unable to load sold card"
+  title={t("Unable to load sold card")}
   error={error}
   onRetry={refetch}
 />
@@ -198,7 +201,7 @@ export default function CardSoldPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="sold cards"
+                itemLabel={t("sold cards")}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -219,14 +222,14 @@ export default function CardSoldPage() {
 
       {canDelete && <ConfirmDeleteModal
         isOpen={!!soldToDelete}
-        title="Delete Sold Card"
+        title={t("Delete Sold Card")}
         message={`Are you sure you want to delete sold card record "${soldToDelete?.from} - ${soldToDelete?.to}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setSoldToDelete(null)}
       />}
-    </div>
+    </div></LocalizedPage>
   );
 }

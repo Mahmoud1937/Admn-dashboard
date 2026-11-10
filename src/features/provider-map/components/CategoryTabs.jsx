@@ -16,6 +16,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCategoriesQuery } from "../../categoreis/hooks/useCategoriesQuery";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { SkeletonText } from "../../../shared/components/Skeleton";
+import useLanguage from "../../../localization/useLanguage";
+import useProviderMapText from "../../../localization/useProviderMapText";
 
 // Icons are matched by the category's English name (lowercased), since the
 // real list now comes from the backend with real ids — this only decides
@@ -37,6 +39,8 @@ function colorForId(id) {
   return COLOR_PALETTE[n % COLOR_PALETTE.length];
 }
 
+// The map marker layer uses the same category palette.
+// eslint-disable-next-line react-refresh/only-export-components
 export const CATEGORY_COLOR_BY_NAME = {
   doctors: "#0891b2",
   pharmacy: "#dc2626",
@@ -49,27 +53,37 @@ export const CATEGORY_COLOR_BY_NAME = {
 };
 export const FALLBACK_CATEGORY_COLOR = "#6b7280";
 
-const ALL_TAB = { id: null, label: "All", icon: null };
+const ALL_TAB = { id: null, icon: null };
 const PAGE_SIZE = 8;
 const SCROLL_THRESHOLD_PX = 40;
 
 function toTab(c) {
   const enName = c.enName ?? c.nameEn ?? "";
   const arName = c.arName ?? c.nameAr ?? "";
-  const label = enName && arName ? `${enName} - ${arName}` : enName || arName;
   return {
     id: c.id,
-    label,
+    enName,
+    arName,
     icon: ICON_BY_NAME[enName.toLowerCase()] || FALLBACK_ICON,
     color: colorForId(c.id),
   };
 }
 
+function tabLabel(tab, rtl) {
+  const first = rtl ? (tab.arName || tab.enName) : (tab.enName || tab.arName);
+  const second = tab.arName && tab.enName ? (rtl ? tab.enName : tab.arName) : "";
+  return second ? `${first} - ${second}` : first;
+}
+
 export default function CategoryTabs({ activeCategoryId, onChange }) {
+  const t = useProviderMapText();
+  const { language, direction } = useLanguage();
+  const rtl = direction === "rtl";
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
-  const [items, setItems] = useState([]);
+  const [itemsState, setItemsState] = useState({ language, items: [] });
+  const items = itemsState.language === language ? itemsState.items : [];
   const [selectedTab, setSelectedTab] = useState(ALL_TAB);
   const containerRef = useRef(null);
   const listRef = useRef(null);
@@ -78,11 +92,12 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
 
   // New search term -> start over from page 1.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPageNumber(1);
-    setItems([]);
+    setItemsState({ language, items: [] });
     loadedPageRef.current = 0;
     if (listRef.current) listRef.current.scrollTop = 0;
-  }, [debouncedSearch]);
+  }, [debouncedSearch, language]);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -98,14 +113,18 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
     pageNumber,
     pageSize: PAGE_SIZE,
     search: debouncedSearch,
+    language,
   });
 
   useEffect(() => {
     if (isFetching || loadedPageRef.current === pageNumber) return;
     loadedPageRef.current = pageNumber;
     const newTabs = categories.map(toTab);
-    setItems((prev) => (pageNumber === 1 ? newTabs : [...prev, ...newTabs]));
-  }, [categories, isFetching, pageNumber]);
+    setItemsState((prev) => ({
+      language,
+      items: pageNumber === 1 ? newTabs : [...(prev.language === language ? prev.items : []), ...newTabs],
+    }));
+  }, [categories, isFetching, pageNumber, language]);
 
   const hasMore = pageNumber < totalPages;
   const isLoadingMore = isFetching && pageNumber > 1;
@@ -127,14 +146,14 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
   }
 
   return (
-    <div ref={containerRef} className="relative inline-block w-full sm:w-64 text-left">
+    <div ref={containerRef} className="relative inline-block w-full text-start sm:w-64">
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
         className="flex w-full items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
       >
         {selectedTab.icon && <FontAwesomeIcon icon={selectedTab.icon} className="h-3.5 w-3.5 shrink-0" />}
-        <span className="flex-1 truncate text-left">{selectedTab.label}</span>
+        <span className="flex-1 truncate text-start">{selectedTab.id === null ? t("All") : tabLabel(selectedTab, rtl)}</span>
         <FontAwesomeIcon icon={faChevronDown} className="h-3 w-3 shrink-0 text-gray-400" />
       </button>
 
@@ -143,15 +162,16 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
           <div className="relative border-b border-gray-100 p-2">
             <FontAwesomeIcon
               icon={faSearch}
-              className="pointer-events-none absolute left-5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400"
+              className={`pointer-events-none absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400 ${rtl ? "right-5" : "left-5"}`}
             />
             <input
               type="text"
               autoFocus
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search categories..."
-              className="w-full rounded-md border border-gray-200 py-1.5 pl-8 pr-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+              placeholder={t("Search categories...")}
+              aria-label={t("Search categories...")}
+              className={`w-full rounded-md border border-gray-200 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 ${rtl ? "pr-8 pl-2" : "pl-8 pr-2"}`}
             />
           </div>
 
@@ -160,20 +180,20 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
               <button
                 type="button"
                 onClick={() => handleSelect(ALL_TAB)}
-                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 ${
+                className={`flex w-full items-center gap-2 px-3 py-2 text-start text-sm hover:bg-gray-50 ${
                   activeCategoryId === null ? "bg-blue-50 font-medium text-blue-700" : "text-gray-700"
                 }`}
               >
-                All
+                {t("All")}
               </button>
             )}
 
             {isInitialLoading && (
-              <SkeletonText label="Loading..." lines={3} className="space-y-2 px-3 py-3" />
+              <SkeletonText label={t("Loading...")} lines={3} className="space-y-2 px-3 py-3" />
             )}
 
             {!isInitialLoading && items.length === 0 && (
-              <div className="px-3 py-2 text-sm text-gray-400">No categories found.</div>
+              <div className="px-3 py-2 text-sm text-gray-400">{t("No categories found.")}</div>
             )}
 
             {items.map((tab) => (
@@ -181,17 +201,17 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
                 key={tab.id}
                 type="button"
                 onClick={() => handleSelect(tab)}
-                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 ${
+                className={`flex w-full items-center gap-2 px-3 py-2 text-start text-sm hover:bg-gray-50 ${
                   activeCategoryId === tab.id ? "bg-blue-50 font-medium text-blue-700" : "text-gray-700"
                 }`}
               >
                 {tab.icon && <FontAwesomeIcon icon={tab.icon} className="h-3.5 w-3.5" />}
-                <span className="truncate">{tab.label}</span>
+                <span className="truncate">{tabLabel(tab, rtl)}</span>
               </button>
             ))}
 
             {isLoadingMore && (
-              <SkeletonText label="Loading more..." lines={1} className="space-y-2 px-3 py-3" />
+              <SkeletonText label={t("Loading more...")} lines={1} className="space-y-2 px-3 py-3" />
             )}
           </div>
         </div>

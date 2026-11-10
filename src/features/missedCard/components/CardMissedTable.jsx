@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { faTrash, faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -40,6 +41,7 @@ function TableSkeleton({ rows = 6 }) {
 }
 
 const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
+  const { t } = useTranslation("adminPages");
   if (isLoading) {
     return <TableSkeleton />;
   }
@@ -48,7 +50,7 @@ const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
     return (
       <TableEmptyState
         icon={faCircleExclamation}
-        title="No missed or damaged cards found"
+        title={t("No missed or damaged cards found")}
         hasActiveFilters={hasActiveFilters}
       />
     );
@@ -60,11 +62,11 @@ const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="sticky top-0 z-10 bg-slate-100">
             <tr className="border-b border-slate-200 text-xs font-medium text-slate-700">
-              <th className="px-6 py-3">Card number</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Reported by</th>
-              <th className="px-4 py-3">Reported on</th>
-              {onDelete && <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>}
+              <th className="px-6 py-3">{t("Card number")}</th>
+              <th className="px-4 py-3">{t("Type")}</th>
+              <th className="px-4 py-3">{t("Reported by")}</th>
+              <th className="px-4 py-3">{t("Reported on")}</th>
+              {onDelete && <TableActionsCell as="th" className="px-6 py-3 text-center">{t("Actions")}</TableActionsCell>}
             </tr>
           </thead>
 
@@ -88,8 +90,8 @@ const CardMissedTable = ({ items, isLoading, hasActiveFilters, onDelete }) => {
                         type="button"
                         onClick={() => onDelete(item)}
                         className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
-                        title="Delete record"
-                        aria-label="Delete record"
+                        title={t("Delete record")}
+                        aria-label={t("Delete record")}
                       >
                         <FontAwesomeIcon icon={faTrash} />
                       </button>

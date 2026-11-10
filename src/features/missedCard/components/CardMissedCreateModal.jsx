@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,6 +8,7 @@ import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
 
 const CardMissedCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors }) => {
+  const { t } = useTranslation("adminPages");
   const {
     register,
     handleSubmit,
@@ -34,7 +36,7 @@ const CardMissedCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors
 
   return (
     <FormModalShell
-      title="Report Missed / Damaged Card"
+      title={t("Report Missed / Damaged Card")}
       onClose={onClose}
       onSubmit={handleSubmit(submitHandler)}
       className="max-w-sm"
@@ -42,7 +44,7 @@ const CardMissedCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors
     >
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Card Number <span className="text-red-500">*</span>
+          {t("Card Number")} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -59,7 +61,7 @@ const CardMissedCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Type <span className="text-red-500">*</span>
+          {t("Type")} <span className="text-red-500">*</span>
         </label>
         <select
           {...register("missingType", { valueAsNumber: true })}
@@ -67,10 +69,10 @@ const CardMissedCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
         >
           <option value="" disabled>
-            Select type
+            {t("Select type")}
           </option>
-          <option value={0}>Missed</option>
-          <option value={1}>Damaged</option>
+          <option value={0}>{t("Missed")}</option>
+          <option value={1}>{t("Damaged")}</option>
         </select>
         {errors.missingType && (
           <p className="text-red-500 text-sm mt-1">{errors.missingType.message}</p>
@@ -79,11 +81,11 @@ const CardMissedCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors
 
       {serverErrors && Object.keys(errors).length === 0 && (
         <p className="text-red-500 text-sm">
-          {typeof serverErrors === "string" ? serverErrors : "Something went wrong"}
+          {typeof serverErrors === "string" ? serverErrors : t("Something went wrong")}
         </p>
       )}
 
-      <FormActions onCancel={onClose} isSaving={isSaving} submitLabel="Report" savingLabel="Saving..." />
+      <FormActions onCancel={onClose} isSaving={isSaving} submitLabel={t("Report")} savingLabel={t("Saving...")} />
     </FormModalShell>
   );
 };

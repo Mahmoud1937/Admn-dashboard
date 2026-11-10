@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -5,6 +6,7 @@ import { createSpecialist, deleteSpecialist, updateSpecialist } from "../service
 import { handleMutationError } from "../../../shared/utils/handleMutationError";
 
 export function useSpecialistMutations({ onCreateSuccess, onUpdateSuccess, onDeleteSuccess }) {
+  const { t } = useTranslation("adminPages");
   const queryClient = useQueryClient();
   const [serverErrors, setServerErrors] = useState(null);
 
@@ -13,32 +15,32 @@ export function useSpecialistMutations({ onCreateSuccess, onUpdateSuccess, onDel
   const createMutation = useMutation({
     mutationFn: createSpecialist,
     onSuccess: () => {
-      toast.success("Specialist created successfully.");
+      toast.success(t("Specialist created successfully."));
       queryClient.invalidateQueries({ queryKey: ["specialists"] });
       onCreateSuccess?.();
     },
-    onError: (err) => handleMutationError(err, "Failed to create specialist.", setServerErrors),
+    onError: (err) => handleMutationError(err, t("Failed to create specialist."), setServerErrors),
   });
 
   const updateMutation = useMutation({
     mutationFn: updateSpecialist,
     onSuccess: () => {
-      toast.success("Specialist updated successfully.");
+      toast.success(t("Specialist updated successfully."));
       queryClient.invalidateQueries({ queryKey: ["specialists"] });
       onUpdateSuccess?.();
     },
-    onError: (err) => handleMutationError(err, "Failed to update specialist.", setServerErrors),
+    onError: (err) => handleMutationError(err, t("Failed to update specialist."), setServerErrors),
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteSpecialist,
     onSuccess: () => {
-      toast.success("Specialist deleted successfully.");
+      toast.success(t("Specialist deleted successfully."));
       queryClient.invalidateQueries({ queryKey: ["specialists"] });
       onDeleteSuccess?.();
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || "Failed to delete specialist.");
+      toast.error(err?.response?.data?.message || t("Failed to delete specialist."));
     },
   });
 

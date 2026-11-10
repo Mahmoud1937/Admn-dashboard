@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   useMutation,
   useQuery,
@@ -22,6 +23,7 @@ export function useRefundPolicyQuery() {
 }
 
 export function useRefundPolicyMutation() {
+  const { t } = useTranslation("adminPages");
   const queryClient = useQueryClient();
   const [serverErrors, setServerErrors] = useState(null);
 
@@ -42,7 +44,7 @@ export function useRefundPolicyMutation() {
       queryClient.invalidateQueries({ queryKey: REFUND_POLICY_QUERY_KEY });
     },
     onError: (error) => {
-      handleMutationError(error, "Failed to update Refund Policy", (errors) => {
+      handleMutationError(error, t("Failed to update Refund Policy"), (errors) => {
         if (!errors || typeof errors !== "object") {
           setServerErrors(null);
           return;

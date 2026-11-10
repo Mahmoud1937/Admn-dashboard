@@ -2,6 +2,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
+  faArrowRight,
   faLocationDot,
   faStar,
   faClockRotateLeft,
@@ -15,6 +16,9 @@ import ClientAvatar from "../../../shared/components/ClientAvatar";
 import StatusBadge from "../../../shared/components/StatusBadge";
 import { formatDate } from "../../../utils/formatDate";
 import { SkeletonText } from "../../../shared/components/Skeleton";
+import LocalizedPage from "../../../localization/LocalizedPage";
+import useLanguage from "../../../localization/useLanguage";
+import useClientsText from "../../../localization/useClientsText";
 
 const formatDateTime = (value) =>
   value ? new Date(value).toLocaleString("en-GB") : "-";
@@ -28,7 +32,7 @@ const InfoField = ({ label, value }) => (
   </div>
 );
 
-const AddressCard = ({ address }) => (
+const AddressCard = ({ address, rtl, t }) => (
   <div className="rounded-xl border border-slate-200 p-4">
     <div className="mb-2 flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -45,28 +49,28 @@ const AddressCard = ({ address }) => (
       {address.isDefult && (
         <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
           <FontAwesomeIcon icon={faStar} className="text-[10px]" />
-          Default
+          {t("Default")}
         </span>
       )}
     </div>
 
     <p className="text-sm text-slate-600">
-      {address.governorateNameEn} - {address.cityNameEn}
+      {rtl ? `${address.governorateNameAr} - ${address.cityNameAr}` : `${address.governorateNameEn} - ${address.cityNameEn}`}
     </p>
 
     <p className="text-xs text-slate-400">
-      {address.governorateNameAr} - {address.cityNameAr}
+      {rtl ? `${address.governorateNameEn} - ${address.cityNameEn}` : `${address.governorateNameAr} - ${address.cityNameAr}`}
     </p>
 
     <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-slate-500">
       <span className="rounded-lg bg-slate-50 px-2 py-1">
-        Floor: {address.floor ?? "-"}
+        {t("Floor")}: {address.floor ?? "-"}
       </span>
       <span className="rounded-lg bg-slate-50 px-2 py-1">
-        Building: {address.buildingNumber ?? "-"}
+        {t("Building")}: {address.buildingNumber ?? "-"}
       </span>
       <span className="rounded-lg bg-slate-50 px-2 py-1">
-        Apartment: {address.apartmentNumber ?? "-"}
+        {t("Apartment")}: {address.apartmentNumber ?? "-"}
       </span>
     </div>
   </div>
@@ -88,10 +92,13 @@ const TABS = [
 ];
 
 const ClientDetailsPage = () => {
+  const t = useClientsText();
+  const { language, direction } = useLanguage();
+  const rtl = direction === "rtl";
   const { clientId } = useParams();
   const navigate = useNavigate();
 
-  const { client, isLoading, isError, error } = useClientDetailsQuery(clientId);
+  const { client, isLoading, isError, error } = useClientDetailsQuery(clientId, language);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get("tab");
@@ -105,16 +112,16 @@ const ClientDetailsPage = () => {
 
   if (isLoading) {
     return (
-      <SkeletonText label="Loading client..." lines={6} />
+      <LocalizedPage><SkeletonText label={t("Loading client...")} lines={6} /></LocalizedPage>
     );
   }
 
   if (isError || !client) {
     return (
-      <div className="p-6 text-center text-red-600">
-        Failed to load client
-        {error?.message ? `: ${error.message}` : "."}
-      </div>
+      <LocalizedPage className="p-6 text-center text-red-600">
+        {t("Failed to load client")}
+        {error?.response?.data?.message ? `: ${error.response.data.message}` : "."}
+      </LocalizedPage>
     );
   }
 
@@ -124,13 +131,13 @@ const ClientDetailsPage = () => {
     client.clientImage && !client.clientImage.endsWith("medicardeg.com/");
 
   return (
-    <div className="p-4 md:p-6">
+    <LocalizedPage className="p-4 md:p-6">
       <button
         onClick={() => navigate(-1)}
         className="mb-4 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-700"
       >
-        <FontAwesomeIcon icon={faArrowLeft} />
-        Back to clients
+        <FontAwesomeIcon icon={rtl ? faArrowRight : faArrowLeft} />
+        {t("Back to clients")}
       </button>
 
       {/* Tabs */}
@@ -150,7 +157,7 @@ const ClientDetailsPage = () => {
               }`}
             >
               <FontAwesomeIcon icon={tab.icon} className="text-xs" />
-              {tab.label}
+              {t(tab.label)}
             </button>
           );
         })}
@@ -185,44 +192,44 @@ const ClientDetailsPage = () => {
                   <p className="text-sm text-slate-400">#{client.clientId}</p>
                 </div>
 
-                <div className="ml-auto">
+                <div className="ms-auto">
                   <StatusBadge tone={client.isBlocked ? "danger" : "success"}>
-                    {client.isBlocked ? "Blocked" : "Active"}
+                    {t(client.isBlocked ? "Blocked" : "Active")}
                   </StatusBadge>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-                <InfoField label="Phone" value={client.phoneNumber} />
-                <InfoField label="National ID" value={client.nationalId} />
-                <InfoField label="Passport No." value={client.passportNumber} />
+                <InfoField label={t("Phone")} value={client.phoneNumber} />
+                <InfoField label={t("National ID")} value={client.nationalId} />
+                <InfoField label={t("Passport No.")} value={client.passportNumber} />
                 <InfoField
-                  label="Card Number"
-                  value={client.cardNumber || "No Card"}
+                  label={t("Card Number")}
+                  value={client.cardNumber || t("No Card")}
                 />
-                <InfoField label="Card Expires" value={formatDate(client.expiredAt)} />
-                <InfoField label="Birth Date" value={formatDate(client.birthDate)} />
-                <InfoField label="Join Date" value={formatDate(client.joinDate)} />
+                <InfoField label={t("Card Expires")} value={formatDate(client.expiredAt)} />
+                <InfoField label={t("Birth Date")} value={formatDate(client.birthDate)} />
+                <InfoField label={t("Join Date")} value={formatDate(client.joinDate)} />
                 <InfoField
-                  label="Activated At"
+                  label={t("Activated At")}
                   value={client.activatedAt ? formatDate(client.activatedAt) : "-"}
                 />
-                <InfoField label="Last Use" value={formatDateTime(client.lastUseDate)} />
+                <InfoField label={t("Last Use")} value={formatDateTime(client.lastUseDate)} />
               </div>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700">
                 <FontAwesomeIcon icon={faLocationDot} className="text-slate-400" />
-                Addresses ({client.addresses?.length ?? 0})
+                {t("Addresses ({{count}})", { count: client.addresses?.length ?? 0 })}
               </h2>
 
               {!client.addresses?.length ? (
-                <p className="text-sm text-slate-400">No saved addresses.</p>
+                <p className="text-sm text-slate-400">{t("No saved addresses.")}</p>
               ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {client.addresses.map((address) => (
-                    <AddressCard key={address.id} address={address} />
+                    <AddressCard key={address.id} address={address} rtl={rtl} t={t} />
                   ))}
                 </div>
               )}
@@ -234,7 +241,7 @@ const ClientDetailsPage = () => {
           <FamilyMembersSection clientId={client.clientId} />
         )}
       </div>
-    </div>
+    </LocalizedPage>
   );
 };
 

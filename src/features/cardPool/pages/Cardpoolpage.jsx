@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -20,6 +22,7 @@ import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 
 export default function CardPoolPage() {
+  const { t } = useTranslation("adminPages");
   const canDelete = usePermission(PERMISSION_CODES.CARD_POOLS_DELETE);
   const countActivePoolFilters = (filters) =>
     Object.values(filters).filter((value) => value !== "" && value !== null && value !== undefined).length;
@@ -123,12 +126,12 @@ export default function CardPoolPage() {
   const hasActiveFilters = !!search || countActivePoolFilters(filters) > 0;
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">Card Pools</h1>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">{t("Card Pools")}</h1>
           <p className="mt-1 text-sm text-slate-500 sm:sm-sm">
-            Manage generated card pools and export them for distribution.
+            {t("Manage generated card pools and export them for distribution.")}
           </p>
         </div>
 
@@ -138,7 +141,7 @@ export default function CardPoolPage() {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Create Pool
+            {t("Create Pool")}
           </button>
         </PermissionGuard>
       </div>
@@ -148,7 +151,7 @@ export default function CardPoolPage() {
           <SearchBarWithFilters
             value={search}
             onChange={setSearch}
-            placeholder="Search Card Pool No..."
+            placeholder={t("Search Card Pool No...")}
             onFilterClick={openFilters}
             activeFilterCount={countActivePoolFilters(filters)}
           />
@@ -166,12 +169,12 @@ export default function CardPoolPage() {
         </div>
 
         {isLoading && (
-          <SkeletonTable label="Loading card pools..." columns={6} />
+          <SkeletonTable label={t("Loading card pools...")} columns={6} />
         )}
 
   {isError && (
   <QueryErrorState
-    title="Unable to load Card Pools"
+    title={t("Unable to load Card Pools")}
     error={error}
     onRetry={refetch}
   />
@@ -193,7 +196,7 @@ export default function CardPoolPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="card pools"
+                itemLabel={t("card pools")}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -213,14 +216,14 @@ export default function CardPoolPage() {
 
       {canDelete && <ConfirmDeleteModal
         isOpen={!!poolToDelete}
-        title="Delete Card Pool"
+        title={t("Delete Card Pool")}
         message={`Are you sure you want to delete card pool "${poolToDelete?.from} - ${poolToDelete?.to}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setPoolToDelete(null)}
       />}
-    </div>
+    </div></LocalizedPage>
   );
 }

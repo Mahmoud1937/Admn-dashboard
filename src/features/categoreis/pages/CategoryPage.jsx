@@ -13,8 +13,14 @@ import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
+import useLanguage from "../../../localization/useLanguage";
+import LocalizedPage from "../../../localization/LocalizedPage";
+import useProviderCategoriesText from "../../../localization/useProviderCategoriesText";
 
 export default function CategoriesPage() {
+  const t = useProviderCategoriesText();
+  const { language, direction } = useLanguage();
+  const rtl = direction === "rtl";
   const canUpdate = usePermission(PERMISSION_CODES.PROVIDER_CATEGORIES_UPDATE);
   const canDelete = usePermission(PERMISSION_CODES.PROVIDER_CATEGORIES_DELETE);
   const [search, setSearch] = useState("");
@@ -40,7 +46,7 @@ export default function CategoriesPage() {
     error,
     refetch,
     isPlaceholderData,
-  } = useCategoriesQuery({ pageNumber, pageSize, search });
+  } = useCategoriesQuery({ pageNumber, pageSize, search, language });
 
 
   const closeForm = () => {
@@ -57,6 +63,7 @@ export default function CategoriesPage() {
     serverErrors,
     clearServerErrors,
   } = useCategoryMutations({
+    t,
     onCreateSuccess: closeForm,
     onUpdateSuccess: closeForm,
     onDeleteSuccess: () => setCategoryToDelete(null),
@@ -103,12 +110,12 @@ export default function CategoriesPage() {
   const hasActiveFilters = !!search;
 
   return (
-    <div>
+    <LocalizedPage>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Categories Management</h1>
+          <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">{t("Categories Management")}</h1>
           <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-            Manage all provider categories across the platform.
+            {t("Manage all provider categories across the platform.")}
           </p>
         </div>
 
@@ -118,7 +125,7 @@ export default function CategoriesPage() {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add Category
+            {t("Add Category")}
           </button>
         </PermissionGuard>
       </div>
@@ -128,37 +135,42 @@ export default function CategoriesPage() {
           <div className="relative">
             <FontAwesomeIcon
               icon={faSearch}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${rtl ? "right-4" : "left-4"}`}
             />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search categories by name (EN/AR)..."
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
+              aria-label={t("Search categories by name (EN/AR)...")}
+              placeholder={t("Search categories by name (EN/AR)...")}
+              className={`w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-sm outline-none focus:border-blue-400 focus:bg-white ${rtl ? "pr-11 pl-4" : "pl-11 pr-4"}`}
             />
           </div>
         </div>
 
         {isLoading && (
-          <SkeletonTable label="Loading categories..." columns={4} />
+          <SkeletonTable label={t("Loading categories...")} columns={4} />
         )}
 
-{isError && (
-  <QueryErrorState
-    title="Unable to load Categories"
-    error={error}
-    onRetry={refetch}
-  />
-)}
+        {isError && (
+          <QueryErrorState
+            title={t("Unable to load Categories")}
+            error={error}
+            onRetry={refetch}
+            loadErrorMessage={t("We couldn't load the data. Please try again.")}
+            connectionErrorMessage={t("We couldn't connect to the server. Please check your internet connection and try again.")}
+            retryLabel={t("Try Again")}
+          />
+        )}
 
         {!isLoading && !isError && (
           <div className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>
             <CategoriesTable
               categories={categories}
+              rtl={rtl}
               hasActiveFilters={hasActiveFilters}
-                onEdit={canUpdate ? openEditForm : undefined}
-                onDeleteRequest={canDelete ? setCategoryToDelete : undefined}
+              onEdit={canUpdate ? openEditForm : undefined}
+              onDeleteRequest={canDelete ? setCategoryToDelete : undefined}
             />
 
             {categories.length > 0 && (
@@ -167,7 +179,12 @@ export default function CategoriesPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="categories"
+                itemLabel={t("categories")}
+                summary={t("Showing page {{page}} of {{totalPages}} ({{count}} categories)", { page: pageNumber, totalPages, count: totalCount })}
+                rowsPerPageLabel={t("Rows per page")}
+                previousLabel={t("Previous")}
+                nextLabel={t("Next")}
+                rtl={rtl}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -188,14 +205,18 @@ export default function CategoriesPage() {
 
       {canDelete && <ConfirmDeleteModal
         isOpen={!!categoryToDelete}
-        title="Delete Category"
-        message={`Are you sure you want to delete "${categoryToDelete?.enName}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t("Delete Category")}
+        message={t('Are you sure you want to delete "{{name}}"? This action cannot be undone.', {
+          name: rtl ? (categoryToDelete?.arName || categoryToDelete?.enName) : (categoryToDelete?.enName || categoryToDelete?.arName),
+        })}
+        confirmLabel={t("Delete")}
+        cancelLabel={t("Cancel")}
+        loadingLabel={t("Deleting...")}
         variant="danger"
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setCategoryToDelete(null)}
       />}
-    </div>
+    </LocalizedPage>
   );
 }

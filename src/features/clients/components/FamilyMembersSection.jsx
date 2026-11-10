@@ -2,8 +2,11 @@ import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFamilyMembersQuery } from "../hooks/useFamilyMembersQuery";
 import Skeleton from "../../../shared/components/Skeleton";
+import useClientsText from "../../../localization/useClientsText";
+import useLanguage from "../../../localization/useLanguage";
 
 const FamilyMemberCard = ({ member }) => {
+  const t = useClientsText();
   const hasImage =
     member.imageUrl &&
     !member.imageUrl.endsWith("medicardeg.com/");
@@ -28,7 +31,7 @@ const FamilyMemberCard = ({ member }) => {
         {hasImage ? (
           <img
             src={member.imageUrl}
-            alt={member.fullName || "Family member"}
+            alt={member.fullName || t("Family member")}
             loading="lazy"
             decoding="async"
             className="
@@ -67,8 +70,9 @@ const FamilyMemberCard = ({ member }) => {
             group-hover:text-blue-700
           "
           title={member.fullName}
+          dir="auto"
         >
-          {member.fullName || "Unknown member"}
+          {member.fullName || t("Unknown member")}
         </p>
 
         {/* Relation Badge */}
@@ -130,6 +134,7 @@ const FamilyMembersLoading = () => {
 };
 
 const FamilyMembersError = () => {
+  const t = useClientsText();
   return (
     <div
       className="
@@ -155,11 +160,11 @@ const FamilyMembersError = () => {
         </div>
 
         <p className="text-sm font-semibold text-slate-700">
-          Failed to load family members
+          {t("Failed to load family members")}
         </p>
 
         <p className="mt-1 text-xs text-slate-400">
-          Please try again later.
+          {t("Please try again later.")}
         </p>
       </div>
     </div>
@@ -167,6 +172,7 @@ const FamilyMembersError = () => {
 };
 
 const FamilyMembersEmpty = () => {
+  const t = useClientsText();
   return (
     <div className="rounded-2xl border border-slate-200 bg-white">
       <div
@@ -192,11 +198,11 @@ const FamilyMembersEmpty = () => {
           </div>
 
           <p className="text-sm font-semibold text-slate-700">
-            No family members
+            {t("No family members")}
           </p>
 
           <p className="mt-1 text-xs text-slate-400">
-            This client doesn't have any family members yet.
+            {t("This client doesn't have any family members yet.")}
           </p>
         </div>
       </div>
@@ -205,11 +211,13 @@ const FamilyMembersEmpty = () => {
 };
 
 export default function FamilyMembersSection({ clientId }) {
+  const t = useClientsText();
+  const { language } = useLanguage();
   const {
     familyMembers = [],
     isLoading,
     isError,
-  } = useFamilyMembersQuery(clientId);
+  } = useFamilyMembersQuery(clientId, language);
 
   if (isLoading) {
     return <FamilyMembersLoading />;
@@ -243,12 +251,12 @@ export default function FamilyMembersSection({ clientId }) {
       >
         <div>
           <h2 className="text-base font-semibold text-slate-800">
-            Family Members
+            {t("Family Members")}
           </h2>
 
           <p className="mt-1 text-xs text-slate-400">
             {familyMembers.length}{" "}
-            {familyMembers.length === 1 ? "member" : "members"}
+            {t(familyMembers.length === 1 ? "member" : "members")}
           </p>
         </div>
 
@@ -264,7 +272,7 @@ export default function FamilyMembersSection({ clientId }) {
             ring-1 ring-inset ring-blue-100
           "
         >
-          {familyMembers.length} Total
+          {familyMembers.length} {t("Total")}
         </span>
       </div>
 

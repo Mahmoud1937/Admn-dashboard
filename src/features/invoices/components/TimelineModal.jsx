@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CheckCircle2, Clock, FileText, X } from "lucide-react";
 import { useInvoiceTimeline } from "../hooks/useInvoiceTimeline";
 import { SkeletonText } from "../../../shared/components/Skeleton";
@@ -18,6 +19,7 @@ const CIRCLE_STYLES = {
 };
 
 export default function TimelineModal({ orderNo, onClose }) {
+  const { t } = useTranslation("adminPages");
   const { steps, loading, error } = useInvoiceTimeline(orderNo);
 
   return (
@@ -31,9 +33,9 @@ export default function TimelineModal({ orderNo, onClose }) {
       >
         <div className="flex items-start justify-between px-6 pt-6 pb-4">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Invoice Timeline</h3>
+            <h3 className="text-lg font-semibold text-slate-900">{t("Invoice Timeline")}</h3>
             <p className="text-sm mt-1">
-              <span className="text-slate-500">Invoice No: </span>
+              <span className="text-slate-500">{t("Invoice No:")} </span>
               <span className="text-emerald-600 font-semibold">#{orderNo}</span>
             </p>
           </div>
@@ -44,14 +46,14 @@ export default function TimelineModal({ orderNo, onClose }) {
 
         <div className="px-6 pb-2">
           <div className="max-h-64 overflow-y-auto pr-2">
-            {loading && <SkeletonText label="Loading timeline..." lines={4} />}
+            {loading && <SkeletonText label={t("Loading timeline...")} lines={4} />}
 
             {!loading && error && (
-              <p className="text-sm text-red-500 py-4">Failed to load timeline: {error}</p>
+              <p className="text-sm text-red-500 py-4">{t("Failed to load timeline:")} {error}</p>
             )}
 
             {!loading && !error && steps.length === 0 && (
-              <p className="text-sm text-slate-400 py-4">No timeline data available.</p>
+              <p className="text-sm text-slate-400 py-4">{t("No timeline data available.")}</p>
             )}
 
             {!loading && !error && steps.length > 0 && (
@@ -81,7 +83,7 @@ export default function TimelineModal({ orderNo, onClose }) {
                       </div>
 
                       <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1 min-w-0">
-                        <span className="text-slate-400 shrink-0">by</span>
+                        <span className="text-slate-400 shrink-0">{t("by")}</span>
   
                         <span className="text-slate-700 truncate" title={step.by}>{step.by}</span>
                         <span
@@ -105,7 +107,7 @@ export default function TimelineModal({ orderNo, onClose }) {
             onClick={onClose}
             className="px-5 py-2 rounded-lg cursor-pointer bg-white text-slate-900 border border-slate-300 text-sm font-medium hover:bg-slate-50 transition-colors"
           >
-            Close
+            {t("Close")}
           </button>
         </div>
       </div>

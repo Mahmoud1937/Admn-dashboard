@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrash, faUserTie } from "@fortawesome/free-solid-svg-icons";
@@ -6,13 +7,14 @@ import TableEmptyState from "../../../shared/components/TableEmptyState";
 import { formatDate } from "../../../utils/formatDate";
 
 export default function BrokersTable({ brokers, searchTerm, onEdit, onDelete }) {
+  const { t } = useTranslation("adminPages");
   if (!brokers.length) {
     return (
       <TableEmptyState
         icon={faUserTie}
-        title="No brokers found"
+        title={t("No brokers found")}
         hasActiveFilters={!!searchTerm}
-        emptyMessage="No brokers have been added yet."
+        emptyMessage={t("No brokers have been added yet.")}
       />
     );
   }
@@ -23,10 +25,10 @@ export default function BrokersTable({ brokers, searchTerm, onEdit, onDelete }) 
         <thead className="sticky top-0 z-10 bg-slate-100">
           <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
      
-            <th className="px-4 py-3">Name</th>
-            <th className="px-4 py-3">Phone Number</th>
-            <th className="px-4 py-3">Joined</th>
-            {(onEdit || onDelete) && <TableActionsCell as="th" className="px-4 py-3">Actions</TableActionsCell>}
+            <th className="px-4 py-3">{t("Name")}</th>
+            <th className="px-4 py-3">{t("Phone Number")}</th>
+            <th className="px-4 py-3">{t("Joined")}</th>
+            {(onEdit || onDelete) && <TableActionsCell as="th" className="px-4 py-3">{t("Actions")}</TableActionsCell>}
           </tr>
         </thead> 
         <tbody>
@@ -40,12 +42,12 @@ export default function BrokersTable({ brokers, searchTerm, onEdit, onDelete }) 
                 <TableActionsCell className="px-4 py-3">
                   <div className="flex items-center justify-center gap-1">
                     {onEdit && (
-                      <button type="button" onClick={() => onEdit(broker)} title="Edit broker" aria-label={`Edit ${broker.name}`} className="rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-700">
+                      <button type="button" onClick={() => onEdit(broker)} title={t("Edit broker")} aria-label={`Edit ${broker.name}`} className="rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-700">
                         <FontAwesomeIcon icon={faPenToSquare} />
                       </button>
                     )}
                     {onDelete && (
-                      <button type="button" onClick={() => onDelete(broker)} title="Delete broker" aria-label={`Delete ${broker.name}`} className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600">
+                      <button type="button" onClick={() => onDelete(broker)} title={t("Delete broker")} aria-label={`Delete ${broker.name}`} className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600">
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     )}

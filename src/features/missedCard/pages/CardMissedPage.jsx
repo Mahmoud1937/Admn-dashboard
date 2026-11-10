@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -22,6 +24,7 @@ const countActiveMissedFilters = (filters) =>
   Object.values(filters).filter((value) => value !== "" && value !== null && value !== undefined).length;
 
 export default function CardMissedPage() {
+  const { t } = useTranslation("adminPages");
   const canDelete = usePermission(PERMISSION_CODES.MISSED_CARDS_DELETE);
   const navigate = useNavigate();
   const location = useLocation();
@@ -120,7 +123,7 @@ export default function CardMissedPage() {
   const hasActiveFilters = !!search || countActiveMissedFilters(filters) > 0;
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           {cardPoolId && (
@@ -130,11 +133,11 @@ export default function CardMissedPage() {
               className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
             >
               <FontAwesomeIcon icon={faArrowLeft} />
-              Back to Card Pools
+              {t("Back to Card Pools")}
             </button>
           )}
 
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">Missed / Damaged Cards</h1>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">{t("Missed / Damaged Cards")}</h1>
 
           <p className="mt-1 text-sm text-slate-500 sm:sm-sm">
   {cardPoolId && from && to ? (
@@ -142,12 +145,12 @@ export default function CardMissedPage() {
       <span className="font-semibold text-slate-700">
         {totalCount ?? 0}
       </span>{" "}
-      missed cards from{" "}
-      <span className="font-medium text-slate-700">{from}</span> to{" "}
+      {t("missed cards from")}{" "}
+      <span className="font-medium text-slate-700">{from}</span> {t("to")}{" "}
       <span className="font-medium text-slate-700">{to}</span>.
     </>
   ) : (
-    "Track and report missing or damaged cards."
+    t("Track and report missing or damaged cards.")
   )}
 </p>
         </div>
@@ -158,7 +161,7 @@ export default function CardMissedPage() {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Report Card
+            {t("Report Card")}
           </button>
         </PermissionGuard>
       </div>
@@ -168,7 +171,7 @@ export default function CardMissedPage() {
           <SearchBarWithFilters
             value={search}
             onChange={setSearch}
-            placeholder="Search by card number..."
+            placeholder={t("Search by card number...")}
             onFilterClick={openFilters}
             activeFilterCount={countActiveMissedFilters(filters)}
             stacked={false}
@@ -187,12 +190,12 @@ export default function CardMissedPage() {
         </div>
 
         {isLoading && (
-          <SkeletonTable label="Loading records..." columns={4} />
+          <SkeletonTable label={t("Loading records...")} columns={4} />
         )}
 
 {isError && (
   <QueryErrorState
-    title="Unable to load missed card"
+    title={t("Unable to load missed card")}
     error={error}
     onRetry={refetch}
   />
@@ -212,7 +215,7 @@ export default function CardMissedPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="records"
+                itemLabel={t("records")}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -232,14 +235,14 @@ export default function CardMissedPage() {
 
       {canDelete && <ConfirmDeleteModal
         isOpen={!!itemToDelete}
-        title="Delete Record"
+        title={t("Delete Record")}
         message={`Are you sure you want to delete the record for card "${itemToDelete?.cardNumber}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setItemToDelete(null)}
       />}
-    </div>
+    </div></LocalizedPage>
   );
 }

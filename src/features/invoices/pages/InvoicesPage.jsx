@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
@@ -24,6 +26,7 @@ const emptyFilters = {
 };
 
 const InvoicesPage = () => {
+  const { t } = useTranslation("adminPages");
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 400);
 
@@ -61,12 +64,12 @@ const InvoicesPage = () => {
   const totalPages = data?.totalPages ?? 1;
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">Invoices</h1>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-2xl">{t("Invoices")}</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Manage and export invoices
+            {t("Manage and export invoices")}
           </p>
         </div>
 
@@ -80,14 +83,14 @@ const InvoicesPage = () => {
           }
           disabled={isExporting}
           className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-600  transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-          title="Export invoices to Excel"
+          title={t("Export invoices to Excel")}
         >
           <FontAwesomeIcon
             icon={isExporting ? faSpinner : faFileExcel}
             spin={isExporting}
           />
 
-          {isExporting ? "Exporting..." : "Export"}
+          {isExporting ? t("Exporting...") : t("Export")}
         </button>
       </div>
 
@@ -113,13 +116,13 @@ const InvoicesPage = () => {
           totalPages={totalPages}
           totalCount={data?.totalCount ?? 0}
           pageSize={pageSize}
-          itemLabel="invoices"
+          itemLabel={t("invoices")}
           onGoToPage={(page) => goToPage(page, totalPages)}
           onPageSizeChange={handlePageSizeChange}
           getPageNumbers={getPageNumbers}
         />
       </div>
-    </div>
+    </div></LocalizedPage>
   );
 };
 

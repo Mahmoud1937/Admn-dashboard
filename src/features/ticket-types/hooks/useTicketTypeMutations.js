@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -13,6 +14,7 @@ export function useTicketTypeMutations({
   onUpdateSuccess,
   onDeleteSuccess,
 }) {
+  const { t } = useTranslation("adminPages");
   const queryClient = useQueryClient();
   const [serverErrors, setServerErrors] = useState(null);
 
@@ -21,34 +23,34 @@ export function useTicketTypeMutations({
   const createMutation = useMutation({
     mutationFn: createTicketType,
     onSuccess: () => {
-      toast.success("Ticket type created successfully.");
+      toast.success(t("Ticket type created successfully."));
       queryClient.invalidateQueries({ queryKey: ["ticket-types"] });
       onCreateSuccess?.();
     },
     onError: (err) =>
-      handleMutationError(err, "Failed to create ticket type.", setServerErrors),
+      handleMutationError(err, t("Failed to create ticket type."), setServerErrors),
   });
 
   const updateMutation = useMutation({
     mutationFn: updateTicketType,
     onSuccess: () => {
-      toast.success("Ticket type updated successfully.");
+      toast.success(t("Ticket type updated successfully."));
       queryClient.invalidateQueries({ queryKey: ["ticket-types"] });
       onUpdateSuccess?.();
     },
     onError: (err) =>
-      handleMutationError(err, "Failed to update ticket type.", setServerErrors),
+      handleMutationError(err, t("Failed to update ticket type."), setServerErrors),
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteTicketType,
     onSuccess: () => {
-      toast.success("Ticket type deleted successfully.");
+      toast.success(t("Ticket type deleted successfully."));
       queryClient.invalidateQueries({ queryKey: ["ticket-types"] });
       onDeleteSuccess?.();
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || "Failed to delete ticket type.");
+      toast.error(err?.response?.data?.message || t("Failed to delete ticket type."));
     },
   });
 

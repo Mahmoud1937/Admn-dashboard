@@ -7,10 +7,21 @@ import ServiceSelect from "../../providerServices/components/ServiceSelect";
 import PrescriptionProviderDropdown from "./PrescriptionProviderDropdown";
 import PharmaciesProcessForm from "./PharmaciesProcessForm";
 import PrescriptionProcessFeedback from "./PrescriptionProcessFeedback";
+import useLanguage from "../../../localization/useLanguage";
+import usePrescriptionsText from "../../../localization/usePrescriptionsText";
 
 const labelClass = "mb-1.5 block text-sm font-medium text-slate-700";
 
 function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error }) {
+  const t = usePrescriptionsText();
+  const { language, direction } = useLanguage();
+  const rtl = direction === "rtl";
+  const selectLabels = {
+    loading: t("Loading..."), loadingMore: t("Loading more..."),
+    unableToLoadOptions: t("Unable to load options."), tryAgain: t("Try again"),
+    noResults: t("No results found."), clearSelection: t("Clear selection"),
+    openOptions: t("Open options"), closeOptions: t("Close options"),
+  };
   const [items, setItems] = useState([{
     key: 1, categoryId: "", serviceId: "", providerId: "",
   }]);
@@ -50,7 +61,7 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
 
   return (
     <form
-      aria-label="Process prescription"
+      aria-label={t("Process prescription")}
       aria-busy={isSaving || undefined}
       className="space-y-5"
       onSubmit={submit}
@@ -58,7 +69,7 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
       <section className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-slate-900">Services</h3>
+            <h3 className="text-sm font-semibold text-slate-900">{t("Services")}</h3>
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium tabular-nums text-slate-600">
               {items.length}
             </span>
@@ -74,7 +85,7 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
             disabled={isSaving}
             className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-800 transition hover:bg-blue-100 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-100 disabled:opacity-50"
           >
-            <FontAwesomeIcon icon={faPlus} aria-hidden="true" /> Add service
+            <FontAwesomeIcon icon={faPlus} aria-hidden="true" /> {t("Add service")}
           </button>
         </div>
 
@@ -85,7 +96,7 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-900 text-xs font-semibold text-white">
                   {index + 1}
                 </span>
-                <p className="text-sm font-semibold text-slate-800">Item {index + 1}</p>
+                <p className="text-sm font-semibold text-slate-800">{t("Item {{number}}", { number: index + 1 })}</p>
               </div>
               {items.length > 1 && (
                 <button
@@ -95,7 +106,7 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
                     setValidationError("");
                   }}
                   disabled={isSaving}
-                  aria-label={`Remove item ${index + 1}`}
+                  aria-label={t("Remove item {{number}}", { number: index + 1 })}
                   className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300 disabled:opacity-50"
                 >
                   <FontAwesomeIcon icon={faTrash} />
@@ -105,36 +116,44 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
 
             <div className="grid gap-4">
               <div>
-                <label className={labelClass}>Category</label>
+                <label className={labelClass}>{t("Category")}</label>
                 <CategorySelect
+                  key={language}
+                  localized
                   className="w-full"
                   value={item.categoryId}
                   onChange={(value) => updateItem(item.key, {
                     categoryId: value, serviceId: "", providerId: "",
                   })}
                   disabled={isSaving}
+                  placeholder={t("Select category")}
                 />
               </div>
               <div>
-                <label className={labelClass}>Service</label>
+                <label className={labelClass}>{t("Service")}</label>
                 <ServiceSelect
-                  key={`${item.key}-${item.categoryId}`}
+                  key={`${item.key}-${item.categoryId}-${language}`}
                   categoryId={item.categoryId || undefined}
                   value={item.serviceId}
                   onChange={(value) => updateItem(item.key, {
                     serviceId: value, providerId: "",
                   })}
                   disabled={isSaving || !item.categoryId}
-                  placeholder={item.categoryId ? "Select service" : "Select a category first"}
+                  placeholder={t(item.categoryId ? "Select service" : "Select a category first")}
+                  searchPlaceholder={t("Search services...")}
+                  labels={selectLabels}
+                  language={language}
+                  rtl={rtl}
+                  getOptionLabel={(service) => (rtl ? [service.arName, service.enName] : [service.enName, service.arName]).filter(Boolean).join(" - ")}
                 />
               </div>
             </div>
 
             {Boolean(item.serviceId) && (
               <div className="mt-4">
-                <label className={labelClass}>Provider <span className="font-normal text-slate-400">(optional)</span></label>
+                <label className={labelClass}>{t("Provider")} <span className="font-normal text-slate-400">{t("(optional)")}</span></label>
                 <PrescriptionProviderDropdown
-                  key={`${item.key}-${item.serviceId}`}
+                  key={`${item.key}-${item.serviceId}-${language}`}
                   serviceId={item.serviceId}
                   value={item.providerId}
                   onChange={(value) => updateItem(item.key, {
@@ -154,8 +173,9 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
         onCancel={onClose}
         showCancel={!isSaving}
         isSaving={isSaving}
-        submitLabel="Process prescription"
-        savingLabel="Processing..."
+        submitLabel={t("Process prescription")}
+        savingLabel={t("Processing...")}
+        cancelLabel={t("Cancel")}
       />
     </form>
   );
@@ -167,6 +187,9 @@ const processingTabs = [
 ];
 
 export default function ProcessPrescriptionForm(props) {
+  const t = usePrescriptionsText();
+  const { direction } = useLanguage();
+  const rtl = direction === "rtl";
   const [activeTab, setActiveTab] = useState("services");
   const tabGroupId = useId();
   const tabRefs = useRef([]);
@@ -180,8 +203,8 @@ export default function ProcessPrescriptionForm(props) {
   const handleTabKeyDown = (event, index) => {
     if (props.isSaving) return;
     let nextIndex;
-    if (event.key === "ArrowRight") nextIndex = (index + 1) % processingTabs.length;
-    else if (event.key === "ArrowLeft") nextIndex = (index - 1 + processingTabs.length) % processingTabs.length;
+    if (event.key === "ArrowRight") nextIndex = (index + (rtl ? -1 : 1) + processingTabs.length) % processingTabs.length;
+    else if (event.key === "ArrowLeft") nextIndex = (index + (rtl ? 1 : -1) + processingTabs.length) % processingTabs.length;
     else if (event.key === "Home") nextIndex = 0;
     else if (event.key === "End") nextIndex = processingTabs.length - 1;
     else return;
@@ -192,7 +215,7 @@ export default function ProcessPrescriptionForm(props) {
 
   return (
     <div className="space-y-5">
-      <div role="tablist" aria-label="Prescription type" className="flex rounded-xl bg-slate-100 p-1">
+      <div role="tablist" aria-label={t("Prescription type")} className="flex rounded-xl bg-slate-100 p-1">
         {processingTabs.map((tab, index) => (
           <button
             key={tab.id}
@@ -208,7 +231,7 @@ export default function ProcessPrescriptionForm(props) {
             onKeyDown={(event) => handleTabKeyDown(event, index)}
             className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-50 ${activeTab === tab.id ? "bg-white text-blue-900 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
           >
-            {tab.label}
+            {t(tab.label)}
           </button>
         ))}
       </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   useMutation,
   useQuery,
@@ -37,6 +38,7 @@ export function useTermsAndConditionsQuery() {
  * Update Terms & Conditions
  */
 export function useTermsAndConditionsMutation() {
+  const { t } = useTranslation("adminPages");
   const queryClient = useQueryClient();
 
   const [serverErrors, setServerErrors] = useState(null);
@@ -82,7 +84,7 @@ export function useTermsAndConditionsMutation() {
     onError: (error) => {
       handleMutationError(
         error,
-        "Failed to update Terms & Conditions",
+        t("Failed to update Terms & Conditions"),
         (errors) => {
           if (!errors || typeof errors !== "object") {
             setServerErrors(null);

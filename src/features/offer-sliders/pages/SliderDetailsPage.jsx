@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -41,7 +43,7 @@ const DetailItem = ({ icon, label, value }) => (
   </div>
 );
 
-const BannerCard = ({ title, language, url }) => (
+const BannerCard = ({ title, language, url, bannerLabel, unavailableLabel }) => (
   <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
     <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
       <div>
@@ -50,7 +52,7 @@ const BannerCard = ({ title, language, url }) => (
         </h3>
 
         <p className="mt-0.5 text-xs text-gray-400">
-          {language} banner
+          {language} {bannerLabel}
         </p>
       </div>
 
@@ -73,7 +75,7 @@ const BannerCard = ({ title, language, url }) => (
               <FontAwesomeIcon icon={faImage} className="text-xl" />
             </div>
 
-            <span className="text-sm">No image available</span>
+            <span className="text-sm">{unavailableLabel}</span>
           </div>
         )}
       </div>
@@ -82,6 +84,7 @@ const BannerCard = ({ title, language, url }) => (
 );
 
 const SliderDetailsPage = () => {
+  const { t } = useTranslation("adminPages");
   const canUpdate = usePermission(PERMISSION_CODES.SLIDERS_UPDATE);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -117,35 +120,35 @@ const SliderDetailsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <SkeletonText label="Loading slider..." lines={6} />
-      </div>
+      <LocalizedPage><div className="flex min-h-[400px] items-center justify-center">
+        <SkeletonText label={t("Loading slider...")} lines={6} />
+      </div></LocalizedPage>
     );
   }
 
   if (isError) {
     return (
-      <QueryErrorState
-        title="Unable to load slider"
+      <LocalizedPage><QueryErrorState
+        title={t("Unable to load slider")}
         error={error}
         onRetry={refetch}
-      />
+      /></LocalizedPage>
     );
   }
 
   if (!slider) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <LocalizedPage><div className="flex min-h-[400px] items-center justify-center">
         <div className="text-sm text-gray-400">
-          Slider not found.
+          {t("Slider not found.")}
         </div>
-      </div>
+      </div></LocalizedPage>
     );
   }
 
   return (
 
-  <div className="space-y-6">
+  <LocalizedPage><div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {canUpdate && <button
@@ -158,7 +161,7 @@ const SliderDetailsPage = () => {
               className="transition-transform group-hover:-translate-x-0.5"
             />
 
-            <span>Back to Sliders</span>
+            <span>{t("Back to Sliders")}</span>
           </button>}
 
           <button
@@ -167,7 +170,7 @@ const SliderDetailsPage = () => {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-900/20"
           >
             <FontAwesomeIcon icon={faPen} />
-            Update Slider
+            {t("Update Slider")}
           </button>
         </div>
 
@@ -182,7 +185,7 @@ const SliderDetailsPage = () => {
 
                 <div className="min-w-0">
                   <p className="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">
-                    Provider
+                    {t("Provider")}
                   </p>
 
                   <h1 className="truncate text-xl font-bold text-gray-900 sm:text-2xl">
@@ -202,7 +205,7 @@ const SliderDetailsPage = () => {
                 />
 
                 <span className="text-xs font-medium text-gray-400">
-                  Slider ID
+                  {t("Slider ID")}
                 </span>
 
                 <span className="text-sm font-semibold text-gray-900 text-center">
@@ -217,25 +220,29 @@ const SliderDetailsPage = () => {
         <section>
           <div className="mb-4">
             <h2 className="text-lg font-bold text-gray-900">
-              Banner Preview
+              {t("Banner Preview")}
             </h2>
 
             <p className="mt-1 text-sm text-gray-400">
-              Preview the English and Arabic slider banners.
+              {t("Preview the English and Arabic slider banners.")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <BannerCard
-              title="English Banner"
+              title={t("English Banner")}
               language="EN"
               url={slider.enImageUrl}
+              bannerLabel={t("Banner")}
+              unavailableLabel={t("No image available")}
             />
 
             <BannerCard
-              title="Arabic Banner"
+              title={t("Arabic Banner")}
               language="AR"
               url={slider.arImageUrl}
+              bannerLabel={t("Banner")}
+              unavailableLabel={t("No image available")}
             />
           </div>
         </section>
@@ -250,11 +257,11 @@ const SliderDetailsPage = () => {
 
               <div>
                 <h2 className="text-sm font-bold text-gray-900">
-                  Slider Information
+                  {t("Slider Information")}
                 </h2>
 
                 <p className="mt-0.5 text-xs text-gray-400">
-                  General information about this slider.
+                  {t("General information about this slider.")}
                 </p>
               </div>
             </div>
@@ -263,31 +270,31 @@ const SliderDetailsPage = () => {
           <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3 sm:p-6">
             <DetailItem
               icon={faIdCard}
-              label="Slider ID"
+              label={t("Slider ID")}
               value={slider.id}
             />
 
             <DetailItem
               icon={faBuilding}
-              label="Provider ID"
+              label={t("Provider ID")}
               value={slider.providerId}
             />
 
             <DetailItem
               icon={faCalendarDays}
-              label="Created"
+              label={t("Created")}
               value={formatDate(slider.createdAt)}
             />
 
             <DetailItem
               icon={faGlobe}
-              label="Provider (EN)"
+              label={t("Provider (EN)")}
               value={slider.providerNameEn}
             />
 
             <DetailItem
               icon={faGlobe}
-              label="Provider (AR)"
+              label={t("Provider (AR)")}
               value={slider.providerNameAr}
             />
           </div>
@@ -307,7 +314,7 @@ const SliderDetailsPage = () => {
         clearServerErrors={clearServerErrors}
         sliderToEdit={slider}
       />}
-    </div>
+    </div></LocalizedPage>
   );
 };
 

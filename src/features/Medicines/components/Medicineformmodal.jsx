@@ -8,6 +8,7 @@ import TextField from "../../../shared/components/TextField";
 import { medicineSchema } from "../schema/medicineSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import { getMedicineUnitName, MEDICINE_UNITS } from "../constants/medicineUnits";
+import useMedicinesText from "../../../localization/useMedicinesText";
 
 export default function MedicineFormModal({
   isOpen,
@@ -17,12 +18,14 @@ export default function MedicineFormModal({
   isSaving,
   serverErrors,
 }) {
+  const t = useMedicinesText();
+  const fieldError = (error) => error?.message ? (error.type === "server" ? error.message : t(error.message)) : undefined;
   const isEditMode = !!medicine;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [imageError, setImageError] = useState("");
+  const [imageError, setImageError] = useState(null);
 
   const {
     register,
@@ -55,9 +58,11 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
         isActive: medicine?.isActive ?? true,
       });
 
+      // Restore the image preview when switching between add and edit.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPreview(medicine?.medicineImageUrl || null);
       setImage(null);
-      setImageError("");
+      setImageError(null);
     }
   }, [isOpen, medicine, reset]);
 
@@ -70,11 +75,14 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
     const imageServerError = serverErrors.MedicineImageUrl;
 
     if (imageServerError) {
-      setImageError(
+      // The existing uploader stores backend image errors outside React Hook Form.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setImageError({ message:
         Array.isArray(imageServerError)
           ? imageServerError[0]
-          : imageServerError
-      );
+          : imageServerError,
+        server: true,
+      });
     }
 
     // Apply all other backend errors to React Hook Form fields.
@@ -94,23 +102,23 @@ const handleImageChange = (e) => {
   if (!file) return;
 
   if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-    setImageError("Please select a valid image file (PNG, JPG, or WEBP).");
+    setImageError({ message: "Please select a valid image file (PNG, JPG, or WEBP)." });
     return;
   }
 
   if (file.size > MAX_IMAGE_SIZE) {
-    setImageError("Image size can't exceed 5MB.");
+    setImageError({ message: "Image size can't exceed 5MB." });
     return;
   }
 
   setImage(file);
   setPreview(URL.createObjectURL(file));
-  setImageError("");
+  setImageError(null);
 };
 
   const onSubmit = (data) => {
     if (!image && !preview) {
-      setImageError("Image is required.");
+      setImageError({ message: "Image is required." });
       return;
     }
 
@@ -131,9 +139,9 @@ const handleImageChange = (e) => {
     e.preventDefault();
 
     if (!image && !preview) {
-      setImageError("Image is required.");
+      setImageError({ message: "Image is required." });
     } else {
-      setImageError("");
+      setImageError(null);
     }
 
     handleSubmit(onSubmit)(e);
@@ -141,18 +149,27 @@ const handleImageChange = (e) => {
 
   return (
     <FormModalShell
-      title={isEditMode ? "Edit Medicine" : "Add Medicine"}
+      title={t(isEditMode ? "Edit Medicine" : "Add Medicine")}
       onClose={onClose}
       onSubmit={handleFormSubmit}
-      formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
+      closeLabel={t("Close")}
+      formClassName="max-h-[70vh] overflow-y-auto pe-1 custom-scrollbar"
     >
       {/* Image */}
 <ImageUploadField
   preview={preview}
   onImageChange={handleImageChange}
-  label="Upload Image"
-  alt="Medicine"
-  error={imageError}
+  label={t("Upload Image")}
+  alt={t("Medicine")}
+  labels={{
+    formats: t("PNG, JPEG, or WebP"),
+    processing: t("Processing..."),
+    compressing: t("Compressing image..."),
+    dragAndDrop: t("or drag and drop an image here"),
+    formatsOnly: (formats) => t("{{formats}} only", { formats }),
+    dropError: (formats) => t("Please drop an image file ({{formats}})", { formats }),
+  }}
+  error={imageError && (imageError.server ? imageError.message : t(imageError.message))}
 />
 
 
@@ -162,25 +179,27 @@ const handleImageChange = (e) => {
 
       {/* English Name */}
       <TextField
-        label="English Name"
+        label={t("English Name")}
         required
         autoFocus
         {...register("enName")}
-        error={errors.enName?.message}
+        error={fieldError(errors.enName)}
       />
 
       {/* Arabic Name */}
       <TextField
-        label="Arabic Name"
+        label={t("Arabic Name")}
         required
+        dir="rtl"
+        style={{ textAlign: "right" }}
         {...register("arName")}
-        error={errors.arName?.message}
+        error={fieldError(errors.arName)}
       />
 
       {/* Price */}
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Price <span className="text-red-500">*</span>
+          {t("Price")} <span className="text-red-500">*</span>
         </label>
 
         <input
@@ -196,7 +215,7 @@ const handleImageChange = (e) => {
 
         {errors.medicinePrice && (
           <p className="mt-1 text-xs text-red-500">
-            {errors.medicinePrice.message}
+            {fieldError(errors.medicinePrice)}
           </p>
         )}
       </div>
@@ -204,13 +223,13 @@ const handleImageChange = (e) => {
       {/* Form */}
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Form <span className="text-red-500">*</span>
+          {t("Form")} <span className="text-red-500">*</span>
         </label>
 
         <input
           type="text"
           {...register("medicineForm")}
-          placeholder="e.g. Tablet, Capsule, Syrup"
+          placeholder={t("e.g. Tablet, Capsule, Syrup")}
           className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-400 ${
             errors.medicineForm
               ? "border-red-400"
@@ -220,14 +239,14 @@ const handleImageChange = (e) => {
 
         {errors.medicineForm && (
           <p className="mt-1 text-xs text-red-500">
-            {errors.medicineForm.message}
+            {fieldError(errors.medicineForm)}
           </p>
         )}
       </div>
 
       <div className="mb-4">
         <label htmlFor="medicine-unit" className="mb-1.5 block text-sm font-medium text-slate-700">
-          Unit <span className="text-red-500">*</span>
+          {t("Unit")} <span className="text-red-500">*</span>
         </label>
         <select
           id="medicine-unit"
@@ -237,21 +256,21 @@ const handleImageChange = (e) => {
           aria-describedby={errors.unit ? "medicine-unit-error" : undefined}
           className={`w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 ${errors.unit ? "border-red-400" : "border-slate-200"}`}
         >
-          <option value="" disabled>Select unit</option>
+          <option value="" disabled>{t("Select unit")}</option>
           {MEDICINE_UNITS.map((unit) => (
-            <option key={unit} value={unit}>{unit}</option>
+            <option key={unit} value={unit}>{t(unit)}</option>
           ))}
         </select>
         {errors.unit && (
           <p id="medicine-unit-error" role="alert" className="mt-1 text-xs text-red-500">
-            {errors.unit.message}
+            {fieldError(errors.unit)}
           </p>
         )}
       </div>
 
       <div className="mb-4">
         <label htmlFor="medicine-is-local" className="mb-1.5 block text-sm font-medium text-slate-700">
-          Origin <span className="text-red-500">*</span>
+          {t("Origin")} <span className="text-red-500">*</span>
         </label>
         <select
           id="medicine-is-local"
@@ -261,13 +280,13 @@ const handleImageChange = (e) => {
           aria-describedby={errors.isLocal ? "medicine-is-local-error" : undefined}
           className={`w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 ${errors.isLocal ? "border-red-400" : "border-slate-200"}`}
         >
-          <option value="" disabled>Select origin</option>
-          <option value="true">local</option>
-          <option value="false">Imported</option>
+          <option value="" disabled>{t("Select origin")}</option>
+          <option value="true">{t("local")}</option>
+          <option value="false">{t("Imported")}</option>
         </select>
         {errors.isLocal && (
           <p id="medicine-is-local-error" role="alert" className="mt-1 text-xs text-red-500">
-            {errors.isLocal.message}
+            {fieldError(errors.isLocal)}
           </p>
         )}
       </div>
@@ -276,7 +295,9 @@ const handleImageChange = (e) => {
       <FormActions
         onCancel={onClose}
         isSaving={isSaving}
-        submitLabel={isEditMode ? "Save Changes" : "Add Medicine"}
+        submitLabel={t(isEditMode ? "Save Changes" : "Add Medicine")}
+        savingLabel={t("Saving...")}
+        cancelLabel={t("Cancel")}
       />
     </FormModalShell>
   );

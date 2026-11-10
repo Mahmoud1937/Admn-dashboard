@@ -2,9 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { getServices } from "../services/ServicesService";
 
 
-export function useServicesQuery({ pageNumber, pageSize, search, categoryFilter, statusFilter }) {
+export function useServicesQuery({ pageNumber, pageSize, search, categoryFilter, statusFilter, language }) {
   const query = useQuery({
-    queryKey: ["services", pageNumber, pageSize, search, categoryFilter, statusFilter],
+    queryKey: language
+      ? ["services", language, pageNumber, pageSize, search, categoryFilter, statusFilter]
+      : ["services", pageNumber, pageSize, search, categoryFilter, statusFilter],
     queryFn: () =>
       getServices({
         pageNumber,
@@ -13,7 +15,8 @@ export function useServicesQuery({ pageNumber, pageSize, search, categoryFilter,
         categoryId: categoryFilter || undefined,
         status: Number(statusFilter),
       }),
-    placeholderData: (previousData) => previousData,
+    placeholderData: (previousData, previousQuery) =>
+      !language || previousQuery?.queryKey[1] === language ? previousData : undefined,
   });
 
   return {

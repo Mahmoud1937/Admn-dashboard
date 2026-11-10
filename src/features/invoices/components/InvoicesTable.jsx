@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -116,22 +117,24 @@ function IconButton({ title, onClick, tone = 'blue', children }) {
 }
 
 function PaymentChip({ isCash }) {
+  const { t } = useTranslation("adminPages");
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
       <FontAwesomeIcon
         icon={isCash ? faMoneyBillWave : faCreditCard}
         className="text-slate-400"
       />
-      {isCash ? 'Cash' : 'Visa'}
+      {isCash ? t("Cash") : t("Visa")}
     </span>
   )
 }
 
 function PackageBadge() {
+  const { t } = useTranslation("adminPages");
   return (
     <span className="inline-flex items-center gap-1 rounded-md border border-violet-200 bg-violet-50 px-2 py-0.5 text-[11px] font-semibold text-violet-700">
       <PackageIcon size={12} aria-hidden="true" />
-      Package
+      {t("Package")}
     </span>
   )
 }
@@ -165,6 +168,7 @@ function InvoiceCell({ inv }) {
 }
 
 function ClientCell({ inv }) {
+  const { t } = useTranslation("adminPages");
   const clientName = inv.familyMemberName || inv.clientName || '-'
 
   return (
@@ -185,11 +189,11 @@ function ClientCell({ inv }) {
         </p>
         <p className="truncate text-xs text-slate-500">
           {inv.familyMemberRelation ? `${inv.familyMemberRelation} · ` : ''}
-          <span className="tabular-nums">{inv.mobileNumber || 'No phone'}</span>
+          <span className="tabular-nums">{inv.mobileNumber || t("No phone")}</span>
         </p>
         {inv.cardNumber && (
           <p
-            title="Card number"
+            title={t("Card number")}
             className="mt-0.5 truncate font-mono text-[11px] tabular-nums text-slate-400"
           >
             {inv.cardNumber}
@@ -229,13 +233,14 @@ function ProviderCell({ inv }) {
 }
 
 function TypeCell({ inv }) {
+  const { t } = useTranslation("adminPages");
   return (
     <div className="flex flex-col items-start gap-1.5">
       {inv.isMedicineInvoice == null ? (
         <span className="text-slate-400">-</span>
       ) : (
         <StatusBadge tone={inv.isMedicineInvoice ? 'primary' : 'neutral'}>
-          {inv.isMedicineInvoice ? 'Medicine' : 'Service'}
+          {inv.isMedicineInvoice ? t("Medicine") : t("Service")}
         </StatusBadge>
       )}
       <PaymentChip isCash={inv.isCash} />
@@ -245,6 +250,7 @@ function TypeCell({ inv }) {
 }
 
 function AmountCell({ inv }) {
+  const { t } = useTranslation("adminPages");
   const hasDiscount = Number(inv.discountPercentage) > 0
 
   return (
@@ -260,24 +266,25 @@ function AmountCell({ inv }) {
             <DiscountBadge value={formatPercentage(inv.discountPercentage)} />
           </p>
           <p className="mt-0.5 text-xs tabular-nums text-slate-500">
-            After: {formatMoney(inv.priceAfter)}
+            {t("After:")} {formatMoney(inv.priceAfter)}
           </p>
         </>
       ) : (
-        <p className="mt-0.5 text-xs text-slate-400">No discount</p>
+        <p className="mt-0.5 text-xs text-slate-400">{t("No discount")}</p>
       )}
     </>
   )
 }
 
 function ItemsCell({ inv }) {
+  const { t } = useTranslation("adminPages");
   return (
     <>
       <p className="font-medium tabular-nums text-slate-700">
         {inv.servicesCount ?? '-'}
       </p>
       <p className="text-xs tabular-nums text-slate-400">
-        Qty {inv.totalQuantity ?? '-'}
+        {t("Qty")} {inv.totalQuantity ?? '-'}
       </p>
     </>
   )
@@ -312,6 +319,7 @@ export default function InvoicesTable({
   isLoading,
   hasActiveFilters,
 }) {
+  const { t } = useTranslation("adminPages");
   const [timelineInvoiceId, setTimelineInvoiceId] = useState(null)
   const [detailsInvoiceId, setDetailsInvoiceId] = useState(null)
 
@@ -326,9 +334,9 @@ export default function InvoicesTable({
     return (
       <TableEmptyState
         icon={faFileInvoiceDollar}
-        title="No invoices found"
+        title={t("No invoices found")}
         hasActiveFilters={hasActiveFilters}
-        emptyMessage="There are no invoices to display."
+        emptyMessage={t("There are no invoices to display.")}
       />
     )
   }
@@ -362,7 +370,7 @@ export default function InvoicesTable({
                 scope="col"
                 className="whitespace-nowrap px-4 py-3 text-center"
               >
-                Actions
+                {t("Actions")}
               </TableActionsCell>
             </tr>
           </thead>
@@ -398,13 +406,13 @@ export default function InvoicesTable({
                 >
                   <div className="flex items-center justify-center gap-1">
                     <IconButton
-                      title="View details"
+                      title={t("View details")}
                       onClick={() => setDetailsInvoiceId(inv.invoiceId)}
                     >
                       <Eye size={16} />
                     </IconButton>
                     <IconButton
-                      title="View timeline"
+                      title={t("View timeline")}
                       tone="green"
                       onClick={() => setTimelineInvoiceId(inv.invoiceId)}
                     >

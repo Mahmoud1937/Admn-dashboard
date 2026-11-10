@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   User,
   Phone,
@@ -58,6 +59,7 @@ export default function TicketDetailsOverview({
   visibleFieldErrors,
   onEditValueChange,
 }) {
+  const { t } = useTranslation("adminPages");
   const closedByEmployee =
     ticket.closedByEmployee || (ticket.isClosed ? ticket.createdByEmployee : null);
   const closedByEmployeeGroup =
@@ -70,7 +72,7 @@ export default function TicketDetailsOverview({
 
   return (
     <div className="grid gap-x-6 gap-y-4 text-[9px] sm:grid-cols-2">
-      <DetailItem icon={User} label="Client">
+      <DetailItem icon={User} label={t("Client")}>
         <span
           className="block truncate text-sm"
           dir={clientNameDirection}
@@ -80,13 +82,13 @@ export default function TicketDetailsOverview({
         </span>
       </DetailItem>
 
-      <DetailItem icon={Phone} label="Phone">
+      <DetailItem icon={Phone} label={t("Phone")}>
         <span className="block truncate">{ticket.userPhoneNumber || "-"}</span>
       </DetailItem>
 
       <DetailItem
         icon={CreditCard}
-        label="Card Number"
+        label={t("Card Number")}
         value={
           <span className="font-mono tracking-wide">
             {isEditing && editValues
@@ -96,7 +98,7 @@ export default function TicketDetailsOverview({
         }
       />
 
-      <DetailItem icon={MessageSquare} label="Ticket Type">
+      <DetailItem icon={MessageSquare} label={t("Ticket Type")}>
         {isEditing && editValues ? (
           <TicketTypeSelect
             queryKey={["ticket-details", "ticket-types"]}
@@ -105,7 +107,7 @@ export default function TicketDetailsOverview({
             placeholder={
               editValues.ticketTypeId
                 ? namePair(ticket.ticketType)
-                : "Select ticket type"
+                : t("Select ticket type")
             }
             error={visibleFieldErrors.ticketTypeId}
             highlighted
@@ -115,14 +117,14 @@ export default function TicketDetailsOverview({
         )}
       </DetailItem>
 
-      <DetailItem icon={Building2} label="Provider">
+      <DetailItem icon={Building2} label={t("Provider")}>
         {isEditing && editValues ? (
           <ProviderSelect
             queryKey={["ticket-details", "providers"]}
             value={editValues.providerId}
             onChange={(value) => onEditValueChange("providerId", value)}
             placeholder={
-              editValues.providerId ? namePair(ticket.provider) : "No provider"
+              editValues.providerId ? namePair(ticket.provider) : t("No provider")
             }
             error={visibleFieldErrors.providerId}
             highlighted
@@ -132,7 +134,7 @@ export default function TicketDetailsOverview({
         )}
       </DetailItem>
 
-      <DetailItem icon={Users} label="Assigned Group">
+      <DetailItem icon={Users} label={t("Assigned Group")}>
         {isEditing && editValues ? (
           <EmployeeGroupSelect
             queryKey={["ticket-details", "employee-groups"]}
@@ -142,7 +144,7 @@ export default function TicketDetailsOverview({
             placeholder={
               editValues.assignedToGroupId
                 ? namePair(ticket.assignedToGroup)
-                : "No assigned group"
+                : t("No assigned group")
             }
             error={visibleFieldErrors.assignedToGroupId}
             highlighted
@@ -154,7 +156,7 @@ export default function TicketDetailsOverview({
         )}
       </DetailItem>
 
-      <DetailItem icon={Flag} label="Priority">
+      <DetailItem icon={Flag} label={t("Priority")}>
         {isEditing && editValues ? (
           <>
             <select
@@ -187,33 +189,33 @@ export default function TicketDetailsOverview({
 
       <DetailItem
         icon={Clock}
-        label="Created At"
+        label={t("Created At")}
         value={formatDateTimeShort(ticket.createdAt)}
       />
       <DetailItem
         icon={User}
-        label="Created By"
+        label={t("Created By")}
         value={employeeName(ticket.createdByEmployee, ticket.createdByName)}
       />
       <DetailItem
         icon={Users}
-        label="Created By Group"
+        label={t("Created By Group")}
         value={employeeName(ticket.createdByEmployeeGroup)}
       />
 
       <section className="border-t border-slate-200 pt-4 sm:col-span-2">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-          Closed
+          {t("Closed")}
         </p>
         <div className="mt-3 grid gap-x-6 gap-y-4 sm:grid-cols-2">
           <DetailItem
             icon={UserCheck}
-            label="Closed By"
+            label={t("Closed By")}
             value={employeeName(closedByEmployee)}
           />
           <DetailItem
             icon={Users}
-            label="Closed By Group"
+            label={t("Closed By Group")}
             value={employeeName(closedByEmployeeGroup)}
           />
         </div>

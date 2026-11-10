@@ -2,9 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { getMedicines, getProviderMedicines } from "../services/Medicinesservice";
 
 
-export function useMedicinesQuery({ pageNumber, pageSize, search, statusFilter }) {
+export function useMedicinesQuery({ pageNumber, pageSize, search, statusFilter, language }) {
   const query = useQuery({
-    queryKey: ["medicines", pageNumber, pageSize, search, statusFilter],
+    queryKey: language
+      ? ["medicines", language, pageNumber, pageSize, search, statusFilter]
+      : ["medicines", pageNumber, pageSize, search, statusFilter],
     queryFn: () =>
       getMedicines({
         pageNumber,
@@ -12,7 +14,8 @@ export function useMedicinesQuery({ pageNumber, pageSize, search, statusFilter }
         searchTerm: search,
         status: Number(statusFilter),
       }),
-    placeholderData: (previousData) => previousData,
+    placeholderData: (previousData, previousQuery) =>
+      !language || previousQuery?.queryKey[1] === language ? previousData : undefined,
   });
 
   return {

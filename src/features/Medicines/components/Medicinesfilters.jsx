@@ -1,23 +1,30 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import useLanguage from "../../../localization/useLanguage";
+import useMedicinesText from "../../../localization/useMedicinesText";
 
 export default function MedicinesFilters({
   search,
   onSearchChange,
 }) {
+  const t = useMedicinesText();
+  const { direction } = useLanguage();
+  const rtl = direction === "rtl";
   return (
     <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row">
       <div className="relative flex-1">
         <FontAwesomeIcon
           icon={faSearch}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+          className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${rtl ? "right-4" : "left-4"}`}
         />
         <input
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search medicines by name (EN/AR)..."
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
+          placeholder={t("Search medicines by name (EN/AR)...")}
+          aria-label={t("Search medicines by name (EN/AR)...")}
+          style={rtl ? { direction: "rtl", textAlign: "right" } : undefined}
+          className={`w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-sm outline-none focus:border-blue-400 focus:bg-white ${rtl ? "pr-11 pl-4" : "pl-11 pr-4"}`}
         />
       </div>
     </div>

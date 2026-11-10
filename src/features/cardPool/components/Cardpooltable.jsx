@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { faFileExcel, faSpinner, faTrash, faLayerGroup } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -15,15 +16,16 @@ const CardPoolTable = ({
   exportingId,
   onDelete,
 }) => {
+  const { t } = useTranslation("adminPages");
   if (isLoading) {
-    return <SkeletonTable label="Loading card pools..." columns={6} />;
+    return <SkeletonTable label={t("Loading card pools...")} columns={6} />;
   }
 
   if (!items?.length) {
     return (
       <TableEmptyState
         icon={faLayerGroup}
-        title="No card pools found"
+        title={t("No card pools found")}
         hasActiveFilters={hasActiveFilters}
       />
     );
@@ -36,47 +38,47 @@ const CardPoolTable = ({
           <thead className="sticky top-0 z-10 bg-slate-100">
             <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
               <th className="px-4 py-3 text-center">
-                From
+                {t("From")}
               </th>
 
               <th className="px-4 py-3 text-center">
-                To
+                {t("To")}
               </th>
 
               <th className="px-4 py-3 text-center">
-                Total Cards
+                {t("Total Cards")}
               </th>
 
               <th className="px-4 py-3 text-center">
-                Activated
+                {t("Activated")}
               </th>
 
               <th className="px-4 py-3 text-center">
-                Not Activated
+                {t("Not Activated")}
               </th>
 
               <th className="px-4 py-3 text-center">
-                Sold
+                {t("Sold")}
               </th>
 
               <th className="px-4 py-3 text-center">
-                Missed
+                {t("Missed")}
               </th>
 
               <th className="px-4 py-3 text-center">
-                Created By
+                {t("Created By")}
               </th>
 
               <th className="px-4 py-3 text-center">
-                Created At
+                {t("Created At")}
               </th>
 
               <TableActionsCell as="th" column="export" className="px-4 py-3 text-center">
-                Export
+                {t("Export")}
               </TableActionsCell>
 
               <TableActionsCell as="th" column="delete" className="px-4 py-3 text-center">
-                Delete
+                {t("Delete")}
               </TableActionsCell>
             </tr>
           </thead>
@@ -174,7 +176,7 @@ const CardPoolTable = ({
                     onClick={() => onExport(pool.id)}
                     disabled={exportingId === pool.id}
                     className="inline-flex cursor-pointer items-center justify-center gap-2 text-green-600 hover:text-green-800 disabled:opacity-50"
-                    title="Export to Excel"
+                    title={t("Export to Excel")}
                   >
                     <FontAwesomeIcon
                       icon={
@@ -184,7 +186,7 @@ const CardPoolTable = ({
                       }
                       spin={exportingId === pool.id}
                     />
-                    Export
+                    {t("Export")}
                   </button>}
                 </TableActionsCell>
 
@@ -194,7 +196,7 @@ const CardPoolTable = ({
                     type="button"
                     onClick={() => onDelete(pool)}
                     className="cursor-pointer rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                    title="Delete card pool"
+                    title={t("Delete card pool")}
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>

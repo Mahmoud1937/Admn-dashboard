@@ -9,16 +9,17 @@ import { getAllGovernorateCenters } from "../utils/GovernorateCenters";
 
 const EGYPT_CENTER_LAT = 26.8;
 const EGYPT_CENTER_LNG = 30.8;
+const EMPTY_ITEMS = [];
 
-export const useProvidersMapQuery = ({ providerCategoryId, governorateId, search }) => {
+export const useProvidersMapQuery = ({ providerCategoryId, governorateId, search, language }) => {
 const { data, isLoading, isError, error, refetch } = useQuery({
-  queryKey: ["providers-map-data", providerCategoryId],
+  queryKey: ["providers-map-data", providerCategoryId, language],
   queryFn: () => getMapData(providerCategoryId),
   staleTime: 5 * 60_000,
 });
 
-  const rawProviders = data?.providers ?? [];
-  const governorates = data?.governorates ?? [];
+  const rawProviders = data?.providers ?? EMPTY_ITEMS;
+  const governorates = data?.governorates ?? EMPTY_ITEMS;
 
 const selectedGovernorate = useMemo(() => {
   if (!governorateId) return null;
@@ -145,7 +146,7 @@ for (const g of getAllGovernorateCenters()) {
     }
 
     return bubbles;
-  }, [governorates, filteredProviders]);
+  }, [filteredProviders]);
 
   // بابل واحدة مجمعة لكل مصر — بتظهر لما المستخدم يزوّم أوت جدًا (برة زوم
   // مصر العادي)، حيث بابلات كل محافظة على حدة هتبقى مجرد نقط صغيرة

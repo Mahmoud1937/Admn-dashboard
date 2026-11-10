@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { updateEmployeePermissions } from "../services/permissionsService";
@@ -6,6 +7,7 @@ import { useAuth } from "../../../auth/context/Authcontext";
 
 
 export default function useEmployeePermissionsMutation({ onSuccess } = {}) {
+  const { t } = useTranslation("adminPages");
   const queryClient = useQueryClient();
   const { user, refreshPermissions } = useAuth();
 
@@ -13,11 +15,11 @@ export default function useEmployeePermissionsMutation({ onSuccess } = {}) {
     mutationFn: updateEmployeePermissions,
     onSuccess: async (response, variables) => {
       if (response?.succeeded === false) {
-        toast.error(response?.message || "Failed to update permissions.");
+        toast.error(response?.message || t("Failed to update permissions."));
         return;
       }
 
-      toast.success(response?.message || "Permissions updated successfully.");
+      toast.success(response?.message || t("Permissions updated successfully."));
 
       queryClient.setQueriesData({ queryKey: ["employees"] }, (current) => {
         if (!current?.items) return current;
@@ -44,13 +46,13 @@ export default function useEmployeePermissionsMutation({ onSuccess } = {}) {
           await refreshPermissions();
         } catch {
           toast.error(
-            "Permissions were updated, but your current permissions could not be reloaded. Please try again."
+            t("Permissions were updated, but your current permissions could not be reloaded. Please try again.")
           );
         }
       }
     },
     onError: (error) =>
-      handleMutationError(error, "Failed to update permissions.", () => {}),
+      handleMutationError(error, t("Failed to update permissions."), () => {}),
   });
 
   return { permissionsMutation };

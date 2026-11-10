@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,6 +12,7 @@ import ClientAvatar from "../../../shared/components/ClientAvatar";
 import useEmployeeResetPasswordMutation from "../hooks/useEmployeeResetPasswordMutation"; // عدّل المسار
 
 export default function ResetPasswordModal({ employee, onClose, onReset }) {
+  const { t } = useTranslation("adminPages");
   const { resetMutation } = useEmployeeResetPasswordMutation({
     onSuccess: (response) => onReset?.(response),
   });
@@ -46,9 +48,9 @@ export default function ResetPasswordModal({ employee, onClose, onReset }) {
             </div>
             <div>
               <h2 id="reset-password-title" className="text-base font-semibold text-slate-900">
-                Reset Password
+                {t("Reset Password")}
               </h2>
-              <p className="mt-0.5 text-xs text-slate-500">A new password will be generated.</p>
+              <p className="mt-0.5 text-xs text-slate-500">{t("A new password will be generated.")}</p>
             </div>
           </div>
 
@@ -56,7 +58,7 @@ export default function ResetPasswordModal({ employee, onClose, onReset }) {
             type="button"
             onClick={onClose}
             disabled={isResetting}
-            aria-label="Close"
+            aria-label={t("Close")}
             className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <FontAwesomeIcon icon={faXmark} />
@@ -85,8 +87,7 @@ export default function ResetPasswordModal({ employee, onClose, onReset }) {
           <div className="flex gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
             <FontAwesomeIcon icon={faTriangleExclamation} className="mt-0.5 text-amber-500" />
             <p>
-              The employee's current password will stop working immediately, and a new one will
-              be shown to you once.
+              {t("The employee's current password will stop working immediately, and a new one will be shown to you once.")}
             </p>
           </div>
 
@@ -97,7 +98,7 @@ export default function ResetPasswordModal({ employee, onClose, onReset }) {
               disabled={isResetting}
               className="cursor-pointer rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Cancel
+              {t("Cancel")}
             </button>
             <button
               type="button"
@@ -108,12 +109,12 @@ export default function ResetPasswordModal({ employee, onClose, onReset }) {
               {isResetting ? (
                 <>
                   <FontAwesomeIcon icon={faSpinner} spin />
-                  Resetting...
+                  {t("Resetting...")}
                 </>
               ) : (
                 <>
                   <FontAwesomeIcon icon={faRotate} />
-                  Reset Password
+                  {t("Reset Password")}
                 </>
               )}
             </button>

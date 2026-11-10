@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -280,6 +281,7 @@ function DeliverySection({
   setValue,
   border,
 }) {
+  const { t } = useTranslation("adminPages");
   const sendMode = values?.sendMode;
   const today = getToday();
 
@@ -315,16 +317,16 @@ function DeliverySection({
   return (
     <section className="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50/80 to-blue-50/40 p-4">
       <SectionHeading
-        title="Delivery"
-        description="Choose when this notification should be delivered."
+        title={t("Delivery")}
+        description={t("Choose when this notification should be delivered.")}
       />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <DeliveryOption
           value="now"
           currentValue={sendMode}
-          title="Send now"
-          description="Deliver immediately"
+          title={t("Send now")}
+          description={t("Deliver immediately")}
           icon={faBolt}
           register={register}
         />
@@ -332,8 +334,8 @@ function DeliverySection({
         <DeliveryOption
           value="schedule"
           currentValue={sendMode}
-          title="Schedule"
-          description="Choose a date and time"
+          title={t("Schedule")}
+          description={t("Choose a date and time")}
           icon={faClock}
           register={register}
         />
@@ -342,7 +344,7 @@ function DeliverySection({
       {sendMode === "schedule" && (
         <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
           <Field
-            label="Send at"
+            label={t("Send at")}
             required
             error={errors.scheduledAt?.message}
           >
@@ -359,7 +361,7 @@ function DeliverySection({
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <span className="mb-1.5 block text-xs font-medium text-gray-600">
-                  Date
+                  {t("Date")}
                 </span>
 
                 <DatePicker
@@ -371,7 +373,7 @@ function DeliverySection({
 
               <label className="block">
                 <span className="mb-1.5 block text-xs font-medium text-gray-600">
-                  Time
+                  {t("Time")}
                 </span>
 
                 <input
@@ -390,7 +392,7 @@ function DeliverySection({
 
       <div className="mt-4">
         <Field
-          label="Repeat after (days) — Optional"
+          label={t("Repeat after (days) — Optional")}
           htmlFor="notification-duration"
           error={errors.durationDay?.message}
           hint="For example, 3 repeats the notification after 3 days. Leave empty to send it once."
@@ -418,14 +420,14 @@ function DeliverySection({
                 }
               }}
               {...register("durationDay")}
-              placeholder="e.g. 3"
+              placeholder={t("e.g. 3")}
               className={`${inputBase} pr-14 ${border(
                 "durationDay"
               )}`}
             />
 
             <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
-              days
+              {t("days")}
             </span>
           </div>
         </Field>
@@ -440,6 +442,7 @@ export default function NotificationFormModal({
   onSubmit,
   isSaving,
 }) {
+  const { t } = useTranslation("adminPages");
   const {
     register,
     handleSubmit,
@@ -626,15 +629,14 @@ export default function NotificationFormModal({
                 id="notification-modal-title"
                 className="text-lg font-semibold text-gray-900"
               >
-                New notification
+                {t("New notification")}
               </h2>
 
               <p
                 id="notification-modal-description"
                 className="mt-0.5 text-xs text-gray-500"
               >
-                Create and send a notification to app
-                users
+                {t("Create and send a notification to app users")}
               </p>
             </div>
           </div>
@@ -644,7 +646,7 @@ export default function NotificationFormModal({
             onClick={onClose}
             disabled={isSaving}
             className="ml-4 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-all duration-200 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:hover:rotate-90"
-            aria-label="Close"
+            aria-label={t("Close")}
           >
             <FontAwesomeIcon icon={faXmark} />
           </button>
@@ -661,13 +663,13 @@ export default function NotificationFormModal({
               {/* Content */}
               <section>
                 <SectionHeading
-                  title="Content"
-                  description="Write the content users will see in the notification."
+                  title={t("Content")}
+                  description={t("Write the content users will see in the notification.")}
                 />
 
                 <div className="space-y-4">
                   <Field
-                    label="Title"
+                    label={t("Title")}
                     htmlFor="notification-title"
                     required
                     error={errors.title?.message}
@@ -687,7 +689,7 @@ export default function NotificationFormModal({
                           : undefined
                       }
                       {...register("title")}
-                      placeholder="e.g. Official holiday announcement"
+                      placeholder={t("e.g. Official holiday announcement")}
                       autoComplete="off"
                       className={`${inputBase} ${border(
                         "title"
@@ -697,7 +699,7 @@ export default function NotificationFormModal({
 
                   <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                     <Field
-                      label="Message (English)"
+                      label={t("Message (English)")}
                       htmlFor="notification-message-en"
                       required
                       error={
@@ -721,7 +723,7 @@ export default function NotificationFormModal({
                         {...register("messageEn")}
                         rows={5}
                         dir="ltr"
-                        placeholder="Write the English message…"
+                        placeholder={t("Write the English message…")}
                         className={`${inputBase} resize-none border-l-4 border-l-[#1b4477] leading-relaxed ${border(
                           "messageEn"
                         )}`}
@@ -729,7 +731,7 @@ export default function NotificationFormModal({
                     </Field>
 
                     <Field
-                      label="Message (Arabic)"
+                      label={t("Message (Arabic)")}
                       htmlFor="notification-message-ar"
                       required
                       error={
@@ -753,7 +755,7 @@ export default function NotificationFormModal({
                         {...register("messageAr")}
                         rows={5}
                         dir="ltr"
-                        placeholder="Write the Arabic message…"
+                        placeholder={t("Write the Arabic message…")}
                         className={`${inputBase} resize-none border-l-4 border-l-[#2caba2] leading-relaxed ${border(
                           "messageAr",
                           "teal"
@@ -767,8 +769,8 @@ export default function NotificationFormModal({
               {/* Media */}
               <section>
                 <SectionHeading
-                  title="Media"
-                  description="Optionally attach an image to make the notification more engaging."
+                  title={t("Media")}
+                  description={t("Optionally attach an image to make the notification more engaging.")}
                 />
 
                 <Controller
@@ -793,24 +795,24 @@ export default function NotificationFormModal({
               {/* Audience and destination */}
               <section>
                 <SectionHeading
-                  title="Audience & destination"
-                  description="Optionally narrow the audience and link the notification to a provider or package."
+                  title={t("Audience & destination")}
+                  description={t("Optionally narrow the audience and link the notification to a provider or package.")}
                 />
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <Field label="Gender" htmlFor="notification-gender">
+                  <Field label={t("Gender")} htmlFor="notification-gender">
                     <select
                       id="notification-gender"
                       {...register("isMale")}
                       className={`${inputBase} ${border("isMale")}`}
                     >
-                      <option value="">All genders</option>
-                      <option value="true">Male</option>
-                      <option value="false">Female</option>
+                      <option value="">{t("All genders")}</option>
+                      <option value="true">{t("Male")}</option>
+                      <option value="false">{t("Female")}</option>
                     </select>
                   </Field>
 
-                  <Field label="Governorate" error={errors.governmentId?.message}>
+                  <Field label={t("Governorate")} error={errors.governmentId?.message}>
                     <Controller
                       name="governmentId"
                       control={control}
@@ -818,13 +820,13 @@ export default function NotificationFormModal({
                         <GovernorateSelect
                           value={field.value}
                           onChange={(id) => field.onChange(id ?? "")}
-                          placeholder="All governorates"
+                          placeholder={t("All governorates")}
                         />
                       )}
                     />
                   </Field>
 
-                  <Field label="Target type" htmlFor="notification-target-type">
+                  <Field label={t("Target type")} htmlFor="notification-target-type">
                     <Controller
                       name="targetType"
                       control={control}
@@ -838,9 +840,9 @@ export default function NotificationFormModal({
                           }}
                           className={`${inputBase} ${border("targetType")}`}
                         >
-                          <option value="">No target</option>
-                          <option value="1">Provider</option>
-                          <option value="2">Package</option>
+                          <option value="">{t("No target")}</option>
+                          <option value="1">{t("Provider")}</option>
+                          <option value="2">{t("Package")}</option>
                         </select>
                       )}
                     />
@@ -848,7 +850,7 @@ export default function NotificationFormModal({
 
                   {targetType && (
                   <Field
-                    label={targetType === "2" ? "Package" : "Provider"}
+                    label={targetType === "2" ? t("Package") : t("Provider")}
                     error={errors.targetId?.message}
                     hint="Optional destination for this notification."
                   >
@@ -864,15 +866,15 @@ export default function NotificationFormModal({
                             onChange={(id) => field.onChange(id ?? "")}
                             getOptionLabel={lookupLabel}
                             getOptionValue={(item) => item.id}
-                            placeholder="Select package"
-                            searchPlaceholder="Search packages..."
+                            placeholder={t("Select package")}
+                            searchPlaceholder={t("Search packages...")}
                           />
                         ) : (
                           <ProviderSelect
                             queryKey={["providers", "lookup", "notifications"]}
                             value={field.value}
                             onChange={(id) => field.onChange(id ?? "")}
-                            placeholder="Select provider"
+                            placeholder={t("Select provider")}
                           />
                         )
                       }
@@ -922,8 +924,7 @@ export default function NotificationFormModal({
                   scheduledTime
                 ) && (
                   <p className="mt-0.5 text-[11px] text-gray-400">
-                    Select a date and time before
-                    scheduling.
+                    {t("Select a date and time before scheduling.")}
                   </p>
                 )}
 
@@ -932,8 +933,7 @@ export default function NotificationFormModal({
                   role="alert"
                   className="mt-0.5 text-[11px] font-medium text-red-600"
                 >
-                  Please fix the highlighted fields to
-                  continue.
+                  {t("Please fix the highlighted fields to continue.")}
                 </p>
               )}
             </div>
@@ -945,7 +945,7 @@ export default function NotificationFormModal({
                 disabled={isSaving}
                 className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Cancel
+                {t("Cancel")}
               </button>
 
               <button
@@ -965,11 +965,11 @@ export default function NotificationFormModal({
 
                 {isSaving
                   ? sendMode === "schedule"
-                    ? "Scheduling…"
-                    : "Sending…"
+                    ? t("Scheduling…")
+                    : t("Sending…")
                   : sendMode === "schedule"
-                    ? "Schedule"
-                    : "Send notification"}
+                    ? t("Schedule")
+                    : t("Send notification")}
               </button>
             </div>
           </footer>

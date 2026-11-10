@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { clientsService } from "../services/clientsService";
 
-export const useClientDetailsQuery = (clientId) => {
+export const useClientDetailsQuery = (clientId, language) => {
   const query = useQuery({
-    queryKey: ["client", clientId],
+    queryKey: language ? ["client", language, clientId] : ["client", clientId],
     queryFn: () => clientsService.getClientById(clientId),
     enabled: !!clientId,
   });

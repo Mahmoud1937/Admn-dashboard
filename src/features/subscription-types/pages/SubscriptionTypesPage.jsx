@@ -1,3 +1,5 @@
+import LocalizedPage from "../../../localization/LocalizedPage";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +19,7 @@ import { useSubscriptionTypesQuery } from "../hooks/useSubscriptionTypesQuery";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
 
 export default function SubscriptionTypesPage() {
+  const { t } = useTranslation("adminPages");
   const canUpdate = usePermission(PERMISSION_CODES.PLAN_TYPES_UPDATE);
   const canDelete = usePermission(PERMISSION_CODES.PLAN_TYPES_DELETE);
   const [search, setSearch] = useState("");
@@ -95,14 +98,14 @@ export default function SubscriptionTypesPage() {
   };
 
   return (
-    <div>
+    <LocalizedPage><div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">
-            Subscription Types Management
+            {t("Subscription Types Management")}
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            View and search subscription plan types across the platform.
+            {t("View and search subscription plan types across the platform.")}
           </p>
         </div>
 
@@ -112,7 +115,7 @@ export default function SubscriptionTypesPage() {
             className="flex items-center justify-center gap-2 rounded-lg bg-blue-900 px-3 py-2 text-xs font-medium text-white hover:bg-blue-800 sm:px-4 sm:py-2.5 sm:text-sm"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add Subscription Type
+            {t("Add Subscription Type")}
           </button>
         </PermissionGuard>
       </div>
@@ -121,12 +124,12 @@ export default function SubscriptionTypesPage() {
         <SubscriptionTypesFilters search={search} onSearchChange={setSearch} />
 
         {isLoading && (
-          <SkeletonTable label="Loading subscription types..." columns={6} />
+          <SkeletonTable label={t("Loading subscription types...")} columns={6} />
         )}
 
         {isError && (
           <QueryErrorState
-            title="Unable to load subscription types"
+            title={t("Unable to load subscription types")}
             error={error}
             onRetry={refetch}
           />
@@ -157,7 +160,7 @@ export default function SubscriptionTypesPage() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="subscription types"
+                itemLabel={t("subscription types")}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -178,14 +181,14 @@ export default function SubscriptionTypesPage() {
 
       {canDelete && <ConfirmDeleteModal
         isOpen={!!subscriptionTypeToDelete}
-        title="Delete Subscription Type"
+        title={t("Delete Subscription Type")}
         message={`Are you sure you want to delete "${subscriptionTypeToDelete?.nameEn}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setSubscriptionTypeToDelete(null)}
       />}
-    </div>
+    </div></LocalizedPage>
   );
 }
