@@ -28,7 +28,7 @@ import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import Pagination from "../../../shared/components/Pagination";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
-import QueryErrorState from "../../../shared/components/QueryErrorState";
+import QueryErrorState from "../../../localization/ProviderDetailsQueryErrorState";
 import StatusBadge from "../../providers/components/StatusBadge";
 
 import { formatDate } from "../../../utils/formatDate";
@@ -36,6 +36,8 @@ import PermissionGuard from "../../auth/components/PermissionGuard";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import Skeleton, { SkeletonTable } from "../../../shared/components/Skeleton";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import useLanguage from "../../../localization/useLanguage";
 
 const EMPTY_FILTERS = { governorateId: "", cityId: "", status: "" };
 
@@ -77,7 +79,10 @@ function IconButton({ title, onClick, tone = "blue", children }) {
   );
 }
 
-export default function ProviderBranchesTab({ readOnly = false, renderFilterActions }) {
+export default function ProviderBranchesTab({ readOnly = false, renderFilterActions, localized = false }) {
+  const tr = useProviderDetailsText(localized);
+  const { direction, language } = useLanguage();
+  const rtl = localized && direction === "rtl";
   const canUpdate = usePermission(PERMISSION_CODES.PROVIDER_BRANCHES_UPDATE);
   const { id: providerId } = useParams();
 
@@ -122,6 +127,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
     governorateFilter,
     cityFilter,
     statusFilter,
+    language: localized ? language : undefined,
   });
   const globalQuery = useAllBranchesQuery({
     governorateFilter,
@@ -131,6 +137,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
     pageNumber,
     pageSize,
     enabled: readOnly,
+    language: localized ? language : undefined,
   });
   const {
     branches,
@@ -157,6 +164,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
     cityFilter ||
     statusFilter
   );
+  const branchCount = totalCount ?? branches.length;
 
   const handleOpenAdd = () => {
     setSelectedBranch(null);
@@ -181,13 +189,17 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Branches</h2>
+          <h2 className="text-lg font-semibold text-slate-900">{tr("Branches")}</h2>
           <p className="text-sm text-slate-500">
             {isLoading || isError
-              ? "Manage locations and contact details."
-              : `${totalCount ?? branches.length} ${
-                  (totalCount ?? branches.length) === 1 ? "branch" : "branches"
-                }${hasActiveFilters ? " match your filters" : " in total"}`}
+              ? tr(readOnly ? "Browse branch locations and contact details." : "Manage locations and contact details.")
+              : localized
+                ? tr(hasActiveFilters
+                  ? branchCount === 1 ? "{{count}} branch matches your filters" : "{{count}} branches match your filters"
+                  : branchCount === 1 ? "{{count}} branch in total" : "{{count}} branches in total", { count: branchCount })
+                : `${branchCount} ${
+                    branchCount === 1 ? "branch" : "branches"
+                  }${hasActiveFilters ? " match your filters" : " in total"}`}
           </p>
         </div>
 
@@ -199,7 +211,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
               className="flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
             >
               <FontAwesomeIcon icon={faPlus} />
-              Add branch
+              {tr("Add branch")}
             </button>
           </PermissionGuard>
         )}
@@ -211,7 +223,9 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
           <SearchBarWithFilters
             value={searchInput}
             onChange={setSearchInput}
-            placeholder="Search by branch name (EN/AR) or email..."
+            placeholder={tr("Search by branch name (EN/AR) or email...")}
+            filterLabel={tr("Filters")}
+            rtl={rtl}
             onFilterClick={toggleFilters}
             filterButtonRef={triggerRef}
             activeFilterCount={Number(Boolean(governorateFilter)) + Number(Boolean(cityFilter)) + Number(Boolean(statusFilter))}
@@ -231,6 +245,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
               onClear={clearFilters}
               onClose={closeFilters}
               panelRef={panelRef}
+              localized={localized}
             />
           )}
         </div>
@@ -239,30 +254,32 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
           <TableSkeleton />
         ) : isError ? (
           <QueryErrorState
-            title="Unable to load branches"
+            localized={localized}
+            title={tr("Unable to load branches")}
             error={error}
             onRetry={refetch}
           />
         ) : branches.length === 0 ? (
           <TableEmptyState
             icon={faBuilding}
-            title="No branches found"
+            title={tr("No branches found")}
             hasActiveFilters={hasActiveFilters}
-            emptyMessage="No branches have been added for this provider yet."
+            emptyMessage={tr(readOnly ? "No branches are available yet." : "No branches have been added for this provider yet.")}
+            filterMessage={tr("Try a different search term.")}
           />
         ) : (
           <>
             <ScrollableTable className="scroll-table">
-              <table className="w-full min-w-[960px] text-left text-sm">
+              <table className="w-full min-w-[960px] text-start text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-100 text-xs font-medium text-slate-500">
-                    <th className="px-6 py-3">Branch</th>
-                    <th className="px-4 py-3">Location</th>
-                    <th className="px-4 py-3">Coordinates</th>
-                    <th className="px-4 py-3 text-center">Status</th>
-                    <th className="px-4 py-3">Joined</th>
+                    <th className="px-6 py-3">{tr("Branch")}</th>
+                    <th className="px-4 py-3">{tr("Location")}</th>
+                    <th className="px-4 py-3">{tr("Coordinates")}</th>
+                    <th className="px-4 py-3 text-center">{tr("Status")}</th>
+                    <th className="px-4 py-3">{tr("Joined")}</th>
                     {showActions && (
-                      <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>
+                      <TableActionsCell as="th" side={rtl ? "left" : "right"} className="px-6 py-3 text-center">{tr("Actions")}</TableActionsCell>
                     )}
                   </tr>
                 </thead>
@@ -288,7 +305,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                                 {branch.branchName}
                               </p>
                               <p className="truncate text-xs text-slate-500">
-                                {branch.email || "No email"}
+                                {branch.email || tr("No email")}
                               </p>
                             </div>
                           </div>
@@ -305,11 +322,11 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                             className="max-w-[280px] truncate text-xs text-slate-500"
                             title={branch.fullAddress}
                           >
-                            {branch.fullAddress || "No address"}
+                            {branch.fullAddress || tr("No address")}
                           </p>
                           {branch.kilo != null && (
                             <p className="text-xs text-slate-500">
-                              Road kilometer marker: {branch.kilo}
+                              {tr("Road kilometer marker:")} <bdi dir="ltr">{branch.kilo}</bdi>
                             </p>
                           )}
                         </td>
@@ -320,7 +337,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                             <div className="flex flex-col items-start gap-1">
                               {hasCoords && (
                                 <span className="text-xs tabular-nums text-slate-600">
-                                  {branch.latitude}, {branch.longitude}
+                                  <bdi dir="ltr">{branch.latitude}, {branch.longitude}</bdi>
                                 </span>
                               )}
                               {branch.mapUrl && (
@@ -335,7 +352,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                                     icon={faLocationDot}
                                     className="text-[11px]"
                                   />
-                                  Open in maps
+                                  {tr("Open in maps")}
                                   <FontAwesomeIcon
                                     icon={faArrowUpRightFromSquare}
                                     className="text-[9px]"
@@ -350,23 +367,23 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
 
                         {/* Status */}
                         <td className="px-4 py-3.5 text-center">
-                          <StatusBadge isActive={branch.isActive} />
+                          <StatusBadge isActive={branch.isActive} activeLabel={localized ? tr("Active") : undefined} inactiveLabel={localized ? tr("Inactive") : undefined} />
                         </td>
 
                         {/* Joined */}
                         <td className="whitespace-nowrap px-4 py-3.5 text-slate-600">
-                          {formatDate(branch.createdAt)}
+                          <bdi dir="ltr">{formatDate(branch.createdAt)}</bdi>
                         </td>
 
                         {/* Actions */}
                         {showActions && (
-                          <TableActionsCell hoverColor="var(--color-slate-50)"
+                          <TableActionsCell hoverColor="var(--color-slate-50)" side={rtl ? "left" : "right"}
                             className="px-6 py-3.5"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <div className="flex items-center justify-center gap-1">
                               <IconButton
-                                title="Edit branch"
+                                title={tr("Edit branch")}
                                 onClick={() => handleOpenEdit(branch)}
                               >
                                 <FontAwesomeIcon icon={faPenToSquare} />
@@ -374,7 +391,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
 
                               {branch.isActive ? (
                                 <IconButton
-                                  title="Deactivate branch"
+                                  title={tr("Deactivate branch")}
                                   tone="red"
                                   onClick={() => setBranchToToggle(branch)}
                                 >
@@ -382,7 +399,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                                 </IconButton>
                               ) : (
                                 <IconButton
-                                  title="Activate branch"
+                                  title={tr("Activate branch")}
                                   tone="green"
                                   onClick={() => setBranchToToggle(branch)}
                                 >
@@ -405,7 +422,12 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="branches"
+                itemLabel={tr("branches")}
+                summary={localized ? tr("Showing page {{page}} of {{totalPages}} ({{count}} branches)", { page: pageNumber, totalPages, count: totalCount }) : undefined}
+                rowsPerPageLabel={tr("Rows per page")}
+                previousLabel={tr("Previous")}
+                nextLabel={tr("Next")}
+                rtl={rtl}
                 getPageNumbers={getPageNumbers}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
@@ -424,6 +446,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
           createMutation={createMutation}
           updateMutation={updateMutation}
           onClose={() => setIsModalOpen(false)}
+          localized={localized}
         />
       )}
 
@@ -433,14 +456,20 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
           isOpen={!!branchToToggle}
           variant={branchToToggle?.isActive ? "danger" : "success"}
           title={
-            branchToToggle?.isActive ? "Deactivate branch" : "Activate branch"
+            tr(branchToToggle?.isActive ? "Deactivate branch" : "Activate branch")
           }
           message={
             branchToToggle?.isActive
-              ? `Are you sure you want to deactivate "${branchToToggle?.branchName}"? You can reactivate it later.`
-              : `Are you sure you want to activate "${branchToToggle?.branchName}"?`
+              ? localized
+                ? tr("Are you sure you want to deactivate \"{{name}}\"? You can reactivate it later.", { name: branchToToggle?.branchName })
+                : `Are you sure you want to deactivate "${branchToToggle?.branchName}"? You can reactivate it later.`
+              : localized
+                ? tr("Are you sure you want to activate \"{{name}}\"?", { name: branchToToggle?.branchName })
+                : `Are you sure you want to activate "${branchToToggle?.branchName}"?`
           }
-          confirmLabel={branchToToggle?.isActive ? "Deactivate" : "Activate"}
+          confirmLabel={tr(branchToToggle?.isActive ? "Deactivate" : "Activate")}
+          cancelLabel={tr("Cancel")}
+          loadingLabel={tr("Processing...")}
           onConfirm={handleConfirmToggle}
           onCancel={() => setBranchToToggle(null)}
           isLoading={toggleMutation.isPending}

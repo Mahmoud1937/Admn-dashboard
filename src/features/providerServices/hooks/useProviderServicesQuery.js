@@ -9,9 +9,10 @@ export function useProviderServicesQuery({
   statusFilter,
   servicePriceListId,
   enabled = true,
+  language,
 }) {
   const query = useQuery({
-    queryKey: ["provider-services", providerId, pageNumber, pageSize, search, statusFilter, servicePriceListId],
+    queryKey: ["provider-services", providerId, pageNumber, pageSize, search, statusFilter, servicePriceListId, language],
     queryFn: () =>
       getProviderServices({
         providerId,
@@ -25,7 +26,8 @@ export function useProviderServicesQuery({
     enabled: enabled && !!providerId,
     placeholderData: (previousData, previousQuery) =>
       previousQuery?.queryKey[1] === providerId &&
-      previousQuery?.queryKey[6] === servicePriceListId
+      previousQuery?.queryKey[6] === servicePriceListId &&
+      previousQuery?.queryKey[7] === language
         ? previousData
         : undefined,
   });

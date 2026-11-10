@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { useTranslation } from "react-i18next";
 
 export default function SidebarGroup({
   title,
@@ -11,6 +12,8 @@ export default function SidebarGroup({
   collapsed,
   canAccessParent = true,
 }) {
+  const { t } = useTranslation("sidebar");
+  const label = t(path, { defaultValue: title });
   const location = useLocation();
   const navigate = useNavigate();
   const isChildActive = children.some((child) =>
@@ -38,7 +41,8 @@ export default function SidebarGroup({
             if (canAccessParent) navigate(path);
             setOpen((prev) => !prev);
           }}
-          title={title}
+          title={label}
+          aria-label={label}
           className={`flex w-full cursor-pointer items-center justify-center rounded-xl px-4 py-3 text-sm font-medium transition-all
           ${
             isActive
@@ -55,7 +59,8 @@ export default function SidebarGroup({
               <NavLink
                 key={child.path}
                 to={child.path}
-                title={child.title}
+                title={t(child.path, { defaultValue: child.title })}
+                aria-label={t(child.path, { defaultValue: child.title })}
                 className={({ isActive }) =>
                   `flex items-center justify-center rounded-xl px-4 py-3 text-sm font-medium transition-all
                   ${
@@ -91,16 +96,16 @@ export default function SidebarGroup({
             className="flex flex-1 cursor-pointer items-center gap-3 px-4 py-3"
           >
             <FontAwesomeIcon icon={icon} className="w-5 shrink-0" />
-            <span>{title}</span>
+            <span>{label}</span>
           </NavLink>
         ) : (
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className="flex flex-1 cursor-pointer items-center gap-3 px-4 py-3 text-left"
+            className="flex flex-1 cursor-pointer items-center gap-3 px-4 py-3 text-start"
           >
             <FontAwesomeIcon icon={icon} className="w-5 shrink-0" />
-            <span>{title}</span>
+            <span>{label}</span>
           </button>
         )}
 
@@ -108,7 +113,8 @@ export default function SidebarGroup({
           type="button"
           onClick={() => setOpen((prev) => !prev)}
           className="cursor-pointer px-3 py-3"
-          title={open ? "Collapse" : "Expand"}
+          title={t(open ? "collapse" : "expand")}
+          aria-label={t(open ? "collapse" : "expand")}
         >
           <FontAwesomeIcon
             icon={faChevronDown}
@@ -135,7 +141,7 @@ export default function SidebarGroup({
               }
             >
               <FontAwesomeIcon icon={child.icon} className="w-4 shrink-0" />
-              <span>{child.title}</span>
+              <span>{t(child.path, { defaultValue: child.title })}</span>
             </NavLink>
           ))}
         </div>

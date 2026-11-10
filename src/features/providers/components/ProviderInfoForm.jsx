@@ -19,6 +19,8 @@ import SpecialistSelect from "../../services-admin/components/SpecialistSelect";
 import { getProviderSchema } from "../schema/providerSchema";
 import ProviderLogoUpload from "../components/ProviderLogoUpload";
 import ProviderCategorySelect from "./ProviderCategorySelect";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import useLanguage from "../../../localization/useLanguage";
 
 const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -54,7 +56,7 @@ function FieldLabel({ htmlFor, required, children }) {
       className="mb-1.5 block text-sm font-medium text-slate-700"
     >
       {children}
-      {required && <span className="ml-0.5 text-red-500">*</span>}
+      {required && <span className="ms-0.5 text-red-500">*</span>}
     </label>
   );
 }
@@ -79,6 +81,8 @@ export default function ProviderInfoForm({
   onCancelToList,
   canUpdate = false,
 }) {
+  const tr = useProviderDetailsText();
+  const { direction, language } = useLanguage();
   const [isEditing, setIsEditing] = useState(isCreateMode || isEditMode);
   const canEdit = isCreateMode || isEditing;
 
@@ -104,6 +108,22 @@ export default function ProviderInfoForm({
 
   const providerCategoryId = useWatch({ control, name: "providerCategoryId" });
   const isPharmacy = isPharmacyCategory(providerCategoryId);
+  const fieldError = (error) => error?.message
+    ? error.type === "server" ? error.message : tr(error.message)
+    : undefined;
+  const selectLabels = {
+    clearSelection: tr("Clear selection"),
+    openOptions: tr("Open options"),
+    closeOptions: tr("Close options"),
+    loading: tr("Loading..."),
+    loadingMore: tr("Loading more..."),
+    unableToLoadOptions: tr("Unable to load options."),
+    noResults: tr("No results found."),
+    tryAgain: tr("Try again"),
+  };
+  const bilingualOptionLabel = (item) => language === "ar"
+    ? `${item.arName} - ${item.enName}`
+    : `${item.enName} - ${item.arName}`;
 
   const hotLineRegister = register("hotLine");
   const phoneNumberRegister = register("phoneNumber");
@@ -224,15 +244,15 @@ export default function ProviderInfoForm({
   };
 
   const selectClasses =
-    "w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2.5 pr-9 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-700 disabled:shadow-none disabled:opacity-100";
+    `w-full appearance-none rounded-lg border border-slate-300 bg-white px-3 py-2.5 ${direction === "rtl" ? "pl-9" : "pr-9"} text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-700 disabled:shadow-none disabled:opacity-100`;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
       {/* ---------- Basic information ---------- */}
       <SectionCard
         icon={faCircleInfo}
-        title={isCreateMode ? "Provider Details" : "Provider Information"}
-        description="Name, category and classification of the provider."
+        title={tr(isCreateMode ? "Provider Details" : "Provider Information")}
+        description={tr("Name, category and classification of the provider.")}
         action={
           !isCreateMode && !isEditing && canUpdate ? (
             <button
@@ -241,7 +261,7 @@ export default function ProviderInfoForm({
               className="inline-flex items-center justify-center gap-2 self-start rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 sm:self-auto"
             >
               <FontAwesomeIcon icon={faPenToSquare} className="text-xs" />
-              Update
+              {tr("Update")}
             </button>
           ) : null
         }
@@ -254,7 +274,7 @@ export default function ProviderInfoForm({
             selectedFile={imageFile}
             onImageChange={handleImageChange}
             disabled={!canEdit}
-            error={errors.logoFile?.message}
+            error={fieldError(errors.logoFile)}
           />
 
           <hr className="border-slate-100" />
@@ -262,21 +282,22 @@ export default function ProviderInfoForm({
           {/* Names */}
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <TextField
-              label="English Name"
+              label={tr("English Name")}
               required
               maxLength={100}
               disabled={!canEdit}
-              error={errors.enName?.message}
+              error={fieldError(errors.enName)}
               {...register("enName")}
             />
 
             <TextField
-              label="Arabic Name"
+              label={tr("Arabic Name")}
               required
               dir="rtl"
+              style={{ direction: "rtl", textAlign: "right" }}
               maxLength={100}
               disabled={!canEdit}
-              error={errors.arName?.message}
+              error={fieldError(errors.arName)}
               {...register("arName")}
             />
           </div>
@@ -284,36 +305,50 @@ export default function ProviderInfoForm({
           {/* Category + Specialist */}
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
-              <FieldLabel required>Category</FieldLabel>
+              <FieldLabel required>{tr("Category")}</FieldLabel>
               <Controller
                 name="providerCategoryId"
                 control={control}
                 render={({ field }) => (
                   <ProviderCategorySelect
+                    key={language}
                     value={field.value}
                     onChange={(value) => {
                       field.onChange(value);
                       clearErrors(["localMedicineDiscount", "importedMedicineDiscount"]);
                     }}
                     disabled={!canEdit}
-                    error={errors.providerCategoryId?.message}
+                    error={fieldError(errors.providerCategoryId)}
                     className="w-full"
+                    placeholder={tr("All categories")}
+                    searchPlaceholder={tr("Search categories...")}
+                    labels={selectLabels}
+                    language={language}
+                    rtl={direction === "rtl"}
+                    getOptionLabel={bilingualOptionLabel}
                   />
                 )}
               />
             </div>
 
             <div>
-              <FieldLabel>Specialist</FieldLabel>
+              <FieldLabel>{tr("Specialist")}</FieldLabel>
               <Controller
                 name="specialistId"
                 control={control}
                 render={({ field }) => (
                   <SpecialistSelect
+                    key={language}
                     value={field.value}
                     onChange={field.onChange}
                     disabled={!canEdit}
-                    error={errors.specialistId?.message}
+                    error={fieldError(errors.specialistId)}
+                    placeholder={tr("Select specialist")}
+                    searchPlaceholder={tr("Search specialists...")}
+                    labels={selectLabels}
+                    language={language}
+                    rtl={direction === "rtl"}
+                    getOptionLabel={bilingualOptionLabel}
                   />
                 )}
               />
@@ -324,7 +359,7 @@ export default function ProviderInfoForm({
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
               <FieldLabel htmlFor="provider-class" required>
-                Class
+                {tr("Class")}
               </FieldLabel>
               <div className="relative">
                 <select
@@ -333,7 +368,7 @@ export default function ProviderInfoForm({
                   disabled={!canEdit}
                   className={selectClasses}
                 >
-                  <option value="">Select class</option>
+                  <option value="">{tr("Select class")}</option>
                   {PROVIDER_CLASS_OPTIONS.map(({ value, label }) => (
                     <option key={value} value={value}>
                       {label}
@@ -342,20 +377,21 @@ export default function ProviderInfoForm({
                 </select>
                 <FontAwesomeIcon
                   icon={faChevronDown}
-                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"
+                  className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-xs text-slate-400 ${direction === "rtl" ? "left-3" : "right-3"}`}
                 />
               </div>
-              <FieldError message={errors.providerClass?.message} />
+              <FieldError message={fieldError(errors.providerClass)} />
             </div>
 
             {!isCreateMode && (
               <div>
-                <FieldLabel>Join Date</FieldLabel>
+                <FieldLabel>{tr("Join Date")}</FieldLabel>
                 <Controller
                   name="joinDate"
                   control={control}
                   render={({ field }) => (
                     <DateField
+                      rtl={direction === "rtl"}
                       value={field.value}
                       onChange={field.onChange}
                       disabled
@@ -368,7 +404,7 @@ export default function ProviderInfoForm({
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <TextField
-              label="Medicard Cashback"
+              label={tr("Medicard Cashback")}
               required
               type="number"
               inputMode="numeric"
@@ -377,7 +413,7 @@ export default function ProviderInfoForm({
               step={1}
               sanitize={false}
               disabled={!canEdit}
-              error={errors.medicardCashback?.message}
+              error={fieldError(errors.medicardCashback)}
               {...register("medicardCashback", { valueAsNumber: true })}
             />
           </div>
@@ -385,7 +421,7 @@ export default function ProviderInfoForm({
           {isPharmacy && (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <TextField
-                label="Local Medicine Discount (%)"
+                label={tr("Local Medicine Discount (%)")}
                 required
                 type="number"
                 inputMode="numeric"
@@ -394,11 +430,11 @@ export default function ProviderInfoForm({
                 step={1}
                 sanitize={false}
                 disabled={!canEdit}
-                error={errors.localMedicineDiscount?.message}
+                error={fieldError(errors.localMedicineDiscount)}
                 {...register("localMedicineDiscount", { valueAsNumber: true })}
               />
               <TextField
-                label="Imported Medicine Discount (%)"
+                label={tr("Imported Medicine Discount (%)")}
                 required
                 type="number"
                 inputMode="numeric"
@@ -407,7 +443,7 @@ export default function ProviderInfoForm({
                 step={1}
                 sanitize={false}
                 disabled={!canEdit}
-                error={errors.importedMedicineDiscount?.message}
+                error={fieldError(errors.importedMedicineDiscount)}
                 {...register("importedMedicineDiscount", { valueAsNumber: true })}
               />
             </div>
@@ -418,42 +454,42 @@ export default function ProviderInfoForm({
       {/* ---------- Contact information ---------- */}
       <SectionCard
         icon={faAddressBook}
-        title="Contact Information"
-        description="Numbers used by members and the support team. Digits only."
+        title={tr("Contact Information")}
+        description={tr("Numbers used by members and the support team. Digits only.")}
       >
         {errors.contactInfo && (
           <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-            <FieldError message={errors.contactInfo.message} />
+            <FieldError message={fieldError(errors.contactInfo)} />
           </div>
         )}
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           <TextField
-            label="Hotline"
+            label={tr("Hotline")}
             inputMode="numeric"
             sanitize={false}
             disabled={!canEdit}
-            error={errors.hotLine?.message}
+            error={fieldError(errors.hotLine)}
             {...hotLineRegister}
             onChange={handleDigitsOnlyChange(hotLineRegister)}
           />
 
           <TextField
-            label="Phone Number"
+            label={tr("Phone Number")}
             inputMode="numeric"
             sanitize={false}
             disabled={!canEdit}
-            error={errors.phoneNumber?.message}
+            error={fieldError(errors.phoneNumber)}
             {...phoneNumberRegister}
             onChange={handleDigitsOnlyChange(phoneNumberRegister)}
           />
 
           <TextField
-            label="Landline"
+            label={tr("Landline")}
             inputMode="numeric"
             sanitize={false}
             disabled={!canEdit}
-            error={errors.landline?.message}
+            error={fieldError(errors.landline)}
             {...landlineRegister}
             onChange={handleDigitsOnlyChange(landlineRegister)}
           />
@@ -463,8 +499,8 @@ export default function ProviderInfoForm({
       {/* ---------- Status ---------- */}
       <SectionCard
         icon={faPowerOff}
-        title="Status"
-        description="Inactive providers are hidden from members."
+        title={tr("Status")}
+        description={tr("Inactive providers are hidden from members.")}
       >
         <Controller
           name="isActive"
@@ -473,12 +509,12 @@ export default function ProviderInfoForm({
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-slate-800">
-                  {field.value ? "Active" : "Inactive"}
+                  {tr(field.value ? "Active" : "Inactive")}
                 </p>
                 <p className="text-xs text-slate-500">
                   {field.value
-                    ? "This provider is visible and can be used."
-                    : "This provider is currently disabled."}
+                    ? tr("This provider is visible and can be used.")
+                    : tr("This provider is currently disabled.")}
                 </p>
               </div>
 
@@ -486,7 +522,7 @@ export default function ProviderInfoForm({
                 type="button"
                 role="switch"
                 aria-checked={!!field.value}
-                aria-label="Active status"
+                aria-label={tr("Active status")}
                 disabled={!canEdit}
                 onClick={() => field.onChange(!field.value)}
                 className={`relative h-6 w-11 shrink-0 rounded-full transition focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60 ${
@@ -509,7 +545,7 @@ export default function ProviderInfoForm({
         <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           <FontAwesomeIcon icon={faCircleExclamation} className="mt-0.5" />
           <p>
-            {mutation.error?.response?.data?.message || "Failed to save changes."}
+            {mutation.error?.response?.data?.message || tr("Failed to save changes.")}
           </p>
         </div>
       )}
@@ -522,7 +558,7 @@ export default function ProviderInfoForm({
             onClick={handleCancelEdit}
             className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
-            Cancel
+            {tr("Cancel")}
           </button>
 
           <button
@@ -532,10 +568,10 @@ export default function ProviderInfoForm({
           >
             <FontAwesomeIcon icon={faFloppyDisk} className="text-xs" />
             {mutation.isPending
-              ? "Saving..."
+              ? tr("Saving...")
               : isCreateMode
-              ? "Create Provider"
-              : "Save Changes"}
+              ? tr("Create Provider")
+              : tr("Save Changes")}
           </button>
         </div>
       )}

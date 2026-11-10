@@ -6,9 +6,10 @@ export function useProviderRenewalsQuery({
   pageNumber = 1,
   pageSize = 15,
   enabled = true,
+  language,
 }) {
   const query = useQuery({
-    queryKey: ["provider-renewals", providerId, pageNumber, pageSize],
+    queryKey: ["provider-renewals", providerId, pageNumber, pageSize, language],
     queryFn: ({ signal }) =>
       getProviderRenewals({ providerId, pageNumber, pageSize, signal }),
     enabled: enabled && !!providerId,

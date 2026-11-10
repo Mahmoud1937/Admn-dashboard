@@ -9,6 +9,7 @@ export function useBranchesQuery({
   governorateFilter,
   cityFilter,
   statusFilter,
+  language,
 }) {
   const query = useQuery({
     queryKey: [
@@ -20,6 +21,7 @@ export function useBranchesQuery({
       governorateFilter,
       cityFilter,
       statusFilter,
+      language,
     ],
     queryFn: () =>
       getProviderBranches({
@@ -33,7 +35,8 @@ export function useBranchesQuery({
         status: statusFilter === "" ? 0 : Number(statusFilter),
       }),
     enabled: !!providerId,
-    placeholderData: (previousData) => previousData,
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[8] === language ? previousData : undefined,
   });
 
   return {

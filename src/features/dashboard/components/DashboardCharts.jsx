@@ -23,12 +23,14 @@ import {
   saveDashboardFilter,
 } from "../../../shared/utils/dashboardFilterSession";
 import Skeleton from "../../../shared/components/Skeleton";
+import { useTranslation } from "react-i18next";
+import useLanguage from "../../../localization/useLanguage";
 
 const GROUP_OPTIONS = [
-  { value: DASHBOARD_CHART_GROUP_BY.ByMonth, label: "By month" },
-  { value: DASHBOARD_CHART_GROUP_BY.ByQuarter, label: "By quarter" },
-  { value: DASHBOARD_CHART_GROUP_BY.ByHalfYear, label: "By half year" },
-  { value: DASHBOARD_CHART_GROUP_BY.ByYear, label: "By year" },
+  { value: DASHBOARD_CHART_GROUP_BY.ByMonth, key: "charts.byMonth" },
+  { value: DASHBOARD_CHART_GROUP_BY.ByQuarter, key: "charts.byQuarter" },
+  { value: DASHBOARD_CHART_GROUP_BY.ByHalfYear, key: "charts.byHalfYear" },
+  { value: DASHBOARD_CHART_GROUP_BY.ByYear, key: "charts.byYear" },
 ];
 
 const currentYear = new Date().getFullYear();
@@ -105,8 +107,8 @@ function ChartCard({
           <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
           <p className="mt-1 text-xs text-slate-500">{description}</p>
         </div>
-        <div className="min-w-0 sm:text-right">
-          <p className="break-words text-lg font-bold text-slate-900">{total}</p>
+        <div className="min-w-0 sm:text-end">
+          <p className="break-words text-lg font-bold text-slate-900"><bdi dir="ltr">{total}</bdi></p>
           <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
             {totalLabel}
           </p>
@@ -120,11 +122,12 @@ function ChartCard({
 }
 
 function ChartViewport({ children, isMonthGrouping, title }) {
+  const { t } = useTranslation("dashboard");
   return (
     <div
       className="h-full w-full overflow-x-auto overflow-y-hidden overscroll-x-contain"
       role="region"
-      aria-label={`${title} chart; scroll horizontally to view all periods`}
+      aria-label={t("charts.scrollHint", { title })}
       tabIndex={0}
     >
       <div className={`h-full w-full ${isMonthGrouping ? "min-w-[660px]" : "min-w-[420px]"}`}>
@@ -135,6 +138,7 @@ function ChartViewport({ children, isMonthGrouping, title }) {
 }
 
 function EmptyChartState({ message }) {
+  const { t } = useTranslation("dashboard");
   return (
     <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/70 px-6 text-center">
       <div>
@@ -144,7 +148,7 @@ function EmptyChartState({ message }) {
           aria-hidden="true"
         />
         <p className="mt-3 text-sm font-medium text-slate-600">
-          No chart data available
+          {t("charts.emptyTitle")}
         </p>
         <p className="mt-1 text-xs text-slate-400">{message}</p>
       </div>
@@ -153,10 +157,11 @@ function EmptyChartState({ message }) {
 }
 
 function ChartsSkeleton() {
+  const { t } = useTranslation("dashboard");
   return (
     <div
       className="grid gap-4 xl:grid-cols-2"
-      aria-label="Loading dashboard charts"
+      aria-label={t("charts.loading")}
     >
       {Array.from({ length: 3 }, (_, index) => (
         <Skeleton
@@ -173,6 +178,9 @@ function ChartsSkeleton() {
 }
 
 export default function DashboardCharts() {
+  const { t } = useTranslation("dashboard");
+  const { language } = useLanguage();
+  const rtl = language === "ar";
   const [{ groupBy, year }, setChartFilters] = useState(initialChartFilters);
 
   useEffect(() => {
@@ -196,7 +204,7 @@ export default function DashboardCharts() {
   const { data, isLoading, isError, refetch } = useDashboardChart({
     groupBy,
     year,
-  });
+  }, language);
 
   const invoiceData = prepareChartData(data?.invoiceInfo, isMonthGrouping);
   const soldCardsData = prepareChartData(data?.soldCardsInfo, isMonthGrouping);
@@ -216,10 +224,10 @@ export default function DashboardCharts() {
             id="dashboard-trends-title"
             className="text-base font-semibold text-slate-900"
           >
-            Operational trends
+            {t("charts.title")}
           </h2>
           <p className="mt-1 text-xs text-slate-500">
-            Compare performance across the selected reporting period.
+            {t("charts.description")}
           </p>
         </div>
 
@@ -227,21 +235,21 @@ export default function DashboardCharts() {
           <div className="grid flex-1 gap-3 sm:grid-cols-2 xl:flex-none">
             <label className="block">
               <span className="mb-1.5 block text-xs font-medium text-slate-600">
-                Group by
+                {t("charts.groupBy")}
               </span>
               <span className="relative block">
                 <FontAwesomeIcon
                   icon={faChartColumn}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"
+                  className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-xs text-slate-400 ${rtl ? "right-3" : "left-3"}`}
                 />
                 <select
                   value={groupBy}
                   onChange={handleGroupByChange}
-                  className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-8 text-sm text-slate-700 outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-600/10 xl:w-40"
+                  className={`h-10 w-full rounded-lg border border-slate-300 bg-white text-sm text-slate-700 outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-600/10 xl:w-40 ${rtl ? "pr-9 pl-8" : "pl-9 pr-8"}`}
                 >
                   {GROUP_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
-                      {option.label}
+                      {t(option.key)}
                     </option>
                   ))}
                 </select>
@@ -250,12 +258,12 @@ export default function DashboardCharts() {
 
             <label className="block">
               <span className="mb-1.5 block text-xs font-medium text-slate-600">
-                Year
+                {t("charts.year")}
               </span>
               <span className="relative block">
                 <FontAwesomeIcon
                   icon={faCalendarDays}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"
+                  className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-xs text-slate-400 ${rtl ? "right-3" : "left-3"}`}
                 />
                 <select
                   value={year}
@@ -266,7 +274,7 @@ export default function DashboardCharts() {
                     }))
                   }
                   disabled={!isMonthGrouping}
-                  className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-8 text-sm text-slate-700 outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-600/10 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 xl:w-32"
+                  className={`h-10 w-full rounded-lg border border-slate-300 bg-white text-sm text-slate-700 outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-600/10 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 xl:w-32 ${rtl ? "pr-9 pl-8" : "pl-9 pr-8"}`}
                 >
                   {YEARS.map((optionYear) => (
                     <option key={optionYear} value={optionYear}>
@@ -287,7 +295,7 @@ export default function DashboardCharts() {
             }
             className="h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-800"
           >
-            Reset
+            {t("charts.reset")}
           </button>
         </div>
       </div>
@@ -296,13 +304,13 @@ export default function DashboardCharts() {
 
       {isError && (
         <div className="flex items-center justify-between gap-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          <span>Failed to load dashboard trends.</span>
+          <span>{t("charts.error")}</span>
           <button
             type="button"
             onClick={() => refetch()}
             className="shrink-0 rounded-lg border border-red-200 bg-white px-3 py-1.5 font-medium transition hover:bg-red-100"
           >
-            Try again
+            {t("charts.retry")}
           </button>
         </div>
       )}
@@ -310,9 +318,9 @@ export default function DashboardCharts() {
       {data && !isLoading && (
         <div className="grid gap-4 xl:grid-cols-2">
           <ChartCard
-            title="Invoice Performance"
-            description="Revenue and invoice volume across the selected reporting period"
-            totalLabel="Revenue / invoices"
+            title={t("charts.invoiceTitle")}
+            description={t("charts.invoiceDescription")}
+            totalLabel={t("charts.invoiceTotal")}
             total={`${formatMoney(data.invoiceInfo?.totalAmount)} / ${formatCount(
               data.invoiceInfo?.totalCount
             )}`}
@@ -321,9 +329,9 @@ export default function DashboardCharts() {
             tone="blue"
           >
             {invoiceData.length === 0 ? (
-              <EmptyChartState message="Try another year or reporting interval." />
+              <EmptyChartState message={t("charts.invoiceEmpty")} />
             ) : (
-              <ChartViewport isMonthGrouping={isMonthGrouping} title="Invoice Performance">
+              <ChartViewport isMonthGrouping={isMonthGrouping} title={t("charts.invoiceTitle")}>
               <ResponsiveContainer width="100%" height="100%" debounce={60}>
                 <ComposedChart
                   data={invoiceData}
@@ -348,6 +356,7 @@ export default function DashboardCharts() {
                   />
                   <XAxis
                     dataKey="label"
+                    reversed={rtl}
                     axisLine={false}
                     tickLine={false}
                     interval={isMonthGrouping ? 0 : "preserveStartEnd"}
@@ -356,6 +365,7 @@ export default function DashboardCharts() {
                   />
                   <YAxis
                     yAxisId="amount"
+                    orientation={rtl ? "right" : "left"}
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: "#64748b", fontSize: 11 }}
@@ -364,7 +374,7 @@ export default function DashboardCharts() {
                   />
                   <YAxis
                     yAxisId="count"
-                    orientation="right"
+                    orientation={rtl ? "left" : "right"}
                     allowDecimals={false}
                     axisLine={false}
                     tickLine={false}
@@ -373,8 +383,8 @@ export default function DashboardCharts() {
                   />
                   <Tooltip
                     contentStyle={TOOLTIP_STYLE}
-                    formatter={(value, name) => [
-                      name === "Revenue" ? formatMoney(value) : formatCount(value),
+                    formatter={(value, name, props) => [
+                      props.dataKey === "totalAmount" ? <bdi dir="ltr">{formatMoney(value)}</bdi> : formatCount(value),
                       name,
                     ]}
                     cursor={{ stroke: "#cbd5e1", strokeDasharray: "4 4" }}
@@ -388,7 +398,7 @@ export default function DashboardCharts() {
                     yAxisId="amount"
                     type="monotone"
                     dataKey="totalAmount"
-                    name="Revenue"
+                    name={t("charts.revenue")}
                     stroke="#1d487e"
                     strokeWidth={3}
                     fill="url(#invoiceRevenueGradient)"
@@ -397,7 +407,7 @@ export default function DashboardCharts() {
                   <Bar
                     yAxisId="count"
                     dataKey="count"
-                    name="Invoices"
+                    name={t("charts.invoices")}
                     fill="#8b5cf6"
                     fillOpacity={0.85}
                     radius={[5, 5, 0, 0]}
@@ -410,23 +420,23 @@ export default function DashboardCharts() {
           </ChartCard>
 
           <ChartCard
-            title="Sold Cards"
-            description="Cards sold across the reporting period"
-            totalLabel="Total cards"
+            title={t("charts.soldTitle")}
+            description={t("charts.soldDescription")}
+            totalLabel={t("charts.soldTotal")}
             total={formatCount(data.soldCardsInfo?.totalCount)}
             tone="emerald"
           >
             {soldCardsData.length === 0 ? (
-              <EmptyChartState message="No sold-card activity was returned for this period." />
+              <EmptyChartState message={t("charts.soldEmpty")} />
             ) : (
-            <ChartViewport isMonthGrouping={isMonthGrouping} title="Sold Cards">
+            <ChartViewport isMonthGrouping={isMonthGrouping} title={t("charts.soldTitle")}>
             <ResponsiveContainer width="100%" height="100%" debounce={60}>
               <BarChart data={soldCardsData} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
                 <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="4 4" />
-                <XAxis dataKey="label" axisLine={false} tickLine={false} interval={isMonthGrouping ? 0 : "preserveStartEnd"} tickFormatter={(value) => isMonthGrouping ? String(value).slice(0, 3) : value} tick={{ fill: "#64748b", fontSize: 11 }} />
-                <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} width={36} />
-                <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value) => [formatCount(value), "Cards"]} cursor={{ fill: "#f8fafc" }} />
-                <Bar dataKey="count" name="Cards" fill="#059669" radius={[6, 6, 0, 0]} maxBarSize={42} />
+                <XAxis dataKey="label" reversed={rtl} axisLine={false} tickLine={false} interval={isMonthGrouping ? 0 : "preserveStartEnd"} tickFormatter={(value) => isMonthGrouping ? String(value).slice(0, 3) : value} tick={{ fill: "#64748b", fontSize: 11 }} />
+                <YAxis orientation={rtl ? "right" : "left"} allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} width={36} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value) => [formatCount(value), t("charts.cards")]} cursor={{ fill: "#f8fafc" }} />
+                <Bar dataKey="count" name={t("charts.cards")} fill="#059669" radius={[6, 6, 0, 0]} maxBarSize={42} />
               </BarChart>
             </ResponsiveContainer>
             </ChartViewport>
@@ -434,25 +444,25 @@ export default function DashboardCharts() {
           </ChartCard>
 
           <ChartCard
-            title="Provider Network Growth"
-            description="New providers and branches added over time"
-            totalLabel="Providers / branches"
+            title={t("charts.providerTitle")}
+            description={t("charts.providerDescription")}
+            totalLabel={t("charts.providerTotal")}
             total={`${formatCount(data.providerInfo?.totalCount)} / ${formatCount(data.branchInfo?.totalCount)}`}
             tone="amber"
           >
             {providerData.length === 0 ? (
-              <EmptyChartState message="No provider or branch activity was returned for this period." />
+              <EmptyChartState message={t("charts.providerEmpty")} />
             ) : (
-            <ChartViewport isMonthGrouping={isMonthGrouping} title="Provider Network Growth">
+            <ChartViewport isMonthGrouping={isMonthGrouping} title={t("charts.providerTitle")}>
             <ResponsiveContainer width="100%" height="100%" debounce={60}>
               <BarChart data={providerData} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
                 <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="4 4" />
-                <XAxis dataKey="label" axisLine={false} tickLine={false} interval={isMonthGrouping ? 0 : "preserveStartEnd"} tickFormatter={(value) => isMonthGrouping ? String(value).slice(0, 3) : value} tick={{ fill: "#64748b", fontSize: 11 }} />
-                <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} width={36} />
+                <XAxis dataKey="label" reversed={rtl} axisLine={false} tickLine={false} interval={isMonthGrouping ? 0 : "preserveStartEnd"} tickFormatter={(value) => isMonthGrouping ? String(value).slice(0, 3) : value} tick={{ fill: "#64748b", fontSize: 11 }} />
+                <YAxis orientation={rtl ? "right" : "left"} allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11 }} width={36} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(value) => formatCount(value)} cursor={{ fill: "#f8fafc" }} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }} />
-                <Bar dataKey="providers" name="Providers" fill="#d97706" radius={[6, 6, 0, 0]} maxBarSize={32} />
-                <Bar dataKey="branches" name="Branches" fill="#0ea5e9" radius={[6, 6, 0, 0]} maxBarSize={32} />
+                <Bar dataKey="providers" name={t("charts.providers")} fill="#d97706" radius={[6, 6, 0, 0]} maxBarSize={32} />
+                <Bar dataKey="branches" name={t("charts.branches")} fill="#0ea5e9" radius={[6, 6, 0, 0]} maxBarSize={32} />
               </BarChart>
             </ResponsiveContainer>
             </ChartViewport>

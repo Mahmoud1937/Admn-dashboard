@@ -9,19 +9,26 @@ export default function ServiceSelect({
   placeholder = "Select service",
   error,
   disabled,
+  searchPlaceholder = "Search services...",
+  labels,
+  language,
+  rtl = false,
+  getOptionLabel = (item) => `${item.enName} - ${item.arName}`,
 }) {
   return (
     <div className="w-full">
       <SearchableAsyncSelect
-        queryKey={["services", categoryId ?? "all"]}
+        queryKey={language ? ["services", categoryId ?? "all", language] : ["services", categoryId ?? "all"]}
         fetchItems={(pageNumber, pageSize, searchTerm) =>
           getServices({ categoryId, pageNumber, pageSize, searchTerm })
         }
         value={value}
         onChange={onChange}
-        getOptionLabel={(item) => `${item.enName} - ${item.arName}`}
+        getOptionLabel={getOptionLabel}
         placeholder={placeholder}
-        searchPlaceholder="Search services..."
+        searchPlaceholder={searchPlaceholder}
+        labels={labels}
+        rtl={rtl}
         disabled={disabled}
         error={error}
       />

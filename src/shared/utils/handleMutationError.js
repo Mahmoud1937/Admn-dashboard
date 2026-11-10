@@ -1,12 +1,12 @@
 import toast from "react-hot-toast";
 
-export function handleMutationError(error, fallback, setServerErrors) {
+export function handleMutationError(error, fallback, setServerErrors, messages = {}) {
   // Network Error
   if (!error?.response) {
     setServerErrors(null);
 
     toast.error(
-      "Unable to connect to the server. Please check your internet connection and try again."
+      messages.networkError ?? "Unable to connect to the server. Please check your internet connection and try again."
     );
 
     return;
@@ -20,7 +20,7 @@ export function handleMutationError(error, fallback, setServerErrors) {
     setServerErrors(null);
 
     toast.error(
-      "Something went wrong on our side. Please try again later."
+      messages.serverError ?? "Something went wrong on our side. Please try again later."
     );
 
     return;
@@ -31,7 +31,7 @@ export function handleMutationError(error, fallback, setServerErrors) {
     setServerErrors(null);
 
     toast.error(
-      "Your session has expired. Please login again."
+      messages.sessionExpired ?? "Your session has expired. Please login again."
     );
 
     return;
@@ -42,7 +42,7 @@ export function handleMutationError(error, fallback, setServerErrors) {
     setServerErrors(null);
 
     toast.error(
-      "You don't have permission to perform this action."
+      messages.forbidden ?? "You don't have permission to perform this action."
     );
 
     return;

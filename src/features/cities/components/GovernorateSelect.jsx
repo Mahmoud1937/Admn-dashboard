@@ -7,17 +7,24 @@ export default function GovernorateSelect({
   placeholder = "Select governorate",
   error,
   disabled,
+  searchPlaceholder = "Search governorates...",
+  labels,
+  language,
+  rtl = false,
+  getOptionLabel = (item) => `${item.enName} - ${item.arName}`,
 }) {
   return (
     <div className="w-full">
       <SearchableAsyncSelect
-        queryKey={["governorates"]}
+        queryKey={language ? ["governorates", language] : ["governorates"]}
         fetchItems={getGovernorates}
         value={value}
         onChange={onChange}
-        getOptionLabel={(item) => `${item.enName} - ${item.arName}`}
+        getOptionLabel={getOptionLabel}
         placeholder={placeholder}
-        searchPlaceholder="Search governorates..."
+        searchPlaceholder={searchPlaceholder}
+        labels={labels}
+        rtl={rtl}
         disabled={disabled}
         error={error}
       />

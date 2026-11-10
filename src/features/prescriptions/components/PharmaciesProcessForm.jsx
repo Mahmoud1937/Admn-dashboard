@@ -8,11 +8,11 @@ import PrescriptionMedicineSelect from "./PrescriptionMedicineSelect";
 import PrescriptionProcessFeedback from "./PrescriptionProcessFeedback";
 
 const formatDiscount = (discount) => discount == null ? "—" : `${discount}%`;
-const optionalNumber = (value) => value.trim() === "" ? null : Number(value);
+const QUANTITY_ERROR_MESSAGE = "Quantity must be greater than 0.";
 
 export default function PharmaciesProcessForm({ prescription, onCancel, onProcess, disabled, active = true, error }) {
   const [selectedPharmacy, setSelectedPharmacy] = useState(null);
-  const [medicines, setMedicines] = useState([{ key: 1, medicineId: "", medicine: null, quantity: "" }]);
+  const [medicines, setMedicines] = useState([{ key: 1, medicineId: "", medicine: null, quantity: "1" }]);
   const [validationError, setValidationError] = useState("");
   const nextMedicineKey = useRef(2);
 
@@ -33,15 +33,18 @@ export default function PharmaciesProcessForm({ prescription, onCancel, onProces
       setValidationError("Select a medicine for each item.");
       return;
     }
+    if (medicines.some((item) => item.quantity.trim() === "")) {
+      setValidationError("Enter a quantity for each medicine.");
+      return;
+    }
 
     const items = medicines.map((item) => ({
       serviceId: Number(item.medicineId),
       providerId,
-      quantity: optionalNumber(item.quantity),
+      quantity: Number(item.quantity),
     }));
-    if (items.some((item) => item.quantity !== null &&
-      (!Number.isFinite(item.quantity) || item.quantity < 0))) {
-      setValidationError("Quantity must be 0 or greater.");
+    if (items.some((item) => !Number.isFinite(item.quantity) || item.quantity <= 0)) {
+      setValidationError(QUANTITY_ERROR_MESSAGE);
       return;
     }
 
@@ -82,7 +85,7 @@ export default function PharmaciesProcessForm({ prescription, onCancel, onProces
             type="button"
             onClick={() => {
               const key = nextMedicineKey.current++;
-              setMedicines((current) => [...current, { key, medicineId: "", medicine: null, quantity: "" }]);
+              setMedicines((current) => [...current, { key, medicineId: "", medicine: null, quantity: "1" }]);
               setValidationError("");
             }}
             disabled={disabled}
@@ -91,48 +94,60 @@ export default function PharmaciesProcessForm({ prescription, onCancel, onProces
             <FontAwesomeIcon icon={faPlus} /> Add medicine
           </button>
         </div>
-        {medicines.map((item, index) => (
-          <div key={item.key} className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-slate-800">Medicine {index + 1}</h4>
-              {medicines.length > 1 && (
-                <button type="button" onClick={() => { setMedicines((current) => current.filter((entry) => entry.key !== item.key)); setValidationError(""); }} disabled={disabled} aria-label={`Remove medicine ${index + 1}`} className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50">
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-              )}
-            </div>
-            <PrescriptionMedicineSelect
-              value={item.medicineId}
-              onChange={(value, medicine) => updateMedicine(item.key, { medicineId: value, medicine, quantity: "" })}
-              disabled={disabled}
-            />
-            {item.medicine && (
-              <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
-                <AvatarImage src={item.medicine.medicineImageUrl} alt={item.medicine.enName || item.medicine.arName} loading="lazy" />
-                <p className="min-w-0 text-xs text-slate-500">{[item.medicine.medicineForm, item.medicine.unit].filter(Boolean).join(" · ")}</p>
+        {medicines.map((item, index) => {
+          const quantity = Number(item.quantity);
+          const invalidQuantity = item.quantity.trim() !== "" && (!Number.isFinite(quantity) || quantity <= 0);
+          const quantityErrorId = `pharmacy-medicine-quantity-error-${item.key}`;
+
+          return (
+            <div key={item.key} className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-slate-800">Medicine {index + 1}</h4>
+                {medicines.length > 1 && (
+                  <button type="button" onClick={() => { setMedicines((current) => current.filter((entry) => entry.key !== item.key)); setValidationError(""); }} disabled={disabled} aria-label={`Remove medicine ${index + 1}`} className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50">
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                )}
               </div>
-            )}
-            <label className="block text-sm font-medium text-slate-700">
-              Quantity
-              <input
-                id={`pharmacy-medicine-quantity-${item.key}`}
-                type="number"
-                min="0"
-                step="any"
-                inputMode="numeric"
-                value={item.quantity}
-                onChange={(event) => updateMedicine(item.key, { quantity: event.target.value })}
-                onInvalid={(event) => {
-                  event.preventDefault();
-                  setValidationError("Quantity must be 0 or greater.");
-                }}
+              <PrescriptionMedicineSelect
+                value={item.medicineId}
+                onChange={(value, medicine) => updateMedicine(item.key, { medicineId: value, medicine, quantity: "1" })}
                 disabled={disabled}
-                placeholder="Optional"
-                className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 disabled:bg-slate-50"
               />
-            </label>
-          </div>
-        ))}
+              {item.medicine && (
+                <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-3">
+                  <AvatarImage src={item.medicine.medicineImageUrl} alt={item.medicine.enName || item.medicine.arName} loading="lazy" />
+                  <p className="min-w-0 text-xs text-slate-500">{[item.medicine.medicineForm, item.medicine.unit].filter(Boolean).join(" · ")}</p>
+                </div>
+              )}
+              <label className="block text-sm font-medium text-slate-700">
+                Quantity <span className="text-red-600">*</span>
+                <input
+                  id={`pharmacy-medicine-quantity-${item.key}`}
+                  type="number"
+                  required
+                  min="0"
+                  step="any"
+                  inputMode="numeric"
+                  aria-invalid={invalidQuantity}
+                  aria-describedby={invalidQuantity ? quantityErrorId : undefined}
+                  value={item.quantity}
+                  onChange={(event) => updateMedicine(item.key, { quantity: event.target.value })}
+                  onInvalid={(event) => {
+                    event.preventDefault();
+                    setValidationError(event.target.validity.valueMissing
+                      ? "Enter a quantity for each medicine."
+                      : QUANTITY_ERROR_MESSAGE);
+                  }}
+                  disabled={disabled}
+                  placeholder="Enter quantity"
+                  className={`mt-1.5 w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none focus:ring-4 disabled:bg-slate-50 ${invalidQuantity ? "border-red-400 focus:border-red-500 focus:ring-red-100" : "border-slate-200 focus:border-blue-400 focus:ring-blue-100"}`}
+                />
+              </label>
+              {invalidQuantity && <p id={quantityErrorId} role="alert" className="text-sm text-red-600">{QUANTITY_ERROR_MESSAGE}</p>}
+            </div>
+          );
+        })}
       </section>
       <PrescriptionProcessFeedback error={error} validationError={validationError} active={active} />
       <FormActions onCancel={onCancel} showCancel={!disabled} isSaving={disabled} submitLabel="Process prescription" savingLabel="Processing..." />

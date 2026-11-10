@@ -10,8 +10,11 @@ export default function ImageUploadField({
   error,
   disabled = false,
   allowSvg = false,
+  labels,
 }) {
-  const formats = allowSvg ? "PNG, JPEG, WebP, or SVG" : "PNG, JPEG, or WebP";
+  const formats = allowSvg
+    ? labels?.formatsWithSvg ?? "PNG, JPEG, WebP, or SVG"
+    : labels?.formats ?? "PNG, JPEG, or WebP";
   const [isDragging, setIsDragging] = useState(false);
   const [, setDragCounter] = useState(0);
   const [isCompressing, setIsCompressing] = useState(false);
@@ -52,7 +55,7 @@ export default function ImageUploadField({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setDropError(`Please drop an image file (${formats})`);
+      setDropError(true);
       return;
     }
 
@@ -109,7 +112,7 @@ export default function ImageUploadField({
             ${disabled || isCompressing ? "cursor-not-allowed" : "cursor-pointer hover:bg-slate-50"}
           `}
         >
-          {isCompressing ? "Processing..." : label}
+          {isCompressing ? labels?.processing ?? "Processing..." : label}
           <input
             type="file"
             accept={allowSvg ? "image/png, image/jpeg, image/webp, image/svg+xml, .svg" : "image/png, image/jpeg, image/webp"}
@@ -120,12 +123,12 @@ export default function ImageUploadField({
         </label>
 
         <p className="text-[11px] text-slate-400">
-          {isCompressing ? "Compressing image..." : "or drag and drop an image here"}
+          {isCompressing ? labels?.compressing ?? "Compressing image..." : labels?.dragAndDrop ?? "or drag and drop an image here"}
         </p>
-        <p className="text-[10px] text-slate-400">{formats} only</p>
+        <p className="text-[10px] text-slate-400">{labels?.formatsOnly?.(formats) ?? `${formats} only`}</p>
       </div>
 
-      {dropError && <p className="text-xs text-red-500">{dropError}</p>}
+      {dropError && <p className="text-xs text-red-500">{labels?.dropError?.(formats) ?? `Please drop an image file (${formats})`}</p>}
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );

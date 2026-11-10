@@ -9,6 +9,7 @@ export function useAllBranchesQuery({
   pageNumber,
   pageSize,
   enabled = true,
+  language,
 } = {}) {
   const query = useQuery({
     queryKey: [
@@ -19,6 +20,7 @@ export function useAllBranchesQuery({
       statusFilter,
       pageNumber,
       pageSize,
+      language,
     ],
     queryFn: () =>
       getAllBranches({
@@ -31,7 +33,8 @@ export function useAllBranchesQuery({
         pageSize,
       }),
     enabled,
-    placeholderData: (previousData) => previousData,
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[7] === language ? previousData : undefined,
   });
 
   return {

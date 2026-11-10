@@ -8,6 +8,8 @@ import { createBranchSchema, updateBranchSchema } from "../schema/branchSchema";
 import { applyServerErrors } from "../../../shared/utils/applyServerErrors";
 import GovernorateSelect from "../../cities/components/GovernorateSelect";
 import CitySelect from "./CitySelect";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import useLanguage from "../../../localization/useLanguage";
 
 
 const EMPTY_VALUES = {
@@ -42,7 +44,27 @@ export default function BranchFormModal({
   createMutation,
   updateMutation,
   onClose,
+  localized = false,
 }) {
+  const tr = useProviderDetailsText(localized);
+  const { direction, language } = useLanguage();
+  const rtl = localized && direction === "rtl";
+  const fieldError = (error) => error?.message
+    ? error.type === "server" ? error.message : tr(error.message)
+    : undefined;
+  const selectLabels = localized ? {
+    clearSelection: tr("Clear selection"),
+    openOptions: tr("Open options"),
+    closeOptions: tr("Close options"),
+    loading: tr("Loading..."),
+    loadingMore: tr("Loading more..."),
+    unableToLoadOptions: tr("Unable to load options."),
+    noResults: tr("No results found."),
+    tryAgain: tr("Try again"),
+  } : undefined;
+  const bilingualOptionLabel = (item) => rtl
+    ? `${item.arName} - ${item.enName}`
+    : `${item.enName} - ${item.arName}`;
   const isEditMode = !!branch;
   const schema = isEditMode ? updateBranchSchema : createBranchSchema;
   const mutation = isEditMode ? updateMutation : createMutation;
@@ -97,39 +119,46 @@ export default function BranchFormModal({
  
   return (
     <FormModalShell
-      title={isEditMode ? "Edit Branch" : "Add Branch"}
+      title={tr(isEditMode ? "Edit Branch" : "Add Branch")}
+      closeLabel={tr("Close")}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
       className="max-w-4xl"
-      formClassName="max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar"
+      formClassName={`max-h-[70vh] overflow-y-auto custom-scrollbar ${rtl ? "pl-1" : "pr-1"}`}
     >
       <TextField
-        label="Branch Name"
+        label={tr("Branch Name")}
         required
         autoFocus
         {...register("branchName")}
       />
       {errors.branchName && (
-        <p className="-mt-3 mb-3 text-xs text-red-500">{errors.branchName.message}</p>
+        <p className="-mt-3 mb-3 text-xs text-red-500">{fieldError(errors.branchName)}</p>
       )}
 
    <div className="mb-1 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
-            Governorate <span className="text-red-500">*</span>
+            {tr("Governorate")} <span className="text-red-500">*</span>
           </label>
           <Controller
             name="governorateId"
             control={control}
             render={({ field }) => (
               <GovernorateSelect
+                key={localized ? language : "default"}
                 value={field.value}
                 onChange={(value) => {
                   field.onChange(value);
                   setValue("cityId", "");
                 }}
-                placeholder="Select Governorate"
-                error={errors.governorateId?.message}
+                placeholder={tr("Select Governorate")}
+                searchPlaceholder={tr("Search governorates...")}
+                labels={selectLabels}
+                language={localized ? language : undefined}
+                rtl={rtl}
+                getOptionLabel={bilingualOptionLabel}
+                error={fieldError(errors.governorateId)}
               />
             )}
           />
@@ -137,19 +166,26 @@ export default function BranchFormModal({
 
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
-            City <span className="text-red-500">*</span>
+            {tr("City")} <span className="text-red-500">*</span>
           </label>
           <Controller
             name="cityId"
             control={control}
             render={({ field }) => (
               <CitySelect
+                key={localized ? language : "default"}
                 governorateId={governorateId}
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="Select city"
+                placeholder={tr("Select city")}
+                searchPlaceholder={tr("Search cities...")}
+                chooseFirstPlaceholder={tr("Choose Governorate First ")}
+                labels={selectLabels}
+                language={localized ? language : undefined}
+                rtl={rtl}
+                getOptionLabel={bilingualOptionLabel}
                 disabled={!governorateId}
-                error={errors.cityId?.message}
+                error={fieldError(errors.cityId)}
               />
             )}
           />
@@ -158,34 +194,34 @@ export default function BranchFormModal({
 
       <div className="mb-4" />
 
-      <TextField label="Full Address" required {...register("fullAddress")} />
+      <TextField label={tr("Full Address")} required {...register("fullAddress")} />
       {errors.fullAddress && (
-        <p className="-mt-3 mb-3 text-xs text-red-500">{errors.fullAddress.message}</p>
+        <p className="-mt-3 mb-3 text-xs text-red-500">{fieldError(errors.fullAddress)}</p>
       )}
 
       <TextField
-        label="Road kilometer marker"
-        placeholder="e.g. 82"
+        label={tr("Road kilometer marker")}
+        placeholder={tr("e.g. 82")}
         inputMode="decimal"
         sanitize={false}
-        error={errors.kilo?.message}
+        error={fieldError(errors.kilo)}
         {...register("kilo")}
       />
 
       <TextField
-        label="Map URL"
+        label={tr("Map URL")}
         required
         maxLength={2048}
         sanitize={false}
         {...register("mapUrl")}
       />
       {errors.mapUrl && (
-        <p className="-mt-3 mb-3 text-xs text-red-500">{errors.mapUrl.message}</p>
+        <p className="-mt-3 mb-3 text-xs text-red-500">{fieldError(errors.mapUrl)}</p>
       )}
 
-      <TextField label="Email" required {...register("email")} />
+      <TextField label={tr("Email")} required {...register("email")} />
       {errors.email && (
-        <p className="-mt-3 mb-3 text-xs text-red-500">{errors.email.message}</p>
+        <p className="-mt-3 mb-3 text-xs text-red-500">{fieldError(errors.email)}</p>
       )}
 
       {isEditMode && (
@@ -195,14 +231,16 @@ export default function BranchFormModal({
             {...register("isActive")}
             className="h-4 w-4 rounded border-slate-300"
           />
-          Active
+          {tr("Active")}
         </label>
       )}
 
       <FormActions
         onCancel={onClose}
         isSaving={mutation.isPending}
-        submitLabel={isEditMode ? "Save Changes" : "Add Branch"}
+        submitLabel={tr(isEditMode ? "Save Changes" : "Add Branch")}
+        cancelLabel={tr("Cancel")}
+        savingLabel={tr("Saving...")}
       />
     </FormModalShell>
   );

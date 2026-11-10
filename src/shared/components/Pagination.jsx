@@ -9,6 +9,11 @@ export default function Pagination({
   onGoToPage,
   onPageSizeChange,
   getPageNumbers,
+  summary,
+  rowsPerPageLabel = "Rows per page",
+  previousLabel = "Previous",
+  nextLabel = "Next",
+  rtl = false,
 }) {
   if (totalPages <= 1) return null;
   const pageNumbers = getPageNumbers(pageNumber, totalPages);
@@ -17,12 +22,12 @@ export default function Pagination({
     <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
         <p className="text-xs text-slate-400">
-          Showing page {pageNumber} of {totalPages} ({totalCount} {itemLabel})
+          {summary ?? `Showing page ${pageNumber} of ${totalPages} (${totalCount} ${itemLabel})`}
         </p>
 
         <div className="flex items-center gap-2">
           <label htmlFor="pageSize" className="text-xs text-slate-400">
-            Rows per page
+            {rowsPerPageLabel}
           </label>
           <select
             id="pageSize"
@@ -46,10 +51,11 @@ export default function Pagination({
         <button
           onClick={() => onGoToPage(pageNumber - 1)}
           disabled={pageNumber <= 1}
+          aria-label={previousLabel}
           className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"
         >
-          <span className="hidden sm:inline">Previous</span>
-          <span className="sm:hidden">‹</span>
+          <span className="hidden sm:inline">{previousLabel}</span>
+          <span className="sm:hidden">{rtl ? "›" : "‹"}</span>
         </button>
 
         {pageNumbers[0] > 1 && (
@@ -97,10 +103,11 @@ export default function Pagination({
         <button
           onClick={() => onGoToPage(pageNumber + 1)}
           disabled={pageNumber >= totalPages}
+          aria-label={nextLabel}
           className="rounded-lg px-2.5 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"
         >
-          <span className="hidden sm:inline">Next</span>
-          <span className="sm:hidden">›</span>
+          <span className="hidden sm:inline">{nextLabel}</span>
+          <span className="sm:hidden">{rtl ? "‹" : "›"}</span>
         </button>
       </div>
     </div>

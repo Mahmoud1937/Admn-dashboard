@@ -10,11 +10,12 @@ export const emptyFilters = {
   specialistId: "",
 };
 
-export function useProvidersQuery({ pageNumber, pageSize, search, filters }) {
+export function useProvidersQuery({ pageNumber, pageSize, search, filters, language }) {
   const query = useQuery({
-    queryKey: ["providers", pageNumber, pageSize, search, filters],
+    queryKey: ["providers", language, pageNumber, pageSize, search, filters],
     queryFn: () => getProviders({ pageNumber, pageSize, searchTerm: search, filters }),
-    placeholderData: (previousData) => previousData,
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey?.[1] === language ? previousData : undefined,
   });
 
   return {

@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../navbar/Navbar';
 import Sidebar from '../sidebar/Sidebar';
+import useLanguage from '../localization/useLanguage';
 
 // Matches the `lg:hidden` breakpoint used for the Navbar's hamburger button.
 const MOBILE_QUERY = "(max-width: 1023px)";
 
 const Layout = () => {
+  const { direction } = useLanguage();
   const [collapsed, setCollapsed] = useState(() =>
     typeof window !== "undefined" ? window.matchMedia(MOBILE_QUERY).matches : false
   );
@@ -21,18 +23,20 @@ const Layout = () => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-slate-50">
+    <div dir="ltr" className={`flex h-screen bg-slate-50 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`}>
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <Navbar onToggleSidebar={() => setCollapsed((prev) => !prev)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <Outlet
-            context={{
-              sidebarCollapsed: collapsed,
-              setSidebarCollapsed: setCollapsed,
-            }}
-          />
+        <main dir={direction} className="flex-1 overflow-y-auto p-4 md:p-8">
+          <div dir="ltr" className="contents">
+            <Outlet
+              context={{
+                sidebarCollapsed: collapsed,
+                setSidebarCollapsed: setCollapsed,
+              }}
+            />
+          </div>
         </main>
       </div>
     </div>

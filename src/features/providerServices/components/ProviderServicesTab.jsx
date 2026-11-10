@@ -28,11 +28,13 @@ import Pagination from "../../../shared/components/Pagination";
 import ProviderServiceFormModal from "./ProviderServiceFormModal";
 import PriceListFormModal from "./PriceListFormModal";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
-import QueryErrorState from "../../../shared/components/QueryErrorState";
+import QueryErrorState from "../../../localization/ProviderDetailsQueryErrorState";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { createProviderPriceList, deleteProviderPriceList, getProviderPriceListOptions, updateProviderPriceList } from "../services/priceListsService";
 import Skeleton, { SkeletonTable } from "../../../shared/components/Skeleton";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import useLanguage from "../../../localization/useLanguage";
 
 const displayPeriodDate = (value) =>
   value && !Number.isNaN(new Date(value).getTime()) ? formatDate(value) : "-";
@@ -87,6 +89,9 @@ function IconButton({ title, onClick, tone = "blue", children }) {
 }
 
 export default function ProviderServicesTab() {
+  const tr = useProviderDetailsText();
+  const { direction, language } = useLanguage();
+  const rtl = direction === "rtl";
   const canViewPriceLists = usePermission(PERMISSION_CODES.PROVIDER_PRICE_LISTS_READ);
   const canCreatePriceList = usePermission(PERMISSION_CODES.PROVIDER_PRICE_LISTS_CREATE);
   const canUpdatePriceList = usePermission(PERMISSION_CODES.PROVIDER_PRICE_LISTS_UPDATE);
@@ -112,7 +117,7 @@ export default function ProviderServicesTab() {
     error: priceListsError,
     refetch: refetchPriceLists,
   } = useQuery({
-    queryKey: ["provider-price-list-options", providerId],
+    queryKey: ["provider-price-list-options", providerId, language],
     queryFn: () => getProviderPriceListOptions(providerId),
     enabled: canViewPriceLists && Boolean(providerId),
   });
@@ -128,7 +133,7 @@ export default function ProviderServicesTab() {
   const createPriceListMutation = useMutation({
     mutationFn: createProviderPriceList,
     onSuccess: (response) => {
-      toast.success(response.message || "Price list created successfully.");
+      toast.success(response.message || tr("Price list created successfully."));
       if (response.data?.id != null) {
         setServicePriceListId(String(response.data.id));
       }
@@ -141,7 +146,7 @@ export default function ProviderServicesTab() {
   const updatePriceListMutation = useMutation({
     mutationFn: updateProviderPriceList,
     onSuccess: (response) => {
-      toast.success(response.message || "Price list updated successfully.");
+      toast.success(response.message || tr("Price list updated successfully."));
       queryClient.invalidateQueries({ queryKey: ["provider-price-list-options", providerId] });
       setIsPriceListModalOpen(false);
       setEditingPriceList(null);
@@ -151,7 +156,7 @@ export default function ProviderServicesTab() {
   const deletePriceListMutation = useMutation({
     mutationFn: deleteProviderPriceList,
     onSuccess: (response, deletedId) => {
-      toast.success(response.message || "Price list deleted successfully.");
+      toast.success(response.message || tr("Price list deleted successfully."));
       setServicePriceListId((currentId) =>
         String(currentId) === String(deletedId) ? "" : currentId
       );
@@ -160,7 +165,7 @@ export default function ProviderServicesTab() {
       queryClient.invalidateQueries({ queryKey: ["provider-services"] });
     },
     onError: (error) => {
-      toast.error(getPriceListErrorMessage(error) || "Failed to delete price list.");
+      toast.error(getPriceListErrorMessage(error) || tr("Failed to delete price list."));
     },
   });
 
@@ -194,6 +199,7 @@ export default function ProviderServicesTab() {
     statusFilter,
     servicePriceListId: selectedPriceListId,
     enabled: canViewServices && (!canViewPriceLists || Boolean(selectedPriceListId)),
+    language,
   });
 
   const {
@@ -253,12 +259,14 @@ export default function ProviderServicesTab() {
             </span>
             <div className="leading-tight">
               <h3 className="text-base font-semibold text-slate-900">
-                Price lists
+                {tr("Price lists")}
               </h3>
               <p className="text-xs text-slate-500">
                 {priceLists.length > 0
-                  ? `${priceLists.length} ${priceLists.length === 1 ? "period" : "periods"} · select one to manage its services`
-                  : "Pricing periods for this provider"}
+                  ? tr(priceLists.length === 1
+                    ? "{{total}} period · select one to manage its services"
+                    : "{{total}} periods · select one to manage its services", { total: priceLists.length })
+                  : tr("Pricing periods for this provider")}
               </p>
             </div>
           </div>
@@ -272,22 +280,22 @@ export default function ProviderServicesTab() {
                   setEditingPriceList(selectedPriceList);
                   setIsPriceListModalOpen(true);
                 }}
-                aria-label={`Edit price list #${selectedPriceList.id}`}
+                aria-label={tr("Edit price list #{{id}}", { id: selectedPriceList.id })}
                 className="flex items-center gap-2 rounded-xl bg-slate-50 px-3.5 py-2 text-sm font-medium text-slate-700 ring-1 ring-inset ring-slate-200 transition-all hover:bg-white hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
               >
                 <FontAwesomeIcon icon={faPenToSquare} className="text-slate-400" />
-                Edit dates
+                {tr("Edit dates")}
               </button>
             )}
             {canDeletePriceList && selectedPriceList && (
               <button
                 type="button"
                 onClick={() => setPriceListToDelete(selectedPriceList)}
-                aria-label={`Delete price list #${selectedPriceList.id}`}
+                aria-label={tr("Delete price list #{{id}}", { id: selectedPriceList.id })}
                 className="flex items-center gap-2 rounded-xl bg-red-50/60 px-3.5 py-2 text-sm font-medium text-red-600 ring-1 ring-inset ring-red-100 transition-all hover:bg-red-50 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
               >
                 <FontAwesomeIcon icon={faTrashCan} />
-                Delete
+                {tr("Delete")}
               </button>
             )}
             {canCreatePriceList && (
@@ -301,7 +309,7 @@ export default function ProviderServicesTab() {
                 className="flex items-center gap-2 rounded-xl bg-blue-900 px-3.5 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-blue-800 hover:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
               >
                 <FontAwesomeIcon icon={faPlus} />
-                Create price list
+                {tr("Create price list")}
               </button>
             )}
           </div>
@@ -314,15 +322,15 @@ export default function ProviderServicesTab() {
               <Skeleton className="hidden h-[68px] w-56 rounded-xl bg-slate-100 sm:block" />
             </div>
           ) : isPriceListsError ? (
-            <p className="text-sm text-red-600">Unable to load price lists.</p>
+            <p className="text-sm text-red-600">{tr("Unable to load price lists.")}</p>
           ) : priceLists.length === 0 ? (
             <div className="flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-3 text-sm text-slate-500">
               <FontAwesomeIcon icon={faCalendarDays} className="text-slate-400" />
-              No price lists are available for this provider.
+              {tr("No price lists are available for this provider.")}
             </div>
           ) : (
             <nav
-              aria-label="Price list periods"
+              aria-label={tr("Price list periods")}
               className="flex gap-3 overflow-x-auto pb-1"
             >
               {priceLists.map((priceList) => {
@@ -333,7 +341,7 @@ export default function ProviderServicesTab() {
                     type="button"
                     aria-current={isSelected ? "page" : undefined}
                     onClick={() => setServicePriceListId(String(priceList.id))}
-                    className={`group relative shrink-0 rounded-xl px-4 py-3 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 ${
+                    className={`group relative shrink-0 rounded-xl px-4 py-3 text-start transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 ${
                       isSelected
                         ? "bg-gradient-to-br from-blue-900 to-blue-800 text-white shadow-md shadow-blue-900/20"
                         : "bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:-translate-y-0.5 hover:shadow-sm hover:ring-slate-300"
@@ -355,7 +363,7 @@ export default function ProviderServicesTab() {
                             isSelected ? "text-blue-100" : "text-slate-400"
                           }`}
                         >
-                          Price list #{priceList.id}
+                          {tr("Price list #{{id}}", { id: priceList.id })}
                         </span>
                         <span className="mt-1 block whitespace-nowrap text-sm font-semibold">
                           {displayPeriodDate(priceList.startAt)}
@@ -364,7 +372,7 @@ export default function ProviderServicesTab() {
                               isSelected ? "text-blue-200" : "text-slate-300"
                             }`}
                           >
-                            →
+                            {rtl ? "←" : "→"}
                           </span>
                           {displayPeriodDate(priceList.endAt)}
                         </span>
@@ -384,13 +392,13 @@ export default function ProviderServicesTab() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Services</h2>
+          <h2 className="text-lg font-semibold text-slate-900">{tr("Services")}</h2>
           <p className="text-sm text-slate-500">
             {isLoading || isError || isLoadingPriceLists || isPriceListsError
-              ? "Manage prices, discounts and offers."
-              : `${count} ${count === 1 ? "service" : "services"}${
-                  hasActiveFilters ? " match your filters" : " in total"
-                }`}
+              ? tr("Manage prices, discounts and offers.")
+              : tr(hasActiveFilters
+                ? count === 1 ? "{{total}} service matches your filters" : "{{total}} services match your filters"
+                : count === 1 ? "{{total}} service in total" : "{{total}} services in total", { total: count })}
           </p>
         </div>
 
@@ -402,7 +410,7 @@ export default function ProviderServicesTab() {
             className="flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add service
+            {tr("Add service")}
           </button>
         )}
       </div>
@@ -413,26 +421,27 @@ export default function ProviderServicesTab() {
           <div className="relative min-w-[240px] flex-1">
             <FontAwesomeIcon
               icon={faSearch}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-slate-400 ${rtl ? "right-3" : "left-3"}`}
             />
             <input
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search services"
-              aria-label="Search services"
-              className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              placeholder={tr("Search services")}
+              aria-label={tr("Search services")}
+              style={rtl ? { direction: "rtl", textAlign: "right" } : undefined}
+              className={`w-full rounded-lg border border-slate-200 py-2 text-sm outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-100 ${rtl ? "pr-9 pl-3" : "pl-9 pr-3"}`}
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            aria-label="Filter by status"
+            aria-label={tr("Filter by status")}
             className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
           >
-            <option value="">All statuses</option>
-            <option value="1">Active</option>
-            <option value="2">Inactive</option>
+            <option value="">{tr("All statuses")}</option>
+            <option value="1">{tr("Active")}</option>
+            <option value="2">{tr("Inactive")}</option>
           </select>
 
         </div>
@@ -441,46 +450,47 @@ export default function ProviderServicesTab() {
           <TableSkeleton />
         ) : canViewPriceLists && isPriceListsError ? (
           <QueryErrorState
-            title="Unable to load price lists"
+            title={tr("Unable to load price lists")}
             error={priceListsError}
             onRetry={refetchPriceLists}
           />
         ) : canViewPriceLists && !selectedPriceListId ? (
           <TableEmptyState
             icon={faTag}
-            title="No price lists found"
-            emptyMessage="No price lists are available for this provider."
+            title={tr("No price lists found")}
+            emptyMessage={tr("No price lists are available for this provider.")}
           />
         ) : isLoading ? (
           <TableSkeleton />
         ) : isError ? (
           <QueryErrorState
-            title="Unable to load services"
+            title={tr("Unable to load services")}
             error={error}
             onRetry={refetch}
           />
         ) : providerServices.length === 0 ? (
           <TableEmptyState
             icon={faTag}
-            title="No services found"
+            title={tr("No services found")}
             hasActiveFilters={hasActiveFilters}
-            emptyMessage="No services have been added for this provider yet."
+            emptyMessage={tr("No services have been added for this provider yet.")}
+            filterMessage={tr("Try a different search term.")}
           />
         ) : (
           <>
             <ScrollableTable className="scroll-table">
-              <table className="w-full min-w-[820px] text-left text-sm">
+              <table className="w-full min-w-[820px] text-start text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-100 text-xs font-medium text-slate-500">
-                    <th className="px-6 py-3">Service</th>
-                    <th className="px-4 py-3 text-right">Price before</th>
-                    <th className="px-4 py-3 text-center">Discount</th>
-                    <th className="px-4 py-3 text-right">Price after</th>
-                    <th className="px-4 py-3 text-center">Offer</th>
-                    <th className="px-4 py-3 text-center">Status</th>
-                    <th className="px-4 py-3">Joined</th>
+                    <th className="px-6 py-3">{tr("Service")}</th>
+                    <th className="px-4 py-3 text-end">{tr("Price before")}</th>
+                    <th className="px-4 py-3 text-center">{tr("Discount")}</th>
+                    <th className="px-4 py-3 text-end">{tr("Price after")}</th>
+                    <th className="px-4 py-3 text-center">{tr("Offer")}</th>
+                    <th className="px-4 py-3 text-center">{tr("Status")}</th>
+                    <th className="px-4 py-3">{tr("Joined")}</th>
                     {canUpdate && canViewPriceLists && (
-                      <TableActionsCell as="th" className="px-6 py-3 text-center">Actions</TableActionsCell>
+                      <TableActionsCell as="th" side={rtl ? "left" : "right"} className="px-6 py-3 text-center">{tr("Actions")}</TableActionsCell>
                     )}
                   </tr>
                 </thead>
@@ -491,27 +501,26 @@ export default function ProviderServicesTab() {
                       key={service.id}
                       className="transition-colors hover:bg-slate-50"
                     >
-                      {/* Service (EN over AR) */}
+                      {/* Service names follow the selected language; values stay as returned. */}
                       <td className="px-6 py-3.5">
                         <div className="min-w-0 max-w-[300px] leading-tight">
-                          <p className="truncate font-semibold text-slate-900">
-                            {service.serviceNameEn}
+                          <p dir={rtl && service.serviceNameAr ? "rtl" : "ltr"} className={`truncate font-semibold text-slate-900 ${rtl ? "text-right" : "text-left"}`}>
+                            {rtl ? service.serviceNameAr || service.serviceNameEn : service.serviceNameEn || service.serviceNameAr}
                           </p>
-                          {service.serviceNameAr && (
+                          {service.serviceNameAr && service.serviceNameEn && (
                             <p
-                              dir="rtl"
-                              lang="ar"
-                              style={{ textAlign: "left" }}
-                              className="mt-0.5 truncate text-xs text-slate-500"
+                              dir={rtl ? "ltr" : "rtl"}
+                              lang={rtl ? "en" : "ar"}
+                              className={`mt-0.5 truncate text-xs text-slate-500 ${rtl ? "text-right" : "text-left"}`}
                             >
-                              {service.serviceNameAr}
+                              {rtl ? service.serviceNameEn : service.serviceNameAr}
                             </p>
                           )}
                         </div>
                       </td>
 
                       {/* Prices */}
-                      <td className="whitespace-nowrap px-4 py-3.5 text-right tabular-nums text-slate-500">
+                      <td className="whitespace-nowrap px-4 py-3.5 text-end tabular-nums text-slate-500">
                         {Number(service.priceBefore).toFixed(2)}
                       </td>
 
@@ -525,7 +534,7 @@ export default function ProviderServicesTab() {
                         )}
                       </td>
 
-                      <td className="whitespace-nowrap px-4 py-3.5 text-right font-semibold tabular-nums text-slate-900">
+                      <td className="whitespace-nowrap px-4 py-3.5 text-end font-semibold tabular-nums text-slate-900">
                         {Number(service.priceAfter).toFixed(2)}
                       </td>
 
@@ -533,7 +542,7 @@ export default function ProviderServicesTab() {
                       <td className="px-4 py-3.5 text-center">
                         {service.isSpecialOffer ? (
                           <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
-                            Special
+                            {tr("Special")}
                           </span>
                         ) : (
                           <span className="text-slate-400">-</span>
@@ -542,7 +551,7 @@ export default function ProviderServicesTab() {
 
                       {/* Status */}
                       <td className="px-4 py-3.5 text-center">
-                        <StatusBadge isActive={service.isActive} />
+                        <StatusBadge isActive={service.isActive} activeLabel={tr("Active")} inactiveLabel={tr("Inactive")} />
                       </td>
 
                       {/* Joined */}
@@ -552,13 +561,13 @@ export default function ProviderServicesTab() {
 
                       {/* Actions */}
                       {canUpdate && canViewPriceLists && (
-                        <TableActionsCell hoverColor="var(--color-slate-50)"
+                        <TableActionsCell hoverColor="var(--color-slate-50)" side={rtl ? "left" : "right"}
                           className="px-6 py-3.5"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex items-center justify-center gap-1">
                             <IconButton
-                              title="Edit service"
+                              title={tr("Edit service")}
                               onClick={() => handleOpenEdit(service)}
                             >
                               <FontAwesomeIcon icon={faPenToSquare} />
@@ -566,7 +575,7 @@ export default function ProviderServicesTab() {
 
                             {service.isActive ? (
                               <IconButton
-                                title="Deactivate service"
+                                  title={tr("Deactivate service")}
                                 tone="red"
                                 onClick={() => setServiceToToggle(service)}
                               >
@@ -574,7 +583,7 @@ export default function ProviderServicesTab() {
                               </IconButton>
                             ) : (
                               <IconButton
-                                title="Activate service"
+                                  title={tr("Activate service")}
                                 tone="green"
                                 onClick={() => setServiceToToggle(service)}
                               >
@@ -596,7 +605,12 @@ export default function ProviderServicesTab() {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="services"
+                itemLabel={tr("services")}
+                summary={tr("Showing page {{page}} of {{totalPages}} ({{total}} services)", { page: pageNumber, totalPages, total: totalCount })}
+                rowsPerPageLabel={tr("Rows per page")}
+                previousLabel={tr("Previous")}
+                nextLabel={tr("Next")}
+                rtl={rtl}
                 getPageNumbers={getPageNumbers}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
@@ -630,9 +644,15 @@ export default function ProviderServicesTab() {
       {canViewPriceLists && canDeletePriceList && (
         <ConfirmDeleteModal
           isOpen={Boolean(priceListToDelete)}
-          title="Delete price list"
-          message={`Are you sure you want to delete price list #${priceListToDelete?.id} (${displayPeriodDate(priceListToDelete?.startAt)} - ${displayPeriodDate(priceListToDelete?.endAt)})?`}
-          confirmLabel="Delete price list"
+          title={tr("Delete price list")}
+          message={tr("Are you sure you want to delete price list #{{id}} ({{start}} - {{end}})?", {
+            id: priceListToDelete?.id,
+            start: displayPeriodDate(priceListToDelete?.startAt),
+            end: displayPeriodDate(priceListToDelete?.endAt),
+          })}
+          confirmLabel={tr("Delete price list")}
+          cancelLabel={tr("Cancel")}
+          loadingLabel={tr("Processing...")}
           onConfirm={() => {
             if (canDeletePriceList && priceListToDelete) deletePriceListMutation.mutate(priceListToDelete.id);
           }}
@@ -663,14 +683,16 @@ export default function ProviderServicesTab() {
           isOpen={!!serviceToToggle}
           variant={serviceToToggle?.isActive ? "danger" : "success"}
           title={
-            serviceToToggle?.isActive ? "Deactivate service" : "Activate service"
+            tr(serviceToToggle?.isActive ? "Deactivate service" : "Activate service")
           }
           message={
             serviceToToggle?.isActive
-              ? `Are you sure you want to deactivate "${serviceToToggle?.serviceNameEn}"? You can reactivate it later.`
-              : `Are you sure you want to activate "${serviceToToggle?.serviceNameEn}"?`
+              ? tr("Are you sure you want to deactivate \"{{name}}\"? You can reactivate it later.", { name: rtl ? serviceToToggle?.serviceNameAr || serviceToToggle?.serviceNameEn : serviceToToggle?.serviceNameEn })
+              : tr("Are you sure you want to activate \"{{name}}\"?", { name: rtl ? serviceToToggle?.serviceNameAr || serviceToToggle?.serviceNameEn : serviceToToggle?.serviceNameEn })
           }
-          confirmLabel={serviceToToggle?.isActive ? "Deactivate" : "Activate"}
+          confirmLabel={tr(serviceToToggle?.isActive ? "Deactivate" : "Activate")}
+          cancelLabel={tr("Cancel")}
+          loadingLabel={tr("Processing...")}
           onConfirm={handleConfirmToggle}
           onCancel={() => setServiceToToggle(null)}
           isLoading={toggleMutation.isPending}

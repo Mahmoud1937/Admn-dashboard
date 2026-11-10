@@ -8,19 +8,26 @@ export default function ProviderCategorySelect({
   error,
   disabled,
   className = "w-full sm:w-72", // default kept exactly as before
+  searchPlaceholder = "Search categories...",
+  labels,
+  language,
+  rtl = false,
+  getOptionLabel = (item) => `${item.enName} - ${item.arName}`,
 }) {
   return (
     <div className={className}>
       <SearchableAsyncSelect
-        queryKey={["provider-categories"]}
+        queryKey={language ? ["provider-categories", language] : ["provider-categories"]}
         fetchItems={(pageNumber, pageSize, searchTerm) =>
           getCategories(pageNumber, pageSize, searchTerm)
         }
         value={value}
         onChange={onChange}
-        getOptionLabel={(item) => `${item.enName} - ${item.arName}`}
+        getOptionLabel={getOptionLabel}
         placeholder={placeholder}
-        searchPlaceholder="Search categories..."
+        searchPlaceholder={searchPlaceholder}
+        labels={labels}
+        rtl={rtl}
         disabled={disabled}
         error={error}
       />

@@ -2,8 +2,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { createProvider, updateProvider } from "../services/providersService";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
 
 export function useProviderMutation({ id, isCreateMode, onUpdateSuccess }) {
+  const tr = useProviderDetailsText();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -19,13 +21,13 @@ export function useProviderMutation({ id, isCreateMode, onUpdateSuccess }) {
 
       if (isCreateMode) {
         const providerId = response?.data?.id ?? response?.id;
-        toast.success("Provider created successfully.");
+        toast.success(tr("Provider created successfully."));
         navigate(providerId ? `/providers/${providerId}` : "/providers");
         return;
       }
 
       queryClient.invalidateQueries({ queryKey: ["provider", id] });
-      toast.success("Provider updated successfully.");
+      toast.success(tr("Provider updated successfully."));
       onUpdateSuccess?.();
     },
     onError: (error) => {
@@ -38,7 +40,7 @@ export function useProviderMutation({ id, isCreateMode, onUpdateSuccess }) {
 
       if (!backendErrors || typeof backendErrors !== "object") {
         toast.error(
-          error?.response?.data?.title || error?.message || "Failed to save changes."
+          error?.response?.data?.title || error?.message || tr("Failed to save changes.")
         );
       }
       // object (field-level errors) case: no toast here, left for the form to display per-field

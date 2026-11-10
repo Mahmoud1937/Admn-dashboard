@@ -14,6 +14,7 @@ export default function ConfirmDeleteModal({
   titleId,
   errorMessage,
   loadingLabel = "Processing...",
+  cancelLabel = "Cancel",
   confirmIcon,
 }) {
   if (!isOpen) return null;
@@ -56,7 +57,7 @@ export default function ConfirmDeleteModal({
               ? "rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
               : "rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-60"}
           >
-            Cancel
+            {cancelLabel}
           </button>
 
           <button

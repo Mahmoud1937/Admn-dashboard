@@ -15,7 +15,30 @@ function getExportFilename(response, fallbackFilename) {
   return (plain?.[1] ?? plain?.[2])?.trim() || fallbackFilename;
 }
 
-export function useExcelExport({ request, fallbackFilename, errorMessage }) {
+const NETWORK_ERROR_CODES = new Set(["ERR_NETWORK", "ECONNABORTED", "ETIMEDOUT"]);
+
+export function getExcelExportErrorMessage(error, { errorMessage, networkErrorMessage } = {}) {
+  const isNetworkError = !error?.response && NETWORK_ERROR_CODES.has(error?.code);
+
+  if (isNetworkError && networkErrorMessage) return networkErrorMessage;
+  return getApiErrorMessage(error, { details: true, fallback: errorMessage });
+}
+
+export async function validateExcelExportResponse(response, { invalidFileMessage, emptyFileMessage }) {
+  const blob = response.data;
+  if (blob instanceof Blob && /json/i.test(blob.type)) {
+    const body = JSON.parse(await blob.text());
+    const error = new Error(invalidFileMessage);
+    if (body?.succeeded === false) error.response = { ...response, data: body };
+    throw error;
+  }
+  if (!(blob instanceof Blob) || blob.size === 0) {
+    throw new Error(emptyFileMessage);
+  }
+  return blob;
+}
+
+export function useExcelExport({ request, fallbackFilename, errorMessage, invalidFileMessage = "The server did not return an Excel file.", emptyFileMessage = "No Excel file was returned. Please try again.", networkErrorMessage }) {
   const exportingRef = useRef(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState("");
@@ -28,16 +51,7 @@ export function useExcelExport({ request, fallbackFilename, errorMessage }) {
 
     try {
       const response = await request(options);
-      const blob = response.data;
-      if (blob instanceof Blob && /json/i.test(blob.type)) {
-        const body = JSON.parse(await blob.text());
-        const error = new Error("The server did not return an Excel file.");
-        if (body?.succeeded === false) error.response = { ...response, data: body };
-        throw error;
-      }
-      if (!(blob instanceof Blob) || blob.size === 0) {
-        throw new Error("No Excel file was returned. Please try again.");
-      }
+      const blob = await validateExcelExportResponse(response, { invalidFileMessage, emptyFileMessage });
 
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -58,10 +72,7 @@ export function useExcelExport({ request, fallbackFilename, errorMessage }) {
           // Keep the original response when the backend error is not JSON.
         }
       }
-      setExportError(getApiErrorMessage(error, {
-        details: true,
-        fallback: errorMessage,
-      }));
+      setExportError(getExcelExportErrorMessage(error, { errorMessage, networkErrorMessage }));
     } finally {
       exportingRef.current = false;
       setIsExporting(false);

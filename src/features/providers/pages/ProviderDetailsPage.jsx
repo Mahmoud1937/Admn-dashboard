@@ -18,12 +18,15 @@ import ProviderServicesTab from "../../providerServices/components/ProviderServi
 import ProviderMedicinesTab from "../../Medicines/components/ProviderMedicinesTab";
 import ProviderPackagesTab from "../../providerPackages/components/ProviderPackagesTab";
 import ProviderRenewalsTab from "../../providerRenewals/components/ProviderRenewalsTab";
-import QueryErrorState from "../../../shared/components/QueryErrorState";
+import QueryErrorState from "../../../localization/ProviderDetailsQueryErrorState";
 import AccessDeniedPage from "../../../shared/components/AccessDeniedPage";
 import usePermission from "../../auth/hooks/usePermission";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import Skeleton from "../../../shared/components/Skeleton";
 import { isPharmacyCategory } from "../utils/providerFormHelpers";
+import LocalizedPage from "../../../localization/LocalizedPage";
+import useLanguage from "../../../localization/useLanguage";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
 
 const TABS = [
   { key: "info", label: "Provider Info", icon: faBuilding },
@@ -54,6 +57,8 @@ function PageSkeleton() {
 }
 
 export default function ProviderDetailsPage() {
+  const tr = useProviderDetailsText();
+  const { language } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -72,7 +77,8 @@ export default function ProviderDetailsPage() {
 
   const { provider, isLoading, isError, error, refetch } = useProviderQuery(
     id,
-    isCreateMode
+    isCreateMode,
+    language
   );
   const isPharmacy = isPharmacyCategory(provider?.providerCategoryId);
 
@@ -108,26 +114,29 @@ export default function ProviderDetailsPage() {
 
   if (!isCreateMode && isError) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+      <LocalizedPage className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
         <QueryErrorState
-          title="Unable to load provider details"
+          title={tr("Unable to load provider details")}
           error={error}
           onRetry={refetch}
         />
-      </div>
+      </LocalizedPage>
     );
   }
 
-  const providerName = provider?.enName || provider?.arName || provider?.name || provider?.nameEn || "Provider";
-  const pageTitle = isCreateMode ? "New Provider" : providerName;
+  const providerName = (language === "ar" ? provider?.arName || provider?.enName : provider?.enName || provider?.arName)
+    || provider?.name || provider?.nameEn || tr("Provider");
+  const pageTitle = isCreateMode ? tr("New Provider") : providerName;
   const pageSubtitle = isCreateMode
-    ? "Fill in the details below to register a new provider."
+    ? tr("Fill in the details below to register a new provider.")
     : isEditMode
-    ? "Update provider information."
-    : `View provider information, branches, ${isPharmacy ? "medicines" : "services"}, packages and renewals.`;
+    ? tr("Update provider information.")
+    : tr(isPharmacy
+      ? "View provider information, branches, medicines, packages and renewals."
+      : "View provider information, branches, services, packages and renewals.");
 
   return (
-    <div className="space-y-6">
+    <LocalizedPage className="space-y-6">
       {/* Header */}
       <header className="space-y-3">
         <button
@@ -135,8 +144,8 @@ export default function ProviderDetailsPage() {
           onClick={() => navigate("/providers")}
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-blue-600"
         >
-          <FontAwesomeIcon icon={faArrowLeft} className="text-xs" />
-          Back to providers
+          <FontAwesomeIcon icon={faArrowLeft} className={`text-xs ${language === "ar" ? "rotate-180" : ""}`} />
+          {tr("Back to providers")}
         </button>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -150,7 +159,7 @@ export default function ProviderDetailsPage() {
               </h1>
               {isEditMode && !isCreateMode && (
                 <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-200">
-                  Editing
+                  {tr("Editing")}
                 </span>
               )}
             </div>
@@ -162,7 +171,7 @@ export default function ProviderDetailsPage() {
       {/* Tabs */}
       {!isCreateMode && (
         <nav
-          aria-label="Provider sections"
+          aria-label={tr("Provider sections")}
           className="overflow-x-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm"
         >
           <div className="flex min-w-max gap-1 sm:min-w-0">
@@ -181,7 +190,7 @@ export default function ProviderDetailsPage() {
                   }`}
                 >
                   <FontAwesomeIcon icon={tab.icon} className="text-xs" />
-                  {tab.label}
+                  {tr(tab.label)}
                 </button>
               );
             })}
@@ -202,7 +211,7 @@ export default function ProviderDetailsPage() {
           />
         )}
 
-        {selectedTab === "branches" && canViewBranches && <ProviderBranchesTab />}
+        {selectedTab === "branches" && canViewBranches && <ProviderBranchesTab localized />}
         {selectedTab === "services" && (isPharmacy
           ? canViewMedicines && <ProviderMedicinesTab key={id} providerId={id} />
           : (canViewServices || canViewPriceLists) && <ProviderServicesTab />)}
@@ -218,6 +227,6 @@ export default function ProviderDetailsPage() {
           />
         )}
       </section>
-    </div>
+    </LocalizedPage>
   );
 }

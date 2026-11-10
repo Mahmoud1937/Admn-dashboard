@@ -10,11 +10,15 @@ import { useAuth } from "../features/auth/context/Authcontext";
 import useAuthMutations from "../features/auth/hooks/useAuthMutations";
 import { splitEmployeeName } from "../shared/utils/jwt";
 import ChangePasswordModal from "../features/auth/components/ChangePasswordModal";
+import { useTranslation } from "react-i18next";
+import useLanguage from "../localization/useLanguage";
 
 const getDisplayValue = (value, fallback) =>
   typeof value === "string" && value.trim() ? value.trim() : fallback;
 
 export default function UserMenu() {
+  const { t } = useTranslation("navbar");
+  const { direction } = useLanguage();
   const [open, setOpen] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const menuRef = useRef(null);
@@ -22,10 +26,10 @@ export default function UserMenu() {
   const { logout, isLoggingOut } = useAuthMutations();
 
   const { englishName, arabicName } = splitEmployeeName(user?.employeeName);
-  const employeeNameEn = getDisplayValue(englishName, "Admin");
+  const employeeNameEn = getDisplayValue(englishName, t("adminFallback"));
   const employeeNameAr = getDisplayValue(arabicName, "");
-  const accountType = getDisplayValue(user?.accountType, "Account type unavailable");
-  const employeeGroupName = getDisplayValue(user?.employeeGroupName, "Group unavailable");
+  const accountType = getDisplayValue(user?.accountType, t("accountTypeUnavailable"));
+  const employeeGroupName = getDisplayValue(user?.employeeGroupName, t("groupUnavailable"));
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -52,6 +56,7 @@ export default function UserMenu() {
     <div className="relative" ref={menuRef}>
       <button
         type="button"
+        aria-label={t("userMenu")}
         onClick={() => setOpen((previous) => !previous)}
         className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1 transition hover:bg-slate-100"
       >
@@ -60,12 +65,12 @@ export default function UserMenu() {
         </div>
 
         <div className="hidden w-[220px] flex-col items-start leading-tight md:flex">
-          <p className="w-full truncate text-left text-sm font-semibold text-slate-900">
+          <p className="w-full truncate text-start text-sm font-semibold text-slate-900">
             {employeeNameEn}
           </p>
           {employeeNameAr && (
             <p
-              className="mt-0.5 w-full truncate text-left text-[11px] text-slate-500"
+              className="mt-0.5 w-full truncate text-start text-[11px] text-slate-500"
               dir="rtl"
               style={{ unicodeBidi: "isolate" }}
               title={employeeNameAr}
@@ -73,7 +78,7 @@ export default function UserMenu() {
               {employeeNameAr}
             </p>
           )}
-          <span className="mt-0.5 w-full truncate text-left text-[10px] text-slate-600">
+          <span className="mt-0.5 w-full truncate text-start text-[10px] text-slate-600">
             {accountType} <span className="px-1 text-slate-300">&bull;</span>{" "}
             {employeeGroupName}
           </span>
@@ -86,14 +91,14 @@ export default function UserMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-3 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+        <div className={`absolute mt-3 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg ${direction === "rtl" ? "left-0" : "right-0"}`}>
           <div className="flex flex-col items-start border-b border-slate-100 px-4 py-3">
-            <p className="w-full truncate text-left text-sm font-semibold text-slate-900">
+            <p className="w-full truncate text-start text-sm font-semibold text-slate-900">
               {employeeNameEn}
             </p>
             {employeeNameAr && (
               <p
-                className="mt-0.5 w-full truncate text-left text-xs text-slate-500"
+                className="mt-0.5 w-full truncate text-start text-xs text-slate-500"
                 dir="rtl"
                 style={{ unicodeBidi: "isolate" }}
                 title={employeeNameAr}
@@ -101,10 +106,10 @@ export default function UserMenu() {
                 {employeeNameAr}
               </p>
             )}
-            <p className="mt-1 w-full truncate text-left text-xs text-slate-500">
+            <p className="mt-1 w-full truncate text-start text-xs text-slate-500">
               {accountType}
             </p>
-            <p className="mt-0.5 w-full truncate text-left text-xs text-slate-400">
+            <p className="mt-0.5 w-full truncate text-start text-xs text-slate-400">
               {employeeGroupName}
             </p>
           </div>
@@ -115,7 +120,7 @@ export default function UserMenu() {
             className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50"
           >
             <FontAwesomeIcon icon={faKey} />
-            Change Password
+            {t("changePassword")}
           </button>
 
           <div className="border-t" />
@@ -127,13 +132,13 @@ export default function UserMenu() {
             className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-60"
           >
             <FontAwesomeIcon icon={faRightFromBracket} />
-            {isLoggingOut ? "Logging out..." : "Logout"}
+            {t(isLoggingOut ? "loggingOut" : "logout")}
           </button>
         </div>
       )}
 
       {showChangePassword && (
-        <ChangePasswordModal onClose={() => setShowChangePassword(false)} />
+        <ChangePasswordModal localized onClose={() => setShowChangePassword(false)} />
       )}
     </div>
   );

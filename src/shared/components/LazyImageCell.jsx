@@ -26,6 +26,8 @@ export default function LazyImageCell({
   onPreview,
   size = "h-14 w-24",
   rootMargin = "80px 0px",
+  noImageLabel = "No image",
+  previewLabel = "Click to preview",
 }) {
   const [loaded, setLoaded] = useState(false);
   const [inView, setInView] = useState(false);
@@ -56,7 +58,7 @@ export default function LazyImageCell({
     return (
       <span className={`inline-flex items-center gap-1.5 text-xs text-gray-400 bg-gray-50 border border-dashed border-gray-200 rounded-lg ${size} justify-center`}>
         <FontAwesomeIcon icon={faImage} />
-        No image
+        {noImageLabel}
       </span>
     );
   }
@@ -71,7 +73,7 @@ export default function LazyImageCell({
       }}
       className={`group relative ${size} overflow-hidden rounded-lg border border-gray-200 shadow-sm bg-gray-100 ${onPreview ? "cursor-pointer" : ""}`}
       style={{ contain: "paint" }}
-      title="Click to preview"
+      title={previewLabel}
     >
       {!loaded && <Skeleton as="span" className="absolute inset-0 bg-gray-200" />}
 

@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProviderById } from "../services/providersService";
 
-export function useProviderQuery(id, isCreateMode) {
+export function useProviderQuery(id, isCreateMode, language) {
   const query = useQuery({
-    queryKey: ["provider", id],
+    queryKey: language ? ["provider", id, language] : ["provider", id],
     queryFn: () => getProviderById(id),
     enabled: !!id && !isCreateMode,
   });

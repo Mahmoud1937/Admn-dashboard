@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProviderPackages } from "../services/providerPackagesService";
 
-export function useProviderPackagesQuery({ providerId, pageNumber, pageSize, enabled = true }) {
+export function useProviderPackagesQuery({ providerId, pageNumber, pageSize, enabled = true, language }) {
   const query = useQuery({
-    queryKey: ["provider-packages", providerId, pageNumber, pageSize],
+    queryKey: ["provider-packages", providerId, pageNumber, pageSize, language],
     queryFn: () => getProviderPackages({ providerId, pageNumber, pageSize }),
     enabled: enabled && !!providerId,
-    placeholderData: (previousData) => previousData,
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[4] === language ? previousData : undefined,
   });
 
   return {

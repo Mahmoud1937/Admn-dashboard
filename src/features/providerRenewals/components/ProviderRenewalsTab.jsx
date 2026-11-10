@@ -9,19 +9,22 @@ import ProviderRenewalFormModal from "./ProviderRenewalFormModal";
 import ProviderAttachmentsModal from "../../providerAttachments/components/ProviderAttachmentsModal";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import Pagination from "../../../shared/components/Pagination";
-import QueryErrorState from "../../../shared/components/QueryErrorState";
+import QueryErrorState from "../../../localization/ProviderDetailsQueryErrorState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import { formatDate } from "../../../utils/formatDate";
 import Skeleton from "../../../shared/components/Skeleton";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import useLanguage from "../../../localization/useLanguage";
 
 const formatContractDate = (value) =>
   value && !Number.isNaN(new Date(value).getTime()) ? formatDate(value) : "-";
 
 function RenewalsSkeleton() {
+  const tr = useProviderDetailsText();
   return (
     <div role="status" className="space-y-4 p-6">
-      <span className="sr-only">Loading renewals...</span>
+      <span className="sr-only">{tr("Loading renewals...")}</span>
       {Array.from({ length: 5 }, (_, index) => (
         <Skeleton
           key={index}
@@ -40,6 +43,8 @@ export default function ProviderRenewalsTab({
   canUpdateRenewals = false,
   canSelectBroker = false,
 }) {
+  const tr = useProviderDetailsText();
+  const { language } = useLanguage();
   const [selectedRenewalId, setSelectedRenewalId] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingRenewal, setEditingRenewal] = useState(null);
@@ -63,7 +68,7 @@ export default function ProviderRenewalsTab({
     isError,
     error,
     refetch,
-  } = useProviderRenewalsQuery({ providerId, pageNumber, pageSize });
+  } = useProviderRenewalsQuery({ providerId, pageNumber, pageSize, language });
 
   const resetFeedback = () => {
     createMutation.reset();
@@ -74,11 +79,11 @@ export default function ProviderRenewalsTab({
     <div className="min-w-0 space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Renewals</h2>
+          <h2 className="text-lg font-semibold text-slate-900">{tr("Renewals")}</h2>
           <p className="text-sm text-slate-500">
             {isLoading || isError
-              ? "View this provider's contract renewal history."
-              : `${totalCount} ${totalCount === 1 ? "renewal" : "renewals"} in total`}
+              ? tr("View this provider's contract renewal history.")
+              : tr(totalCount === 1 ? "{{total}} renewal in total" : "{{total}} renewals in total", { total: totalCount })}
           </p>
         </div>
         {canCreateRenewals && (
@@ -93,7 +98,7 @@ export default function ProviderRenewalsTab({
             className="inline-flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:opacity-50"
           >
             <FontAwesomeIcon icon={faPlus} />
-            Add renewal
+            {tr("Add renewal")}
           </button>
         )}
       </div>
@@ -103,30 +108,30 @@ export default function ProviderRenewalsTab({
           <RenewalsSkeleton />
         ) : isError ? (
           <QueryErrorState
-            title="Unable to load renewals"
+            title={tr("Unable to load renewals")}
             error={error}
             onRetry={refetch}
           />
         ) : renewals.length === 0 ? (
           <TableEmptyState
             icon={faClockRotateLeft}
-            title="No renewals found"
-            emptyMessage="No contract renewals have been recorded for this provider yet."
+            title={tr("No renewals found")}
+            emptyMessage={tr("No contract renewals have been recorded for this provider yet.")}
           />
         ) : (
           <>
             <ScrollableTable>
-              <table className={`w-full text-left text-sm ${canUpdateRenewals ? "min-w-[950px]" : "min-w-[850px]"}`}>
-                <caption className="sr-only">Provider contract renewals</caption>
+              <table className={`w-full text-start text-sm ${canUpdateRenewals ? "min-w-[950px]" : "min-w-[850px]"}`}>
+                <caption className="sr-only">{tr("Provider contract renewals")}</caption>
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-100 text-xs font-medium text-slate-500">
-                    <th scope="col" className="px-6 py-3">Renewal ID</th>
-                    <th scope="col" className="px-4 py-3">Contract start</th>
-                    <th scope="col" className="px-4 py-3">Contract end</th>
-                    <th scope="col" className="px-4 py-3">Broker name</th>
-                    <th scope="col" className="px-6 py-3">Broker phone</th>
-                    <th scope="col" className="px-6 py-3">Attachments</th>
-                    {canUpdateRenewals && <TableActionsCell as="th" scope="col" className="px-6 py-3">Actions</TableActionsCell>}
+                    <th scope="col" className="px-6 py-3">{tr("Renewal ID")}</th>
+                    <th scope="col" className="px-4 py-3">{tr("Contract start")}</th>
+                    <th scope="col" className="px-4 py-3">{tr("Contract end")}</th>
+                    <th scope="col" className="px-4 py-3">{tr("Broker name")}</th>
+                    <th scope="col" className="px-6 py-3">{tr("Broker phone")}</th>
+                    <th scope="col" className="px-6 py-3">{tr("Attachments")}</th>
+                    {canUpdateRenewals && <TableActionsCell as="th" scope="col" className="px-6 py-3">{tr("Actions")}</TableActionsCell>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -142,10 +147,10 @@ export default function ProviderRenewalsTab({
                         {formatContractDate(renewal.contractEndAt)}
                       </td>
                       <td className="px-4 py-3.5 text-slate-600">
-                        {renewal.brokerName || "Not provided"}
+                        {renewal.brokerName || tr("Not provided")}
                       </td>
                       <td dir="ltr" className="whitespace-nowrap px-6 py-3.5 tabular-nums text-slate-600">
-                        {renewal.brokerPhone || "Not provided"}
+                        {renewal.brokerPhone || tr("Not provided")}
                       </td>
                       <td className="px-6 py-3.5">
                         <button
@@ -155,11 +160,11 @@ export default function ProviderRenewalsTab({
                             resetFeedback();
                             setSelectedRenewalId(renewal.id);
                           }}
-                          aria-label={`View attachments for renewal #${renewal.id}`}
+                          aria-label={tr("View attachments for renewal #{{id}}", { id: renewal.id })}
                           className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-800 transition hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <FontAwesomeIcon icon={faPaperclip} />
-                          View attachments
+                          {tr("View attachments")}
                         </button>
                       </td>
                       {canUpdateRenewals && (
@@ -172,11 +177,11 @@ export default function ProviderRenewalsTab({
                               resetFeedback();
                               setEditingRenewal(renewal);
                             }}
-                            aria-label={`Edit renewal #${renewal.id}`}
+                            aria-label={tr("Edit renewal #{{id}}", { id: renewal.id })}
                             className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <FontAwesomeIcon icon={faPenToSquare} />
-                            Edit dates
+                            {tr("Edit dates")}
                           </button>
                         </TableActionsCell>
                       )}
@@ -190,7 +195,11 @@ export default function ProviderRenewalsTab({
               totalPages={totalPages}
               totalCount={totalCount}
               pageSize={pageSize}
-              itemLabel="renewals"
+              itemLabel={tr("renewals")}
+              summary={tr("Showing page {{page}} of {{totalPages}} ({{total}} renewals)", { page: pageNumber, totalPages, total: totalCount })}
+              rowsPerPageLabel={tr("Rows per page")}
+              previousLabel={tr("Previous")}
+              nextLabel={tr("Next")}
               getPageNumbers={getPageNumbers}
               onGoToPage={(page) => goToPage(page, totalPages)}
               onPageSizeChange={handlePageSizeChange}

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getTokenExpiryTime, getUserFromToken, isTokenExpired } from "../utils/jwt.js";
+import { getActiveLanguage } from "../../localization/i18n.js";
 
 export const TOKEN_KEY = "token";
 export const REFRESH_TOKEN_KEY = "refreshToken";
@@ -143,10 +144,17 @@ const refreshAccessToken = (expectedSession = authSession) => {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
         // Base Axios keeps both attempts outside the recovery interceptor.
+        const language = getActiveLanguage();
         const response = await axios.post(
           `${axiosInstance.defaults.baseURL}AuthAdmin/refresh-token`,
           { refreshToken },
-          { timeout: 15_000 }
+          {
+            timeout: 15_000,
+            headers: {
+              "Content-Language": language,
+              "Accept-Language": language,
+            },
+          }
         );
         if (
           session !== authSession || getToken() !== token ||
@@ -232,6 +240,9 @@ axiosInstance.interceptors.request.use(async (config) => {
     token = await refreshAccessToken();
   }
   if (session !== authSession) throw new axios.Cancel("Authentication session changed");
+  const language = getActiveLanguage();
+  config.headers.set("Content-Language", language);
+  config.headers.set("Accept-Language", language);
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;

@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { getDashboardChart } from "../services/dashboardService";
 
 
-export const useDashboardChart = (filters) =>
+export const useDashboardChart = (filters, language) =>
   useQuery({
-    queryKey: ["dashboard-chart", filters],
+    queryKey: language ? ["dashboard-chart", filters, language] : ["dashboard-chart", filters],
     queryFn: () => getDashboardChart(filters),
     // react-query v4:
     keepPreviousData: true,

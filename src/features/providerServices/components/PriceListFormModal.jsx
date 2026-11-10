@@ -5,6 +5,9 @@ import { z } from "zod";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
 import { DatePicker } from "../../../shared/components/DateRangeFilterFields";
+import { useTranslation } from "react-i18next";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import useLanguage from "../../../localization/useLanguage";
 
 const optionalNumber = z.string().refine(
   (value) => value.trim() === "" || (Number.isFinite(Number(value)) && Number(value) >= 0),
@@ -45,7 +48,7 @@ function Field({ id, label, error, children, required = false }) {
   return (
     <div>
       <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-slate-700">
-        {label}{required && <span className="ml-0.5 text-red-500">*</span>}
+        {label}{required && <span className="ms-0.5 text-red-500">*</span>}
       </label>
       {children}
       {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
@@ -63,6 +66,16 @@ export default function PriceListFormModal({
   isSaving,
   serverError,
 }) {
+  const tr = useProviderDetailsText();
+  const { language } = useLanguage();
+  const { t: providerT } = useTranslation("providers");
+  const dateLabels = {
+    locale: language,
+    weekdayLabels: providerT("weekdays", { returnObjects: true }),
+    previousMonthLabel: tr("Previous month"),
+    nextMonthLabel: tr("Next month"),
+    toggleCalendarLabel: tr("Toggle calendar"),
+  };
   const isEditMode = Boolean(priceList);
   const { register, control, handleSubmit, reset, resetField, formState: { errors } } = useForm({
     resolver: zodResolver(isEditMode ? updateSchema : createSchema),
@@ -109,33 +122,33 @@ export default function PriceListFormModal({
   };
 
   return (
-    <FormModalShell title={isEditMode ? "Edit Price List" : "Create Price List"} onClose={onClose} onSubmit={handleSubmit(onSubmit)}>
+    <FormModalShell title={tr(isEditMode ? "Edit Price List" : "Create Price List")} closeLabel={tr("Close")} onClose={onClose} onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field id="price-list-start-date" label="Start date" required error={errors.startDate?.message}>
+          <Field id="price-list-start-date" label={tr("Start date")} required error={errors.startDate?.message ? tr(errors.startDate.message) : undefined}>
             <Controller
               name="startDate"
               control={control}
               render={({ field }) => (
-                <DatePicker id="price-list-start-date" value={field.value} onChange={field.onChange} />
+                <DatePicker id="price-list-start-date" value={field.value} onChange={field.onChange} {...dateLabels} />
               )}
             />
           </Field>
-          <Field id="price-list-end-date" label="End date" required error={errors.endDate?.message}>
+          <Field id="price-list-end-date" label={tr("End date")} required error={errors.endDate?.message ? tr(errors.endDate.message) : undefined}>
             <Controller
               name="endDate"
               control={control}
               render={({ field }) => (
-                <DatePicker id="price-list-end-date" value={field.value} minDate={startDate || undefined} onChange={field.onChange} />
+                <DatePicker id="price-list-end-date" value={field.value} minDate={startDate || undefined} onChange={field.onChange} {...dateLabels} />
               )}
             />
           </Field>
           {shouldCopyServices && (
             <>
-              <Field id="price-list-increase" label="Price increase by" error={errors.priceIncreaseBy?.message}>
+              <Field id="price-list-increase" label={tr("Price increase by")} error={errors.priceIncreaseBy?.message ? tr(errors.priceIncreaseBy.message) : undefined}>
                 <input id="price-list-increase" type="number" min="0" step="any" inputMode="decimal" {...register("priceIncreaseBy")} className={fieldClassName} />
               </Field>
-              <Field id="price-list-discount" label="Discount percentage" error={errors.discountPercentage?.message}>
+              <Field id="price-list-discount" label={tr("Discount percentage")} error={errors.discountPercentage?.message ? tr(errors.discountPercentage.message) : undefined}>
                 <input id="price-list-discount" type="number" min="0" step="any" inputMode="decimal" {...register("discountPercentage")} className={fieldClassName} />
               </Field>
             </>
@@ -145,13 +158,13 @@ export default function PriceListFormModal({
         {!isEditMode && hasPriceLists && (
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input type="checkbox" {...register("copy")} className="h-4 w-4 rounded border-slate-300" />
-            Copy services from the existing price list
+            {tr("Copy services from the existing price list")}
           </label>
         )}
 
         {serverError && <p role="alert" className="text-sm text-red-600">{serverError}</p>}
 
-        <FormActions onCancel={onClose} isSaving={isSaving} submitLabel={isEditMode ? "Save Changes" : "Create Price List"} />
+        <FormActions onCancel={onClose} isSaving={isSaving} submitLabel={tr(isEditMode ? "Save Changes" : "Create Price List")} cancelLabel={tr("Cancel")} savingLabel={tr("Saving...")} />
       </div>
     </FormModalShell>
   );

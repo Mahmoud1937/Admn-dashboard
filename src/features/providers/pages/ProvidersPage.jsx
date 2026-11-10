@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import { useProviderToggleMutation } from "../hooks/useProviderToggleMutation";
-import { useProvidersQuery } from "../hooks/useProvidersQuery";
+import { useProvidersQuery, emptyFilters } from "../hooks/useProvidersQuery";
 import { useExportProviders } from "../hooks/useExportProviders";
 import ProvidersTable from "../components/ProvidersTable";
 import Pagination from "../../../shared/components/Pagination";
@@ -14,18 +14,27 @@ import TableEmptyState from "../../../shared/components/TableEmptyState";
 import ProvidersHeader from "../components/ProvidersHeader";
 import SearchBarWithFilters from "../../../shared/components/SearchBarWithFilters";
 import { countActiveFilters } from "../utils/countActiveFilters";
-import ProvidersFilters, { emptyFilters } from "../components/ProvidersFilters";
+import ProvidersFilters from "../components/ProvidersFilters";
 import QueryErrorState from "../../../shared/components/QueryErrorState";
 import usePermission from "../../auth/hooks/usePermission";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
+import { useTranslation } from "react-i18next";
+import useLanguage from "../../../localization/useLanguage";
+import LocalizedPage from "../../../localization/LocalizedPage";
 
 
 
 export default function ProvidersPage() {
+  const { t } = useTranslation("providers");
+  const { language, direction } = useLanguage();
   const canUpdate = usePermission(PERMISSION_CODES.PROVIDERS_UPDATE);
   const canExport = usePermission(PERMISSION_CODES.PROVIDERS_READ);
-  const { exportToExcel, isExporting, exportError } = useExportProviders();
+  const { exportToExcel, isExporting, exportError } = useExportProviders({
+    errorMessage: t("exportError"),
+    invalidFileMessage: t("exportInvalidFile"),
+    emptyFileMessage: t("exportEmptyFile"),
+  });
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
@@ -69,7 +78,7 @@ export default function ProvidersPage() {
     error,
     refetch,
     isPlaceholderData,
-  } = useProvidersQuery({ pageNumber, pageSize, search, filters });
+  } = useProvidersQuery({ pageNumber, pageSize, search, filters, language });
 
 
   const { toggleMutation } = useProviderToggleMutation({
@@ -112,7 +121,7 @@ const handleEdit = (provider) => {
   };
 
   return (
-    <div>
+    <LocalizedPage>
       <ProvidersHeader />
       {exportError && (
         <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -125,7 +134,9 @@ const handleEdit = (provider) => {
           <SearchBarWithFilters
             value={search}
             onChange={setSearch}
-            placeholder="Search by name (EN/AR) or ID..."
+            placeholder={t("searchPlaceholder")}
+            filterLabel={t("filters")}
+            rtl={direction === "rtl"}
             onFilterClick={openFilters}
             activeFilterCount={countActiveFilters(filters)}
           >
@@ -135,11 +146,11 @@ const handleEdit = (provider) => {
                 onClick={handleExport}
                 disabled={isExporting}
                 aria-busy={isExporting}
-                title="Export providers to Excel"
+                title={t("exportTitle")}
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <FontAwesomeIcon icon={isExporting ? faSpinner : faFileExcel} spin={isExporting} />
-                {isExporting ? "Exporting..." : "Export"}
+                {isExporting ? t("exporting") : t("export")}
               </button>
             )}
           </SearchBarWithFilters>
@@ -157,14 +168,17 @@ const handleEdit = (provider) => {
         </div>
 
         {isLoading && (
-          <SkeletonTable label="Loading providers..." columns={6} />
+          <SkeletonTable label={t("loadingProviders")} columns={6} />
         )}
 
 {isError && (
   <QueryErrorState
-    title="Unable to load providers"
+    title={t("unableToLoadProviders")}
     error={error}
     onRetry={refetch}
+    loadErrorMessage={t("loadError")}
+    connectionErrorMessage={t("connectionError")}
+    retryLabel={t("tryAgain")}
   />
 )}     {!isLoading && !isError && (
           <div
@@ -182,8 +196,8 @@ const handleEdit = (provider) => {
             {providers.length === 0 && (
               <TableEmptyState
                 icon={faUsers}
-                title="No providers found"
-                emptyMessage="Get started by adding a new provider."
+                title={t("noProviders")}
+                emptyMessage={t("emptyMessage")}
               />
             )}
 
@@ -193,7 +207,11 @@ const handleEdit = (provider) => {
                 totalPages={totalPages}
                 totalCount={totalCount}
                 pageSize={pageSize}
-                itemLabel="providers"
+                summary={t("pageSummary", { page: pageNumber, totalPages, count: totalCount })}
+                rowsPerPageLabel={t("rowsPerPage")}
+                previousLabel={t("previous")}
+                nextLabel={t("next")}
+                rtl={direction === "rtl"}
                 onGoToPage={(page) => goToPage(page, totalPages)}
                 onPageSizeChange={handlePageSizeChange}
                 getPageNumbers={getPageNumbers}
@@ -204,13 +222,15 @@ const handleEdit = (provider) => {
 
         {canUpdate && <ConfirmDeleteModal
           isOpen={!!providerToToggle}
-          title={isDeactivating ? "Deactivate Provider" : "Activate Provider"}
+          title={isDeactivating ? t("deactivateTitle") : t("activateTitle")}
           message={
             isDeactivating
-              ? `Are you sure you want to deactivate "${providerToToggle?.enName}"? You can reactivate it later.`
-              : `Are you sure you want to activate "${providerToToggle?.enName}"?`
+              ? t("deactivateMessage", { name: providerToToggle?.enName ?? "" })
+              : t("activateMessage", { name: providerToToggle?.enName ?? "" })
           }
-          confirmLabel={isDeactivating ? "Deactivate" : "Activate"}
+          confirmLabel={isDeactivating ? t("deactivate") : t("activate")}
+          cancelLabel={t("cancel")}
+          loadingLabel={t("processing")}
           variant={isDeactivating ? "danger" : "success"}
           isLoading={toggleMutation.isPending}
           onConfirm={confirmToggle}
@@ -220,10 +240,10 @@ const handleEdit = (provider) => {
         {toggleMutation.isError && (
           <p className="mt-3 px-6 text-sm text-red-500">
             {toggleMutation.error?.response?.data?.message ||
-              "Failed to update provider status. Please try again."}
+              t("statusError")}
           </p>
         )}
       </div>
-    </div>
+    </LocalizedPage>
   );
 }

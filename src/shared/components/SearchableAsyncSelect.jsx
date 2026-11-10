@@ -36,6 +36,8 @@ export default function SearchableAsyncSelect({
   panelBgClassName = "bg-white",
   highlighted = false,
   preload = false,
+  labels = {},
+  rtl = false,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -158,13 +160,14 @@ export default function SearchableAsyncSelect({
           }}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder={isOpen ? searchPlaceholder : placeholder}
+          style={rtl ? { direction: "rtl", textAlign: "right" } : undefined}
           className="w-full min-w-0 truncate bg-transparent outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:text-slate-500"
         />
         <span className="flex shrink-0 items-center gap-2">
           {clearable && selectedLabel && !disabled && (
             <button
               type="button"
-              aria-label="Clear selection"
+              aria-label={labels.clearSelection ?? "Clear selection"}
               onClick={handleClear}
               className="cursor-pointer text-xs text-slate-400 hover:text-slate-600"
             >
@@ -174,7 +177,7 @@ export default function SearchableAsyncSelect({
           <button
             type="button"
             disabled={disabled}
-            aria-label={isOpen ? "Close options" : "Open options"}
+            aria-label={isOpen ? (labels.closeOptions ?? "Close options") : (labels.openOptions ?? "Open options")}
             aria-expanded={isOpen}
             onClick={() => {
               if (isOpen) {
@@ -203,21 +206,23 @@ export default function SearchableAsyncSelect({
         >
           <div ref={listRef} onScroll={handleScroll} className="max-h-56 overflow-y-auto py-1">
             {isLoading ? (
-              <SkeletonText label="Loading..." lines={3} className="space-y-2 px-3 py-3" />
+              <SkeletonText label={labels.loading ?? "Loading..."} lines={3} className="space-y-2 px-3 py-3" />
             ) : isError && items.length === 0 ? (
               <div role="alert" className="space-y-2 px-3 py-4 text-center text-xs text-red-600">
-                <p>{getApiErrorMessage(queryError, { details: true, fallback: "Unable to load options." })}</p>
+                <p>{labels.unableToLoadOptions && !queryError?.response?.data?.message && !queryError?.response?.data?.errors
+                  ? labels.unableToLoadOptions
+                  : getApiErrorMessage(queryError, { details: true, fallback: labels.unableToLoadOptions ?? "Unable to load options." })}</p>
                 <button
                   type="button"
                   onClick={() => refetch()}
                   disabled={disabled || isFetching}
                   className="font-medium underline underline-offset-2 disabled:opacity-50"
                 >
-                  Try again
+                  {labels.tryAgain ?? "Try again"}
                 </button>
               </div>
             ) : items.length === 0 ? (
-              <p className="py-4 text-center text-xs text-slate-400">No results found.</p>
+              <p className="py-4 text-center text-xs text-slate-400">{labels.noResults ?? "No results found."}</p>
             ) : (
               <>
                 {items.map((item) => (
@@ -228,7 +233,7 @@ export default function SearchableAsyncSelect({
                     // handler, so the click still registers as a selection.
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleSelect(item)}
-                    className={`block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                    className={`block w-full px-3 py-2 text-sm hover:bg-slate-50 ${rtl ? "text-right" : "text-left"} ${
                       String(getOptionValue(item)) === String(value)
                         ? "bg-blue-50 text-blue-700"
                         : "text-slate-700"
@@ -238,7 +243,7 @@ export default function SearchableAsyncSelect({
                   </button>
                 ))}
                 {isFetchingNextPage && (
-                  <SkeletonText label="Loading more..." lines={1} className="space-y-2 px-3 py-3" />
+                  <SkeletonText label={labels.loadingMore ?? "Loading more..."} lines={1} className="space-y-2 px-3 py-3" />
                 )}
               </>
             )}

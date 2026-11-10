@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 
-export default function DateField({ value, onChange, disabled, className = "" }) {
+export default function DateField({ value, onChange, disabled, className = "", rtl = false }) {
   const inputRef = useRef(null);
 
   const displayValue = value
@@ -25,13 +25,13 @@ export default function DateField({ value, onChange, disabled, className = "" })
         disabled={disabled}
         className={
           className ||
-          "w-full cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-900 focus:border-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500"
+          `w-full cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 ${rtl ? "pl-10" : "pr-10"}`
         }
       />
       <FontAwesomeIcon
         icon={faCalendar}
         onClick={openPicker}
-        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+        className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-slate-400 ${rtl ? "left-3" : "right-3"}`}
       />
       <input
         ref={inputRef}

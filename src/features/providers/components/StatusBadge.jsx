@@ -1,9 +1,9 @@
 import StatusBadge from "../../../shared/components/StatusBadge";
 
-export default function ProviderStatusBadge({ isActive }) {
+export default function ProviderStatusBadge({ isActive, activeLabel = "Active", inactiveLabel = "Inactive" }) {
   return (
     <StatusBadge tone={isActive ? "emerald" : "inactive"} size="sm">
-      {isActive ? "Active" : "Inactive"}
+      {isActive ? activeLabel : inactiveLabel}
     </StatusBadge>
   );
 }

@@ -10,6 +10,7 @@ import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
 import { formatDateTimeShort } from "../../../utils/formatDate";
 import ProcessPrescriptionForm from "../components/ProcessPrescriptionForm";
 import RejectPrescriptionForm from "../components/RejectPrescriptionForm";
+import ProcessedPrescriptionItems from "../components/ProcessedPrescriptionItems";
 import { usePrescriptionDetailsQuery } from "../hooks/usePrescriptionDetailsQuery";
 import { useProcessManualPrescriptionMutation } from "../hooks/useProcessManualPrescriptionMutation";
 import { useRejectManualPrescriptionMutation } from "../hooks/useRejectManualPrescriptionMutation";
@@ -84,13 +85,6 @@ export default function PrescriptionDetailsPage() {
     pageRef.current?.closest("main")?.scrollTo({ top: 0 });
   }, [manualPrescriptionId]);
 
-  const openForm = (nextAction) => {
-    if (isSaving) return;
-    processMutation.reset();
-    rejectMutation.reset();
-    setSearchParams(nextAction ? { action: nextAction } : {}, { replace: true });
-  };
-
   return (
     <div ref={pageRef} className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -157,18 +151,14 @@ export default function PrescriptionDetailsPage() {
                 <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-600" dir="auto">{prescription.text || "No text provided."}</p>
               </section>
 
-              {prescription.status === "Pending" && (
+              <ProcessedPrescriptionItems items={prescription.items} />
+
+              {(action === "process" || action === "reject") && (
                 <section className="rounded-2xl border border-slate-200 bg-white p-5">
-                  <div className="mb-5 flex flex-wrap gap-2 border-b border-slate-100 pb-4">
-                    <button type="button" onClick={() => openForm("process")} disabled={isSaving} aria-pressed={action === "process"} className={`rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 ${action === "process" ? "bg-blue-900 text-white" : "bg-blue-50 text-blue-800 hover:bg-blue-100"}`}>Process</button>
-                    <button type="button" onClick={() => openForm("reject")} disabled={isSaving} aria-pressed={action === "reject"} className={`rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50 ${action === "reject" ? "bg-red-700 text-white" : "bg-red-50 text-red-700 hover:bg-red-100"}`}>Reject</button>
-                  </div>
                   {action === "process" ? (
                     <ProcessPrescriptionForm key={prescription.id} prescription={prescription} onClose={closeForm} onProcess={(payload) => processMutation.mutate(payload)} onClearErrors={() => processMutation.reset()} isSaving={processMutation.isPending} error={processMutation.error} />
-                  ) : action === "reject" ? (
-                    <RejectPrescriptionForm key={prescription.id} prescription={prescription} onClose={closeForm} onReject={(payload) => rejectMutation.mutate(payload)} isSaving={rejectMutation.isPending} error={rejectMutation.error} />
                   ) : (
-                    <p className="text-sm text-slate-500">Review the image, then choose Process or Reject.</p>
+                    <RejectPrescriptionForm key={prescription.id} prescription={prescription} onClose={closeForm} onReject={(payload) => rejectMutation.mutate(payload)} isSaving={rejectMutation.isPending} error={rejectMutation.error} />
                   )}
                 </section>
               )}

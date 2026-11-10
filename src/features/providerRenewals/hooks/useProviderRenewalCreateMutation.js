@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { createProviderRenewal } from "../services/providerRenewalsService";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
 
 export function useProviderRenewalCreateMutation({ providerId }) {
+  const tr = useProviderDetailsText();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -12,7 +14,7 @@ export function useProviderRenewalCreateMutation({ providerId }) {
       await queryClient.invalidateQueries({
         queryKey: ["provider-renewals", providerId],
       });
-      toast.success(response?.message || "Renewal created successfully.");
+      toast.success(response?.message || tr("Renewal created successfully."));
     },
   });
 }

@@ -8,16 +8,11 @@ import PrescriptionProviderDropdown from "./PrescriptionProviderDropdown";
 import PharmaciesProcessForm from "./PharmaciesProcessForm";
 import PrescriptionProcessFeedback from "./PrescriptionProcessFeedback";
 
-const optionalNumber = (value) => value.trim() === "" ? null : Number(value);
-
 const labelClass = "mb-1.5 block text-sm font-medium text-slate-700";
-const inputClass =
-  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-500";
 
 function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error }) {
   const [items, setItems] = useState([{
     key: 1, categoryId: "", serviceId: "", providerId: "",
-    quantity: "",
   }]);
   const [validationError, setValidationError] = useState("");
   const nextKey = useRef(2);
@@ -38,7 +33,7 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
     const payloadItems = items.map((item) => ({
       serviceId: Number(item.serviceId),
       providerId: item.providerId ? Number(item.providerId) : null,
-      quantity: optionalNumber(item.quantity),
+      quantity: null,
     }));
     if (payloadItems.some((item) => !Number.isInteger(item.serviceId) || item.serviceId <= 0)) {
       setValidationError("Select a valid service for each item.");
@@ -47,11 +42,6 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
     if (payloadItems.some((item) => item.providerId !== null &&
       (!Number.isInteger(item.providerId) || item.providerId <= 0))) {
       setValidationError("Select a valid provider for each item.");
-      return;
-    }
-    if (payloadItems.some((item) => item.quantity !== null &&
-      (!Number.isFinite(item.quantity) || item.quantity < 0))) {
-      setValidationError("Quantity must be 0 or greater.");
       return;
     }
     setValidationError("");
@@ -78,7 +68,6 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
             onClick={() => {
               setItems((current) => [...current, {
                 key: nextKey.current++, categoryId: "", serviceId: "", providerId: "",
-                quantity: "",
               }]);
               setValidationError("");
             }}
@@ -122,7 +111,6 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
                   value={item.categoryId}
                   onChange={(value) => updateItem(item.key, {
                     categoryId: value, serviceId: "", providerId: "",
-                    quantity: "",
                   })}
                   disabled={isSaving}
                 />
@@ -135,7 +123,6 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
                   value={item.serviceId}
                   onChange={(value) => updateItem(item.key, {
                     serviceId: value, providerId: "",
-                    quantity: "",
                   })}
                   disabled={isSaving || !item.categoryId}
                   placeholder={item.categoryId ? "Select service" : "Select a category first"}
@@ -158,31 +145,6 @@ function ServicesProcessForm({ prescription, onClose, onProcess, isSaving, error
               </div>
             )}
 
-            {item.serviceId && (
-              <div className="mt-4 border-t border-slate-100 pt-4">
-                <div>
-                  <label htmlFor={`prescription-quantity-${item.key}`} className={labelClass}>
-                    Quantity
-                  </label>
-                  <input
-                    id={`prescription-quantity-${item.key}`}
-                    type="number"
-                    inputMode="numeric"
-                    min="0"
-                    step="any"
-                    value={item.quantity}
-                    onChange={(event) => updateItem(item.key, { quantity: event.target.value })}
-                    onInvalid={(event) => {
-                      event.preventDefault();
-                      setValidationError("Quantity must be 0 or greater.");
-                    }}
-                    disabled={isSaving}
-                    placeholder="Optional"
-                    className={inputClass}
-                  />
-                </div>
-              </div>
-            )}
           </div>
         ))}
       </section>

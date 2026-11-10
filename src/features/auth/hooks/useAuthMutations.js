@@ -24,7 +24,7 @@ const isSuccessfulResponse = (response) => {
 const getResponseMessage = (response, fallback) =>
   response?.message || response?.data?.message || fallback;
 
-export default function useAuthMutations() {
+export default function useAuthMutations({ loginMessages, changePasswordMessages } = {}) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { login: establishSession, logout: clearAuth } = useAuth();
@@ -60,7 +60,7 @@ export default function useAuthMutations() {
       const permissions = authData?.permissionCodes ?? authData?.permissions;
 
       if (!succeeded || !token) {
-        toast.error(response?.message || "Login failed.");
+        toast.error(response?.message || loginMessages?.loginFailed || "Login failed.");
         return;
       }
 
@@ -76,8 +76,9 @@ export default function useAuthMutations() {
     onError: (error) => {
       handleMutationError(
         error,
-        "Unable to sign in. Please try again.",
-        setServerErrors
+        loginMessages?.unableToSignIn || "Unable to sign in. Please try again.",
+        setServerErrors,
+        loginMessages
       );
     },
   });
@@ -92,11 +93,11 @@ export default function useAuthMutations() {
 
     onSuccess: (response) => {
       if (!isSuccessfulResponse(response)) {
-        toast.error(getResponseMessage(response, "Failed to change password."));
+        toast.error(getResponseMessage(response, changePasswordMessages?.changePasswordFailed || "Failed to change password."));
         return;
       }
 
-      toast.success("Password changed successfully. Please log in again.");
+      toast.success(changePasswordMessages?.changePasswordSuccess || "Password changed successfully. Please log in again.");
       clearServerErrors();
       clearSessionAndRedirect();
     },
@@ -104,8 +105,9 @@ export default function useAuthMutations() {
     onError: (error) => {
       handleMutationError(
         error,
-        "Unable to change password. Please try again.",
-        setServerErrors
+        changePasswordMessages?.unableToChangePassword || "Unable to change password. Please try again.",
+        setServerErrors,
+        changePasswordMessages
       );
     },
   });

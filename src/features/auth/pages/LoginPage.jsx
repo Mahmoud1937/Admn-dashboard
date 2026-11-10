@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   ArrowRight,
@@ -12,11 +13,29 @@ import {
 } from 'lucide-react'
 import Logo from '../../../assets/Logo.svg'
 import useAuthMutations from '../hooks/useAuthMutations'
-import { loginSchema } from '../schema/loginSchema'
+import { localizedLoginSchema } from '../schema/loginSchema'
 import { applyServerErrors } from '../../../shared/utils/applyServerErrors'
 import { useAuth } from '../context/Authcontext'
+import useLanguage from '../../../localization/useLanguage'
+import LanguageSwitcher from '../../../navbar/LanguageSwitcher'
+
+const localValidationKeys = new Set([
+  'validationEmailRequired',
+  'validationEmailInvalid',
+  'validationPasswordRequired',
+])
+
+function displayError(error, t) {
+  if (!error?.message) return undefined
+  return error.type !== 'server' && localValidationKeys.has(error.message)
+    ? t(error.message)
+    : error.message
+}
 
 export default function LoginPage() {
+  const { t } = useTranslation('login')
+  const { language, direction } = useLanguage()
+  const isRtl = direction === 'rtl'
   // const exp = 1792758806;
   // "exp": 1790170086,
   //  "exp": 1792758806,
@@ -27,7 +46,14 @@ export default function LoginPage() {
   const { isAuthenticated, mustChangePassword, isAuthInitializing } = useAuth()
 
   const { login, isLoggingIn, serverErrors, clearServerErrors } =
-    useAuthMutations()
+    useAuthMutations({ loginMessages: {
+      loginFailed: t('loginFailed'),
+      unableToSignIn: t('unableToSignIn'),
+      networkError: t('networkError'),
+      serverError: t('serverError'),
+      sessionExpired: t('sessionExpired'),
+      forbidden: t('forbidden'),
+    } })
 
   const {
     register,
@@ -35,7 +61,7 @@ export default function LoginPage() {
     setError,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(localizedLoginSchema),
     defaultValues: { identifier: '', password: '' },
   })
 
@@ -57,8 +83,8 @@ export default function LoginPage() {
     })
   }
 
-  const identifierError = errors.identifier?.message
-  const passwordError = errors.password?.message
+  const identifierError = displayError(errors.identifier, t)
+  const passwordError = displayError(errors.password, t)
 
   if (isAuthInitializing) return null
   if (isAuthenticated) {
@@ -71,16 +97,16 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen w-full bg-[#f4f6f9] text-slate-900 antialiased">
+    <main lang={language} dir={direction} className="min-h-screen w-full bg-[#f4f6f9] text-slate-900 antialiased">
       <div className="grid min-h-screen w-full lg:grid-cols-2">
         <section className="relative hidden overflow-hidden bg-[#0a2d6e] px-12 py-12 text-white lg:flex lg:flex-col xl:px-16 xl:py-16">
           <div className="absolute inset-0 opacity-[0.12] [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.16)_1px,transparent_1px)] [background-size:52px_52px]" />
-          <div className="absolute inset-y-0 right-0 w-px bg-white/15" />
-          <div className="absolute left-0 top-0 h-1 w-36 bg-[#2baba2]" />
+          <div className={`absolute inset-y-0 w-px bg-white/15 ${direction === 'rtl' ? 'left-0' : 'right-0'}`} />
+          <div className={`absolute top-0 h-1 w-36 bg-[#2baba2] ${direction === 'rtl' ? 'right-0' : 'left-0'}`} />
 
           <div className="relative flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-blue-100">
             <span className="h-px w-8 bg-[#2baba2]" />
-            Medicard operations
+            {t('operations')}
           </div>
 
           <div className="relative my-auto max-w-xl py-20">
@@ -88,21 +114,20 @@ export default function LoginPage() {
               <ShieldCheck size={23} aria-hidden="true" />
             </div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">
-              Administration platform
+              {t('platform')}
             </p>
             <h1 className="mt-5 text-4xl font-semibold leading-[1.12] tracking-tight xl:text-5xl">
-              Built for the people behind better care.
+              {t('headline')}
             </h1>
             <p className="mt-6 max-w-md text-base leading-7 text-blue-100/85">
-              A secure workspace for managing Medicard members, providers, and
-              everyday operations with confidence.
+              {t('description')}
             </p>
           </div>
 
-          <div className="relative max-w-xl border-l border-[#2baba2] pl-5">
-            <p className="text-sm font-medium text-white">Protected access</p>
+          <div className={`relative max-w-xl border-[#2baba2] ${direction === 'rtl' ? 'border-r pr-5' : 'border-l pl-5'}`}>
+            <p className="text-sm font-medium text-white">{t('protectedAccess')}</p>
             <p className="mt-1 text-sm leading-6 text-blue-100/75">
-              Role-based administration designed for trusted healthcare teams.
+              {t('protectedDescription')}
             </p>
           </div>
         </section>
@@ -114,28 +139,31 @@ export default function LoginPage() {
               alt="Medicard"
               className="h-9 w-auto max-w-[175px] object-contain object-left sm:h-10"
             />
-            <span className="border border-[#0056d2]/15 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0056d2] shadow-sm">
-              Admin Panel
-            </span>
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher />
+              <span className="border border-[#0056d2]/15 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0056d2] shadow-sm">
+                {t('adminPanel')}
+              </span>
+            </div>
           </header>
 
           <div className="mx-auto flex w-full max-w-[600px] flex-1 flex-col justify-center py-10 sm:py-14">
             <div className="border border-slate-200 bg-white p-6 shadow-[0_18px_45px_-32px_rgba(10,45,110,0.38)] sm:p-8">
               <div className="mb-8">
                 <div className="mb-5 h-1 w-11 bg-[#0056d2]" />
-                <h2 className="text-3xl font-semibold tracking-tight text-slate-900">Welcome back</h2>
+                <h2 className="text-3xl font-semibold tracking-tight text-slate-900">{t('welcome')}</h2>
                 <p className="mt-3 text-sm leading-6 text-slate-500">
-                  Sign in to continue to your Medicard administration workspace.
+                  {t('signInDescription')}
                 </p>
               </div>
 
               <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 <div>
                   <label htmlFor="login-identifier" className="mb-2 block text-sm font-medium text-slate-700">
-                    Email
+                    {t('email')}
                   </label>
                   <div className="relative">
-                    <Mail size={18} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Mail size={18} aria-hidden="true" className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-slate-400 ${isRtl ? 'right-4' : 'left-4'}`} />
                     <input
                       id="login-identifier"
                       type="email"
@@ -144,17 +172,18 @@ export default function LoginPage() {
                       aria-invalid={Boolean(identifierError)}
                       aria-describedby={identifierError ? 'login-identifier-error' : undefined}
                       disabled={isLoggingIn}
-                      className={`h-12 w-full border bg-white pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0056d2] focus:ring-4 focus:ring-blue-50 disabled:opacity-60 ${identifierError ? 'border-red-400 focus:border-red-500 focus:ring-red-50' : 'border-slate-300'}`}
-                      placeholder="shafeey@gmail.com"
+                      style={isRtl ? { textAlign: 'right' } : undefined}
+                      className={`h-12 w-full border bg-white text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0056d2] focus:ring-4 focus:ring-blue-50 disabled:opacity-60 ${isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4'} ${identifierError ? 'border-red-400 focus:border-red-500 focus:ring-red-50' : 'border-slate-300'}`}
+                      placeholder={t('emailPlaceholder')}
                     />
                   </div>
                   {identifierError && <p id="login-identifier-error" className="mt-1.5 text-xs font-medium text-red-600">{identifierError}</p>}
                 </div>
 
                 <div>
-                  <label htmlFor="login-password" className="mb-2 block text-sm font-medium text-slate-700">Password</label>
+                  <label htmlFor="login-password" className="mb-2 block text-sm font-medium text-slate-700">{t('password')}</label>
                   <div className="relative">
-                    <LockKeyhole size={18} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <LockKeyhole size={18} aria-hidden="true" className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-slate-400 ${isRtl ? 'right-4' : 'left-4'}`} />
                     <input
                       id="login-password"
                       type={showPassword ? 'text' : 'password'}
@@ -163,10 +192,11 @@ export default function LoginPage() {
                       aria-invalid={Boolean(passwordError)}
                       aria-describedby={passwordError ? 'login-password-error' : undefined}
                       disabled={isLoggingIn}
-                      className={`h-12 w-full border bg-white pl-11 pr-12 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0056d2] focus:ring-4 focus:ring-blue-50 disabled:opacity-60 ${passwordError ? 'border-red-400 focus:border-red-500 focus:ring-red-50' : 'border-slate-300'}`}
-                      placeholder="Enter your password"
+                      style={isRtl ? { textAlign: 'right' } : undefined}
+                      className={`h-12 w-full border bg-white text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0056d2] focus:ring-4 focus:ring-blue-50 disabled:opacity-60 ${isRtl ? 'pr-11 pl-12' : 'pl-11 pr-12'} ${passwordError ? 'border-red-400 focus:border-red-500 focus:ring-red-50' : 'border-slate-300'}`}
+                      placeholder={t('passwordPlaceholder')}
                     />
-                    <button type="button" onClick={() => setShowPassword((visible) => !visible)} className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-slate-400 transition hover:text-[#0056d2] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0056d2]" aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                    <button type="button" onClick={() => setShowPassword((visible) => !visible)} className={`absolute top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-slate-400 transition hover:text-[#0056d2] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0056d2] ${isRtl ? 'left-2' : 'right-2'}`} aria-label={t(showPassword ? 'hidePassword' : 'showPassword')}>
                       {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                     </button>
                   </div>
@@ -174,21 +204,21 @@ export default function LoginPage() {
                 </div>
 
                 <button type="submit" disabled={isLoggingIn} className="flex h-12 w-full items-center justify-center gap-2 bg-[#0056d2] px-5 text-sm font-semibold text-white transition hover:bg-[#0a2d6e] focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-100 disabled:cursor-not-allowed disabled:bg-blue-300">
-                  {isLoggingIn ? 'Signing in…' : 'Sign in'}
-                  {!isLoggingIn && <ArrowRight size={18} aria-hidden="true" />}
+                  {t(isLoggingIn ? 'signingIn' : 'signIn')}
+                  {!isLoggingIn && <ArrowRight size={18} aria-hidden="true" className={direction === 'rtl' ? 'rotate-180' : ''} />}
                 </button>
               </form>
             </div>
 
             <p className="mt-5 flex items-center gap-2 text-xs leading-5 text-slate-500">
               <LockKeyhole size={14} aria-hidden="true" className="text-[#0056d2]" />
-              Your access is protected with secure administration controls.
+              {t('secureAccess')}
             </p>
           </div>
 
           <footer className="mx-auto flex w-full max-w-[430px] flex-col gap-2 border-t border-slate-200 pt-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between">
-            <span>&copy; {new Date().getFullYear()} Medicard. All rights reserved.</span>
-            <span>Powered by <span className="font-semibold text-[#2baba2]">Khusm</span></span>
+            <span>{t('copyright', { year: new Date().getFullYear() })}</span>
+            <span>{t('poweredBy')} <span className="font-semibold text-[#2baba2]">Khusm</span></span>
           </footer>
         </section>
       </div>

@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
-const ImageLightbox = ({ image, onClose }) => {
+const ImageLightbox = ({ image, onClose, closeLabel = "Close image preview" }) => {
     if (!image) {
         return null;
     }
@@ -14,6 +14,7 @@ const ImageLightbox = ({ image, onClose }) => {
             <button
                 type="button"
                 onClick={onClose}
+                aria-label={closeLabel}
                 className="absolute top-5 right-5 h-9 w-9 inline-flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
             >
                 <FontAwesomeIcon icon={faXmark} />

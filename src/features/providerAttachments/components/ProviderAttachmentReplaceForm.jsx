@@ -4,13 +4,16 @@ import FormActions from "../../../shared/components/FormActions";
 import ProviderAttachmentFileInput from "./ProviderAttachmentFileInput";
 import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
 import { ATTACHMENT_FILE_ACCEPT, getAttachmentFileError } from "../utils/attachmentUpload";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import localizeAttachmentError from "../../../localization/localizeAttachmentError";
 
 export default function ProviderAttachmentReplaceForm({ attachmentId, mutation, onCancel, onSuccess }) {
+  const tr = useProviderDetailsText();
   const [file, setFile] = useState(null);
   const [validationError, setValidationError] = useState(null);
   const helpId = `replacement-file-help-${attachmentId}`;
-  const errorMessage = validationError || (mutation.isError
-    ? getApiErrorMessage(mutation.error, { details: true, fallback: "Unable to replace this file. Please try again." }) : null);
+  const errorMessage = validationError ? localizeAttachmentError(validationError, tr) : (mutation.isError
+    ? getApiErrorMessage(mutation.error, { details: true, fallback: tr("Unable to replace this file. Please try again.") }) : null);
 
   const handleFileChange = (event) => {
     if (mutation.isPending) return;
@@ -37,7 +40,7 @@ export default function ProviderAttachmentReplaceForm({ attachmentId, mutation, 
       <fieldset disabled={mutation.isPending} className="min-w-0 space-y-3">
         <div>
           <label htmlFor={`replacement-file-${attachmentId}`} className="mb-2 block text-sm font-medium text-slate-700">
-            Replacement file
+            {tr("Replacement file")}
           </label>
           <ProviderAttachmentFileInput
             dimDisabled={false}
@@ -47,16 +50,18 @@ export default function ProviderAttachmentReplaceForm({ attachmentId, mutation, 
             aria-describedby={helpId}
           />
           <p id={helpId} className="mt-2 text-xs text-slate-500">
-            Images, PDF, or Excel (.xls, .xlsx). Maximum 5 MB.
+            {tr("Images, PDF, or Excel (.xls, .xlsx). Maximum 5 MB.")}
           </p>
-          {file && <p className="mt-2 break-words text-sm text-slate-700">Selected: {file.name}</p>}
+          {file && <p className="mt-2 break-words text-sm text-slate-700">{tr("Selected: {{name}}", { name: file.name })}</p>}
         </div>
         <FormActions
           onCancel={onCancel}
           isSaving={mutation.isPending}
           submitDisabled={!file}
           submitIcon={faFloppyDisk}
-          submitLabel="Save replacement"
+          submitLabel={tr("Save replacement")}
+          cancelLabel={tr("Cancel")}
+          savingLabel={tr("Saving...")}
           submitFirst
           className="flex flex-wrap gap-2"
           submitClassName="inline-flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50"

@@ -19,10 +19,12 @@ import ProviderAttachmentReplaceForm from "./ProviderAttachmentReplaceForm";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
-import QueryErrorState from "../../../shared/components/QueryErrorState";
+import QueryErrorState from "../../../localization/ProviderDetailsQueryErrorState";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import useAutoDismissSuccess from "../../../shared/hooks/useAutoDismissSuccess";
 import Skeleton from "../../../shared/components/Skeleton";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import useLanguage from "../../../localization/useLanguage";
 
 function getAttachmentFile(attachmentUrl) {
   try {
@@ -39,8 +41,10 @@ function getAttachmentFile(attachmentUrl) {
 }
 
 function AttachmentItem({ attachment, canReplace, canDelete, disabled, onReplace, onDelete, children }) {
+  const tr = useProviderDetailsText();
   const label = ATTACHMENT_TYPE_LABELS[attachment.attachmentType]
     || attachment.attachmentTypeName || "Attachment";
+  const displayLabel = ATTACHMENT_TYPE_LABELS[attachment.attachmentType] ? tr(label) : attachment.attachmentTypeName || tr("Attachment");
   const file = getAttachmentFile(attachment.attachmentUrl);
   const icon = file?.extension === "PDF"
     ? faFilePdf
@@ -52,9 +56,9 @@ function AttachmentItem({ attachment, canReplace, canDelete, disabled, onReplace
         <FontAwesomeIcon icon={icon} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="break-words text-sm font-semibold text-slate-900">{label}</p>
+        <p className="break-words text-sm font-semibold text-slate-900">{displayLabel}</p>
         <p className="mt-0.5 text-xs text-slate-500">
-          {file ? file.extension || "Document" : "File unavailable"}
+          {file ? file.extension || tr("Document") : tr("File unavailable")}
         </p>
       </div>
       {file && (
@@ -62,10 +66,10 @@ function AttachmentItem({ attachment, canReplace, canDelete, disabled, onReplace
           href={file.url}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`Open ${label.toLowerCase()} attachment #${attachment.id}`}
+          aria-label={tr("Open {{name}} attachment #{{id}}", { name: displayLabel, id: attachment.id })}
           className="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-800 transition hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
         >
-          Open file
+          {tr("Open file")}
           <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-xs" />
         </a>
       )}
@@ -74,11 +78,11 @@ function AttachmentItem({ attachment, canReplace, canDelete, disabled, onReplace
           type="button"
           onClick={onReplace}
           disabled={disabled}
-          aria-label={`Replace file for ${label.toLowerCase()} attachment #${attachment.id}`}
+          aria-label={tr("Replace file for {{name}} attachment #{{id}}", { name: displayLabel, id: attachment.id })}
           className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <FontAwesomeIcon icon={faPenToSquare} className="text-xs" />
-          Replace file
+          {tr("Replace file")}
         </button>
       )}
       {canDelete && (
@@ -86,11 +90,11 @@ function AttachmentItem({ attachment, canReplace, canDelete, disabled, onReplace
           type="button"
           onClick={onDelete}
           disabled={disabled}
-          aria-label={`Delete ${label.toLowerCase()} attachment #${attachment.id}`}
+          aria-label={tr("Delete {{name}} attachment #{{id}}", { name: displayLabel, id: attachment.id })}
           className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <FontAwesomeIcon icon={faTrashCan} className="text-xs" />
-          Delete
+          {tr("Delete")}
         </button>
       )}
       {children}
@@ -99,11 +103,13 @@ function AttachmentItem({ attachment, canReplace, canDelete, disabled, onReplace
 }
 
 export default function ProviderAttachmentsModal({ providerRenewalId, canUpload = false, onClose }) {
+  const tr = useProviderDetailsText();
+  const { language } = useLanguage();
   const [editingAttachmentId, setEditingAttachmentId] = useState(null);
   const [deletingAttachmentId, setDeletingAttachmentId] = useState(null);
-  const uploadMutation = useProviderAttachmentUploadMutation({ providerRenewalId });
-  const updateMutation = useProviderAttachmentUpdateMutation({ providerRenewalId });
-  const deleteMutation = useProviderAttachmentDeleteMutation({ providerRenewalId });
+  const uploadMutation = useProviderAttachmentUploadMutation({ providerRenewalId, language });
+  const updateMutation = useProviderAttachmentUpdateMutation({ providerRenewalId, language });
+  const deleteMutation = useProviderAttachmentDeleteMutation({ providerRenewalId, language });
   useAutoDismissSuccess(uploadMutation);
   useAutoDismissSuccess(updateMutation);
   useAutoDismissSuccess(deleteMutation);
@@ -112,7 +118,7 @@ export default function ProviderAttachmentsModal({ providerRenewalId, canUpload 
   const canDeleteAttachment = (attachment) =>
     canUpload && Number(attachment.attachmentType) === 6;
   const { attachments, isLoading, isError, error, refetch } =
-    useProviderAttachmentsQuery({ providerRenewalId });
+    useProviderAttachmentsQuery({ providerRenewalId, language });
 
   const resetFeedback = () => {
     uploadMutation.reset();
@@ -123,10 +129,10 @@ export default function ProviderAttachmentsModal({ providerRenewalId, canUpload 
   return (
     <FormModalShell
       native
-      title="Renewal attachments"
+      title={tr("Renewal attachments")}
       titleId="provider-attachments-title"
-      description={`Renewal #${providerRenewalId}`}
-      closeLabel="Close renewal attachments"
+      description={tr("Renewal #{{id}}", { id: providerRenewalId })}
+      closeLabel={tr("Close renewal attachments")}
       isSaving={isBusy}
       onClose={onClose}
       className="max-w-2xl"
@@ -139,28 +145,28 @@ export default function ProviderAttachmentsModal({ providerRenewalId, canUpload 
         />
       )}
       {updateMutation.isSuccess && (
-        <p role="status" className="text-sm text-emerald-700">Attachment file replaced successfully.</p>
+        <p role="status" className="text-sm text-emerald-700">{tr("Attachment file replaced successfully.")}</p>
       )}
       {deleteMutation.isSuccess && (
-        <p role="status" className="text-sm text-emerald-700">Attachment deleted successfully.</p>
+        <p role="status" className="text-sm text-emerald-700">{tr("Attachment deleted successfully.")}</p>
       )}
       {isLoading ? (
         <div role="status" className="space-y-3">
-          <span className="sr-only">Loading attachments...</span>
+          <span className="sr-only">{tr("Loading attachments...")}</span>
           {Array.from({ length: 3 }, (_, index) => (
             <Skeleton key={index} aria-hidden="true" className="h-20 rounded-xl bg-slate-100" />
           ))}
         </div>
       ) : isError ? (
-        <QueryErrorState title="Unable to load attachments" error={error} onRetry={refetch} />
+        <QueryErrorState title={tr("Unable to load attachments")} error={error} onRetry={refetch} />
       ) : attachments.length === 0 ? (
         <TableEmptyState
           icon={faPaperclip}
-          title="No attachments found"
-          emptyMessage="No files have been added to this renewal yet."
+          title={tr("No attachments found")}
+          emptyMessage={tr("No files have been added to this renewal yet.")}
         />
       ) : (
-        <ul aria-label="Renewal files" className="space-y-3">
+        <ul aria-label={tr("Renewal files")} className="space-y-3">
           {attachments.map((attachment) => (
             <AttachmentItem
               key={attachment.id}
@@ -195,14 +201,15 @@ export default function ProviderAttachmentsModal({ providerRenewalId, canUpload 
                   inline
                   isOpen
                   titleId={`delete-attachment-title-${attachment.id}`}
-                  title={`Delete attachment #${attachment.id}?`}
-                  message="Confirm to remove this attachment from the renewal."
-                  confirmLabel="Delete attachment"
-                  loadingLabel="Deleting..."
+                  title={tr("Delete attachment #{{id}}?", { id: attachment.id })}
+                  message={tr("Confirm to remove this attachment from the renewal.")}
+                  confirmLabel={tr("Delete attachment")}
+                  cancelLabel={tr("Cancel")}
+                  loadingLabel={tr("Deleting...")}
                   confirmIcon={faTrashCan}
                   isLoading={deleteMutation.isPending}
                   errorMessage={deleteMutation.isError
-                    ? getApiErrorMessage(deleteMutation.error, { details: true, fallback: "Unable to delete this attachment. Please try again." }) : null}
+                    ? getApiErrorMessage(deleteMutation.error, { details: true, fallback: tr("Unable to delete this attachment. Please try again.") }) : null}
                   onCancel={() => {
                     if (isBusy) return;
                     deleteMutation.reset();

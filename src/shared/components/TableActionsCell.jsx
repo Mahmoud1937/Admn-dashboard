@@ -4,6 +4,7 @@ export default function TableActionsCell({
   backgroundColor,
   hoverColor,
   className = "",
+  side = "right",
   style,
   ...props
 }) {
@@ -14,7 +15,7 @@ export default function TableActionsCell({
       data-table-action={column}
       className={`table-actions-cell ${className}`}
       style={{
-        right: `var(--table-action-${column}-offset, 0px)`,
+        [side]: `var(--table-action-${column}-offset, 0px)`,
         "--table-action-background": backgroundColor,
         "--table-action-hover": hoverColor,
         ...style,

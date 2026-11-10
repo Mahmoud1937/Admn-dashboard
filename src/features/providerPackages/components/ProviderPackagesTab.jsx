@@ -14,7 +14,7 @@ import {
 import { useParams } from "react-router-dom";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
 import Pagination from "../../../shared/components/Pagination";
-import QueryErrorState from "../../../shared/components/QueryErrorState";
+import QueryErrorState from "../../../localization/ProviderDetailsQueryErrorState";
 import TableEmptyState from "../../../shared/components/TableEmptyState";
 import ConfirmDeleteModal from "../../../shared/components/ConfirmDeleteModal";
 import StatusBadge from "../../providers/components/StatusBadge";
@@ -32,6 +32,8 @@ import ProviderPackageDetailsModal from "./ProviderPackageDetailsModal";
 import usePermission from "../../auth/hooks/usePermission";
 import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import Skeleton from "../../../shared/components/Skeleton";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import useLanguage from "../../../localization/useLanguage";
 
 
 function CardsSkeleton({ count = 6 }) {
@@ -71,6 +73,9 @@ function CardsSkeleton({ count = 6 }) {
 }
 
 function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete, canUpdate, canDelete }) {
+  const tr = useProviderDetailsText();
+  const { language } = useLanguage();
+  const rtl = language === "ar";
   const percent = getDiscountPercent(providerPackage.totalDiscount);
   const discounted = hasDiscount(providerPackage.totalDiscount);
   const isActive = Boolean(providerPackage.isActive);
@@ -98,29 +103,28 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete, canU
             className={`truncate font-semibold ${
               isActive ? "text-slate-900" : "text-slate-500"
             }`}
-            title={providerPackage.packageEnName || undefined}
+            title={(rtl ? providerPackage.packageArName : providerPackage.packageEnName) || undefined}
           >
-            {providerPackage.packageEnName || "-"}
+            {(rtl ? providerPackage.packageArName || providerPackage.packageEnName : providerPackage.packageEnName || providerPackage.packageArName) || "-"}
           </h3>
-          {providerPackage.packageArName && (
+          {(rtl ? providerPackage.packageEnName : providerPackage.packageArName) && (
             <p
-              dir="rtl"
-              lang="ar"
-              style={{ textAlign: "left" }}
-              className="mt-1 truncate text-xs text-slate-500"
-              title={providerPackage.packageArName}
+              dir={rtl ? "ltr" : "rtl"}
+              lang={rtl ? "en" : "ar"}
+              className="mt-1 truncate text-start text-xs text-slate-500"
+              title={rtl ? providerPackage.packageEnName : providerPackage.packageArName}
             >
-              {providerPackage.packageArName}
+              {rtl ? providerPackage.packageEnName : providerPackage.packageArName}
             </p>
           )}
         </div>
-        <StatusBadge isActive={providerPackage.isActive} />
+        <StatusBadge isActive={providerPackage.isActive} activeLabel={tr("Active")} inactiveLabel={tr("Inactive")} />
       </header>
 
       <div className="mt-5 flex items-end justify-between gap-3">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-            Price after
+            {tr("Price after")}
           </p>
           <p
             className={`mt-1 text-2xl font-bold tabular-nums ${
@@ -131,7 +135,7 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete, canU
           </p>
         </div>
         {discounted && (
-          <div className="text-right">
+          <div className="text-end">
             <p className="text-sm tabular-nums text-slate-400 line-through">
               {formatPrice(providerPackage.priceBefore)}
             </p>
@@ -144,7 +148,7 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete, canU
             >
               <FontAwesomeIcon icon={faTags} className="text-[10px]" />
               {percent != null
-                ? `${percent}% off`
+                ? tr("{{percent}}% off", { percent })
                 : `-${formatPrice(providerPackage.totalDiscount)}`}
             </span>
           </div>
@@ -154,7 +158,7 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete, canU
       <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 text-sm">
         <span className="flex items-center gap-2 text-slate-500">
           <FontAwesomeIcon icon={faStethoscope} className="text-slate-400" />
-          Services
+          {tr("Services")}
         </span>
         <span
           className={`rounded-md px-2.5 py-0.5 text-xs font-semibold tabular-nums ${
@@ -178,10 +182,10 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete, canU
                 : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
             }`}
           >
-            View details
+            {tr("View details")}
             <FontAwesomeIcon
               icon={faArrowRight}
-              className="text-xs transition-transform group-hover:translate-x-0.5"
+              className={`text-xs transition-transform ${rtl ? "rotate-180 group-hover:-translate-x-0.5" : "group-hover:translate-x-0.5"}`}
             />
           </button>
           {canUpdate && <button
@@ -190,7 +194,7 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete, canU
             className="flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-blue-200 bg-white px-3 text-[13px] font-medium text-blue-900 transition-colors hover:border-blue-300 hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
           >
             <FontAwesomeIcon icon={faPen} className="text-xs text-blue-400" />
-            Edit
+            {tr("Edit")}
           </button>}
         </div>
 
@@ -204,7 +208,7 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete, canU
               icon={providerPackage.isActive ? faBan : faCheck}
               className="text-xs text-slate-400"
             />
-            {providerPackage.isActive ? "Deactivate" : "Activate"}
+            {tr(providerPackage.isActive ? "Deactivate" : "Activate")}
           </button>}
           {canDelete && <button
             type="button"
@@ -212,7 +216,7 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete, canU
             className="flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-red-200 bg-white px-3 text-[13px] font-medium text-red-700 transition-colors hover:border-red-300 hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2"
           >
             <FontAwesomeIcon icon={faTrash} className="text-xs text-red-400" />
-            Delete
+            {tr("Delete")}
           </button>}
         </div>}
       </div>
@@ -221,6 +225,8 @@ function PackageCard({ providerPackage, onView, onEdit, onToggle, onDelete, canU
 }
 
 export default function ProviderPackagesTab() {
+  const tr = useProviderDetailsText();
+  const { language } = useLanguage();
   const { id: providerId } = useParams();
   const canRead = usePermission(PERMISSION_CODES.PROVIDER_PACKAGES_READ);
   const canCreate = usePermission(PERMISSION_CODES.PROVIDER_PACKAGES_CREATE);
@@ -245,7 +251,7 @@ export default function ProviderPackagesTab() {
     isError,
     error,
     refetch,
-  } = useProviderPackagesQuery({ providerId, pageNumber, pageSize, enabled: canRead });
+  } = useProviderPackagesQuery({ providerId, pageNumber, pageSize, enabled: canRead, language });
   const { mutation, serverErrors, clearServerErrors } =
     useProviderPackageCreateMutation({ onSuccess: () => setIsModalOpen(false) });
   const {
@@ -280,11 +286,11 @@ export default function ProviderPackagesTab() {
     <div className="min-w-0 space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">Packages</h2>
+          <h2 className="text-lg font-semibold text-slate-900">{tr("Packages")}</h2>
           <p className="text-sm text-slate-500">
             {isLoading || isError
-              ? "Manage this provider's packages."
-              : `${totalCount} ${totalCount === 1 ? "package" : "packages"} in total`}
+              ? tr("Manage this provider's packages.")
+              : tr(totalCount === 1 ? "{{total}} package in total" : "{{total}} packages in total", { total: totalCount })}
           </p>
         </div>
         {canCreate && <button
@@ -296,7 +302,7 @@ export default function ProviderPackagesTab() {
           className="flex items-center gap-2 rounded-lg bg-blue-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
         >
           <FontAwesomeIcon icon={faPlus} />
-          Add package
+          {tr("Add package")}
         </button>}
       </div>
 
@@ -305,7 +311,7 @@ export default function ProviderPackagesTab() {
       ) : isError ? (
         <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <QueryErrorState
-            title="Unable to load packages"
+            title={tr("Unable to load packages")}
             error={error}
             onRetry={refetch}
           />
@@ -314,8 +320,8 @@ export default function ProviderPackagesTab() {
         <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <TableEmptyState
             icon={faBoxOpen}
-            title="No packages found"
-            emptyMessage="No packages have been added for this provider yet."
+            title={tr("No packages found")}
+            emptyMessage={tr("No packages have been added for this provider yet.")}
           />
         </div>
       ) : (
@@ -340,7 +346,11 @@ export default function ProviderPackagesTab() {
               totalPages={totalPages}
               totalCount={totalCount}
               pageSize={pageSize}
-              itemLabel="packages"
+              itemLabel={tr("packages")}
+              summary={tr("Showing page {{page}} of {{totalPages}} ({{total}} packages)", { page: pageNumber, totalPages, total: totalCount })}
+              rowsPerPageLabel={tr("Rows per page")}
+              previousLabel={tr("Previous")}
+              nextLabel={tr("Next")}
               getPageNumbers={getPageNumbers}
               onGoToPage={(page) => goToPage(page, totalPages)}
               onPageSizeChange={handlePageSizeChange}
@@ -378,9 +388,11 @@ export default function ProviderPackagesTab() {
       {canUpdate && <ConfirmDeleteModal
         isOpen={!!packageToToggle}
         variant={packageToToggle?.isActive ? "danger" : "success"}
-        title={packageToToggle?.isActive ? "Deactivate package?" : "Activate package?"}
-        message={`Are you sure you want to ${packageToToggle?.isActive ? "deactivate" : "activate"} "${packageToToggle?.packageEnName || packageToToggle?.packageArName || "this package"}"?`}
-        confirmLabel={packageToToggle?.isActive ? "Deactivate" : "Activate"}
+        title={tr(packageToToggle?.isActive ? "Deactivate package?" : "Activate package?")}
+        message={tr(packageToToggle?.isActive ? "Are you sure you want to deactivate \"{{name}}\"?" : "Are you sure you want to activate \"{{name}}\"?", { name: (language === "ar" ? packageToToggle?.packageArName || packageToToggle?.packageEnName : packageToToggle?.packageEnName || packageToToggle?.packageArName) || tr("this package") })}
+        confirmLabel={tr(packageToToggle?.isActive ? "Deactivate" : "Activate")}
+        cancelLabel={tr("Cancel")}
+        loadingLabel={tr("Processing...")}
         isLoading={toggleMutation.isPending}
         onConfirm={() => {
           if (canUpdate && packageToToggle) toggleMutation.mutate(packageToToggle.packageId);
@@ -389,9 +401,11 @@ export default function ProviderPackagesTab() {
       />}
       {canDelete && <ConfirmDeleteModal
         isOpen={!!packageToDelete}
-        title="Delete package?"
-        message={`Are you sure you want to permanently delete "${packageToDelete?.packageEnName || packageToDelete?.packageArName || "this package"}"? This cannot be undone.`}
-        confirmLabel="Delete"
+        title={tr("Delete package?")}
+        message={tr("Are you sure you want to permanently delete \"{{name}}\"? This cannot be undone.", { name: (language === "ar" ? packageToDelete?.packageArName || packageToDelete?.packageEnName : packageToDelete?.packageEnName || packageToDelete?.packageArName) || tr("this package") })}
+        confirmLabel={tr("Delete")}
+        cancelLabel={tr("Cancel")}
+        loadingLabel={tr("Processing...")}
         isLoading={deleteMutation.isPending}
         onConfirm={() => {
           if (canDelete && packageToDelete) deleteMutation.mutate(packageToDelete.packageId);

@@ -6,6 +6,7 @@ export default function FormActions({
   isSaving,
   submitLabel,
   savingLabel = "Saving...",
+  cancelLabel = "Cancel",
   showCancel = true,
   submitFirst = false,
   submitDisabled = false,
@@ -16,7 +17,7 @@ export default function FormActions({
   children,
 }) {
   const cancel = showCancel && (
-    <button type="button" onClick={onCancel} className={cancelClassName}>Cancel</button>
+    <button type="button" onClick={onCancel} className={cancelClassName}>{cancelLabel}</button>
   );
   const submit = (
     <button type="submit" disabled={isSaving || submitDisabled} className={submitClassName}>

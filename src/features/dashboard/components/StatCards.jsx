@@ -13,6 +13,8 @@ import {
   saveDashboardFilter,
 } from "../../../shared/utils/dashboardFilterSession";
 import Skeleton from "../../../shared/components/Skeleton";
+import { useTranslation } from "react-i18next";
+import useLanguage from "../../../localization/useLanguage";
 
 const today = () => new Date().toLocaleDateString("en-CA");
 const isStoredDate = (value) =>
@@ -75,7 +77,7 @@ function StatCard({
         <div className="min-w-0">
           <p className="text-sm font-medium text-slate-500">{title}</p>
           <p className="mt-3 break-words text-lg font-bold tracking-tight text-slate-900 sm:text-2xl">
-            {primaryValue}
+            <bdi dir="ltr">{primaryValue}</bdi>
           </p>
           <p className="mt-1 text-xs text-slate-400">{primaryLabel}</p>
         </div>
@@ -90,8 +92,8 @@ function StatCard({
         <span className="text-xs font-medium text-slate-500">
           {secondaryLabel}
         </span>
-        <span className="min-w-0 break-words text-left text-sm font-semibold text-slate-700 sm:text-right">
-          {secondaryValue}
+        <span className="min-w-0 break-words text-start text-sm font-semibold text-slate-700 sm:text-end">
+          <bdi dir="ltr">{secondaryValue}</bdi>
         </span>
       </div>
     </article>
@@ -99,10 +101,11 @@ function StatCard({
 }
 
 function StatCardsSkeleton() {
+  const { t } = useTranslation("dashboard");
   return (
     <div
       className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4"
-      aria-label="Loading dashboard summary"
+      aria-label={t("summary.loading")}
     >
       {Array.from({ length: 4 }, (_, index) => (
         <Skeleton
@@ -120,6 +123,15 @@ function StatCardsSkeleton() {
 }
 
 export default function StatCards() {
+  const { t } = useTranslation("dashboard");
+  const { language } = useLanguage();
+  const dateLabels = {
+    locale: language,
+    weekdayLabels: t("weekdays", { returnObjects: true }),
+    previousMonthLabel: t("previousMonth"),
+    nextMonthLabel: t("nextMonth"),
+    toggleCalendarLabel: t("toggleCalendar"),
+  };
   const [{ from, to }, setDates] = useState(initialDates);
 
   useEffect(() => {
@@ -138,7 +150,8 @@ export default function StatCards() {
 
   const { data, isLoading, isError, refetch } = useDashboard(
     filters,
-    Boolean(filters)
+    Boolean(filters),
+    language
   );
 
   return (
@@ -149,10 +162,10 @@ export default function StatCards() {
             id="dashboard-summary-title"
             className="text-base font-semibold text-slate-900"
           >
-            Performance summary
+            {t("summary.title")}
           </h2>
           <p className="mt-1 text-xs text-slate-500">
-            Choose a date range to update the key metrics.
+            {t("summary.description")}
           </p>
         </div>
 
@@ -160,7 +173,7 @@ export default function StatCards() {
           <div className="grid flex-1 gap-3 sm:grid-cols-2 xl:flex-none">
             <label className="block">
               <span className="mb-1.5 block text-xs font-medium text-slate-600">
-                From date
+                {t("summary.fromDate")}
               </span>
               <DatePicker
                 value={from}
@@ -169,12 +182,13 @@ export default function StatCards() {
                   setDates((previous) => ({ ...previous, from: value }))
                 }
                 className="w-full xl:w-40"
+                {...dateLabels}
               />
             </label>
 
             <label className="block">
               <span className="mb-1.5 block text-xs font-medium text-slate-600">
-                To date
+                {t("summary.toDate")}
               </span>
               <DatePicker
                 value={to}
@@ -183,6 +197,7 @@ export default function StatCards() {
                   setDates((previous) => ({ ...previous, to: value }))
                 }
                 className="w-full xl:w-40"
+                {...dateLabels}
               />
             </label>
           </div>
@@ -194,14 +209,14 @@ export default function StatCards() {
             }}
             className="h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-800"
           >
-            Reset
+            {t("summary.reset")}
           </button>
         </div>
       </div>
 
       {!filters && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Select both From and To dates to load the dashboard summary.
+          {t("summary.missingDates")}
         </div>
       )}
 
@@ -209,13 +224,13 @@ export default function StatCards() {
 
       {isError && (
         <div className="flex items-center justify-between gap-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          <span>Failed to load dashboard summary.</span>
+          <span>{t("summary.error")}</span>
           <button
             type="button"
             onClick={() => refetch()}
             className="shrink-0 rounded-lg border border-red-200 bg-white px-3 py-1.5 font-medium transition hover:bg-red-100"
           >
-            Try again
+            {t("summary.retry")}
           </button>
         </div>
       )}
@@ -223,39 +238,39 @@ export default function StatCards() {
       {data && !isLoading && (
         <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
           <StatCard
-            title="Sold Cards"
+            title={t("summary.soldCards")}
             icon={faCreditCard}
             tone="blue"
-            primaryLabel="Total amount"
+            primaryLabel={t("summary.totalAmount")}
             primaryValue={formatMoney(data.soldCards?.totalAmount)}
-            secondaryLabel="Cards sold"
+            secondaryLabel={t("summary.cardsSold")}
             secondaryValue={formatCount(data.soldCards?.count)}
           />
           <StatCard
-            title="Activated Cards"
+            title={t("summary.activatedCards")}
             icon={faArrowTrendUp}
             tone="emerald"
-            primaryLabel="Total amount"
+            primaryLabel={t("summary.totalAmount")}
             primaryValue={formatMoney(data.activatedCards?.totalAmount)}
-            secondaryLabel="Cards activated"
+            secondaryLabel={t("summary.cardsActivated")}
             secondaryValue={formatCount(data.activatedCards?.count)}
           />
           <StatCard
-            title="Provider Network"
+            title={t("summary.providerNetwork")}
             icon={faBuildingCircleCheck}
             tone="amber"
-            primaryLabel="Providers"
+            primaryLabel={t("summary.providers")}
             primaryValue={formatCount(data.providers?.providersCount)}
-            secondaryLabel="Branches"
+            secondaryLabel={t("summary.branches")}
             secondaryValue={formatCount(data.providers?.branchesCount)}
           />
           <StatCard
-            title="Invoices"
+            title={t("summary.invoices")}
             icon={faFileInvoiceDollar}
             tone="violet"
-            primaryLabel="Total amount"
+            primaryLabel={t("summary.totalAmount")}
             primaryValue={formatMoney(data.invoices?.totalAmount)}
-            secondaryLabel="Invoices issued"
+            secondaryLabel={t("summary.invoicesIssued")}
             secondaryValue={formatCount(data.invoices?.count)}
           />
         </div>

@@ -9,19 +9,27 @@ export default function CitySelect({
   placeholder = "Select city",
   error,
   disabled,
+  searchPlaceholder = "Search cities...",
+  chooseFirstPlaceholder = "Choose Governorate First ",
+  labels,
+  language,
+  rtl = false,
+  getOptionLabel = (item) => `${item.enName} - ${item.arName}`,
 }) {
   return (
     <div className="w-full">
       <SearchableAsyncSelect
-        queryKey={["cities", governorateId]}
+        queryKey={language ? ["cities", governorateId, language] : ["cities", governorateId]}
         fetchItems={(pageNumber, pageSize, searchTerm) =>
           getCities({ governorateId, pageNumber, pageSize, searchTerm })
         }
         value={value}
         onChange={onChange}
-        getOptionLabel={(item) => `${item.enName} - ${item.arName}`}
-placeholder={!governorateId ? "Choose Governorate First " : placeholder}
-        searchPlaceholder="Search cities..."
+        getOptionLabel={getOptionLabel}
+        placeholder={!governorateId ? chooseFirstPlaceholder : placeholder}
+        searchPlaceholder={searchPlaceholder}
+        labels={labels}
+        rtl={rtl}
         disabled={disabled || !governorateId}
         error={error}
       />

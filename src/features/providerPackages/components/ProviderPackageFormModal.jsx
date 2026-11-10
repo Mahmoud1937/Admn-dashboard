@@ -13,11 +13,13 @@ import {
   defaultProviderPackageValues,
   updateProviderPackageSchema,
 } from "../schema/providerPackageSchema";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import useLanguage from "../../../localization/useLanguage";
 
 const textareaClassName =
   "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400";
 
-function PackageImageField({ file, label, onChange, error }) {
+function PackageImageField({ file, label, onChange, error, labels }) {
   const [preview, setPreview] = useState(null);
 
   useEffect(() => {
@@ -35,11 +37,12 @@ function PackageImageField({ file, label, onChange, error }) {
       preview={file instanceof File ? preview : file || null}
       onImageChange={(event) => onChange(event.target.files?.[0] ?? null)}
       error={error}
+      labels={labels}
     />
   );
 }
 
-const getUpdateValues = (providerPackage) => {
+const getUpdateValues = (providerPackage, language) => {
   const before = Number(providerPackage.priceBefore);
   const after = Number(providerPackage.priceAfter);
   const backendDiscount = providerPackage.totalDiscount;
@@ -61,7 +64,9 @@ const getUpdateValues = (providerPackage) => {
     imageEn: providerPackage.imageEn || null,
     serviceIds: (providerPackage.services ?? []).map((service) => ({
       id: service.serviceId,
-      label: service.serviceEnName || service.serviceArName || String(service.serviceId),
+      label: (language === "ar" ? service.serviceArName || service.serviceEnName : service.serviceEnName || service.serviceArName) || String(service.serviceId),
+      enLabel: service.serviceEnName,
+      arLabel: service.serviceArName,
     })),
   };
 };
@@ -80,6 +85,12 @@ export default function ProviderPackageFormModal({
   serverErrors,
   variant = "modal",
 }) {
+  const tr = useProviderDetailsText();
+  const { language } = useLanguage();
+  const rtl = language === "ar";
+  const fieldError = (error) => error?.type === "server" ? error.message : error?.message ? tr(error.message) : undefined;
+  const selectLabels = { clearSelection: tr("Clear selection"), openOptions: tr("Open options"), closeOptions: tr("Close options"), loading: tr("Loading..."), loadingMore: tr("Loading more..."), unableToLoadOptions: tr("Unable to load options."), noResults: tr("No results found."), tryAgain: tr("Try again") };
+  const imageLabels = { formats: tr("PNG, JPEG, or WebP"), processing: tr("Processing..."), compressing: tr("Compressing image..."), dragAndDrop: tr("or drag and drop an image here"), formatsOnly: (formats) => tr("{{formats}} only", { formats }), dropError: (formats) => tr("Please drop an image file ({{formats}})", { formats }) };
   const {
     register,
     control,
@@ -89,7 +100,7 @@ export default function ProviderPackageFormModal({
     formState: { errors },
   } = useForm({
     resolver: zodResolver(providerPackage ? updateProviderPackageSchema : createProviderPackageSchema),
-    defaultValues: providerPackage ? getUpdateValues(providerPackage) : defaultProviderPackageValues,
+    defaultValues: providerPackage ? getUpdateValues(providerPackage, language) : defaultProviderPackageValues,
     mode: "onChange",
   });
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -121,16 +132,16 @@ export default function ProviderPackageFormModal({
     <>
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
-          label="Arabic name"
+          label={tr("Arabic name")}
           required
           dir="rtl"
-          error={errors.nameAr?.message}
+          error={fieldError(errors.nameAr)}
           {...register("nameAr")}
         />
         <TextField
-          label="English name"
+          label={tr("English name")}
           required
-          error={errors.nameEn?.message}
+          error={fieldError(errors.nameEn)}
           {...register("nameEn")}
         />
       </div>
@@ -138,7 +149,7 @@ export default function ProviderPackageFormModal({
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
-            Arabic description <span className="text-red-500">*</span>
+            {tr("Arabic description")} <span className="text-red-500">*</span>
           </label>
           <textarea
             dir="rtl"
@@ -147,16 +158,16 @@ export default function ProviderPackageFormModal({
             {...register("descriptionAr")}
           />
           {errors.descriptionAr && (
-            <p className="mt-1 text-xs text-red-500">{errors.descriptionAr.message}</p>
+            <p className="mt-1 text-xs text-red-500">{fieldError(errors.descriptionAr)}</p>
           )}
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
-            English description <span className="text-red-500">*</span>
+            {tr("English description")} <span className="text-red-500">*</span>
           </label>
           <textarea rows={3} className={textareaClassName} {...register("descriptionEn")} />
           {errors.descriptionEn && (
-            <p className="mt-1 text-xs text-red-500">{errors.descriptionEn.message}</p>
+            <p className="mt-1 text-xs text-red-500">{fieldError(errors.descriptionEn)}</p>
           )}
         </div>
       </div>
@@ -168,9 +179,10 @@ export default function ProviderPackageFormModal({
           render={({ field }) => (
             <PackageImageField
               file={field.value}
-              label={providerPackage ? "Change Arabic image" : "Upload Arabic image *"}
+              label={tr(providerPackage ? "Change Arabic image" : "Upload Arabic image *")}
               onChange={field.onChange}
-              error={errors.imageAr?.message}
+              error={fieldError(errors.imageAr)}
+              labels={imageLabels}
             />
           )}
         />
@@ -180,9 +192,10 @@ export default function ProviderPackageFormModal({
           render={({ field }) => (
             <PackageImageField
               file={field.value}
-              label={providerPackage ? "Change English image" : "Upload English image *"}
+              label={tr(providerPackage ? "Change English image" : "Upload English image *")}
               onChange={field.onChange}
-              error={errors.imageEn?.message}
+              error={fieldError(errors.imageEn)}
+              labels={imageLabels}
             />
           )}
         />
@@ -190,19 +203,19 @@ export default function ProviderPackageFormModal({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
-          label="Price Before"
+          label={tr("Price Before")}
           required
           inputMode="decimal"
           sanitize={false}
-          error={errors.priceBefore?.message}
+          error={fieldError(errors.priceBefore)}
           {...register("priceBefore")}
         />
         <TextField
-          label="Discount %"
+          label={tr("Discount %")}
           required
           inputMode="decimal"
           sanitize={false}
-          error={errors.discountPercentage?.message}
+          error={fieldError(errors.discountPercentage)}
           {...discountField}
           onChange={(event) => {
             if (Number(event.target.value) > 100) {
@@ -215,11 +228,11 @@ export default function ProviderPackageFormModal({
 
       <div>
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Service category <span className="text-red-500">*</span>
+          {tr("Service category")} <span className="text-red-500">*</span>
         </label>
         <SearchableAsyncSelect
-          key={providerId}
-          queryKey={["provider-package-categories", providerId]}
+          key={`${providerId}-${language}`}
+          queryKey={["provider-package-categories", providerId, language]}
           fetchItems={(pageNumber, pageSize, search) =>
             getProviderPackageCategories({ providerId, pageNumber, pageSize, search })
           }
@@ -228,15 +241,17 @@ export default function ProviderPackageFormModal({
             if (!isSaving) setSelectedCategory({ providerId, id });
           }}
           getOptionLabel={(category) => category.name}
-          placeholder="Select a service category"
-          searchPlaceholder="Search provider categories..."
+          placeholder={tr("Select a service category")}
+          searchPlaceholder={tr("Search provider categories...")}
+          labels={selectLabels}
+          rtl={rtl}
           disabled={isSaving || !providerId}
         />
       </div>
 
       <div>
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Services <span className="text-red-500">*</span>
+          {tr("Services")} <span className="text-red-500">*</span>
         </label>
         <Controller
           name="serviceIds"
@@ -244,8 +259,8 @@ export default function ProviderPackageFormModal({
           render={({ field }) => (
             <>
               <SearchableAsyncSelect
-                key={`${providerId}-${categoryId}-${field.value.length}`}
-                queryKey={["provider-package-services", providerId, categoryId]}
+                key={`${providerId}-${categoryId}-${field.value.length}-${language}`}
+                queryKey={["provider-package-services", providerId, categoryId, language]}
                 fetchItems={(pageNumber, pageSize, searchTerm) =>
                   getProviderPackageServices({
                     providerId,
@@ -262,33 +277,38 @@ export default function ProviderPackageFormModal({
                     ...field.value,
                     {
                       id: Number(id),
-                      label: service.serviceNameEn || service.serviceNameAr || service.serviceName || String(id),
+                      label: (rtl ? service.serviceNameAr || service.serviceNameEn : service.serviceNameEn || service.serviceNameAr) || service.serviceName || String(id),
+                      enLabel: service.serviceNameEn,
+                      arLabel: service.serviceNameAr,
                     },
                   ]);
                 }}
                 getOptionValue={(service) => service.id}
                 getOptionLabel={(service) =>
-                  [service.serviceNameEn, service.serviceNameAr].filter(Boolean).join(" - ") || service.serviceName || String(service.id)
+                  (rtl ? [service.serviceNameAr, service.serviceNameEn] : [service.serviceNameEn, service.serviceNameAr]).filter(Boolean).join(" - ") || service.serviceName || String(service.id)
                 }
-                placeholder={categoryId ? "Select services" : "Choose a category first"}
-                searchPlaceholder="Search provider services..."
+                placeholder={tr(categoryId ? "Select services" : "Choose a category first")}
+                searchPlaceholder={tr("Search provider services...")}
+                labels={selectLabels}
+                rtl={rtl}
                 disabled={isSaving || !providerId || !categoryId}
                 clearable={false}
-                error={errors.serviceIds?.message}
+                error={fieldError(errors.serviceIds)}
               />
               {field.value.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {field.value.map((service) => (
-                    <button
+                  {field.value.map((service) => {
+                    const displayName = (rtl ? service.arLabel || service.enLabel : service.enLabel || service.arLabel) || service.label;
+                    return <button
                       key={service.id}
                       type="button"
                       onClick={() => field.onChange(field.value.filter((item) => item.id !== service.id))}
                       className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-700 hover:bg-slate-100"
-                      aria-label={`Remove ${service.label}`}
+                      aria-label={tr("Remove {{name}}", { name: displayName })}
                     >
-                      {service.label} ×
-                    </button>
-                  ))}
+                      {displayName} ×
+                    </button>;
+                  })}
                 </div>
               )}
             </>
@@ -302,7 +322,9 @@ export default function ProviderPackageFormModal({
     <FormActions
       onCancel={onClose}
       isSaving={isSaving}
-      submitLabel={providerPackage ? "Save Changes" : "Add Package"}
+      submitLabel={tr(providerPackage ? "Save Changes" : "Add Package")}
+      cancelLabel={tr("Cancel")}
+      savingLabel={tr("Saving...")}
     />
   );
 
@@ -325,7 +347,8 @@ export default function ProviderPackageFormModal({
 
   return (
     <FormModalShell
-      title={providerPackage ? "Edit Package" : "Add Package"}
+      title={tr(providerPackage ? "Edit Package" : "Add Package")}
+      closeLabel={tr("Close")}
       onClose={onClose}
       onSubmit={handleSubmit(submit)}
       className="max-h-[90vh] max-w-3xl overflow-y-auto"

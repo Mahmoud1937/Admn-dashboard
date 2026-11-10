@@ -6,6 +6,8 @@ import FormModalShell from "../../../shared/components/FormModalShell";
 import TextField from "../../../shared/components/TextField";
 import FormActions from "../../../shared/components/FormActions";
 import ServiceSelect from "./ServiceSelect";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import useLanguage from "../../../localization/useLanguage";
 
 
 
@@ -63,6 +65,22 @@ export default function ProviderServiceFormModal({
   serverErrors,
   onClearErrors,
 }) {
+  const tr = useProviderDetailsText();
+  const { direction, language } = useLanguage();
+  const rtl = direction === "rtl";
+  const fieldError = (error) => error?.message
+    ? error.type === "server" ? error.message : tr(error.message)
+    : undefined;
+  const selectLabels = {
+    clearSelection: tr("Clear selection"),
+    openOptions: tr("Open options"),
+    closeOptions: tr("Close options"),
+    loading: tr("Loading..."),
+    loadingMore: tr("Loading more..."),
+    unableToLoadOptions: tr("Unable to load options."),
+    noResults: tr("No results found."),
+    tryAgain: tr("Try again"),
+  };
   const isEditMode = !!providerService;
   const schema = isEditMode ? updateProviderServiceSchema : createProviderServiceSchema;
   const {
@@ -118,33 +136,41 @@ export default function ProviderServiceFormModal({
 
   return (
     <FormModalShell
-      title={isEditMode ? "Edit Service" : "Add Service"}
+      title={tr(isEditMode ? "Edit Service" : "Add Service")}
+      closeLabel={tr("Close")}
       onClose={onClose}
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
         <input type="hidden" {...register("servicePriceListId")} />
-        <p className="text-xs font-medium text-slate-500">Price list #{servicePriceListId}</p>
+        <p className="text-xs font-medium text-slate-500">{tr("Price list #{{id}}", { id: servicePriceListId })}</p>
         <p className="text-sm font-semibold text-slate-700">{priceListLabel}</p>
         {errors.servicePriceListId && (
-          <p className="mt-1 text-xs text-red-500">{errors.servicePriceListId.message}</p>
+          <p className="mt-1 text-xs text-red-500">{fieldError(errors.servicePriceListId)}</p>
         )}
       </div>
 
       <div className="mb-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Service <span className="text-red-500">*</span>
+          {tr("Service")} <span className="text-red-500">*</span>
         </label>
         <Controller
           name="serviceId"
           control={control}
           render={({ field }) => (
             <ServiceSelect
+              key={language}
               value={field.value}
               onChange={(val) =>
                 field.onChange(val != null && val !== "" ? String(val) : "")
               }
-              error={errors.serviceId?.message}
+              error={fieldError(errors.serviceId)}
+              placeholder={tr("Select service")}
+              searchPlaceholder={tr("Search services...")}
+              labels={selectLabels}
+              language={language}
+              rtl={rtl}
+              getOptionLabel={(item) => rtl ? `${item.arName} - ${item.enName}` : `${item.enName} - ${item.arName}`}
             />
           )}
         />
@@ -153,24 +179,24 @@ export default function ProviderServiceFormModal({
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div>
           <TextField
-            label="Price Before"
+            label={tr("Price Before")}
             required
             inputMode="decimal"
             {...register("priceBefore")}
           />
           {errors.priceBefore && (
-            <p className="mt-1 text-xs text-red-500">{errors.priceBefore.message}</p>
+            <p className="mt-1 text-xs text-red-500">{fieldError(errors.priceBefore)}</p>
           )}
         </div>
         <div>
           <TextField
-            label="Discount %"
+            label={tr("Discount %")}
             required
             inputMode="decimal"
             {...register("discountPercentage")}
           />
           {errors.discountPercentage && (
-            <p className="mt-1 text-xs text-red-500">{errors.discountPercentage.message}</p>
+            <p className="mt-1 text-xs text-red-500">{fieldError(errors.discountPercentage)}</p>
           )}
         </div>
       </div>
@@ -184,7 +210,7 @@ export default function ProviderServiceFormModal({
           {...register("isSpecialOffer")}
           className="h-4 w-4 rounded border-slate-300"
         />
-        Special Offer
+        {tr("Special Offer")}
       </label>
 
       {isEditMode && (
@@ -194,14 +220,16 @@ export default function ProviderServiceFormModal({
             {...register("isActive")}
             className="h-4 w-4 rounded border-slate-300"
           />
-          Active
+          {tr("Active")}
         </label>
       )}
 
       <FormActions
         onCancel={onClose}
         isSaving={isSaving}
-        submitLabel={isEditMode ? "Save Changes" : "Add Service"}
+        submitLabel={tr(isEditMode ? "Save Changes" : "Add Service")}
+        cancelLabel={tr("Cancel")}
+        savingLabel={tr("Saving...")}
       />
     </FormModalShell>
   );

@@ -23,13 +23,14 @@ export function useMedicinesQuery({ pageNumber, pageSize, search, statusFilter }
   };
 }
 
-export function useProviderMedicinesQuery({ providerId, pageNumber, pageSize, enabled = true }) {
+export function useProviderMedicinesQuery({ providerId, pageNumber, pageSize, enabled = true, language }) {
   const query = useQuery({
-    queryKey: ["provider-medicines", providerId, pageNumber, pageSize],
+    queryKey: ["provider-medicines", providerId, pageNumber, pageSize, language],
     queryFn: ({ signal }) => getProviderMedicines({ providerId, pageNumber, pageSize, signal }),
     enabled: enabled && !!providerId,
     placeholderData: (previousData, previousQuery) =>
-      previousQuery?.queryKey[1] === providerId ? previousData : undefined,
+      previousQuery?.queryKey[1] === providerId && previousQuery?.queryKey[4] === language
+        ? previousData : undefined,
   });
 
   return {

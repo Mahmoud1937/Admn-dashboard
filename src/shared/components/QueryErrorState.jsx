@@ -2,6 +2,9 @@ export default function QueryErrorState({
   title = "Unable to load data",
   error,
   onRetry,
+  loadErrorMessage = "We couldn't load the data. Please try again.",
+  connectionErrorMessage = "We couldn't connect to the server. Please check your internet connection and try again.",
+  retryLabel = "Try Again",
 }) {
   return (
     <div className="flex min-h-[300px] items-center justify-center bg-white">
@@ -16,8 +19,8 @@ export default function QueryErrorState({
 
         <p className="mt-2 text-sm leading-6 text-gray-500">
           {error?.response
-            ? "We couldn't load the data. Please try again."
-            : "We couldn't connect to the server. Please check your internet connection and try again."}
+            ? loadErrorMessage
+            : connectionErrorMessage}
         </p>
 
         <button
@@ -25,7 +28,7 @@ export default function QueryErrorState({
           onClick={onRetry}
           className="mt-5 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-800"
         >
-          Try Again
+          {retryLabel}
         </button>
       </div>
     </div>

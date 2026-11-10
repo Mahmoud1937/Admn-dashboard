@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleCheck,
@@ -11,8 +12,9 @@ import {
   faTriangleExclamation,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { changePasswordSchema } from "../schema/loginSchema";
+import { changePasswordSchema, localizedChangePasswordSchema } from "../schema/loginSchema";
 import useAuthMutations from "../hooks/useAuthMutations";
+import useLanguage from "../../../localization/useLanguage";
 
 const initialForm = {
   currentPassword: "",
@@ -30,29 +32,35 @@ const fields = [
   {
     name: "currentPassword",
     label: "Current Password",
+    labelKey: "currentPassword",
     placeholder: "Enter your current password",
+    placeholderKey: "currentPasswordPlaceholder",
     autoComplete: "current-password",
   },
   {
     name: "newPassword",
     label: "New Password",
+    labelKey: "newPassword",
     placeholder: "Enter your new password",
+    placeholderKey: "newPasswordPlaceholder",
     autoComplete: "new-password",
   },
   {
     name: "confirmNewPassword",
     label: "Confirm New Password",
+    labelKey: "confirmNewPassword",
     placeholder: "Re-enter your new password",
+    placeholderKey: "confirmNewPasswordPlaceholder",
     autoComplete: "new-password",
   },
 ];
 
 const strengthLevels = [
-  { label: "Too short", text: "text-slate-400", bar: "bg-slate-200" },
-  { label: "Weak", text: "text-red-600", bar: "bg-red-500" },
-  { label: "Fair", text: "text-amber-600", bar: "bg-amber-500" },
-  { label: "Good", text: "text-blue-600", bar: "bg-blue-500" },
-  { label: "Strong", text: "text-green-600", bar: "bg-green-500" },
+  { label: "Too short", key: "strengthTooShort", text: "text-slate-400", bar: "bg-slate-200" },
+  { label: "Weak", key: "strengthWeak", text: "text-red-600", bar: "bg-red-500" },
+  { label: "Fair", key: "strengthFair", text: "text-amber-600", bar: "bg-amber-500" },
+  { label: "Good", key: "strengthGood", text: "text-blue-600", bar: "bg-blue-500" },
+  { label: "Strong", key: "strengthStrong", text: "text-green-600", bar: "bg-green-500" },
 ];
 
 const getStrength = (password) => {
@@ -66,7 +74,10 @@ const getStrength = (password) => {
   return password.length < 6 ? 0 : Math.max(score, 1);
 };
 
-export default function ChangePasswordModal({ onClose, forced = false }) {
+export default function ChangePasswordModal({ onClose, forced = false, localized = false }) {
+  const { t } = useTranslation("navbar");
+  const { language, direction } = useLanguage();
+  const ui = (key, fallback) => localized ? t(key) : fallback;
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [visible, setVisible] = useState(initialVisibility);
@@ -79,7 +90,15 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
     isLoggingOut,
     serverErrors,
     clearServerErrors,
-  } = useAuthMutations();
+  } = useAuthMutations({ changePasswordMessages: localized ? {
+    changePasswordFailed: t("changePasswordFailed"),
+    changePasswordSuccess: t("changePasswordSuccess"),
+    unableToChangePassword: t("unableToChangePassword"),
+    networkError: t("networkError"),
+    serverError: t("serverError"),
+    sessionExpired: t("sessionExpired"),
+    forbidden: t("forbidden"),
+  } : undefined });
 
   // منع scroll الصفحة اللي ورا المودال + focus على أول حقل
   useEffect(() => {
@@ -112,7 +131,7 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    const result = changePasswordSchema.safeParse(form);
+    const result = (localized ? localizedChangePasswordSchema : changePasswordSchema).safeParse(form);
     if (!result.success) {
       const nextErrors = {};
       result.error.issues.forEach((issue) => {
@@ -128,6 +147,8 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
 
   return (
     <div
+      lang={localized ? language : undefined}
+      dir={localized ? direction : undefined}
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
@@ -145,10 +166,10 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
                 id="change-password-title"
                 className="text-base font-semibold text-slate-900"
               >
-                Change Password
+                {ui("changePassword", "Change Password")}
               </h2>
               <p className="mt-0.5 text-xs text-slate-500">
-                You will be signed out after changing your password.
+                {ui("changePasswordNote", "You will be signed out after changing your password.")}
               </p>
             </div>
           </div>
@@ -158,7 +179,7 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
               type="button"
               onClick={onClose}
               disabled={isChangingPassword}
-              aria-label="Close"
+              aria-label={ui("close", "Close")}
               className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-200 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <FontAwesomeIcon icon={faXmark} />
@@ -175,13 +196,12 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
                 className="mt-0.5 shrink-0"
               />
               <p>
-                You are using a temporary password. Please set a new password
-                to continue.
+                {ui("temporaryPassword", "You are using a temporary password. Please set a new password to continue.")}
               </p>
             </div>
           )}
 
-          {fields.map(({ name, label, placeholder, autoComplete }, index) => {
+          {fields.map(({ name, label, labelKey, placeholder, placeholderKey, autoComplete }, index) => {
             const error = errors[name] || serverErrors?.[name];
             const isVisible = visible[name];
 
@@ -191,11 +211,11 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
                   htmlFor={name}
                   className="mb-1.5 block text-sm font-medium text-slate-700"
                 >
-                  {label}
+                  {ui(labelKey, label)}
                 </label>
 
                 <div className="relative">
-                  <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-sm text-slate-400">
+                  <span className={`pointer-events-none absolute inset-y-0 flex items-center text-sm text-slate-400 ${localized && direction === "rtl" ? "right-0 pr-3.5" : "left-0 pl-3.5"}`}>
                     <FontAwesomeIcon icon={faLock} />
                   </span>
 
@@ -206,10 +226,11 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
                     name={name}
                     value={form[name]}
                     onChange={handleChange}
-                    placeholder={placeholder}
+                    placeholder={ui(placeholderKey, placeholder)}
                     autoComplete={autoComplete}
                     disabled={isChangingPassword}
-                    className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-11 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-4 disabled:bg-slate-50 ${
+                    style={localized ? { direction, textAlign: direction === "rtl" ? "right" : "left" } : undefined}
+                    className={`w-full rounded-xl border bg-white py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-4 disabled:bg-slate-50 ${localized && direction === "rtl" ? "pr-10 pl-11" : "pl-10 pr-11"} ${
                       error
                         ? "border-red-400 focus:border-red-500 focus:ring-red-100"
                         : "border-slate-300 focus:border-blue-900 focus:ring-blue-900/10"
@@ -220,8 +241,8 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
                     type="button"
                     onClick={() => toggleVisibility(name)}
                     tabIndex={-1}
-                    aria-label={isVisible ? "Hide password" : "Show password"}
-                    className="absolute inset-y-0 right-0 flex w-11 cursor-pointer items-center justify-center text-slate-400 transition hover:text-slate-700"
+                    aria-label={ui(isVisible ? "hidePassword" : "showPassword", isVisible ? "Hide password" : "Show password")}
+                    className={`absolute inset-y-0 flex w-11 cursor-pointer items-center justify-center text-slate-400 transition hover:text-slate-700 ${localized && direction === "rtl" ? "left-0" : "right-0"}`}
                   >
                     <FontAwesomeIcon icon={isVisible ? faEyeSlash : faEye} />
                   </button>
@@ -241,7 +262,7 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
                       ))}
                     </div>
                     <p className={`mt-1 text-xs font-medium ${strength.text}`}>
-                      {strength.label}
+                      {ui(strength.key, strength.label)}
                     </p>
                   </div>
                 )}
@@ -252,13 +273,13 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
                     {passwordsMatch && (
                       <p className="mt-1.5 flex items-center gap-1.5 text-xs text-green-600">
                         <FontAwesomeIcon icon={faCircleCheck} />
-                        Passwords match
+                        {ui("passwordsMatch", "Passwords match")}
                       </p>
                     )}
                     {passwordsMismatch && (
                       <p className="mt-1.5 flex items-center gap-1.5 text-xs text-amber-600">
                         <FontAwesomeIcon icon={faCircleExclamation} />
-                        Passwords do not match yet
+                        {ui("passwordsDoNotMatchYet", "Passwords do not match yet")}
                       </p>
                     )}
                   </>
@@ -267,7 +288,7 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
                 {error && (
                   <p className="mt-1.5 flex items-center gap-1.5 text-xs text-red-600">
                     <FontAwesomeIcon icon={faCircleExclamation} />
-                    {error}
+                    {localized && errors[name] ? t(errors[name]) : error}
                   </p>
                 )}
               </div>
@@ -282,7 +303,7 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
               disabled={isChangingPassword || isLoggingOut}
               className="cursor-pointer rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {forced ? (isLoggingOut ? "Signing out..." : "Sign out") : "Cancel"}
+              {forced ? ui(isLoggingOut ? "signingOut" : "signOut", isLoggingOut ? "Signing out..." : "Sign out") : ui("cancel", "Cancel")}
             </button>
             <button
               type="submit"
@@ -292,10 +313,10 @@ export default function ChangePasswordModal({ onClose, forced = false }) {
               {isChangingPassword ? (
                 <>
                   <FontAwesomeIcon icon={faSpinner} spin />
-                  Saving...
+                  {ui("saving", "Saving...")}
                 </>
               ) : (
-                "Update Password"
+                ui("updatePassword", "Update Password")
               )}
             </button>
           </div>

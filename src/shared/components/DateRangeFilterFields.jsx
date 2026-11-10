@@ -107,8 +107,9 @@ const buildMasked = (digits) => {
   return out
 }
 
-const monthLabel = (viewDate) =>
-  `${MONTH_NAMES[viewDate.getMonth()]} ${viewDate.getFullYear()}`
+const monthLabel = (viewDate, locale) => locale === 'ar'
+  ? new Intl.DateTimeFormat('ar-EG', { month: 'long', year: 'numeric' }).format(viewDate)
+  : `${MONTH_NAMES[viewDate.getMonth()]} ${viewDate.getFullYear()}`
 
 // Builds the day grid for the given month view. Each cell is either null
 // (leading blank day) or a { iso, day } object.
@@ -136,37 +137,41 @@ function Calendar({
   onSelect,
   onPrev,
   onNext,
+  locale = 'en',
+  weekdayLabels = WEEKDAY_LABELS,
+  previousMonthLabel = 'Previous month',
+  nextMonthLabel = 'Next month',
 }) {
   const cells = buildMonthGrid(viewDate)
 
   return (
-    <div className="w-full">
+    <div className="w-full" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <div className="mb-2 flex items-center justify-between">
         <button
           type="button"
           onClick={onPrev}
-          aria-label="Previous month"
+          aria-label={previousMonthLabel}
           className="flex h-7 w-7 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
         >
-          <FontAwesomeIcon icon={faChevronLeft} size="xs" />
+          <FontAwesomeIcon icon={locale === 'ar' ? faChevronRight : faChevronLeft} size="xs" />
         </button>
 
         <span className="text-sm font-medium text-slate-700">
-          {monthLabel(viewDate)}
+          {monthLabel(viewDate, locale)}
         </span>
 
         <button
           type="button"
           onClick={onNext}
-          aria-label="Next month"
+          aria-label={nextMonthLabel}
           className="flex h-7 w-7 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
         >
-          <FontAwesomeIcon icon={faChevronRight} size="xs" />
+          <FontAwesomeIcon icon={locale === 'ar' ? faChevronLeft : faChevronRight} size="xs" />
         </button>
       </div>
 
       <div className="grid grid-cols-7 gap-1">
-        {WEEKDAY_LABELS.map((label) => (
+        {weekdayLabels.map((label) => (
           <span
             key={label}
             className="text-center text-[11px] font-medium uppercase text-slate-400"
@@ -214,6 +219,12 @@ export function DatePicker({
   minDate,
   maxDate,
   className = '',
+  locale = 'en',
+  weekdayLabels = WEEKDAY_LABELS,
+  datePlaceholder = 'dd/mm/yyyy',
+  previousMonthLabel = 'Previous month',
+  nextMonthLabel = 'Next month',
+  toggleCalendarLabel = 'Toggle calendar',
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [text, setText] = useState(() => isoToDisplay(value))
@@ -308,31 +319,36 @@ export function DatePicker({
           type="text"
           inputMode="numeric"
           autoComplete="off"
-          placeholder="dd/mm/yyyy"
+          placeholder={datePlaceholder}
+          dir="ltr"
           value={text}
           onChange={handleTextChange}
           onFocus={openCalendar}
           onBlur={handleBlur}
           onClick={openCalendar}
-          className={`${dateFieldClass} cursor-pointer pr-9`}
+          className={`${dateFieldClass} cursor-pointer ${locale === 'ar' ? 'pl-9' : 'pr-9'}`}
         />
         <button
           type="button"
-          aria-label="Toggle calendar"
+          aria-label={toggleCalendarLabel}
           onClick={toggleOpen}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+          className={`absolute ${locale === 'ar' ? 'left-2.5' : 'right-2.5'} top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600`}
         >
           <FontAwesomeIcon icon={faCalendar} size="sm" />
         </button>
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 top-full z-40 mt-1 w-[18rem] max-w-[calc(100vw-1.5rem)] rounded-lg border border-slate-200 bg-white p-3 shadow-lg">
+        <div className={`absolute ${locale === 'ar' ? 'right-0' : 'left-0'} top-full z-40 mt-1 w-[18rem] max-w-[calc(100vw-1.5rem)] rounded-lg border border-slate-200 bg-white p-3 shadow-lg`}>
           <Calendar
             viewDate={viewDate}
             selectedIso={value}
             minIso={minDate}
             maxIso={maxDate}
+            locale={locale}
+            weekdayLabels={weekdayLabels}
+            previousMonthLabel={previousMonthLabel}
+            nextMonthLabel={nextMonthLabel}
             onSelect={handleSelect}
             onPrev={() =>
               setViewDate(
@@ -359,6 +375,12 @@ export default function DateRangeFilterFields({
   fromField = 'fromDate',
   toField = 'toDate',
   stacked = true,
+  locale = 'en',
+  weekdayLabels = WEEKDAY_LABELS,
+  datePlaceholder = 'dd/mm/yyyy',
+  previousMonthLabel = 'Previous month',
+  nextMonthLabel = 'Next month',
+  toggleCalendarLabel = 'Toggle calendar',
 }) {
   const setField = (field) => (value) =>
     onDraftChange((prev) => ({ ...prev, [field]: value }))
@@ -373,6 +395,12 @@ export default function DateRangeFilterFields({
           value={draft[fromField] || ''}
           onChange={setField(fromField)}
           className="w-full"
+          locale={locale}
+          weekdayLabels={weekdayLabels}
+          datePlaceholder={datePlaceholder}
+          previousMonthLabel={previousMonthLabel}
+          nextMonthLabel={nextMonthLabel}
+          toggleCalendarLabel={toggleCalendarLabel}
         />
       </div>
       <div className={stacked ? '' : 'mb-3'}>
@@ -384,6 +412,12 @@ export default function DateRangeFilterFields({
           minDate={draft[fromField] || undefined}
           onChange={setField(toField)}
           className="w-full"
+          locale={locale}
+          weekdayLabels={weekdayLabels}
+          datePlaceholder={datePlaceholder}
+          previousMonthLabel={previousMonthLabel}
+          nextMonthLabel={nextMonthLabel}
+          toggleCalendarLabel={toggleCalendarLabel}
         />
       </div>
     </div>

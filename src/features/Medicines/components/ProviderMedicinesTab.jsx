@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPills } from "@fortawesome/free-solid-svg-icons";
 import AvatarImage from "../../../shared/components/AvatarImage";
 import Pagination from "../../../shared/components/Pagination";
-import QueryErrorState from "../../../shared/components/QueryErrorState";
+import QueryErrorState from "../../../localization/ProviderDetailsQueryErrorState";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
 import { SkeletonTable } from "../../../shared/components/Skeleton";
 import StatusBadge from "../../../shared/components/StatusBadge";
@@ -12,13 +12,18 @@ import { PERMISSION_CODES } from "../../auth/constants/permissionCodes";
 import usePermission from "../../auth/hooks/usePermission";
 import { useProviderMedicinesQuery } from "../hooks/Usemedicinesquery";
 import { getMedicineUnitName } from "../constants/medicineUnits";
+import useProviderDetailsText from "../../../localization/useProviderDetailsText";
+import useLanguage from "../../../localization/useLanguage";
 
 export default function ProviderMedicinesTab({ providerId }) {
+  const tr = useProviderDetailsText();
+  const { language, direction } = useLanguage();
+  const rtl = direction === "rtl";
   const canRead = usePermission(PERMISSION_CODES.MEDICINES_READ);
   const { pageNumber, pageSize, goToPage, handlePageSizeChange, getPageNumbers } =
     useServerPagination({ resetKey: providerId, initialPageSize: 15 });
   const { medicines, totalCount, totalPages, isLoading, isError, error, refetch, isPlaceholderData } =
-    useProviderMedicinesQuery({ providerId, pageNumber, pageSize, enabled: canRead });
+    useProviderMedicinesQuery({ providerId, pageNumber, pageSize, enabled: canRead, language });
 
   if (!canRead) return null;
 
@@ -29,41 +34,41 @@ export default function ProviderMedicinesTab({ providerId }) {
           <FontAwesomeIcon icon={faPills} />
         </span>
         <div>
-          <h2 className="text-base font-semibold text-slate-900">Medicines</h2>
-          <p className="text-xs text-slate-500">View medicine prices and discounts for this pharmacy.</p>
+          <h2 className="text-base font-semibold text-slate-900">{tr("Medicines")}</h2>
+          <p className="text-xs text-slate-500">{tr("View medicine prices and discounts for this pharmacy.")}</p>
         </div>
       </header>
 
       {isLoading ? (
-        <SkeletonTable label="Loading provider medicines..." columns={7} />
+        <SkeletonTable label={tr("Loading provider medicines...")} columns={7} />
       ) : isError ? (
-        <QueryErrorState title="Unable to load provider medicines" error={error} onRetry={refetch} />
+        <QueryErrorState title={tr("Unable to load provider medicines")} error={error} onRetry={refetch} />
       ) : medicines.length === 0 ? (
-        <TableEmptyState icon={faPills} title="No medicines found" emptyMessage="No medicines are available for this pharmacy." />
+        <TableEmptyState icon={faPills} title={tr("No medicines found")} emptyMessage={tr("No medicines are available for this pharmacy.")} />
       ) : (
         <div aria-busy={isPlaceholderData} className={`transition-opacity ${isPlaceholderData ? "opacity-60" : "opacity-100"}`}>
           <ScrollableTable maxHeight="60vh">
             <table className="w-full min-w-[1020px] table-fixed text-center text-sm">
               <thead className="sticky top-0 z-10 bg-slate-100">
                 <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-700">
-                  <th scope="col" className="w-[300px] px-4 py-3 text-left">Medicine</th>
-                  <th scope="col" className="w-[100px] px-4 py-3 text-center">Form</th>
-                  <th scope="col" className="w-[100px] px-4 py-3 text-center">Unit</th>
-                  <th scope="col" className="w-[140px] px-4 py-3 text-center">Origin</th>
-                  <th scope="col" className="w-[120px] px-4 py-3 text-center">Discount (%)</th>
-                  <th scope="col" className="w-[130px] px-4 py-3 text-center">Price before</th>
-                  <th scope="col" className="w-[130px] px-4 py-3 text-center">Price after</th>
+                  <th scope="col" className="w-[300px] px-4 py-3 text-start">{tr("Medicine")}</th>
+                  <th scope="col" className="w-[100px] px-4 py-3 text-center">{tr("Form")}</th>
+                  <th scope="col" className="w-[100px] px-4 py-3 text-center">{tr("Unit")}</th>
+                  <th scope="col" className="w-[140px] px-4 py-3 text-center">{tr("Origin")}</th>
+                  <th scope="col" className="w-[120px] px-4 py-3 text-center">{tr("Discount (%)")}</th>
+                  <th scope="col" className="w-[130px] px-4 py-3 text-center">{tr("Price before")}</th>
+                  <th scope="col" className="w-[130px] px-4 py-3 text-center">{tr("Price after")}</th>
                 </tr>
               </thead>
               <tbody>
                 {medicines.map((medicine) => (
                   <tr key={medicine.medicineId} className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/60">
-                    <td className="px-4 py-3 text-left">
-                      <div className="flex w-full max-w-[260px] items-center gap-3 text-left">
-                        <AvatarImage src={medicine.medicineImageUrl} alt={medicine.enName || medicine.arName} size="h-10 w-10 shrink-0" loading="lazy" />
+                    <td className="px-4 py-3 text-start">
+                      <div className="flex w-full max-w-[260px] items-center gap-3 text-start">
+                        <AvatarImage src={medicine.medicineImageUrl} alt={rtl ? medicine.arName || medicine.enName : medicine.enName || medicine.arName} size="h-10 w-10 shrink-0" loading="lazy" />
                         <div className="min-w-0 flex-1">
-                          <p title={medicine.enName} className="truncate font-semibold text-slate-900">{medicine.enName || "—"}</p>
-                          <p dir="rtl" lang="ar" title={medicine.arName} className="mt-0.5 truncate text-left text-xs text-slate-400">{medicine.arName || "—"}</p>
+                          <p dir={rtl && medicine.arName ? "rtl" : "ltr"} title={rtl ? medicine.arName || medicine.enName : medicine.enName || medicine.arName} className={`truncate font-semibold text-slate-900 ${rtl ? "text-right" : "text-left"}`}>{rtl ? medicine.arName || medicine.enName || "—" : medicine.enName || medicine.arName || "—"}</p>
+                          {medicine.arName && medicine.enName && <p dir={rtl ? "ltr" : "rtl"} lang={rtl ? "en" : "ar"} title={rtl ? medicine.enName : medicine.arName} className={`mt-0.5 truncate text-xs text-slate-400 ${rtl ? "text-right" : "text-left"}`}>{rtl ? medicine.enName : medicine.arName}</p>}
                         </div>
                       </div>
                     </td>
@@ -71,11 +76,11 @@ export default function ProviderMedicinesTab({ providerId }) {
                       <StatusBadge tone="primary">{medicine.medicineForm || "—"}</StatusBadge>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      {getMedicineUnitName(medicine.unit ?? medicine.Unit) || "—"}
+                      {tr(getMedicineUnitName(medicine.unit ?? medicine.Unit)) || "—"}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <StatusBadge tone={medicine.isLocal === true ? "emerald" : medicine.isLocal === false ? "primary" : "neutral"}>
-                        {medicine.medicineType || (medicine.isLocal === true ? "Local" : medicine.isLocal === false ? "Imported" : "Unspecified")}
+                        {medicine.medicineType || tr(medicine.isLocal === true ? "Local" : medicine.isLocal === false ? "Imported" : "Unspecified")}
                       </StatusBadge>
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -93,7 +98,12 @@ export default function ProviderMedicinesTab({ providerId }) {
             totalPages={totalPages}
             totalCount={totalCount}
             pageSize={pageSize}
-            itemLabel="medicines"
+            itemLabel={tr("medicines")}
+            summary={tr("Showing page {{page}} of {{totalPages}} ({{total}} medicines)", { page: pageNumber, totalPages, total: totalCount })}
+            rowsPerPageLabel={tr("Rows per page")}
+            previousLabel={tr("Previous")}
+            nextLabel={tr("Next")}
+            rtl={rtl}
             onGoToPage={(page) => goToPage(page, totalPages)}
             onPageSizeChange={handlePageSizeChange}
             getPageNumbers={getPageNumbers}
