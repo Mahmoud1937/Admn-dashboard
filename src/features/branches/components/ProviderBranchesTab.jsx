@@ -273,11 +273,11 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
               <table className="w-full min-w-[960px] text-start text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-100 text-xs font-medium text-slate-500">
-                    <th className="px-6 py-3">{tr("Branch")}</th>
-                    <th className="px-4 py-3">{tr("Location")}</th>
-                    <th className="px-4 py-3">{tr("Coordinates")}</th>
+                    <th className="px-6 py-3 text-start">{tr("Branch")}</th>
+                    <th className="px-4 py-3 text-start">{tr("Location")}</th>
+                    <th className="px-4 py-3 text-start">{tr("Coordinates")}</th>
                     <th className="px-4 py-3 text-center">{tr("Status")}</th>
-                    <th className="px-4 py-3">{tr("Joined")}</th>
+                    <th className="px-4 py-3 text-start">{tr("Joined")}</th>
                     {showActions && (
                       <TableActionsCell as="th" side={rtl ? "left" : "right"} className="px-6 py-3 text-center">{tr("Actions")}</TableActionsCell>
                     )}
@@ -295,7 +295,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                         className="transition-colors hover:bg-slate-50"
                       >
                         {/* Branch */}
-                        <td className="px-6 py-3.5">
+                        <td className="px-6 py-3.5 text-start">
                           <div className="flex items-center gap-3">
                             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-900">
                               <FontAwesomeIcon icon={faBuilding} />
@@ -312,7 +312,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                         </td>
 
                         {/* Location */}
-                        <td className="px-4 py-3.5">
+                        <td className="px-4 py-3.5 text-start">
                           <p className="font-medium text-slate-800">
                             {[branch.cityName, branch.governorateName]
                               .filter(Boolean)
