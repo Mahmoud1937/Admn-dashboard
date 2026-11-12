@@ -62,5 +62,16 @@
   "Restricted area": "Restricted area",
   "Access denied": "Access denied",
   "Your account does not have the permission required to view this page. You can jump to one of the pages below, or use the sidebar to see everything available to you.": "Your account does not have the permission required to view this page. You can jump to one of the pages below, or use the sidebar to see everything available to you.",
-  "All rights reserved by": "All rights reserved by"
+  "All rights reserved by": "All rights reserved by",
+  "Session expired": "Session expired",
+  "Please sign in again to continue.": "Please sign in again to continue.",
+  "Sign in": "Sign in",
+  "Compressing image...": "Compressing image...",
+  "or drag and drop an image here": "or drag and drop an image here",
+  "{{formats}} only": "{{formats}} only",
+  "Please drop an image file ({{formats}})": "Please drop an image file ({{formats}})",
+  "Choose file": "Choose file",
+  "Loading your session": "Loading your session",
+  "Unable to load your permissions": "Unable to load your permissions",
+  "The requested resource could not be found.": "The requested resource could not be found."
 }

@@ -121,7 +121,7 @@ const router = createBrowserRouter([
             path: "clients",
             element: withPermission(
               PERMISSION_CODES.CLIENTS_READ,
-              <ClientsPage title="Clients" />
+              <ClientsPage />
             ),
           },
           //  { path: "invoice-preview", element: <InvoiceDetailsPreviewPage /> }, // TEMP - remove after review
@@ -188,14 +188,14 @@ const router = createBrowserRouter([
             path: "services",
             element: withPermission(
               PERMISSION_CODES.SERVICES_READ,
-              <ServicesPage title="Services" />
+              <ServicesPage />
             ),
           },
           {
             path: "medicines",
             element: withPermission(
               PERMISSION_CODES.MEDICINES_READ,
-              <MedicinesPage title="Medicine" />
+              <MedicinesPage />
             ),
           },
           {
@@ -238,7 +238,7 @@ const router = createBrowserRouter([
             path: "offer-sliders",
             element: withPermission(
               PERMISSION_CODES.SLIDERS_READ,
-              <SlidersPage title="Sliders" />
+              <SlidersPage />
             ),
           },
           {

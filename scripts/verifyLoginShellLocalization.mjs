@@ -132,7 +132,7 @@ try {
   assert.match(arMarkup, /flex-row-reverse/);
   assert.match(arMarkup, /<aside lang="ar" dir="rtl"/);
   assert.match(arMarkup, /<nav id="sidebar-navigation"[^>]*dir="rtl"[^>]*class="flex-1 space-y-1 overflow-y-auto p-4"/);
-  assert.match(arMarkup, /<main dir="rtl" class="flex-1 overflow-y-auto p-4 md:p-8"><div dir="ltr" class="contents">/);
+  assert.match(arMarkup, /<main dir="rtl" class="flex-1 overflow-y-auto p-4 md:p-8"><div dir="rtl" class="contents">/);
   assert.match(arMarkup, /<header lang="ar" dir="rtl"/);
   assert.match(arMarkup, />لوحة المعلومات</);
   assert.match(arMarkup, />مقدمو الخدمة</);

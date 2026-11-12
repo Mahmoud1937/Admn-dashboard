@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { Fragment, useState } from "react";
@@ -9,7 +10,7 @@ import ScrollableTable from "../../../shared/components/ScrollableTable";
 import StatusBadge from "../../../shared/components/StatusBadge";
 import { formatDate } from "../../../utils/formatDate";
 
-const formatMoney = (value) => `${Number(value || 0).toFixed(2)} EGP`;
+const formatMoney = (value) => `${Number(value || 0).toFixed(2)} ${localizeMessage("EGP")}`;
 const formatPercentage = (value) => `${Number(value || 0).toFixed(2)}%`;
 
 function ExpandedDescription({ language, value }) {
@@ -19,7 +20,7 @@ function ExpandedDescription({ language, value }) {
   return (
     <div className="min-w-0 rounded-lg border border-slate-200 bg-white p-4">
       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-        {language} {t("description")}
+        {t(isArabic ? "Arabic Description" : "English Description")}
       </p>
       <p
         dir={isArabic ? "rtl" : "ltr"}

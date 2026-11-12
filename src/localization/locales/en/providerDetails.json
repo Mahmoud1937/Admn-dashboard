@@ -428,5 +428,6 @@
   "Export": "Export",
   "Unable to export branches. Please try again.": "Unable to export branches. Please try again.",
   "The server did not return an Excel file.": "The server did not return an Excel file.",
-  "No Excel file was returned. Please try again.": "No Excel file was returned. Please try again."
+  "No Excel file was returned. Please try again.": "No Excel file was returned. Please try again.",
+  "Choose an attachment type for \"{{name}}\".": "Choose an attachment type for \"{{name}}\"."
 }

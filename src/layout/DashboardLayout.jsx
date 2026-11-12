@@ -29,7 +29,7 @@ const Layout = () => {
       <div className="flex min-w-0 flex-1 flex-col">
         <Navbar onToggleSidebar={() => setCollapsed((prev) => !prev)} />
         <main dir={direction} className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div dir="ltr" className="contents">
+          <div dir={direction} className="contents">
             <Outlet
               context={{
                 sidebarCollapsed: collapsed,

@@ -1,11 +1,14 @@
+import { useTranslation } from "react-i18next";
 
 export default function FilterPanel({
   panelRef,
   onClose,
   className = "",
-  side = "right",
+  side,
   children,
 }) {
+  const { i18n } = useTranslation("common");
+  side ??= i18n.dir() === "rtl" ? "left" : "right";
   return (
     <>
       {/* Mobile-only backdrop, closes the panel on outside tap */}

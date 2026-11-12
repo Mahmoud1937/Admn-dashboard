@@ -10,7 +10,7 @@ export default function GovernorateSelect({
   searchPlaceholder = "Search governorates...",
   labels,
   language,
-  rtl = false,
+  rtl,
   getOptionLabel = (item) => `${item.enName} - ${item.arName}`,
 }) {
   return (

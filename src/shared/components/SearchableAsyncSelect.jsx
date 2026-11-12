@@ -1,3 +1,5 @@
+import localizeMessage from "../../localization/localizeMessage";
+import { useTranslation } from "react-i18next";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -37,8 +39,10 @@ export default function SearchableAsyncSelect({
   highlighted = false,
   preload = false,
   labels = {},
-  rtl = false,
+  rtl,
 }) {
+  const { i18n } = useTranslation("common");
+  rtl ??= i18n.dir() === "rtl";
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 300);
@@ -59,7 +63,7 @@ export default function SearchableAsyncSelect({
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: [...queryKey, "search", search],
+    queryKey: [...queryKey, "search", search, i18n.resolvedLanguage],
     queryFn: ({ pageParam = 1 }) => fetchItems(pageParam, PAGE_SIZE, search),
     getNextPageParam: (lastPage) => {
       const pageNumber = lastPage?.data?.pageNumber ?? 1;
@@ -159,15 +163,16 @@ export default function SearchableAsyncSelect({
             if (!isOpen) handleFocus();
           }}
           onChange={(e) => setSearchInput(e.target.value)}
-          placeholder={isOpen ? searchPlaceholder : placeholder}
-          style={rtl ? { direction: "rtl", textAlign: "right" } : undefined}
+          placeholder={localizeMessage(isOpen ? searchPlaceholder : placeholder)}
+          dir={rtl ? "rtl" : "ltr"}
+          style={{ textAlign: rtl ? "right" : "left" }}
           className="w-full min-w-0 truncate bg-transparent outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:text-slate-500"
         />
         <span className="flex shrink-0 items-center gap-2">
           {clearable && selectedLabel && !disabled && (
             <button
               type="button"
-              aria-label={labels.clearSelection ?? "Clear selection"}
+              aria-label={localizeMessage(labels.clearSelection ?? "Clear selection")}
               onClick={handleClear}
               className="cursor-pointer text-xs text-slate-400 hover:text-slate-600"
             >
@@ -177,7 +182,7 @@ export default function SearchableAsyncSelect({
           <button
             type="button"
             disabled={disabled}
-            aria-label={isOpen ? (labels.closeOptions ?? "Close options") : (labels.openOptions ?? "Open options")}
+            aria-label={localizeMessage(isOpen ? (labels.closeOptions ?? "Close options") : (labels.openOptions ?? "Open options"))}
             aria-expanded={isOpen}
             onClick={() => {
               if (isOpen) {
@@ -206,7 +211,7 @@ export default function SearchableAsyncSelect({
         >
           <div ref={listRef} onScroll={handleScroll} className="max-h-56 overflow-y-auto py-1">
             {isLoading ? (
-              <SkeletonText label={labels.loading ?? "Loading..."} lines={3} className="space-y-2 px-3 py-3" />
+              <SkeletonText label={localizeMessage(labels.loading ?? "Loading...")} lines={3} className="space-y-2 px-3 py-3" />
             ) : isError && items.length === 0 ? (
               <div role="alert" className="space-y-2 px-3 py-4 text-center text-xs text-red-600">
                 <p>{labels.unableToLoadOptions && !queryError?.response?.data?.message && !queryError?.response?.data?.errors
@@ -218,11 +223,11 @@ export default function SearchableAsyncSelect({
                   disabled={disabled || isFetching}
                   className="font-medium underline underline-offset-2 disabled:opacity-50"
                 >
-                  {labels.tryAgain ?? "Try again"}
+                  {localizeMessage(labels.tryAgain ?? "Try again")}
                 </button>
               </div>
             ) : items.length === 0 ? (
-              <p className="py-4 text-center text-xs text-slate-400">{labels.noResults ?? "No results found."}</p>
+              <p className="py-4 text-center text-xs text-slate-400">{localizeMessage(labels.noResults ?? "No results found.")}</p>
             ) : (
               <>
                 {items.map((item) => (
@@ -243,7 +248,7 @@ export default function SearchableAsyncSelect({
                   </button>
                 ))}
                 {isFetchingNextPage && (
-                  <SkeletonText label={labels.loadingMore ?? "Loading more..."} lines={1} className="space-y-2 px-3 py-3" />
+                  <SkeletonText label={localizeMessage(labels.loadingMore ?? "Loading more...")} lines={1} className="space-y-2 px-3 py-3" />
                 )}
               </>
             )}
@@ -251,7 +256,7 @@ export default function SearchableAsyncSelect({
         </div>
       )}
 
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-500">{localizeMessage(error)}</p>}
     </div>
   );
 }

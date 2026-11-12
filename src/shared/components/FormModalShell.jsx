@@ -16,7 +16,7 @@ export default function FormModalShell({
   isSaving = false,
   children,
 }) {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const dialogRef = useRef(null);
   useEffect(() => {
     if (!native) return;
@@ -37,6 +37,8 @@ export default function FormModalShell({
   const Body = native && !onSubmit ? "div" : "form";
   return (
     <Container
+      dir={i18n.dir()}
+      lang={i18n.resolvedLanguage}
       ref={native ? dialogRef : undefined}
       aria-labelledby={native ? titleId : undefined}
       aria-modal={native ? "true" : undefined}

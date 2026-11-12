@@ -15,7 +15,7 @@ export default function ProviderSelect({
   disabled,
   className,
   highlighted,
-  rtl = false,
+  rtl,
   searchPlaceholder = "Search providers...",
   labels,
   getOptionLabel = optionLabel,

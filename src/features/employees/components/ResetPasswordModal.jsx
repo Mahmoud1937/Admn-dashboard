@@ -22,7 +22,7 @@ export default function ResetPasswordModal({ employee, onClose, onReset }) {
   const employeeName =
     employee?.employeeName?.trim() ||
     [employee?.firstName, employee?.lastName].filter(Boolean).join(" ").trim() ||
-    "Employee";
+    t("Employee");
   const groupName = employee?.groupName || employee?.employeeGroupName;
 
   useEffect(() => {

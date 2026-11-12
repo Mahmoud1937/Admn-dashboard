@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -37,7 +38,7 @@ export default function BrokerFormModal({ isOpen, broker, onSave, onClose, isSav
         label={t("Name")}
         required
         autoFocus
-        error={errors.name?.message}
+        error={localizeMessage(errors.name?.message)}
         {...register("name")}
       />
       <TextField
@@ -46,7 +47,7 @@ export default function BrokerFormModal({ isOpen, broker, onSave, onClose, isSav
         inputMode="numeric"
         maxLength={11}
         sanitize={false}
-        error={errors.phoneNumber?.message}
+        error={localizeMessage(errors.phoneNumber?.message)}
         {...register("phoneNumber")}
       />
       <FormActions

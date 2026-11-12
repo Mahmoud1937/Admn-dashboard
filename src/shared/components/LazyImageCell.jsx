@@ -1,3 +1,5 @@
+import localizeMessage from "../../localization/localizeMessage";
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage } from "@fortawesome/free-solid-svg-icons";
@@ -29,6 +31,7 @@ export default function LazyImageCell({
   noImageLabel = "No image",
   previewLabel = "Click to preview",
 }) {
+  useTranslation("common");
   const [loaded, setLoaded] = useState(false);
   const [inView, setInView] = useState(false);
   const boxRef = useRef(null);
@@ -58,7 +61,7 @@ export default function LazyImageCell({
     return (
       <span className={`inline-flex items-center gap-1.5 text-xs text-gray-400 bg-gray-50 border border-dashed border-gray-200 rounded-lg ${size} justify-center`}>
         <FontAwesomeIcon icon={faImage} />
-        {noImageLabel}
+        {localizeMessage(noImageLabel)}
       </span>
     );
   }
@@ -73,7 +76,7 @@ export default function LazyImageCell({
       }}
       className={`group relative ${size} overflow-hidden rounded-lg border border-gray-200 shadow-sm bg-gray-100 ${onPreview ? "cursor-pointer" : ""}`}
       style={{ contain: "paint" }}
-      title={previewLabel}
+      title={localizeMessage(previewLabel)}
     >
       {!loaded && <Skeleton as="span" className="absolute inset-0 bg-gray-200" />}
 

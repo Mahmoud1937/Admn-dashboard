@@ -203,7 +203,7 @@ export default function CitiesPage() {
       {canDelete && <ConfirmDeleteModal
         isOpen={!!cityToDelete}
         title={t("Delete City")}
-        message={`Are you sure you want to delete "${cityToDelete?.enName}"? This action cannot be undone.`}
+        message={t("Are you sure you want to delete \"{{name}}\"? This action cannot be undone.", { name: cityToDelete?.enName })}
         confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}

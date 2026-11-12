@@ -1,4 +1,5 @@
 import toast from "react-hot-toast";
+import localizeMessage from "../../localization/localizeMessage";
 
 export function handleMutationError(error, fallback, setServerErrors, messages = {}) {
   // Network Error
@@ -6,7 +7,7 @@ export function handleMutationError(error, fallback, setServerErrors, messages =
     setServerErrors(null);
 
     toast.error(
-      messages.networkError ?? "Unable to connect to the server. Please check your internet connection and try again."
+      messages.networkError ?? localizeMessage("Unable to connect to the server. Please check your internet connection and try again.")
     );
 
     return;
@@ -20,7 +21,7 @@ export function handleMutationError(error, fallback, setServerErrors, messages =
     setServerErrors(null);
 
     toast.error(
-      messages.serverError ?? "Something went wrong on our side. Please try again later."
+      messages.serverError ?? localizeMessage("Something went wrong on our side. Please try again later.")
     );
 
     return;
@@ -31,7 +32,7 @@ export function handleMutationError(error, fallback, setServerErrors, messages =
     setServerErrors(null);
 
     toast.error(
-      messages.sessionExpired ?? "Your session has expired. Please login again."
+      messages.sessionExpired ?? localizeMessage("Your session has expired. Please login again.")
     );
 
     return;
@@ -42,7 +43,7 @@ export function handleMutationError(error, fallback, setServerErrors, messages =
     setServerErrors(null);
 
     toast.error(
-      messages.forbidden ?? "You don't have permission to perform this action."
+      messages.forbidden ?? localizeMessage("You don't have permission to perform this action.")
     );
 
     return;
@@ -52,7 +53,7 @@ export function handleMutationError(error, fallback, setServerErrors, messages =
   if (Array.isArray(backendErrors) && backendErrors.length > 0) {
     setServerErrors(null);
 
-    toast.error(backendErrors.join(" "));
+    toast.error(backendErrors.map(localizeMessage).join(" "));
 
     return;
   }
@@ -68,6 +69,6 @@ export function handleMutationError(error, fallback, setServerErrors, messages =
   setServerErrors(null);
 
   toast.error(
-    error?.response?.data?.message || fallback
+    localizeMessage(error?.response?.data?.message || fallback)
   );
 }

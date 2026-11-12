@@ -165,7 +165,7 @@ export default function SpecialistsPage() {
       {canDelete && <ConfirmDeleteModal
         isOpen={!!specialistToDelete}
         title={t("Delete Specialist")}
-        message={`Are you sure you want to delete "${specialistToDelete?.enName}"? This action cannot be undone.`}
+        message={t("Are you sure you want to delete \"{{name}}\"? This action cannot be undone.", { name: specialistToDelete?.enName })}
         confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}

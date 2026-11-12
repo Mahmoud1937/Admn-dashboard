@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
+import useContentLanguage from "../../localization/useContentLanguage";
 
 function LanguageTabs({ language, onChange }) {
   const { t } = useTranslation("common");
@@ -63,11 +64,11 @@ function PhonePreview({ title, message, imageUrl, lang }) {
 
   const currentTime = useMemo(
     () =>
-      new Date().toLocaleTimeString([], {
+      new Date().toLocaleTimeString(lang === "ar" ? "ar-EG" : "en-GB", {
         hour: "2-digit",
         minute: "2-digit",
       }),
-    []
+    [lang]
   );
 
   return (
@@ -148,7 +149,8 @@ export default function NotificationPreview({
   messageAr,
   imageUrl,
 }) {
-  const [language, setLanguage] = useState("en");
+  const { t } = useTranslation("adminPages");
+  const [language, setLanguage] = useContentLanguage();
 
   const message =
     language === "ar" ? messageAr : messageEn;
@@ -158,7 +160,7 @@ export default function NotificationPreview({
       <div className="sticky top-0">
         <div className="mb-4 flex items-center justify-between gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">
-            Live preview
+            {t("Live preview")}
           </p>
 
           <LanguageTabs
@@ -175,8 +177,7 @@ export default function NotificationPreview({
         />
 
         <p className="mx-auto mt-4 max-w-[280px] text-center text-[11px] leading-relaxed text-gray-400">
-          Preview is approximate and may vary slightly
-          depending on the device.
+          {t("Preview is approximate and may vary slightly depending on the device.")}
         </p>
       </div>
     </aside>

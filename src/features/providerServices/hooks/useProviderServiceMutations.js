@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -13,7 +14,7 @@ export function useProviderServiceMutations({ onCreateSuccess, onUpdateSuccess }
   const createMutation = useMutation({
     mutationFn: createProviderService,
     onSuccess: () => {
-      toast.success("Service added successfully.");
+      toast.success(localizeMessage("Service added successfully."));
       queryClient.invalidateQueries({ queryKey: ["provider-services"] });
       onCreateSuccess?.();
     },
@@ -23,7 +24,7 @@ export function useProviderServiceMutations({ onCreateSuccess, onUpdateSuccess }
   const updateMutation = useMutation({
     mutationFn: updateProviderService,
     onSuccess: () => {
-      toast.success("Service updated successfully.");
+      toast.success(localizeMessage("Service updated successfully."));
       queryClient.invalidateQueries({ queryKey: ["provider-services"] });
       onUpdateSuccess?.();
     },

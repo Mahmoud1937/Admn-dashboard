@@ -81,10 +81,10 @@ try {
   assert.match(arabic, /البطاقات المفعلة/);
   assert.match(arabic, /أداء الفواتير/);
   assert.match(arabic, /لا توجد بيانات للرسم البياني/);
-  assert.match(arabic, /1,234\.50 EGP/);
+  assert.match(arabic, /1,234\.50 ج\.م/);
   assert.match(arabic, /1,234/);
-  assert.match(arabic, /<bdi dir="ltr">1,234\.50 EGP<\/bdi>/);
-  assert.match(arabic, /<bdi dir="ltr">10\.00 EGP \/ 5<\/bdi>/);
+  assert.match(arabic, /<bdi dir="ltr">1,234\.50 ج\.م<\/bdi>/);
+  assert.match(arabic, /<bdi dir="ltr">10\.00 ج\.م \/ 5<\/bdi>/);
   assert.doesNotMatch(arabic, />Performance summary</);
   await i18n.changeLanguage("en");
   assert.match(render(), /lang="en" dir="ltr"/);

@@ -13,7 +13,7 @@ export default function CitySelect({
   chooseFirstPlaceholder = "Choose Governorate First ",
   labels,
   language,
-  rtl = false,
+  rtl,
   getOptionLabel = (item) => `${item.enName} - ${item.arName}`,
 }) {
   return (

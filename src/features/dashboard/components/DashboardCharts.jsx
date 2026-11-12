@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -49,7 +50,7 @@ const formatMoney = (value) =>
   `${Number(value ?? 0).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })} EGP`;
+  })} ${localizeMessage("EGP")}`;
 
 const formatCount = (value) => Number(value ?? 0).toLocaleString("en-US");
 

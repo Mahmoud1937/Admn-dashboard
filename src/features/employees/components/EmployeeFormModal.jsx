@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -81,13 +82,13 @@ export default function EmployeeFormModal({
         required
         autoFocus
         {...register("firstName")}
-        error={errors.firstName?.message}
+        error={localizeMessage(errors.firstName?.message)}
       />
       <TextField
         label={t("Last Name")}
         required
         {...register("lastName")}
-        error={errors.lastName?.message}
+        error={localizeMessage(errors.lastName?.message)}
       />
       <TextField
         label={t("Email")}
@@ -95,14 +96,14 @@ export default function EmployeeFormModal({
         type="email"
         sanitize={false}
         {...register("email")}
-        error={errors.email?.message}
+        error={localizeMessage(errors.email?.message)}
       />
       <TextField
         label={t("Phone Number")}
         required
         sanitize={false}
         {...register("phoneNumber")}
-        error={errors.phoneNumber?.message}
+        error={localizeMessage(errors.phoneNumber?.message)}
       />
 
       <div className="mb-4">
@@ -118,7 +119,7 @@ export default function EmployeeFormModal({
               value={field.value}
               onChange={field.onChange}
               placeholder={t("Select employee group")}
-              error={errors.employeeGroupId?.message}
+              error={localizeMessage(errors.employeeGroupId?.message)}
             />
           )}
         />

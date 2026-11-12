@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -169,7 +170,7 @@ const SliderFormModal = ({
                   onChange={(val) =>
                     field.onChange(val != null ? String(val) : "")
                   }
-                  error={errors.providerId?.message}
+                  error={localizeMessage(errors.providerId?.message)}
                   disabled={isSaving}
                 />
               )}

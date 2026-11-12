@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -14,7 +15,7 @@ export function useBranchMutations({ onCreateSuccess, onUpdateSuccess }) {
   const createMutation = useMutation({
     mutationFn: createBranch,
     onSuccess: () => {
-      toast.success("Branch created successfully.");
+      toast.success(localizeMessage("Branch created successfully."));
       queryClient.invalidateQueries({ queryKey: ["provider-branches"] });
       onCreateSuccess?.();
     },
@@ -24,7 +25,7 @@ export function useBranchMutations({ onCreateSuccess, onUpdateSuccess }) {
   const updateMutation = useMutation({
     mutationFn: updateBranch,
     onSuccess: () => {
-      toast.success("Branch updated successfully.");
+      toast.success(localizeMessage("Branch updated successfully."));
       queryClient.invalidateQueries({ queryKey: ["provider-branches"] });
       onUpdateSuccess?.();
     },

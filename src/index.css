@@ -9,8 +9,18 @@
 
   input:is(:not([type]), [type="text"], [type="search"], [type="email"], [type="tel"], [type="url"], [type="password"], [type="number"]),
   textarea {
+    direction: inherit;
+    text-align: start;
+  }
+
+  input[dir="ltr"], textarea[dir="ltr"] {
     direction: ltr;
     text-align: left;
+  }
+
+  input[dir="rtl"], textarea[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
   }
 }
 

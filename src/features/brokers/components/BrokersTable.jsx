@@ -42,12 +42,12 @@ export default function BrokersTable({ brokers, searchTerm, onEdit, onDelete }) 
                 <TableActionsCell className="px-4 py-3">
                   <div className="flex items-center justify-center gap-1">
                     {onEdit && (
-                      <button type="button" onClick={() => onEdit(broker)} title={t("Edit broker")} aria-label={`Edit ${broker.name}`} className="rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-700">
+                      <button type="button" onClick={() => onEdit(broker)} title={t("Edit broker")} aria-label={t("Edit {{name}}", { name: broker.name })} className="rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-700">
                         <FontAwesomeIcon icon={faPenToSquare} />
                       </button>
                     )}
                     {onDelete && (
-                      <button type="button" onClick={() => onDelete(broker)} title={t("Delete broker")} aria-label={`Delete ${broker.name}`} className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600">
+                      <button type="button" onClick={() => onDelete(broker)} title={t("Delete broker")} aria-label={t("Delete {{name}}", { name: broker.name })} className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600">
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     )}

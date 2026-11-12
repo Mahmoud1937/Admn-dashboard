@@ -50,10 +50,10 @@ const REQUIRED_UPDATE_MESSAGES = {
 
 export const getTicketStatus = (status, statusName) => {
   if (String(statusName || "").trim().toLowerCase() === "modified") {
-    return { label: statusName, color: "teal" };
+    return { label: "Modified", color: "teal" };
   }
 
-  return TICKET_STATUS[status] || { label: `Status ${status}`, color: "amber" };
+  return TICKET_STATUS[status] || { label: "Status {{status}}", color: "amber" };
 };
 
 export const namePair = (item) => {

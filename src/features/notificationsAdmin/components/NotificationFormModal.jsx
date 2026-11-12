@@ -1,3 +1,5 @@
+import localizeMessage from "../../../localization/localizeMessage";
+import { getActiveLanguage } from "../../../localization/i18n";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -94,21 +96,6 @@ const getToday = () => {
   return `${year}-${month}-${day}`;
 };
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
 // "2026-10-15" + "14:30" -> "Oct 15, 2026 at 2:30 PM"
 const formatSchedule = (date, time) => {
   const [year, month, day] = String(date).split("-").map(Number);
@@ -118,12 +105,10 @@ const formatSchedule = (date, time) => {
     return `${date} ${time}`;
   }
 
-  const suffix = hour >= 12 ? "PM" : "AM";
-  const hour12 = hour % 12 || 12;
-
-  return `${MONTHS[month - 1]} ${day}, ${year} at ${hour12}:${String(
-    minute
-  ).padStart(2, "0")} ${suffix}`;
+  return new Intl.DateTimeFormat(getActiveLanguage() === "ar" ? "ar-EG" : "en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(year, month - 1, day, hour, minute));
 };
 
 function Field({
@@ -171,7 +156,7 @@ function Field({
           role="alert"
           className="mt-1.5 text-xs font-medium text-red-600"
         >
-          {error}
+          {localizeMessage(error)}
         </p>
       ) : hint ? (
         <p className="mt-1.5 text-xs leading-relaxed text-gray-500">
@@ -346,7 +331,7 @@ function DeliverySection({
           <Field
             label={t("Send at")}
             required
-            error={errors.scheduledAt?.message}
+            error={localizeMessage(errors.scheduledAt?.message)}
           >
             <input
               type="hidden"
@@ -394,8 +379,8 @@ function DeliverySection({
         <Field
           label={t("Repeat after (days) — Optional")}
           htmlFor="notification-duration"
-          error={errors.durationDay?.message}
-          hint="For example, 3 repeats the notification after 3 days. Leave empty to send it once."
+          error={localizeMessage(errors.durationDay?.message)}
+          hint={t("For example, 3 repeats the notification after 3 days. Leave empty to send it once.")}
         >
           <div className="relative max-w-[220px]">
             <input
@@ -582,11 +567,8 @@ export default function NotificationFormModal({
     sendMode === "schedule" &&
     scheduledDate &&
     scheduledTime
-      ? `Scheduled for ${formatSchedule(
-          scheduledDate,
-          scheduledTime
-        )} (your local time)`
-      : "Will be sent immediately";
+      ? t("Scheduled for {{date}} (your local time)", { date: formatSchedule(scheduledDate, scheduledTime) })
+      : t("Will be sent immediately");
 
   const showFormError =
     submitCount > 0 && Object.keys(errors).length > 0;
@@ -672,7 +654,7 @@ export default function NotificationFormModal({
                     label={t("Title")}
                     htmlFor="notification-title"
                     required
-                    error={errors.title?.message}
+                    error={localizeMessage(errors.title?.message)}
                     counter={
                       <CharacterCounter
                         value={title}
@@ -703,7 +685,7 @@ export default function NotificationFormModal({
                       htmlFor="notification-message-en"
                       required
                       error={
-                        errors.messageEn?.message
+                        localizeMessage(errors.messageEn?.message)
                       }
                       counter={
                         <CharacterCounter
@@ -735,7 +717,7 @@ export default function NotificationFormModal({
                       htmlFor="notification-message-ar"
                       required
                       error={
-                        errors.messageAr?.message
+                        localizeMessage(errors.messageAr?.message)
                       }
                       counter={
                         <CharacterCounter
@@ -786,7 +768,7 @@ export default function NotificationFormModal({
                       onChange={(file) => setValue("imageUrl", file, { shouldDirty: true, shouldTouch: true, shouldValidate: true })}
                       onPreviewChange={setImagePreview}
                       disabled={isSaving}
-                      error={errors.imageUrl?.message}
+                      error={localizeMessage(errors.imageUrl?.message)}
                     />
                   )}
                 />
@@ -812,7 +794,7 @@ export default function NotificationFormModal({
                     </select>
                   </Field>
 
-                  <Field label={t("Governorate")} error={errors.governmentId?.message}>
+                  <Field label={t("Governorate")} error={localizeMessage(errors.governmentId?.message)}>
                     <Controller
                       name="governmentId"
                       control={control}
@@ -851,8 +833,8 @@ export default function NotificationFormModal({
                   {targetType && (
                   <Field
                     label={targetType === "2" ? t("Package") : t("Provider")}
-                    error={errors.targetId?.message}
-                    hint="Optional destination for this notification."
+                    error={localizeMessage(errors.targetId?.message)}
+                    hint={t("Optional destination for this notification.")}
                   >
                     <Controller
                       name="targetId"

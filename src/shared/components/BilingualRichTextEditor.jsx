@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState, useCallback } from "react";
 import {
   Bold,
@@ -20,6 +21,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const HEADINGS = [
   { label: "Heading 1", tag: "H1", className: "text-2xl font-bold" },
   { label: "Heading 2", tag: "H2", className: "text-xl font-bold" },
@@ -27,6 +29,7 @@ export const HEADINGS = [
   { label: "Normal", tag: "P", className: "text-sm" },
 ];
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const COLORS = [
   "#111827",
   "#DC2626",
@@ -100,6 +103,7 @@ export function ColorPopover({ label, onPick, onClose }) {
 }
 
 export function RichTextArea({ lang, value, onChange, placeholder, error, resetKey }) {
+  const { t } = useTranslation("adminPages");
   const ref = useRef(null);
 
   const [headingOpen, setHeadingOpen] = useState(false);
@@ -198,7 +202,7 @@ export function RichTextArea({ lang, value, onChange, placeholder, error, resetK
   };
 
   const insertLink = () => {
-    const url = window.prompt("Enter URL");
+    const url = window.prompt(t("Enter URL"));
 
     if (!url) return;
 
@@ -228,7 +232,7 @@ export function RichTextArea({ lang, value, onChange, placeholder, error, resetK
             onClick={() => setHeadingOpen((value) => !value)}
             className="flex items-center gap-1 h-8 px-2 text-sm text-gray-700 rounded-md hover:bg-gray-100"
           >
-            {activeHeadingLabel}
+            {t(activeHeadingLabel)}
             <ChevronDown className="w-3.5 h-3.5" />
           </button>
 
@@ -244,7 +248,7 @@ export function RichTextArea({ lang, value, onChange, placeholder, error, resetK
                     heading.tag === currentBlock ? "text-blue-600" : "text-gray-900"
                   }`}
                 >
-                  {heading.label}
+                  {t(heading.label)}
                 </button>
               ))}
             </div>
@@ -253,16 +257,16 @@ export function RichTextArea({ lang, value, onChange, placeholder, error, resetK
 
         <Divider />
 
-        <ToolbarButton icon={Bold} label="Bold" onClick={() => exec("bold")} />
-        <ToolbarButton icon={Italic} label="Italic" onClick={() => exec("italic")} />
-        <ToolbarButton icon={Underline} label="Underline" onClick={() => exec("underline")} />
-        <ToolbarButton icon={Strikethrough} label="Strikethrough" onClick={() => exec("strikeThrough")} />
+        <ToolbarButton icon={Bold} label={t("Bold")} onClick={() => exec("bold")} />
+        <ToolbarButton icon={Italic} label={t("Italic")} onClick={() => exec("italic")} />
+        <ToolbarButton icon={Underline} label={t("Underline")} onClick={() => exec("underline")} />
+        <ToolbarButton icon={Strikethrough} label={t("Strikethrough")} onClick={() => exec("strikeThrough")} />
 
         <div className="relative">
-          <ToolbarButton icon={Baseline} label="Text color" onClick={() => setTextColorOpen((v) => !v)} />
+          <ToolbarButton icon={Baseline} label={t("Text color")} onClick={() => setTextColorOpen((v) => !v)} />
           {textColorOpen && (
             <ColorPopover
-              label="Text color"
+              label={t("Text color")}
               onPick={(color) => exec("foreColor", color)}
               onClose={() => setTextColorOpen(false)}
             />
@@ -270,10 +274,10 @@ export function RichTextArea({ lang, value, onChange, placeholder, error, resetK
         </div>
 
         <div className="relative">
-          <ToolbarButton icon={Highlighter} label="Highlight" onClick={() => setHighlightOpen((v) => !v)} />
+          <ToolbarButton icon={Highlighter} label={t("Highlight")} onClick={() => setHighlightOpen((v) => !v)} />
           {highlightOpen && (
             <ColorPopover
-              label="Highlight"
+              label={t("Highlight")}
               onPick={(color) => exec("hiliteColor", color)}
               onClose={() => setHighlightOpen(false)}
             />
@@ -282,23 +286,23 @@ export function RichTextArea({ lang, value, onChange, placeholder, error, resetK
 
         <Divider />
 
-        <ToolbarButton icon={ListOrdered} label="Numbered list" onClick={() => exec("insertOrderedList")} />
-        <ToolbarButton icon={List} label="Bulleted list" onClick={() => exec("insertUnorderedList")} />
-        <ToolbarButton icon={Outdent} label="Decrease indent" onClick={() => exec("outdent")} />
-        <ToolbarButton icon={Indent} label="Increase indent" onClick={() => exec("indent")} />
+        <ToolbarButton icon={ListOrdered} label={t("Numbered list")} onClick={() => exec("insertOrderedList")} />
+        <ToolbarButton icon={List} label={t("Bulleted list")} onClick={() => exec("insertUnorderedList")} />
+        <ToolbarButton icon={Outdent} label={t("Decrease indent")} onClick={() => exec("outdent")} />
+        <ToolbarButton icon={Indent} label={t("Increase indent")} onClick={() => exec("indent")} />
 
         <Divider />
 
-        <ToolbarButton icon={AlignLeft} label="Align left" onClick={() => exec("justifyLeft")} />
-        <ToolbarButton icon={AlignCenter} label="Align center" onClick={() => exec("justifyCenter")} />
-        <ToolbarButton icon={AlignRight} label="Align right" onClick={() => exec("justifyRight")} />
+        <ToolbarButton icon={AlignLeft} label={t("Align left")} onClick={() => exec("justifyLeft")} />
+        <ToolbarButton icon={AlignCenter} label={t("Align center")} onClick={() => exec("justifyCenter")} />
+        <ToolbarButton icon={AlignRight} label={t("Align right")} onClick={() => exec("justifyRight")} />
 
         <Divider />
 
-        <ToolbarButton icon={Quote} label="Quote" onClick={() => exec("formatBlock", "BLOCKQUOTE")} />
-        <ToolbarButton icon={Code} label="Code" onClick={() => exec("formatBlock", "PRE")} />
-        <ToolbarButton icon={LinkIcon} label="Insert link" onClick={insertLink} />
-        <ToolbarButton icon={RemoveFormatting} label="Clear formatting" onClick={() => exec("removeFormat")} />
+        <ToolbarButton icon={Quote} label={t("Quote")} onClick={() => exec("formatBlock", "BLOCKQUOTE")} />
+        <ToolbarButton icon={Code} label={t("Code")} onClick={() => exec("formatBlock", "PRE")} />
+        <ToolbarButton icon={LinkIcon} label={t("Insert link")} onClick={insertLink} />
+        <ToolbarButton icon={RemoveFormatting} label={t("Clear formatting")} onClick={() => exec("removeFormat")} />
       </div>
 
       <div
@@ -321,13 +325,14 @@ export function RichTextArea({ lang, value, onChange, placeholder, error, resetK
 
       <div className="flex items-center justify-between px-3 py-1.5 border-t border-gray-100 text-xs">
         <span className={error ? "text-red-500 font-medium" : "text-gray-400"}>{error || ""}</span>
-        <span className="text-gray-400">{charCount} characters</span>
+        <span className="text-gray-400">{t("{{count}} characters", { count: charCount })}</span>
       </div>
     </div>
   );
 }
 
 export function ReadOnlyContent({ lang, value, placeholder }) {
+  const { t } = useTranslation("adminPages");
   const isRTL = lang === "ar";
   const direction = isRTL ? "rtl" : "ltr";
 
@@ -350,7 +355,7 @@ export function ReadOnlyContent({ lang, value, placeholder }) {
       />
 
       <div className="flex items-center justify-end px-3 py-1.5 border-t border-gray-100 text-xs text-gray-400">
-        Read-only — click "Update" to edit
+        {t('Read-only — click "Update" to edit')}
       </div>
     </div>
   );

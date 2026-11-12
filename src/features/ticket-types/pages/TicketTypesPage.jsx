@@ -171,7 +171,7 @@ export default function TicketTypesPage() {
       {canDelete && <ConfirmDeleteModal
         isOpen={!!ticketTypeToDelete}
         title={t("Delete Ticket Type")}
-        message={`Are you sure you want to delete "${ticketTypeToDelete?.enName}"? This action cannot be undone.`}
+        message={t("Are you sure you want to delete \"{{name}}\"? This action cannot be undone.", { name: ticketTypeToDelete?.enName })}
         confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}

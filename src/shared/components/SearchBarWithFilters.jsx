@@ -13,10 +13,11 @@ export default function SearchBarWithFilters({
   alignEnd = false,
   showFilterButton = true,
   filterLabel,
-  rtl = false,
+  rtl,
   children,
 }) {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
+  rtl ??= i18n.dir() === "rtl";
   return (
     <div
       className={`flex items-center gap-3 border-b border-slate-200 p-4 ${

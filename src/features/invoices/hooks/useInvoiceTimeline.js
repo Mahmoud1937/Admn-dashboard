@@ -1,33 +1,21 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { mapInvoiceToStep } from "../utils/timelineMapper";
 import { getInvoiceTimeline } from "../services/invoicesService";
 
 
 export function useInvoiceTimeline(orderNo) {
-  const [steps, setSteps] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { i18n } = useTranslation("adminPages");
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["invoice-timeline", orderNo, i18n.resolvedLanguage],
+    queryFn: ({ signal }) => getInvoiceTimeline({ orderNo, signal }),
+    enabled: Boolean(orderNo),
+    retry: false,
+  });
 
-  useEffect(() => {
-    if (!orderNo) return;
-
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
-
-    getInvoiceTimeline({ orderNo, signal: controller.signal })
-      .then((data) => {
-        setSteps(data.map(mapInvoiceToStep));
-      })
-      .catch((err) => {
-        if (err.code !== "ERR_CANCELED") {
-          setError(err.response?.data?.message || err.message);
-        }
-      })
-      .finally(() => setLoading(false));
-
-    return () => controller.abort();
-  }, [orderNo]);
-
-  return { steps, loading, error };
+  return {
+    steps: (data ?? []).map(mapInvoiceToStep),
+    loading: isLoading,
+    error: error ? error.response?.data?.message || error.message : null,
+  };
 }

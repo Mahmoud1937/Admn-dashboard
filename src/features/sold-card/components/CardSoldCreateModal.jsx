@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -170,7 +171,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
 
 
           {errors.count && (
-            <p className="text-red-500 text-sm mt-1">{errors.count.message}</p>
+            <p className="text-red-500 text-sm mt-1">{localizeMessage(errors.count.message)}</p>
           )}
         </div>
       ) : (
@@ -190,7 +191,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
                     onChange: clearCardNumberErrors,
                   })}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder={`Card number ${index + 1} (12 digits)`}
+                  placeholder={t("Card number {{number}} (12 digits)", { number: index + 1 })}
                 />
                 <button
                   type="button"
@@ -215,7 +216,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
           </button>
 
           {errors.cardNumbers?.message && (
-            <p className="text-red-500 text-sm mt-1">{errors.cardNumbers.message}</p>
+            <p className="text-red-500 text-sm mt-1">{localizeMessage(errors.cardNumbers.message)}</p>
           )}
           {Array.isArray(errors.cardNumbers) &&
             errors.cardNumbers.map(
@@ -240,7 +241,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
           placeholder={t("Client name")}
         />
         {errors.clientName && (
-          <p className="text-red-500 text-sm mt-1">{errors.clientName.message}</p>
+          <p className="text-red-500 text-sm mt-1">{localizeMessage(errors.clientName.message)}</p>
         )}
       </div>
 
@@ -252,10 +253,10 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
           type="text"
           {...register("clientPhone")}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="01xxxxxxxxx"
+          placeholder={t("01xxxxxxxxx")}
         />
         {errors.clientPhone && (
-          <p className="text-red-500 text-sm mt-1">{errors.clientPhone.message}</p>
+          <p className="text-red-500 text-sm mt-1">{localizeMessage(errors.clientPhone.message)}</p>
         )}
       </div>
 
@@ -268,7 +269,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
           onImageChange={handleProofChange}
           label={t("Upload Proof of Payment")}
           alt={t("Proof of payment")}
-          error={errors.proofPayment?.message}
+          error={localizeMessage(errors.proofPayment?.message)}
           disabled={isSaving}
         />
       </div>

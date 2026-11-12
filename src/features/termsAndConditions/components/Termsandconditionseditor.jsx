@@ -7,6 +7,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { SkeletonText } from "../../../shared/components/Skeleton";
+import useContentLanguage from "../../../localization/useContentLanguage";
 
 const HEADINGS = [
   { label: "Heading 1", tag: "H1", className: "text-2xl font-bold" },
@@ -86,6 +87,7 @@ function Divider() {
 }
 
 function ColorPopover({ label, onPick, onClose, currentColor, onClear }) {
+  const { t } = useTranslation("adminPages");
   const popRef = useRef(null);
   useEffect(() => {
     const onOutside = (e) => {
@@ -123,7 +125,7 @@ function ColorPopover({ label, onPick, onClose, currentColor, onClear }) {
           }}
           className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-red-400 transition-colors"
           style={{ backgroundColor: "#fff" }}
-          aria-label={`Remove ${label}`}
+          aria-label={t("Remove {{label}}", { label: t(label) })}
         >
           <span className="text-red-500 text-xs font-bold leading-none">×</span>
         </button>
@@ -448,7 +450,7 @@ const applyColor = useCallback(
   };
 
   const insertLink = () => {
-    const url = window.prompt("Enter URL");
+    const url = window.prompt(t("Enter URL"));
     if (url) exec("createLink", url);
   };
 
@@ -576,7 +578,7 @@ const applyColor = useCallback(
               blockState.heading !== "P" ? "bg-blue-100 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-100"
             }`}
           >
-            {activeHeadingLabel}
+            {t(activeHeadingLabel)}
             <ChevronDown className="w-3.5 h-3.5" />
           </button>
           {headingOpen && (
@@ -591,7 +593,7 @@ const applyColor = useCallback(
                     h.tag === blockState.heading ? "text-blue-600" : "text-gray-900"
                   }`}
                 >
-                  {h.label}
+                  {t(h.label)}
                 </button>
               ))}
             </div>
@@ -601,7 +603,7 @@ const applyColor = useCallback(
         <Divider />
 
         {inlineButtons.map(({ icon, label, cmd }) => (
-          <ToolbarButton key={cmd} icon={icon} label={label} active={activeCommands[cmd]}
+          <ToolbarButton key={cmd} icon={icon} label={t(label)} active={activeCommands[cmd]}
             onMouseDown={(e) => { e.preventDefault(); exec(cmd); }} />
         ))}
 
@@ -609,7 +611,7 @@ const applyColor = useCallback(
           <div className="relative" key={key}>
             <ToolbarButton
               icon={icon}
-              label={label}
+              label={t(label)}
               active={!!sticky}
               activeColor={sticky || undefined}
               onMouseDown={(e) => {
@@ -626,7 +628,7 @@ const applyColor = useCallback(
             />
             {open && (
               <ColorPopover
-                label={label}
+                label={t(label)}
                 currentColor={sticky}
                 onPick={(color) => {
                   setSticky(color);
@@ -653,7 +655,7 @@ const applyColor = useCallback(
         <Divider />
 
         {alignButtons.map(({ icon, label, cmd }) => (
-          <ToolbarButton key={cmd} icon={icon} label={label} onMouseDown={(e) => { e.preventDefault(); exec(cmd); }} />
+          <ToolbarButton key={cmd} icon={icon} label={t(label)} onMouseDown={(e) => { e.preventDefault(); exec(cmd); }} />
         ))}
 
         <Divider />
@@ -685,7 +687,7 @@ const applyColor = useCallback(
       <div className="flex items-center justify-between px-3 py-1.5 border-t border-gray-100 text-xs">
         <span className={error ? "text-red-500 font-medium" : "text-gray-400"}>{error || ""}</span>
         <span className={minLength > 0 && charCount < minLength ? "text-red-500 font-medium" : "text-gray-400"}>
-          {minLength > 0 ? `${charCount} characters (minimum ${minLength})` : `${charCount} characters`}
+          {minLength > 0 ? t("{{count}} characters (minimum {{min}})", { count: charCount, min: minLength }) : t("{{count}} characters", { count: charCount })}
         </span>
       </div>
     </div>
@@ -720,20 +722,20 @@ export default function TermsAndConditionsEditor({
   saving = false,
   loading = false,
   serverErrors = null,
-  title = "Terms & Conditions",
-  subtitle = "Manage bilingual terms and conditions content",
-  enDescription = "Write the English version of the Terms & Conditions below.",
-  arDescription = "اكتب النسخة العربية من الشروط والأحكام بالأسفل.",
-  enPlaceholder = "No English terms and conditions yet.",
-  arPlaceholder = "لا يوجد شروط وأحكام بالعربية بعد.",
-  enEditorPlaceholder = "Write English terms and conditions...",
-  arEditorPlaceholder = "اكتب الشروط والأحكام بالعربية...",
+  title,
+  subtitle,
+  enDescription,
+  arDescription,
+  enPlaceholder,
+  arPlaceholder,
+  enEditorPlaceholder,
+  arEditorPlaceholder,
   minLength = 150,
-  minLengthMessage = (min) => `Please enter at least ${min} characters.`,
+  minLengthMessage,
   canUpdate = false,
 }) {
   const { t } = useTranslation("adminPages");
-  const [activeLang, setActiveLang] = useState("en");
+  const [activeLang, setActiveLang] = useContentLanguage();
   const [content, setContent] = useState({ en: initialValue?.en ?? "", ar: initialValue?.ar ?? "" });
   const [isInitialized, setIsInitialized] = useState(false);
   const [resetKey, setResetKey] = useState(0);
@@ -762,8 +764,9 @@ export default function TermsAndConditionsEditor({
 
     const nextErrors = { en: "", ar: "" };
     if (minLength > 0) {
-      if (getPlainTextLength(content.en) < minLength) nextErrors.en = minLengthMessage(minLength);
-      if (getPlainTextLength(content.ar) < minLength) nextErrors.ar = minLengthMessage(minLength);
+      const message = minLengthMessage?.(minLength) ?? "Please enter at least {{min}} characters.";
+      if (getPlainTextLength(content.en) < minLength) nextErrors.en = message;
+      if (getPlainTextLength(content.ar) < minLength) nextErrors.ar = message;
     }
     setValidationErrors(nextErrors);
 
@@ -785,7 +788,7 @@ export default function TermsAndConditionsEditor({
   };
 
   const getFieldError = (field) => {
-    if (validationErrors[field]) return validationErrors[field]; // client-side error wins: more actionable/up to date
+    if (validationErrors[field]) return t(validationErrors[field], { min: minLength });
     const value = serverErrors?.[field];
     return Array.isArray(value) ? value[0] || "" : value || "";
   };
@@ -799,8 +802,8 @@ export default function TermsAndConditionsEditor({
 
   const activeError = getFieldError(activeLang);
   const langs = [
-    { code: "en", label: "English", description: enDescription, placeholder: enPlaceholder, editorPlaceholder: enEditorPlaceholder },
-    { code: "ar", label: "العربية", description: arDescription, placeholder: arPlaceholder, editorPlaceholder: arEditorPlaceholder },
+    { code: "en", label: t("English"), description: enDescription ?? t("Write the English version of the Terms & Conditions below."), placeholder: enPlaceholder ?? t("No English terms and conditions yet."), editorPlaceholder: enEditorPlaceholder ?? t("Write English terms and conditions...") },
+    { code: "ar", label: t("Arabic"), description: arDescription ?? t("Write the Arabic version of the Terms & Conditions below."), placeholder: arPlaceholder ?? t("No Arabic terms and conditions yet."), editorPlaceholder: arEditorPlaceholder ?? t("Write Arabic terms and conditions...") },
   ];
   const activeMeta = langs.find((l) => l.code === activeLang);
 
@@ -812,8 +815,8 @@ export default function TermsAndConditionsEditor({
             <FileText className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{title}</h1>
-            <p className="text-sm text-gray-500">{subtitle}</p>
+            <h1 className="text-xl font-bold text-gray-900">{title ?? t("Terms & Conditions")}</h1>
+            <p className="text-sm text-gray-500">{subtitle ?? t("Manage bilingual terms and conditions content")}</p>
           </div>
         </div>
 
@@ -878,7 +881,7 @@ export default function TermsAndConditionsEditor({
             <span className="w-6 h-6 rounded-full bg-blue-700 text-white text-[10px] font-bold flex items-center justify-center">
               {activeLang === "en" ? "EN" : "AR"}
             </span>
-            <p dir={activeLang === "ar" ? "rtl" : "ltr"} className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600">
               {activeMeta.description}
             </p>
           </div>

@@ -11,7 +11,7 @@ export default function ProviderCategorySelect({
   searchPlaceholder = "Search categories...",
   labels,
   language,
-  rtl = false,
+  rtl,
   getOptionLabel = (item) => `${item.enName} - ${item.arName}`,
 }) {
   return (

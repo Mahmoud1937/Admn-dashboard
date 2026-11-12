@@ -129,7 +129,7 @@ export default function BrokersPage() {
         <ConfirmDeleteModal
           isOpen={!!brokerToDelete}
           title={t("Delete Broker")}
-          message={`Are you sure you want to delete "${brokerToDelete?.name}"? This action cannot be undone.`}
+          message={t("Are you sure you want to delete \"{{name}}\"? This action cannot be undone.", { name: brokerToDelete?.name })}
           confirmLabel={t("Delete")}
           isLoading={deleteMutation.isPending}
           onConfirm={() => brokerToDelete && deleteMutation.mutate(brokerToDelete.id)}

@@ -196,7 +196,7 @@ const SlidersPage = () => {
         onConfirm={confirmDelete}
         isLoading={deleteMutation.isPending}
         title={t("Delete Slider")}
-        message={`Are you sure you want to delete the slider for "${sliderToDelete?.providerNameEn}"?`}
+        message={t("Are you sure you want to delete the slider for \"{{name}}\"?", { name: sliderToDelete?.providerNameEn })}
       />}
     </div></LocalizedPage>
   );

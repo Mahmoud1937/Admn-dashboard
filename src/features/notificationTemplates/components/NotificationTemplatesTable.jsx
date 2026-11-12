@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import useContentLanguage from "../../../localization/useContentLanguage";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faChevronDown, faPenToSquare, faPowerOff, faSpinner } from "@fortawesome/free-solid-svg-icons";
@@ -39,7 +40,7 @@ function LanguageToggle({ value, onChange }) {
             key={key}
             type="button"
             aria-pressed={active}
-            title={fullLabel}
+            title={t(fullLabel)}
             onClick={() => onChange(key)}
             className={`rounded-md px-2.5 py-0.5 text-[11px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-blue-600 ${
               active ? "bg-white text-blue-900 shadow-sm" : "text-slate-500 hover:text-slate-800"
@@ -66,16 +67,18 @@ function TemplateCard({
   onPreviewImage,
 }) {
   const { t } = useTranslation("adminPages");
-  const [langKey, setLangKey] = useState("messageEn");
+  const [contentLanguage, setContentLanguage] = useContentLanguage();
+  const langKey = contentLanguage === "ar" ? "messageAr" : "messageEn";
+  const setLangKey = (key) => setContentLanguage(key === "messageAr" ? "ar" : "en");
   const [expanded, setExpanded] = useState(false);
 
   const language = MESSAGE_LANGUAGES.find((l) => l.key === langKey);
   const message = template[langKey];
-  const title = template.title || "Untitled template";
+  const title = template.title || t("Untitled template");
   const inactive = template.isDeleted === true;
   const event = resolveNotificationEvent(template.notificationEvent);
-  const eventLabel = event?.label ?? template.notificationEvent ?? "—";
-  const toggleLabel = inactive ? "Activate" : template.isDeleted === false ? "Deactivate" : "Toggle status of";
+  const eventLabel = event?.label ? t(event.label) : template.notificationEvent ?? "—";
+  const toggleLabel = inactive ? t("Activate template") : template.isDeleted === false ? t("Deactivate template") : t("Toggle template status");
   const isTogglingThis = isToggling && togglingId === template.id;
   const detailsId = `template-message-${template.id}`;
   const isLong = (message || "").length > 110;
@@ -168,7 +171,7 @@ function TemplateCard({
           {canEdit && (
             <button
               type="button"
-              aria-label={`Edit template ${template.title || template.id}`}
+              aria-label={t("Edit template {{name}}", { name: template.title || template.id })}
               title={t("Edit template")}
               disabled={editDisabled}
               onClick={() => onEdit(template)}
@@ -180,8 +183,8 @@ function TemplateCard({
           {canToggle && (
             <button
               type="button"
-              aria-label={`${toggleLabel} template ${template.title || template.id}`}
-              title={`${toggleLabel} template`}
+              aria-label={`${toggleLabel}: ${template.title || template.id}`}
+              title={toggleLabel}
               aria-busy={isTogglingThis}
               disabled={toggleDisabled || isToggling}
               onClick={() => onToggleActive(template)}

@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -97,7 +98,7 @@ export default function TicketFormModal({
               value={field.value}
               onChange={field.onChange}
               placeholder={t("Select ticket type")}
-              error={errors.ticketTypeId?.message}
+              error={localizeMessage(errors.ticketTypeId?.message)}
             />
           )}
         />
@@ -123,7 +124,7 @@ export default function TicketFormModal({
                 );
               }}
               placeholder={t("Select client")}
-              error={errors.userId?.message}
+              error={localizeMessage(errors.userId?.message)}
             />
           )}
         />
@@ -135,7 +136,7 @@ export default function TicketFormModal({
         inputMode="numeric"
         sanitize={false}
         {...register("userPhoneNumber")}
-        error={errors.userPhoneNumber?.message}
+        error={localizeMessage(errors.userPhoneNumber?.message)}
       />
 
       <div className="mb-4">
@@ -151,7 +152,7 @@ export default function TicketFormModal({
               value={field.value}
               onChange={field.onChange}
               placeholder={t("No provider")}
-              error={errors.providerId?.message}
+              error={localizeMessage(errors.providerId?.message)}
             />
           )}
         />
@@ -170,7 +171,7 @@ export default function TicketFormModal({
               value={field.value}
               onChange={field.onChange}
               placeholder={t("No assigned group")}
-              error={errors.assignedToGroupId?.message}
+              error={localizeMessage(errors.assignedToGroupId?.message)}
                   clearable
             />
           )}
@@ -184,12 +185,12 @@ export default function TicketFormModal({
         <select {...register("priority")} className={fieldClass}>
           {PRIORITY_OPTIONS.map(({ value, label }) => (
             <option key={value} value={value}>
-              {label}
+              {t(label)}
             </option>
           ))}
         </select>
         {errors.priority && (
-          <p className="mt-1 text-xs text-red-500">{errors.priority.message}</p>
+          <p className="mt-1 text-xs text-red-500">{localizeMessage(errors.priority.message)}</p>
         )}
       </div>
 
@@ -212,7 +213,7 @@ export default function TicketFormModal({
         />
         {errors.description && (
           <p className="mt-1 text-xs text-red-500">
-            {errors.description.message}
+            {localizeMessage(errors.description.message)}
           </p>
         )}
       </div>

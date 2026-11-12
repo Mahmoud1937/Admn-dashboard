@@ -9,10 +9,14 @@ export default function useLanguage() {
 
   const changeLanguage = async (nextLanguage) => {
     if (nextLanguage !== "en" && nextLanguage !== "ar") return;
+    const localizedQueries = {
+      predicate: (query) => !["permissions", "employee-details"].includes(query.queryKey[0]),
+    };
+    await queryClient.cancelQueries(localizedQueries);
     await i18n.changeLanguage(nextLanguage);
-    // Providers cache keys include the language; mark earlier entries stale if
-    // the user returns to a language while keeping other pages untouched.
-    await queryClient.invalidateQueries({ queryKey: ["providers"], refetchType: "none" });
+    // API responses include localized names and messages. Refresh active queries
+    // and mark cached pages stale so they also reload in the selected language.
+    await queryClient.invalidateQueries(localizedQueries);
   };
 
   return { language, direction: i18n.dir(language), changeLanguage };

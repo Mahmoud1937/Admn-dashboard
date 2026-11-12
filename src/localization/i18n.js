@@ -55,6 +55,10 @@ function syncDocumentLanguage(language) {
     document.documentElement.lang = activeLanguage;
     document.documentElement.dir = i18n.dir(activeLanguage);
   }
+  if (globalThis.document?.body) {
+    document.body.lang = activeLanguage;
+    document.body.dir = i18n.dir(activeLanguage);
+  }
   try {
     globalThis.localStorage?.setItem(LANGUAGE_STORAGE_KEY, activeLanguage);
   } catch {

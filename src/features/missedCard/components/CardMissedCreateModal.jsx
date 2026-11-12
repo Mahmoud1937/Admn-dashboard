@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -52,10 +53,10 @@ const CardMissedCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors
           maxLength={12}
           {...register("cardNumber")}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="12-digit card number"
+          placeholder={t("12-digit card number")}
         />
         {errors.cardNumber && (
-          <p className="text-red-500 text-sm mt-1">{errors.cardNumber.message}</p>
+          <p className="text-red-500 text-sm mt-1">{localizeMessage(errors.cardNumber.message)}</p>
         )}
       </div>
 
@@ -75,7 +76,7 @@ const CardMissedCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors
           <option value={1}>{t("Damaged")}</option>
         </select>
         {errors.missingType && (
-          <p className="text-red-500 text-sm mt-1">{errors.missingType.message}</p>
+          <p className="text-red-500 text-sm mt-1">{localizeMessage(errors.missingType.message)}</p>
         )}
       </div>
 

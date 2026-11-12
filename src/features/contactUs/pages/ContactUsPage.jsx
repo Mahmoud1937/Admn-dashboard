@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import LocalizedPage from "../../../localization/LocalizedPage";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
@@ -76,7 +77,7 @@ function buildSocialUrl(baseUrl, path) {
 }
 
 export default function ContactUsPage() {
-  const { t } = useTranslation("adminPages");
+  const { t, i18n } = useTranslation("adminPages");
   const canUpdate = usePermission(PERMISSION_CODES.CONTACT_US_UPDATE);
   const { contactUs, isLoading, isError, error ,refetch} = useContactUsQuery();
   const [isEditing, setIsEditing] = useState(false);
@@ -186,7 +187,7 @@ if (isError) {
                   field={field}
                   isEditing={isEditing}
                   register={register}
-                  error={errors[field.key]?.message}
+                  error={localizeMessage(errors[field.key]?.message)}
                   value={contactUs?.[field.key]}
                 />
               ))}
@@ -201,7 +202,7 @@ if (isError) {
                   field={field}
                   isEditing={isEditing}
                   register={register}
-                  error={errors[field.key]?.message}
+                  error={localizeMessage(errors[field.key]?.message)}
                   value={contactUs?.[field.key]}
                 />
               ))}
@@ -210,7 +211,7 @@ if (isError) {
 
           {contactUs?.updatedAt && !contactUs.updatedAt.startsWith("0001") && (
             <p className="text-xs text-slate-400">
-              {t("Last updated")} {new Date(contactUs.updatedAt).toLocaleString()}
+              {t("Last updated")} {new Date(contactUs.updatedAt).toLocaleString(i18n.resolvedLanguage === "ar" ? "ar-EG" : "en-GB")}
             </p>
           )}
         </div>
@@ -266,7 +267,7 @@ function FieldRow({ field, isEditing, register, error, value }) {
       {isEditing ? (
         <>
           {field.baseUrl ? (
-            <div className={`flex overflow-hidden rounded-lg border text-sm outline-none transition focus-within:ring-2 focus-within:ring-blue-400/30 ${
+            <div dir="ltr" className={`flex overflow-hidden rounded-lg border text-sm outline-none transition focus-within:ring-2 focus-within:ring-blue-400/30 ${
               error ? "border-red-300 focus-within:border-red-400" : "border-slate-200 focus-within:border-blue-400"
             }`}>
               <span className="flex items-center border-r border-slate-200 bg-slate-50 px-3 text-slate-500">
@@ -281,6 +282,7 @@ function FieldRow({ field, isEditing, register, error, value }) {
             </div>
           ) : (
             <input
+              dir="ltr"
               type={field.type || "text"}
               placeholder={label}
               {...register(field.key)}
@@ -289,11 +291,11 @@ function FieldRow({ field, isEditing, register, error, value }) {
               }`}
             />
           )}
-          {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+          {error && <p className="mt-1 text-xs text-red-500">{localizeMessage(error)}</p>}
         </>
       ) : (
         <p className="flex min-h-[2.25rem] items-center break-all rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-800">
-          {value || <span className="text-slate-400">{t("Not set")}</span>}
+          {value ? <bdi dir="ltr">{value}</bdi> : <span className="text-slate-400">{t("Not set")}</span>}
         </p>
       )}
     </div>

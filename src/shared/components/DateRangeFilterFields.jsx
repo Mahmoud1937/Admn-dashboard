@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import localizeMessage from '../../localization/localizeMessage'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faCalendar,
@@ -150,7 +152,7 @@ function Calendar({
         <button
           type="button"
           onClick={onPrev}
-          aria-label={previousMonthLabel}
+          aria-label={localizeMessage(previousMonthLabel)}
           className="flex h-7 w-7 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
         >
           <FontAwesomeIcon icon={locale === 'ar' ? faChevronRight : faChevronLeft} size="xs" />
@@ -163,7 +165,7 @@ function Calendar({
         <button
           type="button"
           onClick={onNext}
-          aria-label={nextMonthLabel}
+          aria-label={localizeMessage(nextMonthLabel)}
           className="flex h-7 w-7 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
         >
           <FontAwesomeIcon icon={locale === 'ar' ? faChevronLeft : faChevronRight} size="xs" />
@@ -219,13 +221,16 @@ export function DatePicker({
   minDate,
   maxDate,
   className = '',
-  locale = 'en',
-  weekdayLabels = WEEKDAY_LABELS,
+  locale,
+  weekdayLabels,
   datePlaceholder = 'dd/mm/yyyy',
   previousMonthLabel = 'Previous month',
   nextMonthLabel = 'Next month',
   toggleCalendarLabel = 'Toggle calendar',
 }) {
+  const { i18n } = useTranslation("common");
+  locale ??= i18n.resolvedLanguage === "ar" ? "ar" : "en";
+  weekdayLabels ??= i18n.t("providers:weekdays", { lng: locale, returnObjects: true });
   const [isOpen, setIsOpen] = useState(false)
   const [text, setText] = useState(() => isoToDisplay(value))
   const [prevValue, setPrevValue] = useState(value)
@@ -330,7 +335,7 @@ export function DatePicker({
         />
         <button
           type="button"
-          aria-label={toggleCalendarLabel}
+          aria-label={localizeMessage(toggleCalendarLabel)}
           onClick={toggleOpen}
           className={`absolute ${locale === 'ar' ? 'left-2.5' : 'right-2.5'} top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600`}
         >
@@ -375,13 +380,16 @@ export default function DateRangeFilterFields({
   fromField = 'fromDate',
   toField = 'toDate',
   stacked = true,
-  locale = 'en',
-  weekdayLabels = WEEKDAY_LABELS,
+  locale,
+  weekdayLabels,
   datePlaceholder = 'dd/mm/yyyy',
   previousMonthLabel = 'Previous month',
   nextMonthLabel = 'Next month',
   toggleCalendarLabel = 'Toggle calendar',
 }) {
+  const { i18n } = useTranslation("common");
+  locale ??= i18n.resolvedLanguage === "ar" ? "ar" : "en";
+  weekdayLabels ??= i18n.t("providers:weekdays", { lng: locale, returnObjects: true });
   const setField = (field) => (value) =>
     onDraftChange((prev) => ({ ...prev, [field]: value }))
 
@@ -389,7 +397,7 @@ export default function DateRangeFilterFields({
     <div className={`${stacked ? 'space-y-4' : 'space-y-3'}`}>
       <div>
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
-          {fromLabel}
+          {localizeMessage(fromLabel)}
         </label>
         <DatePicker
           value={draft[fromField] || ''}
@@ -405,7 +413,7 @@ export default function DateRangeFilterFields({
       </div>
       <div className={stacked ? '' : 'mb-3'}>
         <label className="mb-1.5 block text-xs font-medium text-slate-500">
-          {toLabel}
+          {localizeMessage(toLabel)}
         </label>
         <DatePicker
           value={draft[toField] || ''}

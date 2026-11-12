@@ -20,13 +20,13 @@ export default function RefundPolicyPage() {
       serverErrors={serverErrors}
       canUpdate={canUpdate}
       title={t("Refund Policy")}
-      subtitle="Manage bilingual refund policy content"
-      enDescription="Write the English version of the Refund Policy below."
-      arDescription="اكتب النسخة العربية من سياسة الاسترداد بالأسفل."
-      enPlaceholder="No English refund policy yet."
-      arPlaceholder="لا يوجد سياسة استرداد بالعربية بعد."
-      enEditorPlaceholder="Write English refund policy..."
-      arEditorPlaceholder="اكتب سياسة الاسترداد بالعربية..."
+      subtitle={t("Manage bilingual refund policy content")}
+      enDescription={t("Write the English version of the Refund Policy below.")}
+      arDescription={t("Write the Arabic version of the Refund Policy below.")}
+      enPlaceholder={t("No English refund policy yet.")}
+      arPlaceholder={t("No Arabic refund policy yet.")}
+      enEditorPlaceholder={t("Write English refund policy...")}
+      arEditorPlaceholder={t("Write Arabic refund policy...")}
     /></LocalizedPage>
   );
 }

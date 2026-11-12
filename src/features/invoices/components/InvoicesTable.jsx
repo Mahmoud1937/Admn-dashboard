@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import localizeMessage from "../../../localization/localizeMessage";
+import { getActiveLanguage } from "../../../localization/i18n";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -44,7 +46,7 @@ const TABLE_MIN_WIDTH =
   COLUMNS.reduce((sum, c) => sum + c.width, ACTIONS_WIDTH) + 'px'
 
 const ALIGN_CLASS = {
-  left: 'text-left',
+  left: 'text-start',
   center: 'text-center',
   right: 'text-right',
 }
@@ -54,10 +56,10 @@ const ALIGN_CLASS = {
 /* -------------------------------------------------------------------------- */
 
 const formatMoney = (n) =>
-  `${Number(n ?? 0).toLocaleString('en-US', {
+  `${Number(n ?? 0).toLocaleString(getActiveLanguage() === 'ar' ? 'ar-EG' : 'en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })} EGP`
+  })} ${localizeMessage('EGP')}`
 
 const formatPercentage = (value) =>
   value == null
@@ -67,7 +69,7 @@ const formatPercentage = (value) =>
 const formatTime = (date) => {
   const d = new Date(date)
   if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleTimeString(getActiveLanguage() === 'ar' ? 'ar-EG' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
 }
 
 /* -------------------------------------------------------------------------- */
@@ -183,7 +185,8 @@ function ClientCell({ inv }) {
         <p
           title={clientName}
           dir="auto"
-          className="truncate text-left font-medium text-slate-900"
+          style={{ textAlign: getActiveLanguage() === 'ar' ? 'right' : 'left' }}
+          className="truncate font-medium text-slate-900"
         >
           {clientName}
         </p>
@@ -209,6 +212,9 @@ function ProviderCell({ inv }) {
     <div className="leading-tight">
       <p
         title={inv.providerNameEn}
+        dir="ltr"
+        lang="en"
+        style={{ textAlign: getActiveLanguage() === 'ar' ? 'right' : 'left' }}
         className="truncate font-medium text-slate-800"
       >
         {inv.providerNameEn || '-'}
@@ -217,7 +223,7 @@ function ProviderCell({ inv }) {
         <p
           dir="rtl"
           lang="ar"
-          style={{ textAlign: 'left' }}
+          style={{ textAlign: getActiveLanguage() === 'ar' ? 'right' : 'left' }}
           className="mt-0.5 truncate text-xs text-slate-500"
         >
           {inv.providerNameAr}
@@ -261,7 +267,7 @@ function AmountCell({ inv }) {
 
       {hasDiscount ? (
         <>
-          <p className="mt-0.5 flex items-center justify-end gap-1.5 text-xs tabular-nums text-slate-400">
+          <p className="mt-0.5 flex items-center justify-end gap-1.5 text-xs tabular-nums text-slate-400 rtl:justify-start">
             <span className="line-through">{formatMoney(inv.priceBefore)}</span>
             <DiscountBadge value={formatPercentage(inv.discountPercentage)} />
           </p>
@@ -294,7 +300,7 @@ function StatusCell({ inv }) {
   return (
     <div className="flex items-center justify-center">
       <StatusBadge tone={STATUS_TONE[inv.status] ?? 'default'}>
-        {inv.statusName}
+        {localizeMessage(({ 1: 'Paid', 2: 'Pending', 3: 'Canceled', 4: 'Used' })[inv.status] || inv.statusName)}
       </StatusBadge>
     </div>
   )
@@ -319,7 +325,7 @@ export default function InvoicesTable({
   isLoading,
   hasActiveFilters,
 }) {
-  const { t } = useTranslation("adminPages");
+  const { t, i18n } = useTranslation("adminPages");
   const [timelineInvoiceId, setTimelineInvoiceId] = useState(null)
   const [detailsInvoiceId, setDetailsInvoiceId] = useState(null)
 
@@ -345,7 +351,8 @@ export default function InvoicesTable({
     <div className="min-w-0">
       <ScrollableTable maxHeight="60vh">
         <table
-          className="w-full table-fixed text-left text-sm"
+          dir={i18n.dir()}
+          className="w-full table-fixed text-start text-sm"
           style={{ minWidth: TABLE_MIN_WIDTH }}
         >
           <colgroup>
@@ -363,7 +370,7 @@ export default function InvoicesTable({
                   scope="col"
                   className={`whitespace-nowrap py-3 ${col.px || 'px-4'} ${ALIGN_CLASS[col.align]}`}
                 >
-                  {col.label}
+                  {t(col.label)}
                 </th>
               ))}
               <TableActionsCell as="th"

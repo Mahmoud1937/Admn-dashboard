@@ -1,5 +1,6 @@
 import LocalizedPage from "../../../localization/LocalizedPage";
 import { useTranslation } from "react-i18next";
+import localizeMessage from "../../../localization/localizeMessage";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -18,6 +19,7 @@ import NotificationFormModal from "../components/NotificationFormModal";
 import NotificationEditModal from "../components/NotificationEditModal";
 
 function Toast({ toast, onClose }) {
+  useTranslation("adminPages");
   useEffect(() => {
     if (!toast) return undefined;
     const timer = setTimeout(onClose, 4000);
@@ -37,7 +39,7 @@ function Toast({ toast, onClose }) {
       }`}
     >
       <FontAwesomeIcon icon={isSuccess ? faCircleCheck : faCircleXmark} className="mt-0.5" />
-      <p className="text-sm">{toast.message}</p>
+      <p className="text-sm">{localizeMessage(toast.message)}</p>
     </div>
   );
 }

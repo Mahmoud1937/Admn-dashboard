@@ -1,3 +1,5 @@
+import localizeMessage from "../../localization/localizeMessage";
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import AvatarImage from "./AvatarImage";
 import { compressImage } from "../utils/compressImage";
@@ -12,6 +14,7 @@ export default function ImageUploadField({
   allowSvg = false,
   labels,
 }) {
+  const { t } = useTranslation("common");
   const formats = allowSvg
     ? labels?.formatsWithSvg ?? "PNG, JPEG, WebP, or SVG"
     : labels?.formats ?? "PNG, JPEG, or WebP";
@@ -112,7 +115,7 @@ export default function ImageUploadField({
             ${disabled || isCompressing ? "cursor-not-allowed" : "cursor-pointer hover:bg-slate-50"}
           `}
         >
-          {isCompressing ? labels?.processing ?? "Processing..." : label}
+          {isCompressing ? labels?.processing ?? t("Processing...") : localizeMessage(label)}
           <input
             type="file"
             accept={allowSvg ? "image/png, image/jpeg, image/webp, image/svg+xml, .svg" : "image/png, image/jpeg, image/webp"}
@@ -123,13 +126,13 @@ export default function ImageUploadField({
         </label>
 
         <p className="text-[11px] text-slate-400">
-          {isCompressing ? labels?.compressing ?? "Compressing image..." : labels?.dragAndDrop ?? "or drag and drop an image here"}
+          {isCompressing ? labels?.compressing ?? t("Compressing image...") : labels?.dragAndDrop ?? t("or drag and drop an image here")}
         </p>
-        <p className="text-[10px] text-slate-400">{labels?.formatsOnly?.(formats) ?? `${formats} only`}</p>
+        <p className="text-[10px] text-slate-400">{labels?.formatsOnly?.(formats) ?? t("{{formats}} only", { formats })}</p>
       </div>
 
-      {dropError && <p className="text-xs text-red-500">{labels?.dropError?.(formats) ?? `Please drop an image file (${formats})`}</p>}
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {dropError && <p className="text-xs text-red-500">{labels?.dropError?.(formats) ?? t("Please drop an image file ({{formats}})", { formats })}</p>}
+      {error && <p className="text-xs text-red-500">{localizeMessage(error)}</p>}
     </div>
   );
 }

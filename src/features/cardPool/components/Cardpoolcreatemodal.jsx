@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -65,7 +66,7 @@ useEffect(() => {
           placeholder="1 - 10,000"
         />
         {errors.count && (
-          <p className="text-red-500 text-sm mt-1">{errors.count.message}</p>
+          <p className="text-red-500 text-sm mt-1">{localizeMessage(errors.count.message)}</p>
         )}
       </div>
 

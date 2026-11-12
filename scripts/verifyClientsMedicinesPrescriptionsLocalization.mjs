@@ -163,7 +163,7 @@ try {
   });
   assert.match(invoice, /RAW_STATUS/);
   assert.ok(invoice.indexOf("RAW_AR_SERVICE") < invoice.indexOf("RAW_EN_SERVICE"));
-  assert.match(invoice, /12\.50 EGP/);
+  assert.match(invoice, /12\.50 ج\.م/);
 
   const processForm = renderRoute(PrescriptionDetailsPage, "/prescriptions/88?action=process", "/prescriptions/:manualPrescriptionId");
   const rejectForm = renderRoute(PrescriptionDetailsPage, "/prescriptions/88?action=reject", "/prescriptions/:manualPrescriptionId");

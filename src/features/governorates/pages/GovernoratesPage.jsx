@@ -179,7 +179,7 @@ export default function GovernoratesPage() {
       {canDelete && <ConfirmDeleteModal
         isOpen={!!governorateToDelete}
         title={t("Delete Governorate")}
-        message={`Are you sure you want to delete "${governorateToDelete?.enName}"? This action cannot be undone.`}
+        message={t("Are you sure you want to delete \"{{name}}\"? This action cannot be undone.", { name: governorateToDelete?.enName })}
         confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}

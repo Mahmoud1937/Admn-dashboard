@@ -236,7 +236,7 @@ export default function CardMissedPage() {
       {canDelete && <ConfirmDeleteModal
         isOpen={!!itemToDelete}
         title={t("Delete Record")}
-        message={`Are you sure you want to delete the record for card "${itemToDelete?.cardNumber}"? This action cannot be undone.`}
+        message={t("Are you sure you want to delete the record for card \"{{name}}\"? This action cannot be undone.", { name: itemToDelete?.cardNumber })}
         confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}

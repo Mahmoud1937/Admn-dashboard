@@ -1,3 +1,4 @@
+import localizeMessage from "../../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import {
   User,
@@ -37,13 +38,13 @@ const employeeName = (employee, fallback = "-") => {
   if (!englishName && !arabicName) return fallback;
 
   return (
-    <span className="block w-full text-left" dir="ltr">
+    <span className="block w-full text-start">
       <span className="block truncate">{englishName || arabicName}</span>
       {englishName && arabicName && (
         <span
           className="mt-0.5 block truncate text-xs font-normal text-slate-500"
           dir="rtl"
-          style={{ direction: "rtl", textAlign: "left", unicodeBidi: "isolate" }}
+          style={{ direction: "rtl", textAlign: "start", unicodeBidi: "isolate" }}
         >
           {arabicName}
         </span>
@@ -109,7 +110,7 @@ export default function TicketDetailsOverview({
                 ? namePair(ticket.ticketType)
                 : t("Select ticket type")
             }
-            error={visibleFieldErrors.ticketTypeId}
+            error={localizeMessage(visibleFieldErrors.ticketTypeId)}
             highlighted
           />
         ) : (
@@ -126,7 +127,7 @@ export default function TicketDetailsOverview({
             placeholder={
               editValues.providerId ? namePair(ticket.provider) : t("No provider")
             }
-            error={visibleFieldErrors.providerId}
+            error={localizeMessage(visibleFieldErrors.providerId)}
             highlighted
           />
         ) : (
@@ -146,7 +147,7 @@ export default function TicketDetailsOverview({
                 ? namePair(ticket.assignedToGroup)
                 : t("No assigned group")
             }
-            error={visibleFieldErrors.assignedToGroupId}
+            error={localizeMessage(visibleFieldErrors.assignedToGroupId)}
             highlighted
           />
         ) : (
@@ -170,19 +171,19 @@ export default function TicketDetailsOverview({
             >
               {PRIORITY_OPTIONS.map(({ value, label }) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </select>
             {visibleFieldErrors.priority && (
               <p className="mt-1 text-xs text-red-500">
-                {visibleFieldErrors.priority}
+                {localizeMessage(visibleFieldErrors.priority)}
               </p>
             )}
           </>
         ) : (
           <StatusBadge tone={PRIORITY_TONE[ticket.priority] || "neutral"}>
-            {ticket.priorityName || "-"}
+            {t(PRIORITY_OPTIONS.find(option => Number(option.value) === ticket.priority)?.label || ticket.priorityName || "-")}
           </StatusBadge>
         )}
       </DetailItem>

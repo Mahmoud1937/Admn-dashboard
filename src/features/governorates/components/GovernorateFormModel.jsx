@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -64,14 +65,14 @@ export default function GovernorateFormModal({
         required
         autoFocus
         {...register("enName")}
-        error={errors.enName?.message}
+        error={localizeMessage(errors.enName?.message)}
       />
 
       <TextField
         label={t("Arabic Name")}
         required
         {...register("arName")}
-        error={errors.arName?.message}
+        error={localizeMessage(errors.arName?.message)}
       />
 
       <FormActions

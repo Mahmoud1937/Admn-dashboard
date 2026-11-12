@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../features/auth/context/Authcontext";
@@ -17,6 +18,7 @@ const authDebug = (event, details = {}) => {
 };
 
 export default function ProtectedRoute() {
+  const { t } = useTranslation("common");
   const {
     token,
     isAuthenticated,
@@ -75,7 +77,7 @@ export default function ProtectedRoute() {
         <div
           className="h-9 w-9 animate-spin rounded-full border-4 border-slate-200 border-t-primary-600"
           role="status"
-          aria-label="Loading your session"
+          aria-label={t("Loading your session")}
         />
       </div>
     );
@@ -90,7 +92,7 @@ export default function ProtectedRoute() {
       <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
         <div className="w-full max-w-2xl overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <QueryErrorState
-            title="Unable to load your permissions"
+            title={t("Unable to load your permissions")}
             error={permissionsInitializationError}
             onRetry={() => refreshPermissions().catch(() => {})}
           />

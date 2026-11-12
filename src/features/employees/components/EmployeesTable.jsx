@@ -1,3 +1,5 @@
+import { getActiveLanguage } from "../../../localization/i18n";
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -34,16 +36,16 @@ const getEmployeeName = (e) =>
 const timeAgo = (date) => {
   const diff = Date.now() - new Date(date).getTime();
   const min = Math.floor(diff / 60000);
-  if (min < 1) return "Just now";
-  if (min < 60) return `${min}m ago`;
+  if (min < 1) return localizeMessage("Just now");
+  if (min < 60) return new Intl.RelativeTimeFormat(getActiveLanguage(), { numeric: "auto" }).format(-min, "minute");
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
+  if (hr < 24) return new Intl.RelativeTimeFormat(getActiveLanguage(), { numeric: "auto" }).format(-hr, "hour");
   const day = Math.floor(hr / 24);
-  if (day < 30) return `${day}d ago`;
-  return new Date(date).toLocaleDateString("en-GB");
+  if (day < 30) return new Intl.RelativeTimeFormat(getActiveLanguage(), { numeric: "auto" }).format(-day, "day");
+  return new Date(date).toLocaleDateString(getActiveLanguage() === "ar" ? "ar-EG" : "en-GB");
 };
 
-const fullDate = (d) => new Date(d).toLocaleString("en-GB");
+const fullDate = (d) => new Date(d).toLocaleString(getActiveLanguage() === "ar" ? "ar-EG" : "en-GB");
 
 /* ---------- small pieces ---------- */
 function GroupBadge({ name }) {
@@ -115,9 +117,9 @@ export default function EmployeesTable({
         <table className="min-w-full text-sm">
           <thead className="sticky top-0 z-10 bg-slate-100 text-left text-slate-700 shadow-[0_1px_0_0_rgb(226,232,240)]">
             <tr>
-              <th className={`${TH} w-16`}>ID</th>
-              <th className={`${TH} text-left`}>{t("Employee")}</th>
-              <th className={`${TH} text-left`}>{t("Contact")}</th>
+              <th className={`${TH} w-16`}>{t("ID")}</th>
+              <th className={`${TH} text-start`}>{t("Employee")}</th>
+              <th className={`${TH} text-start`}>{t("Contact")}</th>
               <th className={TH}>{t("Group")}</th>
               <th className={TH}>{t("Last Login")}</th>
               <th className={TH}>{t("Status")}</th>

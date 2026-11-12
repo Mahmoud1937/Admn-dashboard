@@ -34,6 +34,8 @@ export function getColumnColorName(column, groupBy) {
   if (groupBy === 'status') return column.id === 'open' ? 'amber' : 'green'
 
   if (groupBy === 'priority') {
+    const priorityColor = { '0': 'green', '1': 'amber', '2': 'red' }[column.id]
+    if (priorityColor) return priorityColor
     const name = getPriorityColorName(column.title)
     if (name) return name
   }

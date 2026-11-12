@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -92,7 +93,7 @@ export default function SubscriptionTypeFormModal({
         required
         autoFocus
         {...register("nameEn")}
-        error={errors.nameEn?.message}
+        error={localizeMessage(errors.nameEn?.message)}
       />
 
       <TextField
@@ -100,7 +101,7 @@ export default function SubscriptionTypeFormModal({
         required
         dir="rtl"
         {...register("nameAr")}
-        error={errors.nameAr?.message}
+        error={localizeMessage(errors.nameAr?.message)}
       />
 
       <div className="mb-4 grid gap-3 sm:grid-cols-2">
@@ -112,7 +113,7 @@ export default function SubscriptionTypeFormModal({
           step="0.01"
           inputMode="decimal"
           {...register("priceBefore")}
-          error={errors.priceBefore?.message}
+          error={localizeMessage(errors.priceBefore?.message)}
         />
 
         <TextField
@@ -124,7 +125,7 @@ export default function SubscriptionTypeFormModal({
           step="0.01"
           inputMode="decimal"
           {...register("discountPercentage")}
-          error={errors.discountPercentage?.message}
+          error={localizeMessage(errors.discountPercentage?.message)}
         />
       </div>
 
@@ -148,7 +149,7 @@ export default function SubscriptionTypeFormModal({
         />
         {errors.descriptionEn && (
           <p className="mt-1 text-xs text-red-500">
-            {errors.descriptionEn.message}
+            {localizeMessage(errors.descriptionEn.message)}
           </p>
         )}
       </div>
@@ -173,7 +174,7 @@ export default function SubscriptionTypeFormModal({
         />
         {errors.descriptionAr && (
           <p className="mt-1 text-xs text-red-500">
-            {errors.descriptionAr.message}
+            {localizeMessage(errors.descriptionAr.message)}
           </p>
         )}
       </div>

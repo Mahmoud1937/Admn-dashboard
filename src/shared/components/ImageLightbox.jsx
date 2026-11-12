@@ -1,7 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { useTranslation } from "react-i18next";
+import localizeMessage from "../../localization/localizeMessage";
 
 const ImageLightbox = ({ image, onClose, closeLabel = "Close image preview" }) => {
+    useTranslation("common");
     if (!image) {
         return null;
     }
@@ -14,8 +17,8 @@ const ImageLightbox = ({ image, onClose, closeLabel = "Close image preview" }) =
             <button
                 type="button"
                 onClick={onClose}
-                aria-label={closeLabel}
-                className="absolute top-5 right-5 h-9 w-9 inline-flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                aria-label={localizeMessage(closeLabel)}
+                className="absolute top-5 end-5 h-9 w-9 inline-flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
             >
                 <FontAwesomeIcon icon={faXmark} />
             </button>

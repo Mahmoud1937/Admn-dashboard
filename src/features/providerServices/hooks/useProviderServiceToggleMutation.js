@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
@@ -19,7 +20,7 @@ export function useProviderServiceToggleMutation({ onSuccess }) {
     },
 
     onSuccess: () => {
-      toast.success("Service status updated successfully.");
+      toast.success(localizeMessage("Service status updated successfully."));
 
       queryClient.invalidateQueries({
         queryKey: ["provider-services"],
@@ -30,7 +31,7 @@ export function useProviderServiceToggleMutation({ onSuccess }) {
 
     onError: () => {
       toast.error(
-        "Unable to update service status. Please try again."
+        localizeMessage("Unable to update service status. Please try again.")
       );
     },
   });

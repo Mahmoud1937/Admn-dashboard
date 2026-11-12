@@ -182,7 +182,7 @@ export default function SubscriptionTypesPage() {
       {canDelete && <ConfirmDeleteModal
         isOpen={!!subscriptionTypeToDelete}
         title={t("Delete Subscription Type")}
-        message={`Are you sure you want to delete "${subscriptionTypeToDelete?.nameEn}"? This action cannot be undone.`}
+        message={t("Are you sure you want to delete \"{{name}}\"? This action cannot be undone.", { name: subscriptionTypeToDelete?.nameEn })}
         confirmLabel={t("Delete")}
         variant="danger"
         isLoading={deleteMutation.isPending}

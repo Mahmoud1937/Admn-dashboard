@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -67,7 +68,7 @@ export default function TicketTypeFormModal({
         required
         autoFocus
         {...register("enName")}
-        error={errors.enName?.message}
+        error={localizeMessage(errors.enName?.message)}
       />
 
       <TextField
@@ -75,7 +76,7 @@ export default function TicketTypeFormModal({
         required
         dir="rtl"
         {...register("arName")}
-        error={errors.arName?.message}
+        error={localizeMessage(errors.arName?.message)}
       />
 
       <FormActions

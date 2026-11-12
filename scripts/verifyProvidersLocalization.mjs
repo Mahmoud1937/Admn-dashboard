@@ -27,7 +27,7 @@ try {
   const { default: ProvidersPage } = await vite.ssrLoadModule('/src/features/providers/pages/ProvidersPage.jsx');
   const { useProvidersQuery } = await vite.ssrLoadModule('/src/features/providers/hooks/useProvidersQuery.js');
   const { AuthProvider } = await vite.ssrLoadModule('/src/features/auth/context/Authcontext.jsx');
-  const { default: axiosInstance, restoreAuthSession } = await vite.ssrLoadModule('/src/shared/api/axiosInstance.js');
+  const { default: axiosInstance, setToken, clearToken } = await vite.ssrLoadModule('/src/shared/api/axiosInstance.js');
   const { getExcelExportErrorMessage, validateExcelExportResponse } = await vite.ssrLoadModule('/src/shared/hooks/useExcelExport.js');
 
   const verifyExportErrors = async () => {
@@ -58,7 +58,9 @@ try {
     assert.equal(getExcelExportErrorMessage(networkError, options), networkErrorMessage);
     assert.equal(getExcelExportErrorMessage(Object.assign(new Error('Timeout'), { code: 'ECONNABORTED' }), options), networkErrorMessage);
     assert.equal(getExcelExportErrorMessage(backendError, options), 'BACKEND_ERROR_MESSAGE');
-    assert.equal(getExcelExportErrorMessage(networkError, { errorMessage: 'Fallback' }), 'Network Error');
+    assert.equal(getExcelExportErrorMessage(networkError, { errorMessage: 'Fallback' }), i18n.language === 'ar'
+      ? 'تعذّر الاتصال بالخادم. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.'
+      : 'Unable to connect to the server. Please check your internet connection and try again.');
     assert.equal(getExcelExportErrorMessage(Object.assign(new Error('Cancelled'), { code: 'ERR_CANCELED' }), options), 'Cancelled');
     const validBlob = new Blob(['excel-content']);
     assert.equal(await validateExcelExportResponse({ data: validBlob }, validationMessages), validBlob);
@@ -208,6 +210,10 @@ try {
   ]);
   const refreshHeaders = [];
   const originalRefreshAdapter = axios.defaults.adapter;
+  const originalRequestAdapter = axiosInstance.defaults.adapter;
+  axiosInstance.defaults.adapter = async (config) => ({
+    data: {}, status: 200, statusText: 'OK', headers: {}, config,
+  });
   axios.defaults.adapter = async (config) => {
     refreshHeaders.push({
       contentLanguage: config.headers.get('Content-Language'),
@@ -224,12 +230,17 @@ try {
   try {
     for (const language of ['ar', 'en']) {
       await changeAppLanguage(language);
-      localStorage.setItem('token', token);
+      // A protected request refreshes an expired token. Restoring a valid token
+      // intentionally does not make a refresh request.
+      const expiredToken = `eyJhbGciOiJub25lIn0.${Buffer.from(JSON.stringify({ exp: 1 })).toString('base64url')}.signature`;
       localStorage.setItem('refreshToken', 'test-refresh-token');
-      await restoreAuthSession();
+      setToken(expiredToken, new Date().toISOString());
+      await axiosInstance.get('/admin/providers');
     }
   } finally {
     axios.defaults.adapter = originalRefreshAdapter;
+    axiosInstance.defaults.adapter = originalRequestAdapter;
+    clearToken();
   }
   assert.deepEqual(refreshHeaders, [
     { contentLanguage: 'ar', acceptLanguage: 'ar' },

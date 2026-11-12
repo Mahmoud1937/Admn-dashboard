@@ -2,7 +2,7 @@ import SearchableAsyncSelect from "../../../shared/components/SearchableAsyncSel
 import { getSpecialists } from "../../specialists/service/SpecialistsService";
 
 
-export default function SpecialistSelect({ value, onChange, placeholder = "Select specialist", searchPlaceholder = "Search specialists...", labels, language, rtl = false, error, disabled, getOptionLabel = (item) => `${item.enName} - ${item.arName}` }) {
+export default function SpecialistSelect({ value, onChange, placeholder = "Select specialist", searchPlaceholder = "Search specialists...", labels, language, rtl, error, disabled, getOptionLabel = (item) => `${item.enName} - ${item.arName}` }) {
   return (
     <SearchableAsyncSelect
       queryKey={language ? ["specialists", language] : ["specialists"]}

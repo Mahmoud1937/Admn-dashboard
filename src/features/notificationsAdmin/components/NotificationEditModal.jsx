@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -20,7 +21,7 @@ function Field({ id, label, error, required = false, children }) {
         {label}{required && <span className="ml-0.5 text-red-500">*</span>}
       </label>
       {children}
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-600">{localizeMessage(error)}</p>}
     </div>
   );
 }
@@ -64,13 +65,13 @@ export default function NotificationEditModal({ notification, onClose, onSubmit,
   return (
     <FormModalShell title={t("Edit notification")} onClose={onClose} onSubmit={submit} className="max-h-[90vh] max-w-xl overflow-y-auto">
       <div className="space-y-4">
-        <Field id="edit-notification-title" label={t("Title")} required error={errors.title?.message}>
+        <Field id="edit-notification-title" label={t("Title")} required error={localizeMessage(errors.title?.message)}>
           <input id="edit-notification-title" maxLength={100} {...register("title")} className={fieldClassName} />
         </Field>
-        <Field id="edit-notification-en" label={t("English message")} required error={errors.messageEn?.message}>
+        <Field id="edit-notification-en" label={t("English message")} required error={localizeMessage(errors.messageEn?.message)}>
           <textarea id="edit-notification-en" rows={3} maxLength={500} {...register("messageEn")} className={fieldClassName} />
         </Field>
-        <Field id="edit-notification-ar" label={t("Arabic message")} required error={errors.messageAr?.message}>
+        <Field id="edit-notification-ar" label={t("Arabic message")} required error={localizeMessage(errors.messageAr?.message)}>
           <textarea id="edit-notification-ar" rows={3} maxLength={500} dir="ltr" {...register("messageAr")} className={fieldClassName} />
         </Field>
         <Controller
@@ -87,11 +88,11 @@ export default function NotificationEditModal({ notification, onClose, onSubmit,
               onChange={(file) => setValue("imageUrl", file, { shouldDirty: true, shouldTouch: true, shouldValidate: true })}
               currentImageUrl={notification.imageUrl}
               disabled={isSaving}
-              error={errors.imageUrl?.message}
+              error={localizeMessage(errors.imageUrl?.message)}
             />
           )}
         />
-        <Field id="edit-notification-duration" label={t("Repeat after (days)")} error={errors.durationDay?.message}>
+        <Field id="edit-notification-duration" label={t("Repeat after (days)")} error={localizeMessage(errors.durationDay?.message)}>
           <input id="edit-notification-duration" type="number" min="1" max="365" step="1" {...register("durationDay")} className={fieldClassName} />
         </Field>
         <FormActions onCancel={onClose} isSaving={isSaving} submitLabel={t("Save changes")} />

@@ -1,4 +1,6 @@
 import { forwardRef } from "react";
+import { useTranslation } from "react-i18next";
+import localizeMessage from "../../localization/localizeMessage";
 import { sanitizeNameInput } from "../utils/sanitizeInput";
 
 const TextField = forwardRef(function TextField(
@@ -10,13 +12,15 @@ const TextField = forwardRef(function TextField(
     onChange,
     maxLength = 255,
     sanitize = true,
-    dir = "ltr",
+    dir,
     readOnly,
     disabled,
     ...rest
   },
   ref
 ) {
+  const { i18n } = useTranslation("common");
+  const direction = dir ?? i18n.dir();
   const handleChange = (e) => {
     if (sanitize) {
       e.target.value = sanitizeNameInput(e.target.value);
@@ -31,7 +35,8 @@ const TextField = forwardRef(function TextField(
       </label>
       <input
         type="text"
-        dir={dir}
+        dir={direction}
+        style={{ textAlign: direction === "rtl" ? "right" : "left" }}
         autoFocus={autoFocus}
         ref={ref}
         onChange={handleChange}
@@ -47,7 +52,7 @@ const TextField = forwardRef(function TextField(
             : ""
         }`}
       />
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-xs text-red-500">{localizeMessage(error)}</p>}
     </div>
   );
 });

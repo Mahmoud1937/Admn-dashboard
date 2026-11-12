@@ -20,13 +20,13 @@ export default function PrivacyPolicyPage() {
       serverErrors={serverErrors}
       canUpdate={canUpdate}
       title={t("Privacy Policy")}
-      subtitle="Manage bilingual privacy policy content"
-      enDescription="Write the English version of the Privacy Policy below."
-      arDescription="اكتب النسخة العربية من سياسة الخصوصية بالأسفل."
-      enPlaceholder="No English privacy policy yet."
-      arPlaceholder="لا يوجد سياسة خصوصية بالعربية بعد."
-      enEditorPlaceholder="Write English privacy policy..."
-      arEditorPlaceholder="اكتب سياسة الخصوصية بالعربية..."
+      subtitle={t("Manage bilingual privacy policy content")}
+      enDescription={t("Write the English version of the Privacy Policy below.")}
+      arDescription={t("Write the Arabic version of the Privacy Policy below.")}
+      enPlaceholder={t("No English privacy policy yet.")}
+      arPlaceholder={t("No Arabic privacy policy yet.")}
+      enEditorPlaceholder={t("Write English privacy policy...")}
+      arEditorPlaceholder={t("Write Arabic privacy policy...")}
     /></LocalizedPage>
   );
 }

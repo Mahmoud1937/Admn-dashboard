@@ -12,7 +12,7 @@ export default function ServiceSelect({
   searchPlaceholder = "Search services...",
   labels,
   language,
-  rtl = false,
+  rtl,
   getOptionLabel = (item) => `${item.enName} - ${item.arName}`,
 }) {
   return (

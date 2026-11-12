@@ -62,5 +62,16 @@
   "Restricted area": "منطقة مقيّدة",
   "Access denied": "تم رفض الوصول",
   "Your account does not have the permission required to view this page. You can jump to one of the pages below, or use the sidebar to see everything available to you.": "لا يملك حسابك الصلاحية المطلوبة لعرض هذه الصفحة. يمكنك الانتقال إلى إحدى الصفحات أدناه أو استخدام القائمة الجانبية لعرض الصفحات المتاحة لك.",
-  "All rights reserved by": "جميع الحقوق محفوظة لـ"
+  "All rights reserved by": "جميع الحقوق محفوظة لـ",
+  "Session expired": "انتهت الجلسة",
+  "Please sign in again to continue.": "يرجى تسجيل الدخول مرة أخرى للمتابعة.",
+  "Sign in": "تسجيل الدخول",
+  "Compressing image...": "جارٍ ضغط الصورة...",
+  "or drag and drop an image here": "أو اسحب صورة وأفلتها هنا",
+  "{{formats}} only": "{{formats}} فقط",
+  "Please drop an image file ({{formats}})": "يرجى إفلات ملف صورة بصيغة {{formats}}",
+  "Choose file": "اختيار ملف",
+  "Loading your session": "جارٍ تحميل جلستك",
+  "Unable to load your permissions": "تعذر تحميل صلاحياتك",
+  "The requested resource could not be found.": "تعذر العثور على المورد المطلوب."
 }

@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useEffect, useId, useRef, useState } from "react";
 import { Calendar, Tag, CheckCircle2, Clock, XCircle, X, Pill, Users } from "lucide-react";
 import { SkeletonText } from "../../../shared/components/Skeleton";
@@ -226,12 +227,12 @@ export default function InvoiceDetailsModal({ isOpen, onClose, invoice, isLoadin
                 {invoice.totalBefore != null && (
                   <div className="flex items-center justify-between gap-2 text-sm text-slate-400">
                     <span>{t("Total Before Discount")}</span>
-                    <span dir="ltr" className="whitespace-nowrap tabular-nums">{formatMoney(invoice.totalBefore)} EGP</span>
+                    <span dir="ltr" className="whitespace-nowrap tabular-nums">{formatMoney(invoice.totalBefore)} {localizeMessage("EGP")}</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
                   <div className="flex items-center gap-1.5 text-base text-slate-500"><Tag size={16} className="shrink-0" /><span>{t("Total After Discount")}</span></div>
-                  <span dir="ltr" className="whitespace-nowrap text-lg font-bold tabular-nums text-emerald-600">{formatMoney(totalAfter)} EGP</span>
+                  <span dir="ltr" className="whitespace-nowrap text-lg font-bold tabular-nums text-emerald-600">{formatMoney(totalAfter)} {localizeMessage("EGP")}</span>
                 </div>
               </div>
               {style.message && <p className={`flex items-center gap-2 rounded-xl px-5 py-3.5 text-sm ${style.badge}`}><StatusIcon size={18} className="shrink-0" />{t(style.message)}</p>}

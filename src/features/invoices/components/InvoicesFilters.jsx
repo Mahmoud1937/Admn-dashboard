@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import localizeMessage from "../../../localization/localizeMessage";
 import FilterPanel from "../../../shared/components/FilterPanel";
 import FilterPanelFooter from "../../../shared/components/FilterPanelFooter";
 import FilterPanelHeader from "../../../shared/components/FilterPanelHeader";
@@ -14,9 +15,9 @@ const fieldClass = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2
 
 const select = (value, onChange, options) => (
   <select value={value} onChange={onChange} className={fieldClass}>
-    <option value="">{options.placeholder}</option>
+    <option value="">{localizeMessage(options.placeholder)}</option>
     {options.items.map((opt) => (
-      <option key={opt.value} value={opt.value}>{opt.label}</option>
+      <option key={opt.value} value={opt.value}>{localizeMessage(opt.label)}</option>
     ))}
   </select>
 );

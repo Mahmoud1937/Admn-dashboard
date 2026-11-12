@@ -18,6 +18,7 @@ import LazyImageCell from '../../../shared/components/LazyImageCell'
 import ImageLightbox from '../../../shared/components/ImageLightbox'
 
 import { formatDate } from '../../../utils/formatDate'
+import { PRIORITY_OPTIONS } from '../constants/ticketOptions'
 import { PRIORITY_TONE } from '../utils/ticketDetailsUtils'
 import { COLOR_STYLES, getColumnColorName } from '../utils/ticketColors'
 import { SkeletonText } from "../../../shared/components/Skeleton";
@@ -31,22 +32,22 @@ const GROUP_OPTIONS = [
 ]
 
 // returns { id, title, arTitle } for the column a ticket belongs to
-function getColumn(ticket, groupBy) {
+function getColumn(ticket, groupBy, t) {
   if (groupBy === 'priority') {
     return {
       id: String(ticket.priority ?? 'none'),
-      title: ticket.priorityName || 'No priority',
+      title: t(PRIORITY_OPTIONS.find(option => Number(option.value) === ticket.priority)?.label || ticket.priorityName || 'No priority'),
     }
   }
   if (groupBy === 'status') {
     return {
       id: ticket.isClosed ? 'closed' : 'open',
-      title: ticket.isClosed ? 'Closed' : 'Open',
+      title: ticket.isClosed ? t('Closed') : t('Open'),
     }
   }
   return {
     id: String(ticket.assignedToGroup?.id ?? 'none'),
-    title: ticket.assignedToGroup?.enName || 'Unassigned',
+    title: ticket.assignedToGroup?.enName || t('Unassigned'),
     arTitle: ticket.assignedToGroup?.arName,
   }
 }
@@ -88,7 +89,7 @@ function TicketCard({ ticket, onViewTicket, onPreview ,color}) {
       {/* badges */}
       <div className="mb-2 flex flex-wrap items-center gap-1.5">
         <StatusBadge tone={PRIORITY_TONE[ticket.priority] || 'neutral'}>
-          {ticket.priorityName || '-'}
+          {t(PRIORITY_OPTIONS.find(option => Number(option.value) === ticket.priority)?.label || ticket.priorityName || '-')}
         </StatusBadge>
         <StatusBadge tone={ticket.isClosed ? 'success' : 'warning'}>
           {ticket.isClosed ? t("Closed") : t("Open")}
@@ -96,12 +97,12 @@ function TicketCard({ ticket, onViewTicket, onPreview ,color}) {
       </div>
 
       {/* type */}
-      <div className="text-left" dir="ltr">
-        <p className="text-left text-sm font-semibold text-slate-800">
+      <div className="text-start">
+        <p className="text-start text-sm font-semibold text-slate-800">
           {ticket.ticketType?.enName || '-'}
         </p>
         {ticket.ticketType?.arName && (
-          <p className="text-left text-xs text-slate-400" dir="rtl">
+          <p className="text-start text-xs text-slate-400" dir="rtl">
             {ticket.ticketType.arName}
           </p>
         )}
@@ -121,12 +122,12 @@ function TicketCard({ ticket, onViewTicket, onPreview ,color}) {
       {/* provider / card / phone */}
       <div className="mt-2 space-y-1 text-xs text-slate-500">
         {ticket.provider?.enName && (
-          <div className="text-left" dir="ltr">
+          <div className="text-start">
             <InfoRow icon={Building2} title={ticket.provider.enName}>
               {ticket.provider.enName}
             </InfoRow>
             {ticket.provider.arName && (
-              <p className="ml-5 truncate text-left text-[11px] text-slate-400" dir="rtl">
+              <p className="ms-5 truncate text-start text-[11px] text-slate-400" dir="rtl">
                 {ticket.provider.arName}
               </p>
             )}
@@ -202,7 +203,7 @@ export default function TicketsBoard({
   const columns = useMemo(() => {
     const map = new Map()
     tickets.forEach((ticket) => {
-      const col = getColumn(ticket, groupBy)
+      const col = getColumn(ticket, groupBy, t)
       if (!map.has(col.id)) map.set(col.id, { ...col, tickets: [] })
       map.get(col.id).tickets.push(ticket)
     })
@@ -217,7 +218,7 @@ export default function TicketsBoard({
       list.sort((a, b) => (a.id === 'none' ? 1 : b.id === 'none' ? -1 : 0))
     }
     return list
-  }, [tickets, groupBy])
+  }, [tickets, groupBy, t])
 
   const ColumnIcon =
     GROUP_OPTIONS.find((option) => option.key === groupBy)?.icon || Users
@@ -266,7 +267,7 @@ export default function TicketsBoard({
                 }`}
               >
                 <Icon size={13} />
-                {option.label}
+                {t(option.label)}
               </button>
             )
           })}
@@ -289,15 +290,15 @@ export default function TicketsBoard({
               >
                 <div className="flex min-w-0 items-center gap-2">
                   <ColumnIcon size={15} className={`shrink-0 ${color.icon}`} />
-                  <div className="min-w-0 text-left" dir="ltr">
+                  <div className="min-w-0 text-start">
                     <h3
-                      className={`truncate text-left text-sm font-semibold ${color.title}`}
+                      className={`truncate text-start text-sm font-semibold ${color.title}`}
                     >
                       {column.title}
                     </h3>
                     {column.arTitle && (
                       <p
-                        className={`truncate text-left text-xs opacity-70 ${color.title}`}
+                        className={`truncate text-start text-xs opacity-70 ${color.title}`}
                         dir="rtl"
                       >
                         {column.arTitle}

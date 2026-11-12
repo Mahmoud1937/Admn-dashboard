@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import localizeMessage from "../../../localization/localizeMessage";
 import {
   createNotification,
   deleteNotification,
@@ -11,12 +12,12 @@ import { NOTIFICATIONS_QUERY_KEY } from "./useNotificationsQuery";
 // Backend errors may come back as an array of messages or a { field: [msgs] } object.
 export const extractErrorMessage = (error, fallback) => {
   const errors = error?.response?.data?.errors;
-  if (Array.isArray(errors) && errors.length) return errors.join(" • ");
+  if (Array.isArray(errors) && errors.length) return errors.map(localizeMessage).join(" • ");
   if (errors && typeof errors === "object") {
     const flat = Object.values(errors).flat().filter(Boolean);
-    if (flat.length) return flat.join(" • ");
+    if (flat.length) return flat.map(localizeMessage).join(" • ");
   }
-  return error?.response?.data?.message || error?.message || fallback;
+  return localizeMessage(error?.response?.data?.message || fallback);
 };
 
 export default function useNotificationMutations({ onSuccess, onError } = {}) {

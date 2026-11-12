@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import TableActionsCell from "../../../shared/components/TableActionsCell";
 import { useState } from 'react'
 import useFilterPanel from '../../../shared/hooks/useFilterPanel'
@@ -251,7 +252,7 @@ export default function OrderHistorySection({ userId }) {
                       <span dir="ltr" className="inline-block">{Number(order.totalAfter ?? 0).toLocaleString('en-US', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
-                      })} EGP</span>
+                      })} {localizeMessage("EGP")}</span>
                     </td>
                     <TableActionsCell side={rtl ? "left" : "right"} hoverColor="transparent" className="px-4 py-3 text-center">
                       <button

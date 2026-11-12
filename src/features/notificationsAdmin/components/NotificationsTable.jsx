@@ -113,7 +113,7 @@ function MessagePreview({ value, language }) {
 }
 
 function ScheduleCell({ scheduledAt, durationDay }) {
-  const { t } = useTranslation("adminPages");
+  const { t, i18n } = useTranslation("adminPages");
   const date = scheduledAt ? new Date(scheduledAt) : null;
   const hasDate =
     date &&
@@ -133,7 +133,7 @@ function ScheduleCell({ scheduledAt, durationDay }) {
           </div>
           <div className="flex items-center gap-2 whitespace-nowrap text-xs text-slate-500">
             <FontAwesomeIcon icon={faClock} className="w-3.5 text-slate-400" />
-            {date.toLocaleTimeString("en-US", {
+            {date.toLocaleTimeString(i18n.resolvedLanguage === "ar" ? "ar-EG" : "en-US", {
               hour: "2-digit",
               minute: "2-digit",
               hour12: true,
@@ -160,7 +160,7 @@ function ExpandedMessage({ language, value }) {
   return (
     <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-        {language} {t("message")}
+        {t(isArabic ? "Arabic message" : "English message")}
       </p>
       <p
         dir={isArabic ? "rtl" : "ltr"}
@@ -267,7 +267,7 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
               <ActionButton
                 tone="blue"
                 iconClass="text-blue-700"
-                label={`Send notification ${label} now`}
+                label={t("Send notification {{name}} now", { name: label })}
                 title={isSendingThis ? t("Sending...") : t("Send now")}
                 disabled={isSending}
                 aria-busy={isSendingThis}
@@ -282,7 +282,7 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
             {canEdit && (
               <ActionButton
                 tone="blue"
-                label={`Edit notification ${label}`}
+                label={t("Edit notification {{name}}", { name: label })}
                 title={t("Edit notification")}
                 onClick={(event) => {
                   event.stopPropagation();
@@ -296,7 +296,7 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
               <ActionButton
                 tone={isActive === false ? "green" : "amber"}
                 iconClass={isActive === true ? "text-blue-700" : "text-slate-400"}
-                label={`${isActive === true ? "Deactivate" : isActive === false ? "Activate" : "Toggle status of"} notification ${label}`}
+                label={t(isActive === true ? "Deactivate notification {{name}}" : isActive === false ? "Activate notification {{name}}" : "Toggle status of notification {{name}}", { name: label })}
                 title={
                   isActive === true
                     ? t("Deactivate notification")
@@ -316,7 +316,7 @@ function NotificationRow({ notification, expanded, onToggle, canEdit, onEdit, ca
             {canDelete && (
               <ActionButton
                 tone="red"
-                label={`Delete notification ${label}`}
+                label={t("Delete notification {{name}}", { name: label })}
                 title={t("Delete notification")}
                 onClick={(event) => {
                   event.stopPropagation();

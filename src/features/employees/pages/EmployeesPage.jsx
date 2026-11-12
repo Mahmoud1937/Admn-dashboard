@@ -1,4 +1,5 @@
 import LocalizedPage from "../../../localization/LocalizedPage";
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useServerPagination } from "../../../shared/hooks/useServerPagination";
@@ -37,7 +38,7 @@ const getEmployeeLabel = (employee) =>
   [employee?.firstName, employee?.lastName].filter(Boolean).join(" ") ||
   employee?.employeeName ||
   employee?.name ||
-  "this employee";
+  localizeMessage("this employee");
 
 const extractPassword = (response) => {
   const data = response?.data;
@@ -259,9 +260,7 @@ export default function EmployeesPage() {
           isOpen
           variant={employeePendingToggle.isBlocked ? "success" : "danger"}
           title={employeePendingToggle.isBlocked ? t("Activate employee?") : t("Block employee?")}
-          message={`Are you sure you want to ${
-            employeePendingToggle.isBlocked ? "activate" : "block"
-          } ${getEmployeeLabel(employeePendingToggle)}?`}
+          message={t(employeePendingToggle.isBlocked ? "Are you sure you want to activate {{name}}?" : "Are you sure you want to block {{name}}?", { name: getEmployeeLabel(employeePendingToggle) })}
           confirmLabel={employeePendingToggle.isBlocked ? t("Activate") : t("Block")}
           isLoading={toggleMutation.isPending}
           onConfirm={confirmToggleStatus}
@@ -274,9 +273,7 @@ export default function EmployeesPage() {
           isOpen
           variant="danger"
           title={t("Reset password?")}
-          message={`A new password will be generated for ${getEmployeeLabel(
-            employeePendingReset
-          )} and the current one will stop working immediately.`}
+          message={t("A new password will be generated for {{name}} and the current one will stop working immediately.", { name: getEmployeeLabel(employeePendingReset) })}
           confirmLabel={t("Reset Password")}
           isLoading={resetMutation.isPending}
           onConfirm={confirmResetPassword}

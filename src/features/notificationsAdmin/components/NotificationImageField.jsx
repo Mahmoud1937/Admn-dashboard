@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -50,6 +51,7 @@ export default function NotificationImageField({
         id={id}
         name={name}
         type="file"
+        aria-label={t("Choose Image")}
         accept="image/jpeg,image/png,image/webp"
         ref={(element) => {
           fileInputRef.current = element;
@@ -63,12 +65,16 @@ export default function NotificationImageField({
         disabled={disabled}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-help ${id}-error` : `${id}-help`}
-        className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:font-medium file:text-blue-900 hover:file:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+        className="peer sr-only"
       />
+      <label htmlFor={id} className={`flex items-center gap-3 rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-700 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-400 ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
+        <span className="shrink-0 rounded-md bg-blue-50 px-3 py-2 font-medium text-blue-900">{t("Choose Image")}</span>
+        <span dir="auto" className="truncate">{value instanceof File ? value.name : t("No file chosen")}</span>
+      </label>
       <p id={`${id}-help`} className="text-xs text-gray-500">{t("JPG, PNG, or WebP. Maximum 5 MB.")}</p>
       {currentImageUrl && !imageRemoved && <p className="text-xs text-gray-500">{t("Choose a new image to replace the current one, or remove it below.")}</p>}
       {imageRemoved && <p role="status" className="text-xs text-gray-500">{t("Image removed from this form.")}</p>}
-      {error && <p id={`${id}-error`} role="alert" className="text-xs text-red-600">{error}</p>}
+      {error && <p id={`${id}-error`} role="alert" className="text-xs text-red-600">{localizeMessage(error)}</p>}
       {previewUrl && <img src={previewUrl} alt={t("Notification image preview")} className="max-h-40 rounded-xl border border-gray-200 object-contain" />}
       <div className="flex flex-wrap items-center gap-3">
         {(value || (currentImageUrl && !imageRemoved)) && (

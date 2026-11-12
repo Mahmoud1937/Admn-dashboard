@@ -11,6 +11,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "test:providers-localization": "node scripts/verifyProvidersLocalization.mjs",
+    "test:localization": "node scripts/verifyLocalization.mjs",
+    "test:localization:browser": "node scripts/verifyLocalizationBrowser.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

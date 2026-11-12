@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { CheckCircle2, Clock, FileText, X } from "lucide-react";
 import { useInvoiceTimeline } from "../hooks/useInvoiceTimeline";
@@ -39,7 +40,7 @@ export default function TimelineModal({ orderNo, onClose }) {
               <span className="text-emerald-600 font-semibold">#{orderNo}</span>
             </p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+          <button onClick={onClose} aria-label={t("Close")} className="text-slate-400 hover:text-slate-600 transition-colors">
             <X size={18} />
           </button>
         </div>
@@ -49,7 +50,7 @@ export default function TimelineModal({ orderNo, onClose }) {
             {loading && <SkeletonText label={t("Loading timeline...")} lines={4} />}
 
             {!loading && error && (
-              <p className="text-sm text-red-500 py-4">{t("Failed to load timeline:")} {error}</p>
+              <p className="text-sm text-red-500 py-4">{t("Failed to load timeline:")} {localizeMessage(error)}</p>
             )}
 
             {!loading && !error && steps.length === 0 && (
@@ -62,13 +63,13 @@ export default function TimelineModal({ orderNo, onClose }) {
                   const isUsed = step.icon === "check" || step.tagColor === "green" || step.tagColor === "blue";
 
                   return (
-                    <div key={i} className="relative pb-4 last:pb-0 pl-9">
+                    <div key={i} className="relative pb-4 last:pb-0 ps-9">
                       {i < steps.length - 1 && (
-                        <div className="absolute top-8 bottom-0 left-[15px] w-px bg-slate-200" />
+                        <div className="absolute top-8 bottom-0 start-[15px] w-px bg-slate-200" />
                       )}
 
                       <div
-                        className={`absolute top-0 left-0 w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                        className={`absolute top-0 start-0 w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                           CIRCLE_STYLES[step.tagColor] || CIRCLE_STYLES.blue
                         }`}
                       >
@@ -91,7 +92,7 @@ export default function TimelineModal({ orderNo, onClose }) {
                             TAG_STYLES[step.tagColor] || TAG_STYLES.blue
                           }`}
                         >
-                          {step.tag}
+                          {localizeMessage(step.tag)}
                         </span>
                       </div>
                     </div>

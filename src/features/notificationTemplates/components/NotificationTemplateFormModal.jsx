@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -77,8 +78,8 @@ function PlaceholderChips({ names, onInsert, disabled }) {
           type="button"
           disabled={disabled}
           onClick={() => onInsert(`{{${name}}}`)}
-          title={`Inserts {{${name}}}`}
-          aria-label={`Insert variable ${formatPlaceholderName(name)}`}
+          title={t("Inserts {{variable}}", { variable: `{{${name}}}` })}
+          aria-label={t("Insert variable {{name}}", { name: formatPlaceholderName(name) })}
           className="group inline-flex items-center gap-1 rounded-full border border-[#1b4477]/15 bg-gradient-to-b from-white to-blue-50/60 px-2.5 py-1 text-[11px] font-medium text-[#1b4477] shadow-sm transition-all hover:-translate-y-px hover:border-[#2caba2]/60 hover:from-[#2caba2]/5 hover:to-[#2caba2]/15 hover:text-[#13705f] hover:shadow focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#1b4477] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
         >
           <FontAwesomeIcon icon={faPlus} className="text-[9px] opacity-50 transition-opacity group-hover:opacity-100" aria-hidden="true" />
@@ -249,7 +250,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                     className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-800 outline-none transition-colors focus:border-[#1b4477] focus:ring-2 focus:ring-[#1b4477]/15 ${errors.notificationEvent ? "border-red-400" : "border-gray-300"}`}
                   >
                     <option value="">{t("Select event")}</option>
-                    {NOTIFICATION_EVENTS.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
+                    {NOTIFICATION_EVENTS.map(({ value, label }) => <option key={value} value={value}>{t(label)}</option>)}
                   </select>
                   {event && (
                     <div className="mt-2">
@@ -259,12 +260,12 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                       </EventBadge>
                     </div>
                   )}
-                  {errors.notificationEvent && <p id="template-event-error" role="alert" className="mt-1 text-xs text-red-500">{errors.notificationEvent.message}</p>}
+                  {errors.notificationEvent && <p id="template-event-error" role="alert" className="mt-1 text-xs text-red-500">{localizeMessage(errors.notificationEvent.message)}</p>}
                 </div>
               )}
 
               <div>
-                <TextField label={t("Title")} required sanitize={false} maxLength={null} placeholder={t("e.g. Invoice used successfully")} {...register("title")} error={errors.title?.message} />
+                <TextField label={t("Title")} required sanitize={false} maxLength={null} placeholder={t("e.g. Invoice used successfully")} {...register("title")} error={localizeMessage(errors.title?.message)} />
                 <div className="mt-1 flex justify-end">
                   <CharCounter id="template-title-count" length={(title ?? "").length} recommended={TITLE_RECOMMENDED} />
                 </div>
@@ -316,7 +317,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                     <PlaceholderChips names={placeholders} onInsert={(text) => insertPlaceholder("messageAr", text)} disabled={mutation.isPending} />
                     <CharCounter id="template-message-ar-count" length={(messageAr ?? "").length} recommended={MESSAGE_RECOMMENDED} />
                   </div>
-                  {errors.messageAr && <p id="template-message-ar-error" role="alert" className="mt-1 text-xs text-red-500">{errors.messageAr.message}</p>}
+                  {errors.messageAr && <p id="template-message-ar-error" role="alert" className="mt-1 text-xs text-red-500">{localizeMessage(errors.messageAr.message)}</p>}
                 </div>
 
                 <div>
@@ -342,7 +343,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                     <PlaceholderChips names={placeholders} onInsert={(text) => insertPlaceholder("messageEn", text)} disabled={mutation.isPending} />
                     <CharCounter id="template-message-en-count" length={(messageEn ?? "").length} recommended={MESSAGE_RECOMMENDED} />
                   </div>
-                  {errors.messageEn && <p id="template-message-en-error" role="alert" className="mt-1 text-xs text-red-500">{errors.messageEn.message}</p>}
+                  {errors.messageEn && <p id="template-message-en-error" role="alert" className="mt-1 text-xs text-red-500">{localizeMessage(errors.messageEn.message)}</p>}
                 </div>
               </div>
               <p className="text-xs leading-relaxed text-gray-500">
@@ -360,6 +361,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                   <input
                     id="template-image-file"
                     type="file"
+                    aria-label={t("Choose Image")}
                     accept="image/jpeg,image/png,image/webp"
                     name={field.name}
                     ref={(element) => {
@@ -374,12 +376,16 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
                     disabled={mutation.isPending}
                     aria-invalid={Boolean(errors.imageUrl)}
                     aria-describedby={errors.imageUrl ? "template-image-help template-image-error" : "template-image-help"}
-                    className="block w-full rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:font-medium file:text-blue-900 hover:file:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="peer sr-only"
                   />
+                  <label htmlFor="template-image-file" className={`flex items-center gap-3 rounded-lg border border-gray-300 bg-white p-2 text-sm text-gray-700 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-400 ${mutation.isPending ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
+                    <span className="shrink-0 rounded-md bg-blue-50 px-3 py-2 font-medium text-blue-900">{t("Choose Image")}</span>
+                    <span dir="auto" className="truncate">{imageUrl instanceof File ? imageUrl.name : t("No file chosen")}</span>
+                  </label>
                   <p id="template-image-help" className="text-xs text-gray-500">{t("JPG, PNG, or WebP. Maximum 5 MB.")}</p>
                   {template?.imageUrl && !imageRemoved && <p className="text-xs text-gray-500">{t("Choose a new image to replace the current one, or remove it below.")}</p>}
                   {imageRemoved && <p role="status" className="text-xs text-gray-500">{t("Image removed from this form.")}</p>}
-                  {errors.imageUrl && <p id="template-image-error" role="alert" className="text-xs text-red-600">{errors.imageUrl.message}</p>}
+                  {errors.imageUrl && <p id="template-image-error" role="alert" className="text-xs text-red-600">{localizeMessage(errors.imageUrl.message)}</p>}
                   {imagePreview ? (
                     <img src={imagePreview} alt={t("Notification image preview")} className="max-h-40 rounded-xl border border-gray-200 object-contain" />
                   ) : template?.imageUrl && !imageRemoved ? (
@@ -405,7 +411,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
 
           {mutation.isError && (
             <p role="alert" className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-600">
-              {getApiErrorMessage(mutation.error, { details: true, fallback: `Unable to ${isEditing ? "update" : "create"} notification template. Please try again.` })}
+              {getApiErrorMessage(mutation.error, { details: true, fallback: t(isEditing ? "Unable to update notification template. Please try again." : "Unable to create notification template. Please try again.") })}
             </p>
           )}
         </fieldset>

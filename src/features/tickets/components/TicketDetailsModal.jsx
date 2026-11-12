@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { useTicketDetailsQuery } from "../hooks/useTicketDetailsQuery";
@@ -46,7 +47,7 @@ export default function TicketDetailsModal({
   isSaving,
   serverErrors,
 }) {
-  const { t } = useTranslation("adminPages");
+  const { t, i18n } = useTranslation("adminPages");
   const { data, isLoading, isError } = useTicketDetailsQuery(
     ticketId,
     !!ticketId
@@ -156,8 +157,9 @@ export default function TicketDetailsModal({
 
       {/* Drawer */}
       <aside
-        className={`absolute inset-y-0 right-0 flex w-full max-w-xl flex-col bg-slate-50 shadow-2xl ring-1 ring-black/5 transition-transform duration-300 ease-out sm:rounded-l-2xl ${
-          isVisible ? "translate-x-0" : "translate-x-full"
+        dir={i18n.dir()}
+        className={`absolute inset-y-0 flex w-full max-w-xl flex-col bg-slate-50 shadow-2xl ring-1 ring-black/5 transition-transform duration-300 ease-out ${i18n.dir() === "rtl" ? "left-0 sm:rounded-r-2xl" : "right-0 sm:rounded-l-2xl"} ${
+          isVisible ? "translate-x-0" : i18n.dir() === "rtl" ? "-translate-x-full" : "translate-x-full"
         }`}
       >
 {/* Header (takes the color of the column the ticket was opened from) */}
@@ -199,7 +201,7 @@ export default function TicketDetailsModal({
     </div>
     {visibleFieldErrors.isClosed && (
       <p className="mt-1 text-xs text-red-500">
-        {visibleFieldErrors.isClosed}
+        {localizeMessage(visibleFieldErrors.isClosed)}
       </p>
     )}
   </div>
@@ -255,7 +257,7 @@ export default function TicketDetailsModal({
                     />
                     {visibleFieldErrors.description && (
                       <p className="mt-1 text-xs text-red-500">
-                        {visibleFieldErrors.description}
+                        {localizeMessage(visibleFieldErrors.description)}
                       </p>
                     )}
                   </>
@@ -294,7 +296,7 @@ export default function TicketDetailsModal({
                   />
                   {visibleFieldErrors.reply && (
                     <p className="mt-1 text-xs text-red-500">
-                      {visibleFieldErrors.reply}
+                      {localizeMessage(visibleFieldErrors.reply)}
                     </p>
                   )}
                 </Section>
@@ -310,7 +312,7 @@ export default function TicketDetailsModal({
 
               {isEditingView && serverErrorMessage && (
                 <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-xs text-red-600">
-                  {serverErrorMessage}
+                  {localizeMessage(serverErrorMessage)}
                 </p>
               )}
             </div>

@@ -1,3 +1,4 @@
+import localizeMessage from "../../../localization/localizeMessage";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -70,14 +71,14 @@ export default function CityFormModal({
         required
         autoFocus
         {...register("enName")}
-        error={errors.enName?.message}
+        error={localizeMessage(errors.enName?.message)}
       />
 
       <TextField
         label={t("Arabic Name")}
         required
         {...register("arName")}
-        error={errors.arName?.message}
+        error={localizeMessage(errors.arName?.message)}
       />
 
       <div className="mb-5">
@@ -99,7 +100,7 @@ export default function CityFormModal({
           )}
         />
         {errors.governorateId && (
-          <p className="mt-1 text-xs text-red-500">{errors.governorateId.message}</p>
+          <p className="mt-1 text-xs text-red-500">{localizeMessage(errors.governorateId.message)}</p>
         )}
       </div>
 
