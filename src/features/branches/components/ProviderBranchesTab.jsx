@@ -269,7 +269,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
           />
         ) : (
           <>
-            <ScrollableTable className="scroll-table">
+            <ScrollableTable className="scroll-table"> 
               <table className="w-full min-w-[960px] text-start text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-100 text-xs font-medium text-slate-500">

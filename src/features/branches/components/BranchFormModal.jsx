@@ -86,7 +86,7 @@ export default function BranchFormModal({
   useEffect(() => {
     if (isOpen) {
       reset(branchToFormValues(branch));
-    }
+    } 
   }, [isOpen, branch, reset]);
 
   const governorateId = watch("governorateId");
