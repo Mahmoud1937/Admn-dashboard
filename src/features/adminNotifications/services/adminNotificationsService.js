@@ -2,7 +2,7 @@ import axiosInstance from "../../../shared/api/axiosInstance";
 import { requireApiSuccess } from "../../../shared/helpers/apiErrorHandler";
 
 export async function getAdminNotifications({ pageNumber = 1, pageSize = 10, isRead, signal } = {}) {
-  const response = await axiosInstance.get("admin/notifications", {
+  const response = await axiosInstance.get("admin/notifications/get-my-notifications", {
     params: { PageNumber: pageNumber, PageSize: pageSize, IsRead: isRead },
     signal,
   });

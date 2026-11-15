@@ -110,7 +110,7 @@ axiosInstance.defaults.adapter = async config => {
       notification.isRead = true;
     }
   }
-  if (config.url === "admin/notifications") {
+  if (config.url === "admin/notifications/get-my-notifications") {
     const pageNumber = config.params?.PageNumber ?? 1;
     const pageSize = config.params?.PageSize ?? 10;
     if (pageNumber > 1) await new Promise(resolve => setTimeout(resolve, 120));
@@ -199,7 +199,7 @@ async function run() {
   assert(panel().querySelector("time") && button("Mark all as read") && !button("Mark all as read").disabled, "API timestamps render and mark-all is available for unread notifications");
   assert(!bell().getAttribute("aria-label").includes("at least"), "Server unread count is exact even with more pages available");
   assert(apiRequests.some(request => request.url === "admin/notifications/unread-count"), "Unread badge uses the dedicated count endpoint");
-  assert(!apiRequests.some(request => request.url === "admin/notifications" && request.params?.PageSize === 1), "List pagination is not used to calculate the unread badge");
+  assert(!apiRequests.some(request => request.url === "admin/notifications/get-my-notifications" && request.params?.PageSize === 1), "List pagination is not used to calculate the unread badge");
   const scroller = () => panel()?.querySelector('[role="region"]');
   const scrollToEnd = () => { scroller().scrollTop = scroller().scrollHeight; };
   assert(panel().querySelectorAll("li").length === 10 && !panel().querySelector("select") && !panel().querySelector('button[aria-label="Next"]'), "Notification inbox initially shows ten records without page controls");
@@ -209,24 +209,24 @@ async function run() {
   assert(panel().querySelectorAll("li").length === 10 && text().includes("API_NOTIFICATION_BODY"), "Loading more preserves the displayed notifications");
   await waitFor(() => text().includes("Couldn't load more notifications."), "Failed incremental loading offers a retry");
   assert(panel().querySelectorAll("li").length === 10 && bell().getAttribute("aria-label").includes("2 unread"), "Load-more failure preserves records and the total unread count");
-  const failedPageRequests = apiRequests.filter(request => request.url === "admin/notifications" && request.params?.PageNumber === 2).length;
+  const failedPageRequests = apiRequests.filter(request => request.url === "admin/notifications/get-my-notifications" && request.params?.PageNumber === 2).length;
   await new Promise(resolve => setTimeout(resolve, 180));
-  assert(apiRequests.filter(request => request.url === "admin/notifications" && request.params?.PageNumber === 2).length === failedPageRequests, "Load-more failure stops automatic retries until requested");
+  assert(apiRequests.filter(request => request.url === "admin/notifications/get-my-notifications" && request.params?.PageNumber === 2).length === failedPageRequests, "Load-more failure stops automatic retries until requested");
   adminListFailurePage = undefined;
   button("Try again").click();
   await waitFor(() => panel()?.querySelectorAll("li").length === 20, "Retry appends the next notification batch");
   assert(text().includes("API_NOTIFICATION_BODY") && text().includes("OLDER_API_NOTIFICATION"), "Incremental loading retains earlier notifications");
-  assert(apiRequests.some(request => request.url === "admin/notifications" && request.params?.PageNumber === 2 && request.params.PageSize === 10), "Incremental loading sends the next page number and fixed page size");
+  assert(apiRequests.some(request => request.url === "admin/notifications/get-my-notifications" && request.params?.PageNumber === 2 && request.params.PageSize === 10), "Incremental loading sends the next page number and fixed page size");
   assert(exact("OLDER_API_NOTIFICATION").closest("button")?.title === "Mark as read", "Unknown unread notification types support reading without a navigation destination");
   scrollToEnd();
   await waitFor(() => panel()?.querySelectorAll("li").length === 23, "Scrolling again appends the final partial batch");
-  const completedListRequests = apiRequests.filter(request => request.url === "admin/notifications").length;
+  const completedListRequests = apiRequests.filter(request => request.url === "admin/notifications/get-my-notifications").length;
   scrollToEnd();
   await new Promise(resolve => setTimeout(resolve, 180));
-  assert(apiRequests.filter(request => request.url === "admin/notifications").length === completedListRequests, "All-loaded metadata stops further requests");
+  assert(apiRequests.filter(request => request.url === "admin/notifications/get-my-notifications").length === completedListRequests, "All-loaded metadata stops further requests");
   button("Unread").click();
   await waitFor(() => panel()?.querySelectorAll("li").length === 2, "Unread filter loads all matching records from the server");
-  assert(apiRequests.some(request => request.url === "admin/notifications" && request.params?.IsRead === false && request.params.PageNumber === 1 && request.params.PageSize === 10), "Unread filter starts its own first batch using IsRead=false");
+  assert(apiRequests.some(request => request.url === "admin/notifications/get-my-notifications" && request.params?.IsRead === false && request.params.PageNumber === 1 && request.params.PageSize === 10), "Unread filter starts its own first batch using IsRead=false");
   assert(scroller().scrollTop === 0, "Changing notification filters resets the list scroll position");
   button("All").click();
   await waitFor(() => panel()?.querySelectorAll("li").length === 23, "All filter restores the loaded notification history");
