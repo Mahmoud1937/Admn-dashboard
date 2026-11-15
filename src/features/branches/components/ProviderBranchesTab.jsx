@@ -274,6 +274,7 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-100 text-xs font-medium text-slate-500">
                     <th className="px-6 py-3 text-start">{tr("Branch")}</th>
+                    {readOnly && <th className="px-4 py-3 text-start">{tr("Provider")}</th>}
                     <th className="px-4 py-3 text-start">{tr("Location")}</th>
                     <th className="px-4 py-3 text-start">{tr("Coordinates")}</th>
                     <th className="px-4 py-3 text-center">{tr("Status")}</th>
@@ -288,6 +289,12 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                   {branches.map((branch) => {
                     const hasCoords =
                       branch.latitude != null && branch.longitude != null;
+                    const providerName = rtl
+                      ? branch.providerNameAr || branch.providerNameEn
+                      : branch.providerNameEn || branch.providerNameAr;
+                    const secondaryProviderName = branch.providerNameAr && branch.providerNameEn
+                      ? rtl ? branch.providerNameEn : branch.providerNameAr
+                      : null;
 
                     return (
                       <tr
@@ -310,6 +317,19 @@ export default function ProviderBranchesTab({ readOnly = false, renderFilterActi
                             </div>
                           </div>
                         </td>
+
+                        {readOnly && (
+                          <td className="px-4 py-3.5 text-start">
+                            <p className="max-w-[240px] truncate font-medium text-slate-800" title={providerName}>
+                              <bdi>{providerName || "-"}</bdi>
+                            </p>
+                            {secondaryProviderName && (
+                              <p className="max-w-[240px] truncate text-xs text-slate-500" title={secondaryProviderName}>
+                                <bdi>{secondaryProviderName}</bdi>
+                              </p>
+                            )}
+                          </td>
+                        )}
 
                         {/* Location */}
                         <td className="px-4 py-3.5 text-start">

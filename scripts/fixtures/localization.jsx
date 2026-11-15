@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import i18n from "../../src/localization/i18n";
 import LanguageProvider from "../../src/localization/LanguageProvider";
 import useLanguage from "../../src/localization/useLanguage";
@@ -24,6 +24,8 @@ import { ticketSchema } from "../../src/features/tickets/schema/ticketSchema";
 import { notificationSchema } from "../../src/features/notificationsAdmin/schema/notificationSchema";
 import { getColumnColorName } from "../../src/features/tickets/utils/ticketColors";
 import { getApiErrorMessage } from "../../src/shared/helpers/apiErrorHandler";
+import Navbar from "../../src/navbar/Navbar";
+import AdminNotificationsMenu from "../../src/navbar/AdminNotificationsMenu";
 import "../../src/index.css";
 
 const checks = [];
@@ -55,20 +57,268 @@ const exact = value => [...document.querySelectorAll("p,th,label,span,h1,h2,h3")
 const invoice = { invoiceId: 42, date: "2026-01-02T13:04:00Z", clientId: 3, clientName: "عميل عربي", providerNameEn: "English Provider", providerNameAr: "مقدم خدمة عربي", status: 1, statusName: "Paid", totalAmount: 123, isMedicineInvoice: false, isCash: true };
 const ticket = { id: 7, userName: "عميل", ticketType: { enName: "Support", arName: "الدعم" }, priority: 2, priorityName: "High", isClosed: false, assignedToGroup: null };
 
+let failNotificationRead = false;
+// eslint-disable-next-line react-refresh/only-export-components
+function AdminNotificationsHarness() {
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: "NEW_TICKET", message: "TICKET_MESSAGE", createdAt: "2026-01-02T13:04:00Z", isRead: false },
+    { id: 2, title: "NEW_PROVIDER", message: "PROVIDER_MESSAGE", createdAt: "invalid", isRead: false },
+    { id: 3, title: "OLDER_NOTIFICATION", isRead: true },
+  ]);
+  return <header className="flex h-16 justify-end px-6"><AdminNotificationsMenu
+    notifications={notifications}
+    onMarkAsRead={async id => {
+      if (failNotificationRead) throw new Error("Fixture read failure");
+      setNotifications(previous => previous.map(item => item.id === id ? { ...item, isRead: true } : item));
+    }}
+    onMarkAllAsRead={async () => {
+      setNotifications(previous => previous.map(item => ({ ...item, isRead: true })));
+    }}
+  /></header>;
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+function NotificationLocation() {
+  return <output data-notification-location>{useLocation().pathname}</output>;
+}
+
 // No live backend requests are made by this fixture.
 const apiRequests = [];
+let adminInboxItems = [];
+let adminUnreadCountOverride;
+let adminReadOutcome = "success";
+let adminReadAllOutcome = "success";
+let adminListFailurePage;
 axiosInstance.defaults.adapter = async config => {
-  apiRequests.push({ url: config.url, language: config.headers.get("Accept-Language") });
+  apiRequests.push({ url: config.url, method: config.method, body: config.data, language: config.headers.get("Accept-Language"), params: config.params });
   let data = { items: [], totalCount: 0, totalPages: 1 };
+  let succeeded = true;
+  if (config.url === "admin/notifications/read-all" && config.method === "patch") {
+    await new Promise(resolve => setTimeout(resolve, 60));
+    succeeded = adminReadAllOutcome !== "error";
+    data = adminReadAllOutcome === "invalid" ? false : 0;
+    if (succeeded && data === 0) adminInboxItems.forEach(item => { item.isRead = true; });
+  }
+  const readId = config.url.match(/^admin\/notifications\/([^/]+)\/read$/)?.[1];
+  if (readId && config.method === "patch") {
+    await new Promise(resolve => setTimeout(resolve, 60));
+    succeeded = adminReadOutcome !== "error";
+    data = adminReadOutcome === "success";
+    if (data) {
+      const notification = adminInboxItems.find(item => String(item.id) === decodeURIComponent(readId));
+      if (!notification) throw new Error("Unknown fixture notification ID");
+      notification.isRead = true;
+    }
+  }
+  if (config.url === "admin/notifications") {
+    const pageNumber = config.params?.PageNumber ?? 1;
+    const pageSize = config.params?.PageSize ?? 10;
+    if (pageNumber > 1) await new Promise(resolve => setTimeout(resolve, 120));
+    const records = typeof config.params?.IsRead === "boolean"
+      ? adminInboxItems.filter(item => item.isRead === config.params.IsRead)
+      : adminInboxItems;
+    data = { items: records.slice((pageNumber - 1) * pageSize, pageNumber * pageSize), pageNumber, pageSize, totalCount: records.length, totalPages: Math.ceil(records.length / pageSize) };
+    if (pageNumber === adminListFailurePage) { succeeded = false; data = null; }
+  }
+  if (config.url === "admin/notifications/unread-count") data = adminUnreadCountOverride ?? adminInboxItems.filter(item => !item.isRead).length;
   if (/TermsAndConditions|terms-and-conditions|RefundPolicy|refund-policy|PrivacyPolicy|privacy-policy/i.test(config.url)) data = { descriptionEn: "<p>ENGLISH_LEGAL_CONTENT</p>", descriptionAr: "<p>محتوى قانوني عربي</p>" };
   if (/contact/i.test(config.url)) data = { phoneNumber: "01012345678", email: "contact@example.test", whatsApp: "01012345678", faceBook: "https://facebook.com/test" };
-  return { data: { succeeded: true, data }, status: 200, statusText: "OK", headers: {}, config };
+  return { data: { succeeded, data }, status: 200, statusText: "OK", headers: {}, config };
 };
 
 async function run() {
   // Authentication is local to the fixture and has no real account identity.
   localStorage.setItem("token", `header.${btoa(JSON.stringify({ exp: 4102444800, employeeId: 1 }))}.signature`);
   await i18n.changeLanguage("en");
+
+  await render(<Navbar />, true);
+  const bell = () => document.querySelector('button[aria-haspopup="dialog"]');
+  const panel = () => document.querySelector('[role="dialog"]');
+  assert(bell()?.getAttribute("aria-label") === "Admin notifications", "Navbar contains the admin notification bell without a fake unread badge");
+  bell().click();
+  await waitFor(panel, "Notification dropdown opens");
+  await waitFor(() => text().includes("No notifications yet"), "Empty admin API inbox displays an empty state");
+  assert(button("Mark all as read")?.disabled, "Mark all read is disabled when the unread count is zero");
+  await changeLanguage("ar");
+  assert(panel()?.dir === "rtl" && text().includes("لا توجد إشعارات حاليًا"), "Open notification dropdown follows Arabic language and direction");
+  const bounds = panel().getBoundingClientRect();
+  assert(bounds.left >= 0 && bounds.right <= window.innerWidth, "Notification panel fits the viewport");
+  panel().dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  await waitFor(() => !panel(), "Escape closes notification dropdown");
+  assert(document.activeElement === bell(), "Closing notifications returns keyboard focus to the bell");
+  bell().click();
+  await waitFor(panel, "Notification dropdown reopens");
+  document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+  await waitFor(() => !panel(), "Outside click closes notification dropdown");
+  await changeLanguage("en");
+
+  await render(<AdminNotificationsHarness />);
+  assert(bell().getAttribute("aria-label").includes("2 unread"), "Notification badge announces the unread count");
+  bell().click();
+  await waitFor(panel, "Populated notification dropdown opens");
+  assert(panel().querySelectorAll("li").length === 3, "All notifications are displayed");
+  assert(panel().querySelectorAll("time").length === 1, "Malformed notification dates do not break rendering");
+  button("Unread").click();
+  await pause();
+  assert(panel().querySelectorAll("li").length === 2 && !text().includes("OLDER_NOTIFICATION"), "Unread filter hides read notifications");
+  failNotificationRead = true;
+  exact("NEW_TICKET").closest("button").click();
+  await waitFor(() => text().includes("Couldn't mark notifications as read"), "Read failures surface a localized error");
+  assert(bell().getAttribute("aria-label").includes("2 unread"), "Read failure preserves the unread count");
+  failNotificationRead = false;
+  exact("NEW_TICKET").closest("button").click();
+  await waitFor(() => bell().getAttribute("aria-label").includes("1 unread"), "Read action updates the badge after success");
+  assert(panel().querySelectorAll("li").length === 1, "Read notification leaves the unread filter");
+  button("Mark all as read").click();
+  await waitFor(() => text().includes("All caught up!"), "Mark all read clears the unread list");
+  assert(bell().getAttribute("aria-label") === "Admin notifications", "Zero unread notifications removes the badge count");
+  button("All").click();
+  await pause();
+  assert(panel().querySelectorAll("li").length === 3, "Mark all read retains notification history");
+
+  await render(<AdminNotificationsMenu key="loading" isLoading />);
+  bell().click();
+  await waitFor(() => text().includes("Loading notifications..."), "Notification loading state");
+  let notificationRetries = 0;
+  await render(<AdminNotificationsMenu key="error" error={new Error("Fixture load failure")} onRetry={() => { notificationRetries++; }} />);
+  bell().click();
+  await waitFor(() => text().includes("Couldn't load notifications"), "Notification error state");
+  button("Try again").click();
+  assert(notificationRetries === 1, "Notification retry invokes the supplied loader");
+  await render(<AdminNotificationsMenu key="capped" unreadCount={125} />);
+  assert(bell().textContent.includes("99+") && bell().getAttribute("aria-label").includes("125 unread"), "Large unread badges are capped visually while announcing the full count");
+
+  adminInboxItems = Array.from({ length: 23 }, (_, index) => ({ id: 50 - index, type: "OtherEvent", title: `API_NOTIFICATION_${index}`, isRead: true }));
+  adminInboxItems[0] = { id: 5, type: "ManualPrescriptionCreated", referenceId: 60, title: "API_PRESCRIPTION", body: "API_NOTIFICATION_BODY", isRead: false, createdAt: "2026-11-15T11:12:52.7384353" };
+  adminInboxItems[10] = { id: 4, type: "OtherEvent", referenceId: 59, title: "OLDER_API_NOTIFICATION", body: "OLDER_API_BODY", isRead: false, createdAt: "2026-11-15T10:40:16.6658843" };
+  client.removeQueries({ queryKey: ["admin-notifications"] });
+  await render(<><Navbar /><NotificationLocation /></>, true);
+  await waitFor(() => bell()?.getAttribute("aria-label").includes("2 unread"), "Connected inbox fetches the total unread count before loading all pages");
+  bell().click();
+  await waitFor(() => text().includes("API_NOTIFICATION_BODY"), "Connected inbox maps API body into the message");
+  assert(panel().querySelector("time") && button("Mark all as read") && !button("Mark all as read").disabled, "API timestamps render and mark-all is available for unread notifications");
+  assert(!bell().getAttribute("aria-label").includes("at least"), "Server unread count is exact even with more pages available");
+  assert(apiRequests.some(request => request.url === "admin/notifications/unread-count"), "Unread badge uses the dedicated count endpoint");
+  assert(!apiRequests.some(request => request.url === "admin/notifications" && request.params?.PageSize === 1), "List pagination is not used to calculate the unread badge");
+  const scroller = () => panel()?.querySelector('[role="region"]');
+  const scrollToEnd = () => { scroller().scrollTop = scroller().scrollHeight; };
+  assert(panel().querySelectorAll("li").length === 10 && !panel().querySelector("select") && !panel().querySelector('button[aria-label="Next"]'), "Notification inbox initially shows ten records without page controls");
+  adminListFailurePage = 2;
+  scrollToEnd();
+  await waitFor(() => text().includes("Loading more notifications..."), "Scrolling to the end shows the incremental loading indicator");
+  assert(panel().querySelectorAll("li").length === 10 && text().includes("API_NOTIFICATION_BODY"), "Loading more preserves the displayed notifications");
+  await waitFor(() => text().includes("Couldn't load more notifications."), "Failed incremental loading offers a retry");
+  assert(panel().querySelectorAll("li").length === 10 && bell().getAttribute("aria-label").includes("2 unread"), "Load-more failure preserves records and the total unread count");
+  const failedPageRequests = apiRequests.filter(request => request.url === "admin/notifications" && request.params?.PageNumber === 2).length;
+  await new Promise(resolve => setTimeout(resolve, 180));
+  assert(apiRequests.filter(request => request.url === "admin/notifications" && request.params?.PageNumber === 2).length === failedPageRequests, "Load-more failure stops automatic retries until requested");
+  adminListFailurePage = undefined;
+  button("Try again").click();
+  await waitFor(() => panel()?.querySelectorAll("li").length === 20, "Retry appends the next notification batch");
+  assert(text().includes("API_NOTIFICATION_BODY") && text().includes("OLDER_API_NOTIFICATION"), "Incremental loading retains earlier notifications");
+  assert(apiRequests.some(request => request.url === "admin/notifications" && request.params?.PageNumber === 2 && request.params.PageSize === 10), "Incremental loading sends the next page number and fixed page size");
+  assert(exact("OLDER_API_NOTIFICATION").closest("button")?.title === "Mark as read", "Unknown unread notification types support reading without a navigation destination");
+  scrollToEnd();
+  await waitFor(() => panel()?.querySelectorAll("li").length === 23, "Scrolling again appends the final partial batch");
+  const completedListRequests = apiRequests.filter(request => request.url === "admin/notifications").length;
+  scrollToEnd();
+  await new Promise(resolve => setTimeout(resolve, 180));
+  assert(apiRequests.filter(request => request.url === "admin/notifications").length === completedListRequests, "All-loaded metadata stops further requests");
+  button("Unread").click();
+  await waitFor(() => panel()?.querySelectorAll("li").length === 2, "Unread filter loads all matching records from the server");
+  assert(apiRequests.some(request => request.url === "admin/notifications" && request.params?.IsRead === false && request.params.PageNumber === 1 && request.params.PageSize === 10), "Unread filter starts its own first batch using IsRead=false");
+  assert(scroller().scrollTop === 0, "Changing notification filters resets the list scroll position");
+  button("All").click();
+  await waitFor(() => panel()?.querySelectorAll("li").length === 23, "All filter restores the loaded notification history");
+  assert(panel().scrollWidth <= panel().clientWidth, "Incremental notification list fits the dropdown");
+  await changeLanguage("ar");
+  await waitFor(() => panel()?.querySelectorAll("li").length === 10, "Language switching starts the localized notification list");
+  scrollToEnd();
+  await waitFor(() => text().includes("جارٍ تحميل المزيد من الإشعارات..."), "Incremental loading indicator follows Arabic translation");
+  await waitFor(() => panel()?.querySelectorAll("li").length === 20, "Arabic notifications append on scroll");
+  assert(panel().dir === "rtl" && panel().scrollWidth <= panel().clientWidth, "Arabic incremental loading fits the dropdown");
+  await changeLanguage("en");
+  await waitFor(() => text().includes("API_NOTIFICATION_BODY") && scroller()?.getAttribute("aria-busy") === "false", "Notification list switches back to English");
+  for (const outcome of ["error", "false"]) {
+    adminReadOutcome = outcome;
+    exact("API_PRESCRIPTION").closest("button").focus();
+    exact("API_PRESCRIPTION").closest("button").click();
+    await pause();
+    await waitFor(() => text().includes("Couldn't mark notifications as read") && !exact("API_PRESCRIPTION").closest("button").disabled, `API read failure is displayed for ${outcome} response`);
+    assert(document.querySelector("[data-notification-location]").textContent === "/" && bell().getAttribute("aria-label").includes("2 unread"), `Failed ${outcome} response preserves unread count and prevents navigation`);
+    assert(adminInboxItems[0].isRead === false, `Failed ${outcome} response leaves the notification unread`);
+  }
+  adminReadOutcome = "success";
+  exact("API_PRESCRIPTION").closest("button").click();
+  await waitFor(() => document.querySelector("[data-notification-location]")?.textContent === "/prescriptions/60", "Prescription notification opens its referenced details page");
+  assert(!panel(), "Notification navigation closes the dropdown");
+  assert(apiRequests.some(request => request.url === "admin/notifications/5/read" && request.method === "patch" && request.body == null), "Read mutation sends PATCH using notification ID rather than prescription reference ID, with no body");
+  assert(bell().getAttribute("aria-label").includes("1 unread") && adminInboxItems[0].isRead === true, "Successful read refreshes the unread badge before navigation");
+  const readRequestCount = () => apiRequests.filter(request => request.url === "admin/notifications/5/read" && request.method === "patch").length;
+  const previousReadRequests = readRequestCount();
+  bell().click();
+  await waitFor(panel, "Read notification history reopens");
+  assert(exact("API_PRESCRIPTION").closest("li").querySelector(".sr-only") === null, "Read notification loses its unread indicator in the full inbox");
+  exact("API_PRESCRIPTION").closest("button").click();
+  await waitFor(() => !panel(), "Already-read notification opens its details");
+  assert(readRequestCount() === previousReadRequests, "Already-read notification does not send a duplicate PATCH");
+  bell().click();
+  await waitFor(panel, "Unread list reopens");
+  button("Unread").click();
+  await waitFor(() => panel()?.querySelectorAll("li").length === 1, "Read mutation refreshes the cached unread filter");
+  exact("OLDER_API_NOTIFICATION").closest("button").focus();
+  exact("OLDER_API_NOTIFICATION").closest("button").click();
+  await waitFor(() => text().includes("All caught up!"), "Reading an informational notification removes it from the unread filter");
+  assert(panel() && document.querySelector("[data-notification-location]").textContent === "/prescriptions/60", "Reading an informational notification preserves the open menu and current route");
+  assert(bell().getAttribute("aria-label") === "Admin notifications", "Reading the final unread notification clears the badge");
+
+  adminInboxItems = Array.from({ length: 11 }, (_, index) => ({ id: 200 + index, type: "OtherEvent", title: index === 10 ? "LAST_PAGE_UNREAD" : `UNREAD_PAGE_ITEM_${index}`, isRead: false }));
+  scroller().scrollTop = 0;
+  await client.invalidateQueries({ queryKey: ["admin-notifications"] });
+  await waitFor(() => panel()?.querySelectorAll("li").length === 10, "Refreshed unread list loads its first batch");
+  scrollToEnd();
+  await waitFor(() => text().includes("LAST_PAGE_UNREAD"), "Scrolling appends the final unread notification");
+  exact("LAST_PAGE_UNREAD").closest("button").focus();
+  exact("LAST_PAGE_UNREAD").closest("button").click();
+  await waitFor(() => !text().includes("LAST_PAGE_UNREAD") && panel()?.querySelectorAll("li").length === 10, "Reading the final batch item refreshes the remaining unread list");
+  assert(bell().getAttribute("aria-label").includes("10 unread"), "Final-page read keeps the server unread count accurate");
+  adminUnreadCountOverride = 0;
+  await client.invalidateQueries({ predicate: query => query.queryKey[0] === "admin-notifications" && query.queryKey[3] === "unread-count" });
+  await waitFor(() => bell()?.getAttribute("aria-label") === "Admin notifications", "Zero returned by the unread-count endpoint clears the badge independently of the current page");
+  adminUnreadCountOverride = undefined;
+  adminInboxItems = Array.from({ length: 23 }, (_, index) => ({ id: 300 + index, type: "OtherEvent", title: `BULK_READ_ITEM_${index}`, isRead: false }));
+  scroller().scrollTop = 0;
+  await client.invalidateQueries({ queryKey: ["admin-notifications"] });
+  await waitFor(() => text().includes("BULK_READ_ITEM_0") && bell()?.getAttribute("aria-label").includes("23 unread"), "Bulk-read fixture refreshes notifications across multiple batches");
+  scrollToEnd();
+  await waitFor(() => text().includes("BULK_READ_ITEM_10"), "Bulk-read action is available beyond the first page");
+  const markAllButton = () => button("Mark all as read");
+  for (const outcome of ["error", "invalid"]) {
+    adminReadAllOutcome = outcome;
+    markAllButton().focus();
+    markAllButton().click();
+    await pause();
+    await waitFor(() => text().includes("Couldn't mark notifications as read") && !markAllButton()?.disabled, `Bulk-read ${outcome} response offers a retry`);
+    assert(panel() && bell().getAttribute("aria-label").includes("23 unread") && adminInboxItems.every(item => !item.isRead), `Bulk-read ${outcome} response preserves the unread list and count`);
+  }
+  adminReadAllOutcome = "success";
+  markAllButton().focus();
+  markAllButton().click();
+  await pause();
+  assert(markAllButton()?.disabled, "Mark all read is disabled while the request is pending");
+  const bulkRequestCount = apiRequests.filter(request => request.url === "admin/notifications/read-all").length;
+  markAllButton().click();
+  assert(apiRequests.filter(request => request.url === "admin/notifications/read-all").length === bulkRequestCount, "Pending bulk-read action prevents duplicate PATCH requests");
+  await waitFor(() => text().includes("All caught up!") && bell()?.getAttribute("aria-label") === "Admin notifications", "Successful bulk-read response with data zero clears the unread list and badge");
+  assert(apiRequests.some(request => request.url === "admin/notifications/read-all" && request.method === "patch" && request.body == null), "Mark all read sends a single PATCH endpoint with no body");
+  assert(adminInboxItems.every(item => item.isRead) && markAllButton()?.disabled, "Bulk read updates every page and disables the action at zero unread");
+  assert(panel() && document.querySelector("[data-notification-location]").textContent === "/prescriptions/60", "Bulk read preserves the open dropdown and current route");
+  button("All").click();
+  await waitFor(() => text().includes("BULK_READ_ITEM_0") && scroller()?.getAttribute("aria-busy") === "false", "Bulk read retains notification history in All");
+  assert(panel().querySelectorAll("li .sr-only").length === 0, "Bulk-read history contains no unread indicators");
+  adminInboxItems = [];
+  adminUnreadCountOverride = undefined;
+
   await render(<InvoicesTable invoices={[invoice]} isLoading={false} />);
   assert(exact("Invoice") && exact("Client"), "English invoice headers");
   assert(getComputedStyle(exact(invoice.providerNameEn)).textAlign === "left", "English provider name aligns left in English");

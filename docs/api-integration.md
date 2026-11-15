@@ -135,6 +135,10 @@ Sources: [provider categories](../src/features/categoreis/service/categoryServic
 | `/PlanTypeAdmin`; `/PlanTypeAdmin/{id}`; `/PlanTypeAdmin/{id}/toggle-active` | GET list with search and page fields; POST/PUT bilingual name/description, `priceBefore`, `discountPercentage`; DELETE and PATCH status toggle |
 | `/SliderAdmin`; `/SliderAdmin/{id}` | GET list/detail; list uses `PageNumber`, `PageSize`, `ProviderName`; POST/PUT multipart `ProviderId` and English/Arabic images; PUT includes `Id` and image-change flags; DELETE by ID |
 | `admin/notification-marketing`; `admin/notification-marketing/{notificationId}` | GET list, POST notification payload, DELETE by ID |
+| `admin/notifications` | GET incoming admin notifications with `PageNumber`, `PageSize`, optional boolean `IsRead`; reads `data.items`, `pageNumber`, `pageSize`, `totalCount`, `totalPages` for server pagination. |
+| `admin/notifications/unread-count` | GET the total unread count as numeric `data`, independently of the selected list page, size, and filter. |
+| `admin/notifications/{notificationId}/read` | PATCH with the notification ID in the path and no request body; requires successful response with `data: true`, then refreshes that employee's notification lists and unread count. |
+| `admin/notifications/read-all` | PATCH with no request body; accepts nonnegative numeric `data` including `0` on success, then refreshes that employee's notification lists and unread count. |
 | `/AdminLookup/packages` | GET with no query parameters; client filters and paginates the returned array locally |
 
 The [notification schema](../src/features/notificationsAdmin/schema/notificationSchema.js) maps form values to POST fields `title`, `messageEn`, `messageAr`, nullable `imageUrl`, `isMale`, `governmentId`, `targetId`, `durationDay`, numeric `targetType`, and nullable `scheduledAt`. Backend delivery and scheduling semantics are unverified.

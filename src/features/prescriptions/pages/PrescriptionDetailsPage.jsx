@@ -60,6 +60,8 @@ function PrescriptionImagePanel({ prescription, onRefresh, isRefreshing }) {
           <img
             src={prescription.imageUrl}
             alt={t("Prescription #{{id}}", { id: prescription.id })}
+            loading="lazy"
+            decoding="async"
             onError={() => setHasError(true)}
             className="max-h-full max-w-full rounded-lg object-contain shadow-sm"
           />
