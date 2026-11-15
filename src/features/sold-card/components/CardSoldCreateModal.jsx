@@ -11,6 +11,7 @@ import { getApiErrorMessage } from "../../../shared/helpers/apiErrorHandler";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
 import ImageUploadField from "../../../shared/components/ImageUploadField";
+import NumberInput from "../../../shared/components/NumberInput";
 
 const defaultValues = (mode) => ({
   mode,
@@ -117,6 +118,8 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
       });
     }
   };
+  const countField = register("count", { valueAsNumber: true });
+  const clientNameField = register("clientName");
 
   return (
     <FormModalShell
@@ -152,17 +155,13 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
           <label className="block text-sm font-medium text-gray-700 mb-1">
             {t("Count")} <span className="text-red-500">*</span>
           </label>
-          <input
+          <NumberInput
             type="number"
-        
-         
-            {...register("count", { valueAsNumber: true ,    onChange: (e) => {
-      const value = Number(e.target.value);
-
-      if (value > 10000) {
-        e.target.value = "10000";
-      }
-    },})}
+            {...countField}
+            onChange={(event) => {
+              if (Number(event.target.value) > 10000) event.target.value = "10000";
+              countField.onChange(event);
+            }}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="1 - 10,000"
           />
@@ -183,7 +182,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
           <div className="space-y-2">
             {fields.map((field, index) => (
               <div key={field.id} className="flex items-center gap-2">
-                <input
+                <NumberInput
                   type="text"
                   inputMode="numeric"
                   maxLength={12}
@@ -236,7 +235,17 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
         </label>
         <input
           type="text"
-          {...register("clientName")}
+          {...clientNameField}
+          onKeyDown={(event) => {
+            if (!event.ctrlKey && !event.metaKey && !event.altKey && event.key.length === 1 &&
+                !/^[\p{L}\p{M} ]$/u.test(event.key)) {
+              event.preventDefault();
+            }
+          }}
+          onChange={(event) => {
+            event.target.value = event.target.value.replace(/[^\p{L}\p{M} ]/gu, "");
+            clientNameField.onChange(event);
+          }}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder={t("Client name")}
         />
@@ -249,8 +258,9 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
         <label className="block text-sm font-medium text-gray-700 mb-1">
           {t("Client Phone")} <span className="text-red-500">*</span>
         </label>
-        <input
-          type="text"
+        <NumberInput
+          type="tel"
+          maxLength={11}
           {...register("clientPhone")}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder={t("01xxxxxxxxx")}

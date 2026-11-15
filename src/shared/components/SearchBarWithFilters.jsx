@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
+import NumberInput from "./NumberInput";
 
 export default function SearchBarWithFilters({
   value,
@@ -14,10 +15,12 @@ export default function SearchBarWithFilters({
   showFilterButton = true,
   filterLabel,
   rtl,
+  numericOnly = false,
   children,
 }) {
   const { t, i18n } = useTranslation("common");
   rtl ??= i18n.dir() === "rtl";
+  const Input = numericOnly ? NumberInput : "input";
   return (
     <div
       className={`flex items-center gap-3 border-b border-slate-200 p-4 ${
@@ -30,7 +33,7 @@ export default function SearchBarWithFilters({
             icon={faSearch}
             className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${rtl ? "right-4" : "left-4"}`}
           />
-          <input
+          <Input
             type="text"
             value={value}
             onChange={(e) => onChange(e.target.value)}

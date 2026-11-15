@@ -1,4 +1,5 @@
 import localizeMessage from "../../../localization/localizeMessage";
+import NumberInput from "../../../shared/components/NumberInput";
 import { getActiveLanguage } from "../../../localization/i18n";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
@@ -383,7 +384,7 @@ function DeliverySection({
           hint={t("For example, 3 repeats the notification after 3 days. Leave empty to send it once.")}
         >
           <div className="relative max-w-[220px]">
-            <input
+            <NumberInput
               id="notification-duration"
               aria-invalid={!!errors.durationDay}
               aria-describedby={
@@ -397,13 +398,6 @@ function DeliverySection({
               step={1}
               inputMode="numeric"
               onWheel={(e) => e.currentTarget.blur()}
-              onKeyDown={(e) => {
-                if (
-                  ["e", "E", "+", "-", "."].includes(e.key)
-                ) {
-                  e.preventDefault();
-                }
-              }}
               {...register("durationDay")}
               placeholder={t("e.g. 3")}
               className={`${inputBase} pr-14 ${border(

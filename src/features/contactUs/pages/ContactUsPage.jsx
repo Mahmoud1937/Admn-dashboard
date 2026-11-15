@@ -38,9 +38,9 @@ const defaultValues = {
 };
 
 const PRIMARY_FIELDS = [
-  { key: "phoneNumber", label: "Phone number", icon: faPhone, required: true },
+  { key: "phoneNumber", label: "Phone number", icon: faPhone, required: true, type: "tel" },
   { key: "email", label: "Email", icon: faEnvelope, required: true, type: "email" },
-  { key: "whatsApp", label: "WhatsApp", icon: faWhatsapp, required: true },
+  { key: "whatsApp", label: "WhatsApp", icon: faWhatsapp, required: true, type: "tel" },
 ];
 
 const SOCIAL_FIELDS = [
@@ -256,6 +256,7 @@ function Section({ title, children }) {
 function FieldRow({ field, isEditing, register, error, value }) {
   const { t } = useTranslation("adminPages");
   const label = t(field.label);
+  const fieldRegistration = register(field.key);
   return (
     <div>
       <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-700">
@@ -276,7 +277,7 @@ function FieldRow({ field, isEditing, register, error, value }) {
               <input
                 type="text"
                 placeholder={t("/medicard")}
-                {...register(field.key)}
+                {...fieldRegistration}
                 className="min-w-0 flex-1 px-3 py-2 outline-none"
               />
             </div>
@@ -284,8 +285,16 @@ function FieldRow({ field, isEditing, register, error, value }) {
             <input
               dir="ltr"
               type={field.type || "text"}
+              maxLength={field.type === "tel" ? 11 : undefined}
+              inputMode={field.type === "tel" ? "numeric" : undefined}
               placeholder={label}
-              {...register(field.key)}
+              {...fieldRegistration}
+              onChange={(event) => {
+                if (field.type === "tel") {
+                  event.target.value = event.target.value.replace(/\D/g, "").slice(0, 11);
+                }
+                fieldRegistration.onChange(event);
+              }}
               className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-blue-400/30 ${
                 error ? "border-red-300 focus:border-red-400" : "border-slate-200 focus:border-blue-400"
               }`}

@@ -132,6 +132,7 @@ export default function TicketFormModal({
 
       <TextField
         label={t("User Phone Number")}
+        maxLength={11}
         required
         inputMode="numeric"
         sanitize={false}

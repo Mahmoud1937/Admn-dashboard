@@ -497,6 +497,7 @@
   "Client name must be at least 2 characters": "Client name must be at least 2 characters",
   "Client name must not exceed 30 characters": "Client name must not exceed 30 characters",
   "Client name must not contain numbers": "Client name must not contain numbers",
+  "Client name must contain letters and spaces only": "Client name must contain letters and spaces only",
   "Client phone is required": "Client phone is required",
   "Count is required": "Count is required",
   "Please enter a valid number": "Please enter a valid number",

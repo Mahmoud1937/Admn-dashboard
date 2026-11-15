@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import NumberInput from "../../../shared/components/NumberInput";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import AvatarImage from "../../../shared/components/AvatarImage";
@@ -132,13 +133,13 @@ export default function PharmaciesProcessForm({ prescription, onCancel, onProces
               )}
               <label className="block text-sm font-medium text-slate-700">
                 {t("Quantity")} <span className="text-red-600">*</span>
-                <input
+                <NumberInput
                   id={`pharmacy-medicine-quantity-${item.key}`}
                   type="number"
                   required
                   min="0"
                   step="any"
-                  inputMode="numeric"
+                  inputMode="decimal"
                   aria-invalid={invalidQuantity}
                   aria-describedby={invalidQuantity ? quantityErrorId : undefined}
                   value={item.quantity}

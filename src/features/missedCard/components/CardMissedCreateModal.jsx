@@ -1,4 +1,5 @@
 import localizeMessage from "../../../localization/localizeMessage";
+import NumberInput from "../../../shared/components/NumberInput";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -47,7 +48,7 @@ const CardMissedCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors
         <label className="block text-sm font-medium text-gray-700 mb-1">
           {t("Card Number")} <span className="text-red-500">*</span>
         </label>
-        <input
+        <NumberInput
           type="text"
           inputMode="numeric"
           maxLength={12}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import NumberInput from "../../../shared/components/NumberInput";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormModalShell from "../../../shared/components/FormModalShell";
@@ -202,7 +203,7 @@ const handleImageChange = (e) => {
           {t("Price")} <span className="text-red-500">*</span>
         </label>
 
-        <input
+        <NumberInput
           type="text"
           inputMode="decimal"
           {...register("medicinePrice")}

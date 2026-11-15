@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, useLocation } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import i18n from "../../src/localization/i18n";
 import LanguageProvider from "../../src/localization/LanguageProvider";
 import useLanguage from "../../src/localization/useLanguage";
@@ -26,6 +27,9 @@ import { getColumnColorName } from "../../src/features/tickets/utils/ticketColor
 import { getApiErrorMessage } from "../../src/shared/helpers/apiErrorHandler";
 import Navbar from "../../src/navbar/Navbar";
 import AdminNotificationsMenu from "../../src/navbar/AdminNotificationsMenu";
+import NumberInput from "../../src/shared/components/NumberInput";
+import TextField from "../../src/shared/components/TextField";
+import SearchBarWithFilters from "../../src/shared/components/SearchBarWithFilters";
 import "../../src/index.css";
 
 const checks = [];
@@ -56,6 +60,51 @@ const text = () => document.getElementById("root").textContent;
 const exact = value => [...document.querySelectorAll("p,th,label,span,h1,h2,h3")].find(element => element.textContent.trim() === value);
 const invoice = { invoiceId: 42, date: "2026-01-02T13:04:00Z", clientId: 3, clientName: "عميل عربي", providerNameEn: "English Provider", providerNameAr: "مقدم خدمة عربي", status: 1, statusName: "Paid", totalAmount: 123, isMedicineInvoice: false, isCash: true };
 const ticket = { id: 7, userName: "عميل", ticketType: { enName: "Support", arName: "الدعم" }, priority: 2, priorityName: "High", isClosed: false, assignedToGroup: null };
+
+let numericSubmission;
+// eslint-disable-next-line react-refresh/only-export-components
+function NumericInputsHarness() {
+  const { register, handleSubmit, reset } = useForm({
+    defaultValues: { phone: "", card: "", price: "", count: "", quantity: "", name: "" },
+  });
+  const [numberSearch, setNumberSearch] = useState("");
+  const [nameSearch, setNameSearch] = useState("");
+  const countField = register("count", { valueAsNumber: true });
+  return <>
+    <form onSubmit={handleSubmit(values => { numericSubmission = values; })}>
+      <TextField label="NUMERIC_PHONE" inputMode="numeric" maxLength={11} sanitize={false} {...register("phone")} />
+      <NumberInput type="text" {...register("card")} />
+      <TextField label="DECIMAL_PRICE" inputMode="decimal" sanitize={false} {...register("price")} />
+      <NumberInput {...countField} onChange={event => {
+        if (Number(event.target.value) > 10000) event.target.value = "10000";
+        countField.onChange(event);
+      }} />
+      <NumberInput step="any" {...register("quantity", { valueAsNumber: true })} />
+      <TextField label="ORDINARY_NAME" {...register("name")} />
+      <button type="submit">SUBMIT_NUMERIC_FIELDS</button>
+      <button type="button" onClick={() => reset({ phone: "01234567890", card: "000012345678", price: "5.25", count: 7, quantity: 0.75, name: "Reset name" })}>RESET_NUMERIC_FIELDS</button>
+    </form>
+    <SearchBarWithFilters numericOnly value={numberSearch} onChange={setNumberSearch} placeholder="NUMERIC_SEARCH" showFilterButton={false} />
+    <SearchBarWithFilters value={nameSearch} onChange={setNameSearch} placeholder="MIXED_SEARCH" showFilterButton={false} />
+  </>;
+}
+
+const changeInput = (input, value) => {
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, value);
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+};
+const numericKey = (input, key, modifiers = {}) => {
+  const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...modifiers });
+  input.dispatchEvent(event);
+  return event.defaultPrevented;
+};
+const numericPaste = (input, value) => {
+  const clipboardData = new DataTransfer();
+  clipboardData.setData("text/plain", value);
+  const event = new ClipboardEvent("paste", { clipboardData, bubbles: true, cancelable: true });
+  input.dispatchEvent(event);
+  return event.defaultPrevented;
+};
 
 let failNotificationRead = false;
 // eslint-disable-next-line react-refresh/only-export-components
@@ -130,6 +179,52 @@ async function run() {
   // Authentication is local to the fixture and has no real account identity.
   localStorage.setItem("token", `header.${btoa(JSON.stringify({ exp: 4102444800, employeeId: 1 }))}.signature`);
   await i18n.changeLanguage("en");
+
+  await render(<NumericInputsHarness />);
+  const numberField = name => document.querySelector(`input[name="${name}"]`);
+  for (const name of ["phone", "card", "price", "count", "quantity"]) {
+    for (const key of ["a", "ع", "e", "E", "+", "-"]) assert(numericKey(numberField(name), key), `${name} blocks nonnumeric key ${key}`);
+    for (const value of ["123abc", "1e2", "1E2"]) assert(numericPaste(numberField(name), value), `${name} blocks mixed/scientific paste ${value}`);
+    assert(!numericKey(numberField(name), "a", { ctrlKey: true }) && !numericKey(numberField(name), "v", { metaKey: true }), `${name} preserves keyboard shortcuts`);
+    assert(!numericKey(numberField(name), "Backspace") && !numericKey(numberField(name), "ArrowLeft"), `${name} preserves editing keys`);
+  }
+  assert(numericKey(numberField("phone"), ".") && numericKey(numberField("count"), "."), "Integer and phone inputs block decimal points");
+  assert(!numericKey(numberField("price"), ".") && !numericKey(numberField("quantity"), "."), "Price and fractional quantity inputs allow decimal points");
+  assert(!numericPaste(numberField("phone"), "01000123000") && !numericPaste(numberField("card"), "000012345678"), "Digit pastes preserve leading zeros");
+  assert(numberField("phone").maxLength === 11, "Egyptian mobile fields limit browser input to eleven digits");
+  changeInput(numberField("phone"), "010123456789999");
+  await pause();
+  assert(numberField("phone").value === "01012345678", "Oversized phone input is capped at eleven digits before reaching the form");
+  assert(!numericPaste(numberField("price"), "12.50") && !numericPaste(numberField("quantity"), "0.75"), "Decimal inputs accept fractional pastes");
+  changeInput(numberField("phone"), "01000abc123000");
+  changeInput(numberField("card"), "000012345678");
+  changeInput(numberField("price"), "12.");
+  assert(numberField("price").value === "12.", "Decimal text input preserves an unfinished fraction while editing");
+  changeInput(numberField("price"), "12.50");
+  numberField("price").setSelectionRange(5, 5);
+  assert(numericKey(numberField("price"), ".") && numericPaste(numberField("price"), ".5"), "A second decimal separator is blocked");
+  numberField("price").setSelectionRange(0, 5);
+  assert(!numericPaste(numberField("price"), "9.25"), "Selecting and replacing a decimal value remains possible");
+  changeInput(numberField("count"), "10001");
+  changeInput(numberField("quantity"), "0.75");
+  changeInput(numberField("name"), "Client 12");
+  changeInput(document.querySelector('input[placeholder="NUMERIC_SEARCH"]'), "001abc23");
+  changeInput(document.querySelector('input[placeholder="MIXED_SEARCH"]'), "Client 123");
+  await pause();
+  assert(numberField("phone").value === "01000123000", "Phone sanitization retains its initial zero");
+  assert(document.querySelector('input[placeholder="NUMERIC_SEARCH"]').value === "00123", "Numeric searches sanitize pasted/input values");
+  assert(document.querySelector('input[placeholder="MIXED_SEARCH"]').value === "Client 123" && numberField("name").value === "Client 12", "General searches and names continue accepting letters");
+  button("SUBMIT_NUMERIC_FIELDS").click();
+  await waitFor(() => numericSubmission, "Numeric form submission");
+  assert(numericSubmission.phone === "01000123000" && numericSubmission.card === "000012345678", "React Hook Form receives phone and card strings with leading zeros");
+  assert(numericSubmission.price === "12.50" && numericSubmission.quantity === 0.75, "React Hook Form receives decimal strings and numeric quantities correctly");
+  assert(numericSubmission.count === 10000 && numberField("count").value === "10000", "Count caps update both the visible input and submitted numeric value");
+  button("RESET_NUMERIC_FIELDS").click();
+  await pause();
+  assert(numberField("phone").value === "01234567890" && numberField("price").value === "5.25", "Server/form resets populate numeric fields correctly");
+  await changeLanguage("ar");
+  assert(numericKey(numberField("phone"), "ع") && numericPaste(numberField("price"), "1e2"), "Numeric restrictions remain active in Arabic");
+  await changeLanguage("en");
 
   await render(<Navbar />, true);
   const bell = () => document.querySelector('button[aria-haspopup="dialog"]');

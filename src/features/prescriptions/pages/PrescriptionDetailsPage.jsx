@@ -80,6 +80,7 @@ export default function PrescriptionDetailsPage() {
   const canViewClients = usePermission(PERMISSION_CODES.CLIENTS_READ);
   const [searchParams, setSearchParams] = useSearchParams();
   const pageRef = useRef(null);
+  const actionFormRef = useRef(null);
   const {
     data: prescription, isPending, isError, error, isFetching, refetch,
   } = usePrescriptionDetailsQuery({ manualPrescriptionId, language });
@@ -87,6 +88,16 @@ export default function PrescriptionDetailsPage() {
   const processMutation = useProcessManualPrescriptionMutation({ onSuccess: closeForm, t });
   const rejectMutation = useRejectManualPrescriptionMutation({ onSuccess: closeForm, t });
   const isSaving = processMutation.isPending || rejectMutation.isPending;
+  const openForm = (nextAction) => {
+    if (isSaving || isFetching || prescription?.status !== "Pending") return;
+    processMutation.reset();
+    rejectMutation.reset();
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.set("action", nextAction);
+      return next;
+    });
+  };
   const action = prescription?.status === "Pending" ? searchParams.get("action") : null;
   const isValidId = Number.isSafeInteger(Number(manualPrescriptionId)) && Number(manualPrescriptionId) > 0;
   const requestErrorMessage = error?.response?.data?.message || error?.response?.data?.errors
@@ -96,6 +107,12 @@ export default function PrescriptionDetailsPage() {
   useEffect(() => {
     pageRef.current?.closest("main")?.scrollTo({ top: 0 });
   }, [manualPrescriptionId]);
+
+  useEffect(() => {
+    if (action === "process" || action === "reject") {
+      actionFormRef.current?.scrollIntoView({ block: "start" });
+    }
+  }, [action, manualPrescriptionId]);
 
   return (
     <LocalizedPage>
@@ -130,9 +147,31 @@ export default function PrescriptionDetailsPage() {
         <p role="status" className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">{t("Prescription not found. It may no longer be available.")}</p>
       ) : (
         <>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 id="prescription-details-heading" className="text-2xl font-bold text-slate-900">{t("Prescription #{{id}}", { id: prescription.id })}</h1>
-            <StatusBadge tone={statusTone[prescription.status] || "neutral"}>{prescription.status || t("Unknown")}</StatusBadge>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 id="prescription-details-heading" className="text-2xl font-bold text-slate-900">{t("Prescription #{{id}}", { id: prescription.id })}</h1>
+              <StatusBadge tone={statusTone[prescription.status] || "neutral"}>{prescription.status || t("Unknown")}</StatusBadge>
+            </div>
+            {prescription.status === "Pending" && (
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => openForm("process")}
+                  disabled={isSaving || isFetching}
+                  className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {t("Process")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openForm("reject")}
+                  disabled={isSaving || isFetching}
+                  className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {t("Reject")}
+                </button>
+              </div>
+            )}
           </div>
           {isError && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{requestErrorMessage}</p>}
 
@@ -170,7 +209,7 @@ export default function PrescriptionDetailsPage() {
               <ProcessedPrescriptionItems items={prescription.items} />
 
               {(action === "process" || action === "reject") && (
-                <section className="rounded-2xl border border-slate-200 bg-white p-5">
+                <section ref={actionFormRef} className="scroll-mt-4 rounded-2xl border border-slate-200 bg-white p-5">
                   {action === "process" ? (
                     <ProcessPrescriptionForm key={prescription.id} prescription={prescription} onClose={closeForm} onProcess={(payload) => processMutation.mutate(payload)} onClearErrors={() => processMutation.reset()} isSaving={processMutation.isPending} error={processMutation.error} />
                   ) : (

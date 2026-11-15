@@ -169,6 +169,7 @@ export default function CardMissedPage() {
       <div className="rounded-xl border border-slate-200 bg-white">
         <div className="relative">
           <SearchBarWithFilters
+            numericOnly
             value={search}
             onChange={setSearch}
             placeholder={t("Search by card number...")}

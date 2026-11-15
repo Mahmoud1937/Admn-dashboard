@@ -100,6 +100,8 @@ export default function EmployeeFormModal({
       />
       <TextField
         label={t("Phone Number")}
+        inputMode="numeric"
+        maxLength={11}
         required
         sanitize={false}
         {...register("phoneNumber")}

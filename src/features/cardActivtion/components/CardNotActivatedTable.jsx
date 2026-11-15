@@ -4,6 +4,7 @@ import { faSearch, faSpinner, faFileExcel } from "@fortawesome/free-solid-svg-ic
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { exportNotActivatedCards } from "../services/cardActivationService";
 import ScrollableTable from "../../../shared/components/ScrollableTable";
+import NumberInput from "../../../shared/components/NumberInput";
 
 
 /**
@@ -71,7 +72,7 @@ const CardNotActivatedTable = ({
             className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
           />
 
-          <input
+          <NumberInput
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}

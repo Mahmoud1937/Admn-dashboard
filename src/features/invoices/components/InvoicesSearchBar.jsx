@@ -20,6 +20,7 @@ const InvoicesSearchBar = ({
   return (
     <div className="relative">
       <SearchBarWithFilters
+        numericOnly
         value={search}
         onChange={setSearch}
         placeholder={t("Search by Invoice ID, Phone, or Card Number...")}

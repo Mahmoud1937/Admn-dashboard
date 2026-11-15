@@ -22,10 +22,11 @@ const proofPaymentField = z
 const clientFields = {
   clientName: z
     .string()
+    .trim()
     .min(1, "Client name is required")
     .min(2, "Client name must be at least 2 characters")
     .max(30, "Client name must not exceed 30 characters")
-    .regex(/^[^\d]+$/, "Client name must not contain numbers"),
+    .regex(/^\p{L}[\p{L}\p{M} ]*$/u, "Client name must contain letters and spaces only"),
   clientPhone: egyptianPhoneField.refine((val) => !!val, "Client phone is required"),
   proofPayment: proofPaymentField,
 };

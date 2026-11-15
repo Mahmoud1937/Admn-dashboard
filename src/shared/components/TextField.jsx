@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import localizeMessage from "../../localization/localizeMessage";
 import { sanitizeNameInput } from "../utils/sanitizeInput";
+import NumberInput from "./NumberInput";
 
 const TextField = forwardRef(function TextField(
   {
@@ -15,12 +16,15 @@ const TextField = forwardRef(function TextField(
     dir,
     readOnly,
     disabled,
+    type = "text",
+    inputMode,
     ...rest
   },
   ref
 ) {
   const { i18n } = useTranslation("common");
   const direction = dir ?? i18n.dir();
+  const Input = type === "number" || inputMode === "numeric" || inputMode === "decimal" ? NumberInput : "input";
   const handleChange = (e) => {
     if (sanitize) {
       e.target.value = sanitizeNameInput(e.target.value);
@@ -33,8 +37,9 @@ const TextField = forwardRef(function TextField(
       <label className="mb-1.5 block text-sm font-medium text-slate-700">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-      <input
-        type="text"
+      <Input
+        type={type}
+        inputMode={inputMode}
         dir={direction}
         style={{ textAlign: direction === "rtl" ? "right" : "left" }}
         autoFocus={autoFocus}

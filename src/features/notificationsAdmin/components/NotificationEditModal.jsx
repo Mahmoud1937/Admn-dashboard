@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormModalShell from "../../../shared/components/FormModalShell";
 import FormActions from "../../../shared/components/FormActions";
 import NotificationImageField from "./NotificationImageField";
+import NumberInput from "../../../shared/components/NumberInput";
 import {
   toUpdateNotificationPayload,
   updateNotificationSchema,
@@ -93,7 +94,7 @@ export default function NotificationEditModal({ notification, onClose, onSubmit,
           )}
         />
         <Field id="edit-notification-duration" label={t("Repeat after (days)")} error={localizeMessage(errors.durationDay?.message)}>
-          <input id="edit-notification-duration" type="number" min="1" max="365" step="1" {...register("durationDay")} className={fieldClassName} />
+          <NumberInput id="edit-notification-duration" type="number" min="1" max="365" step="1" {...register("durationDay")} className={fieldClassName} />
         </Field>
         <FormActions onCancel={onClose} isSaving={isSaving} submitLabel={t("Save changes")} />
       </div>

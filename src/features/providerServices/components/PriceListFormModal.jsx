@@ -1,4 +1,5 @@
 import localizeMessage from "../../../localization/localizeMessage";
+import NumberInput from "../../../shared/components/NumberInput";
 import { useEffect } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -147,10 +148,10 @@ export default function PriceListFormModal({
           {shouldCopyServices && (
             <>
               <Field id="price-list-increase" label={tr("Price increase by")} error={errors.priceIncreaseBy?.message ? tr(errors.priceIncreaseBy.message) : undefined}>
-                <input id="price-list-increase" type="number" min="0" step="any" inputMode="decimal" {...register("priceIncreaseBy")} className={fieldClassName} />
+                <NumberInput id="price-list-increase" type="number" min="0" step="any" inputMode="decimal" {...register("priceIncreaseBy")} className={fieldClassName} />
               </Field>
               <Field id="price-list-discount" label={tr("Discount percentage")} error={errors.discountPercentage?.message ? tr(errors.discountPercentage.message) : undefined}>
-                <input id="price-list-discount" type="number" min="0" step="any" inputMode="decimal" {...register("discountPercentage")} className={fieldClassName} />
+                <NumberInput id="price-list-discount" type="number" min="0" step="any" inputMode="decimal" {...register("discountPercentage")} className={fieldClassName} />
               </Field>
             </>
           )}

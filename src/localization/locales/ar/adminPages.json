@@ -497,6 +497,7 @@
   "Client name must be at least 2 characters": "يجب ألا يقل اسم العميل عن حرفين",
   "Client name must not exceed 30 characters": "يجب ألا يتجاوز اسم العميل 30 حرفًا",
   "Client name must not contain numbers": "يجب ألا يحتوي اسم العميل على أرقام",
+  "Client name must contain letters and spaces only": "يجب أن يحتوي اسم العميل على حروف ومسافات فقط",
   "Client phone is required": "هاتف العميل مطلوب",
   "Count is required": "العدد مطلوب",
   "Please enter a valid number": "أدخل رقمًا صالحًا",

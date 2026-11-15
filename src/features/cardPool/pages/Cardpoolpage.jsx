@@ -149,6 +149,7 @@ export default function CardPoolPage() {
       <div className="rounded-xl border border-slate-200 bg-white">
         <div className="relative">
           <SearchBarWithFilters
+            numericOnly
             value={search}
             onChange={setSearch}
             placeholder={t("Search Card Pool No...")}

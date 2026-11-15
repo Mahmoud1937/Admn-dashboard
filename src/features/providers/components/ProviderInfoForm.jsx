@@ -476,6 +476,7 @@ export default function ProviderInfoForm({
 
           <TextField
             label={tr("Phone Number")}
+            maxLength={11}
             inputMode="numeric"
             sanitize={false}
             disabled={!canEdit}
