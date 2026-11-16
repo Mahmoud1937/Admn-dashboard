@@ -1,6 +1,7 @@
 import axios from "axios";
 import { getTokenExpiryTime, getUserFromToken, isTokenExpired } from "../utils/jwt.js";
 import { getActiveLanguage } from "../../localization/i18n.js";
+import { reportApiError } from "../../monitoring/sentry.js";
 
 export const TOKEN_KEY = "token";
 export const REFRESH_TOKEN_KEY = "refreshToken";
@@ -190,6 +191,7 @@ const refreshAccessToken = (expectedSession = authSession) => {
     authHandlers.onTokenRefreshed?.(data.token);
     return data.token;
   })().catch((error) => {
+    try { reportApiError(error, "/AuthAdmin/refresh-token"); } catch { /* Monitoring must not affect authentication. */ }
     if (
       session === authSession && getToken() === token &&
       localStorage.getItem(REFRESH_TOKEN_KEY) === refreshToken
@@ -300,6 +302,24 @@ axiosInstance.interceptors.response.use(
     // A delayed 401/403 can reuse a token another request already renewed.
     if (request._tokenUsed === getToken()) await refreshAccessToken();
     return axiosInstance(request);
+  }
+);
+
+// Observe only the final result, after the existing 401/403 recovery interceptor.
+axiosInstance.interceptors.response.use(
+  (response) => {
+    const body = response.data;
+    if (body && typeof body === "object" &&
+        (body.succeeded === false || body.success === false)) {
+      try {
+        reportApiError({ response, config: response.config, code: "BUSINESS_FAILURE" });
+      } catch { /* Monitoring must not affect responses. */ }
+    }
+    return response;
+  },
+  (error) => {
+    try { reportApiError(error); } catch { /* Monitoring must not affect requests. */ }
+    return Promise.reject(error);
   }
 );
 

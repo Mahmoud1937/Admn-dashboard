@@ -1,6 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
+import { RouteErrorElement } from "../monitoring/ErrorFallback";
+import { recordRoute } from "../monitoring/sentry";
 
 import DashboardLayout from "../layout/DashboardLayout";
 import ProtectedRoute from "../shared/components/Protectedroute";
@@ -52,13 +54,14 @@ const withPermission = (permission, element) => (
 );
 
 const router = createBrowserRouter([
-  { path: "/login",element: <LoginPage />},
-  {path: "/change-password",element: <ForceChangePasswordPage />},
+  { path: "/login",element: <LoginPage />, errorElement: <RouteErrorElement />},
+  {path: "/change-password",element: <ForceChangePasswordPage />, errorElement: <RouteErrorElement />},
   {
     // Layout route: nothing under "/" renders unless AuthContext has a
     // valid (non-expired) JWT - otherwise ProtectedRoute redirects to /login.
     path: "/",
     element: <ProtectedRoute />,
+    errorElement: <RouteErrorElement />,
     children: [{
         element: <DashboardLayout />,
         children: [
@@ -306,5 +309,14 @@ const router = createBrowserRouter([
     ],
   },
 ]);
+
+const recordRouterState = (state) => {
+  const pattern = `/${state.matches.map(({ route }) => route.path?.replace(/^\/+|\/+$/g, ""))
+    .filter(Boolean).join("/")}`;
+  recordRoute(state.location.pathname, pattern);
+};
+
+recordRouterState(router.state);
+router.subscribe(recordRouterState);
 
 export default router;
