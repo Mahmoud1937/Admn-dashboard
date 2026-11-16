@@ -28,6 +28,9 @@ export default function UserMenu() {
   const { englishName, arabicName } = splitEmployeeName(user?.employeeName);
   const employeeNameEn = getDisplayValue(englishName, t("adminFallback"));
   const employeeNameAr = getDisplayValue(arabicName, "");
+  const showArabicFirst = direction === "rtl" && Boolean(employeeNameAr);
+  const primaryName = showArabicFirst ? employeeNameAr : employeeNameEn;
+  const secondaryName = showArabicFirst ? employeeNameEn : employeeNameAr;
   const accountType = getDisplayValue(user?.accountType, t("accountTypeUnavailable"));
   const employeeGroupName = getDisplayValue(user?.employeeGroupName, t("groupUnavailable"));
 
@@ -65,17 +68,17 @@ export default function UserMenu() {
         </div>
 
         <div className="hidden w-[220px] flex-col items-start leading-tight md:flex">
-          <p className="w-full truncate text-start text-sm font-semibold text-slate-900">
-            {employeeNameEn}
+          <p className="w-full truncate text-start text-sm font-semibold text-slate-900" dir={showArabicFirst ? "rtl" : undefined}>
+            {primaryName}
           </p>
-          {employeeNameAr && (
+          {secondaryName && (
             <p
               className={`mt-0.5 w-full truncate text-[11px] text-slate-500 ${direction === "rtl" ? "text-right" : "text-left"}`}
-              dir="rtl"
+              dir={showArabicFirst ? "ltr" : "rtl"}
               style={{ unicodeBidi: "isolate" }}
-              title={employeeNameAr}
+              title={secondaryName}
             >
-              {employeeNameAr}
+              {secondaryName}
             </p>
           )}
           <span className="mt-0.5 w-full truncate text-start text-[10px] text-slate-600">
@@ -93,17 +96,17 @@ export default function UserMenu() {
       {open && (
         <div className={`absolute mt-3 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg ${direction === "rtl" ? "left-0" : "right-0"}`}>
           <div className="flex flex-col items-start border-b border-slate-100 px-4 py-3">
-            <p className="w-full truncate text-start text-sm font-semibold text-slate-900">
-              {employeeNameEn}
+            <p className="w-full truncate text-start text-sm font-semibold text-slate-900" dir={showArabicFirst ? "rtl" : undefined}>
+              {primaryName}
             </p>
-            {employeeNameAr && (
+            {secondaryName && (
               <p
                 className={`mt-0.5 w-full truncate text-xs text-slate-500 ${direction === "rtl" ? "text-right" : "text-left"}`}
-                dir="rtl"
+                dir={showArabicFirst ? "ltr" : "rtl"}
                 style={{ unicodeBidi: "isolate" }}
-                title={employeeNameAr}
+                title={secondaryName}
               >
-                {employeeNameAr}
+                {secondaryName}
               </p>
             )}
             <p className="mt-1 w-full truncate text-start text-xs text-slate-500">
