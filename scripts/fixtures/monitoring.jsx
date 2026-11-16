@@ -33,6 +33,11 @@ window.runMonitoringProbe = async (kind) => {
     setToken(`header.${payload}.signature`, new Date().toISOString())
     const response = await axiosInstance.get(`probe-${kind}`)
     document.body.dataset.recovered = String(response.status === 200)
+  } else if (kind === 'refresh-400') {
+    const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 }))
+    localStorage.setItem(REFRESH_TOKEN_KEY, 'test-refresh-token')
+    setToken(`header.${payload}.signature`, new Date().toISOString())
+    try { await axiosInstance.get('probe-refresh-400') } catch { /* Expected terminal refresh failure. */ }
   } else {
     try {
       const response = await axiosInstance.get(`authadmin/login/probe-${kind}?access_token=secret-value`)

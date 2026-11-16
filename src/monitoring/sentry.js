@@ -194,8 +194,15 @@ export function reportApiError(error, fallbackEndpoint) {
   const responseMessage = redactText(error.response?.data?.message)
   const safeError = new Error(`${method} ${endpoint} failed (${status})`)
   safeError.name = 'ApiRequestError'
-  if (typeof error.stack === 'string') safeError.stack = redactText(error.stack, 100000, true)
-  if (import.meta.env.DEV) console.error('[API error]', safeError.stack, {
+  if (typeof error.stack === 'string') {
+    // Keep this reporting stack for an application-owned frame. Axios's browser
+    // stack may contain only transport frames, so retain it as a separate cause.
+    const transportError = new Error(redactText(error.message) || 'Request failed')
+    transportError.name = 'AxiosTransportError'
+    transportError.stack = redactText(error.stack, 100000, true)
+    safeError.cause = transportError
+  }
+  if (import.meta.env.DEV) console.error('[API error]', safeError, {
     endpoint, method, status, request_id: safeRequestId, response_message: responseMessage,
   })
 

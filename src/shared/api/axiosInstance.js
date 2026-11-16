@@ -35,27 +35,6 @@ function cancelRefreshTimer() {
   refreshTimer = null;
 }
 
-function watchSession() {
-  globalThis.document?.addEventListener?.("visibilitychange", resynchronizeSession);
-  globalThis.window?.addEventListener?.("pageshow", resynchronizeSession);
-}
-
-function unwatchSession() {
-  globalThis.document?.removeEventListener?.("visibilitychange", resynchronizeSession);
-  globalThis.window?.removeEventListener?.("pageshow", resynchronizeSession);
-}
-
-function resynchronizeSession(event) {
-  if (event.type === "pageshow" && !event.persisted) return;
-  if (globalThis.document?.visibilityState === "hidden" || !getToken()) return;
-  // A suspended browser may pause its monotonic clock. Get a fresh reference.
-  serverClock = null;
-  cancelRefreshTimer();
-  if (localStorage.getItem(REFRESH_TOKEN_KEY)?.trim()) {
-    void refreshAccessToken().catch(() => {});
-  }
-}
-
 function scheduleRefresh(fromRefresh = false) {
   cancelRefreshTimer();
   const token = getToken();
@@ -85,14 +64,12 @@ export const setToken = (token, serverDate = null) => {
   cancelRefreshTimer();
   serverClock = readServerClock(serverDate);
   localStorage.setItem(TOKEN_KEY, token);
-  watchSession();
   scheduleRefresh();
 };
 export const clearToken = () => {
   authSession += 1;
   cancelRefreshTimer();
   serverClock = null;
-  unwatchSession();
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
 };
@@ -117,9 +94,7 @@ export const registerAuthHandlers = (handlers) => {
   authHandlers = handlers ?? {};
   if (!handlers) {
     cancelRefreshTimer();
-    unwatchSession();
   } else if (getToken()) {
-    watchSession();
     scheduleRefresh(true);
   }
 };
@@ -186,7 +161,6 @@ const refreshAccessToken = (expectedSession = authSession) => {
     localStorage.setItem(TOKEN_KEY, data.token);
     localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
     if (clock) serverClock = clock;
-    watchSession();
     scheduleRefresh(true);
     authHandlers.onTokenRefreshed?.(data.token);
     return data.token;
@@ -213,7 +187,6 @@ const refreshAccessToken = (expectedSession = authSession) => {
 export const restoreAuthSession = () => {
   const token = getToken();
   if (!token) return Promise.resolve(null);
-  watchSession();
   // Use device time after reload until a refresh supplies server time again.
   if (!serverClock) serverClock = readServerClock(new Date().toISOString());
   scheduleRefresh(true);

@@ -16,6 +16,7 @@ assert.ok(browser, 'Set CHROME_PATH to Chrome or Chromium')
 
 const events = []
 const recoveryAttempts = new Map()
+let rejectRefresh = false
 const testJwt = `header.${Buffer.from(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64url')}.signature`
 const api = createHttpServer(async (request, response) => {
   response.setHeader('Access-Control-Allow-Origin', '*')
@@ -38,10 +39,20 @@ const api = createHttpServer(async (request, response) => {
   }
   if (request.url.includes('probe-network')) { request.socket.destroy(); return }
   if (request.url.includes('AuthAdmin/refresh-token')) {
+    if (rejectRefresh) {
+      response.writeHead(400, { 'Content-Type': 'application/json' })
+        .end(JSON.stringify({ message: 'Invalid refresh token token=secret-value' }))
+      return
+    }
     response.setHeader('X-Server-Local-Time', new Date().toISOString())
     response.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify({
       succeeded: true, data: { success: true, token: testJwt, refreshToken: 'new-test-refresh-token' },
     }))
+    return
+  }
+  if (request.url.includes('probe-refresh-400')) {
+    rejectRefresh = true
+    response.writeHead(401, { 'Content-Type': 'application/json' }).end('{}')
     return
   }
   if (request.url.includes('probe-recover-')) {
@@ -114,6 +125,14 @@ try {
     if (kind === 'network') assert.equal(event.contexts.api.status, 'network')
     if (kind === '200') assert.equal(event.contexts.api.error_code, 'BUSINESS_FAILURE')
     const frames = event.exception.values.flatMap((value) => value.stacktrace?.frames || [])
+    if (['network', '401', '403', '500'].includes(kind)) {
+      const reporting = event.exception.values.find((value) => value.type === 'ApiRequestError')
+      const transport = event.exception.values.find((value) => value.type === 'AxiosTransportError')
+      assert.ok(reporting?.stacktrace?.frames?.some((frame) => frame.filename?.includes('/src/shared/api/axiosInstance.js')),
+        `${kind} needs an application reporting frame`)
+      assert.ok(transport?.stacktrace?.frames?.some((frame) => frame.filename?.includes('/node_modules/')),
+        `${kind} needs the original Axios transport frames`)
+    }
     assert.ok(frames.some((frame) => frame.filename?.startsWith('http') &&
       frame.lineno && frame.colno), `${kind} event needs a source frame with line and column`)
     if (kind === 'render') {
@@ -142,6 +161,25 @@ try {
     assert.ok(!events.some((event) => event.contexts?.api?.endpoint?.endsWith(`probe-${kind}`)))
     console.log(`${kind} refreshed and retried without a terminal error event`)
   }
+  const refreshHtml = await runBrowser('refresh-400')
+  assert.ok(refreshHtml.includes('data-probe-done="refresh-400"'))
+  const refreshEvent = await waitFor((item) =>
+    item.contexts?.api?.endpoint?.endsWith('/AuthAdmin/refresh-token') &&
+    item.contexts.api.status === 400, 'refresh-400')
+  const refreshReporting = refreshEvent.exception.values.find((value) => value.type === 'ApiRequestError')
+  const refreshTransport = refreshEvent.exception.values.find((value) => value.type === 'AxiosTransportError')
+  assert.ok(refreshReporting?.stacktrace?.frames?.some((frame) =>
+    frame.filename?.includes('/src/shared/api/axiosInstance.js')))
+  assert.ok(refreshTransport?.stacktrace?.frames?.some((frame) =>
+    frame.filename?.includes('/node_modules/')))
+  assert.equal(events.filter((item) =>
+    item.contexts?.api?.endpoint?.endsWith('/AuthAdmin/refresh-token')).length, 1)
+  assert.deepEqual(refreshEvent.fingerprint, [
+    'api', 'POST', refreshEvent.contexts.api.endpoint, '400',
+  ])
+  assert.ok(!JSON.stringify(refreshEvent).includes('secret-value'))
+  assert.ok(!JSON.stringify(refreshEvent).includes('test-refresh-token'))
+  console.log('Received terminal refresh-400 event with application and Axios frames')
   console.log(`Monitoring browser smoke passed: ${events.length} events received locally.`)
 } finally {
   await vite.close()
