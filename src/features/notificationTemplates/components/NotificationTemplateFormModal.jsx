@@ -265,7 +265,7 @@ export default function NotificationTemplateFormModal({ template, mutation, onSa
               )}
 
               <div>
-                <TextField label={t("Title")} required sanitize={false} maxLength={null} placeholder={t("e.g. Invoice used successfully")} {...register("title")} error={localizeMessage(errors.title?.message)} />
+                <TextField label={t("Title")} required sanitize={false} maxLength={50} placeholder={t("e.g. Invoice used successfully")} {...register("title")} error={localizeMessage(errors.title?.message)} />
                 <div className="mt-1 flex justify-end">
                   <CharCounter id="template-title-count" length={(title ?? "").length} recommended={TITLE_RECOMMENDED} />
                 </div>

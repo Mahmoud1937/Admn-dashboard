@@ -205,6 +205,7 @@ const handleImageChange = (e) => {
 
         <NumberInput
           type="text"
+          maxLength={50}
           inputMode="decimal"
           {...register("medicinePrice")}
           className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-blue-400 ${
@@ -228,6 +229,7 @@ const handleImageChange = (e) => {
         </label>
 
         <input
+          maxLength={50}
           type="text"
           {...register("medicineForm")}
           placeholder={t("e.g. Tablet, Capsule, Syrup")}

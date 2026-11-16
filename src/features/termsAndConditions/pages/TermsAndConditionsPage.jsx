@@ -34,6 +34,8 @@ export default function TermsAndConditionsPage() {
       loading={isLoading}
       serverErrors={serverErrors}
       canUpdate={canUpdate}
+      minLength={20}
+      maxLength={1000}
     /></LocalizedPage>
   );
 }

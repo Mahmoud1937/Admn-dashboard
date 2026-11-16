@@ -121,6 +121,7 @@ export default function GovernoratesPage() {
               className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
             />
             <input
+              maxLength={50}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

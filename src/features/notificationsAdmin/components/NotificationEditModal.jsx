@@ -67,7 +67,7 @@ export default function NotificationEditModal({ notification, onClose, onSubmit,
     <FormModalShell title={t("Edit notification")} onClose={onClose} onSubmit={submit} className="max-h-[90vh] max-w-xl overflow-y-auto">
       <div className="space-y-4">
         <Field id="edit-notification-title" label={t("Title")} required error={localizeMessage(errors.title?.message)}>
-          <input id="edit-notification-title" maxLength={100} {...register("title")} className={fieldClassName} />
+          <input id="edit-notification-title" maxLength={50} {...register("title")} className={fieldClassName} />
         </Field>
         <Field id="edit-notification-en" label={t("English message")} required error={localizeMessage(errors.messageEn?.message)}>
           <textarea id="edit-notification-en" rows={3} maxLength={500} {...register("messageEn")} className={fieldClassName} />

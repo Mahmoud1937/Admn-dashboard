@@ -19,6 +19,8 @@ export default function RefundPolicyPage() {
       loading={isLoading}
       serverErrors={serverErrors}
       canUpdate={canUpdate}
+      minLength={20}
+      maxLength={1000}
       title={t("Refund Policy")}
       subtitle={t("Manage bilingual refund policy content")}
       enDescription={t("Write the English version of the Refund Policy below.")}

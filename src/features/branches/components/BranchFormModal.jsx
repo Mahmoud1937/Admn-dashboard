@@ -211,7 +211,7 @@ export default function BranchFormModal({
       <TextField
         label={tr("Map URL")}
         required
-        maxLength={2048}
+        maxLength={50}
         sanitize={false}
         {...register("mapUrl")}
       />

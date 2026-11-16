@@ -284,7 +284,7 @@ export default function ProviderInfoForm({
             <TextField
               label={tr("English Name")}
               required
-              maxLength={100}
+              maxLength={50}
               disabled={!canEdit}
               error={fieldError(errors.enName)}
               {...register("enName")}
@@ -295,7 +295,7 @@ export default function ProviderInfoForm({
               required
               dir="rtl"
               style={{ direction: "rtl", textAlign: "right" }}
-              maxLength={100}
+              maxLength={50}
               disabled={!canEdit}
               error={fieldError(errors.arName)}
               {...register("arName")}

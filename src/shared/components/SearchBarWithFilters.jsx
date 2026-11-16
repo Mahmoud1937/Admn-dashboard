@@ -35,6 +35,7 @@ export default function SearchBarWithFilters({
           />
           <Input
             type="text"
+            maxLength={50}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}

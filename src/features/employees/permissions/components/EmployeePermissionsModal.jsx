@@ -249,6 +249,7 @@ export default function EmployeePermissionsModal({ employee, onClose, onSave, is
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
               </span>
               <input
+                maxLength={50}
                 type="text"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}

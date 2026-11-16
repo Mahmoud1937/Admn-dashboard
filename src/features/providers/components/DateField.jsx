@@ -17,6 +17,7 @@ export default function DateField({ value, onChange, disabled, className = "", r
   return (
     <div className="relative">
       <input
+        maxLength={50}
         type="text"
         readOnly
         value={displayValue}

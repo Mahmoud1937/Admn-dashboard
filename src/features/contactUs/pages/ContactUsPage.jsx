@@ -275,6 +275,7 @@ function FieldRow({ field, isEditing, register, error, value }) {
                 {field.baseUrl}
               </span>
               <input
+                maxLength={50}
                 type="text"
                 placeholder={t("/medicard")}
                 {...fieldRegistration}
@@ -285,7 +286,7 @@ function FieldRow({ field, isEditing, register, error, value }) {
             <input
               dir="ltr"
               type={field.type || "text"}
-              maxLength={field.type === "tel" ? 11 : undefined}
+              maxLength={field.type === "tel" ? 11 : field.type === "email" ? undefined : 50}
               inputMode={field.type === "tel" ? "numeric" : undefined}
               placeholder={label}
               {...fieldRegistration}

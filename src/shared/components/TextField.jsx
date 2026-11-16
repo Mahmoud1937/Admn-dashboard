@@ -45,7 +45,7 @@ const TextField = forwardRef(function TextField(
         autoFocus={autoFocus}
         ref={ref}
         onChange={handleChange}
-        maxLength={maxLength}
+        maxLength={type === "text" ? Math.min(maxLength ?? 50, 50) : maxLength}
         readOnly={readOnly}
         disabled={disabled}
         {...rest}

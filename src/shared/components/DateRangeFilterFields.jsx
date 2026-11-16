@@ -320,6 +320,7 @@ export function DatePicker({
     <div ref={rootRef} className={`relative ${className}`}>
       <div className="relative">
         <input
+          maxLength={50}
           id={id}
           type="text"
           inputMode="numeric"

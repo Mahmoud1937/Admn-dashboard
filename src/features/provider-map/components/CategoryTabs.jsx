@@ -165,6 +165,7 @@ export default function CategoryTabs({ activeCategoryId, onChange }) {
               className={`pointer-events-none absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400 ${rtl ? "right-5" : "left-5"}`}
             />
             <input
+              maxLength={50}
               type="text"
               autoFocus
               value={searchInput}

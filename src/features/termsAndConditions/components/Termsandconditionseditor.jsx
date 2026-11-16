@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { z } from "zod";
 import {
   FileText, Save, Pencil, X, Globe, Bold, Italic, Underline, Strikethrough,
   Baseline, Highlighter, ListOrdered, List, Indent, Outdent, AlignLeft,
@@ -21,16 +22,37 @@ const COMMANDS_TO_TRACK = ["bold", "italic", "underline", "strikeThrough"];
 const BLOCK_TAGS = ["P", "DIV", "H1", "H2", "H3", "H4", "H5", "H6", "UL", "OL", "BLOCKQUOTE", "PRE"];
 const SPLITTABLE_BLOCK_TAGS = [...BLOCK_TAGS.filter((t) => t !== "UL" && t !== "OL"), "LI"];
 
-const richTextClasses = (isRTL) =>
+const richTextClasses = (isRTL, preserveLineBreaks = false) =>
   `min-h-[380px] max-h-[480px] overflow-y-auto px-4 py-3 text-sm leading-relaxed ${
     isRTL
       ? "text-right [&_blockquote]:border-r-4 [&_blockquote]:pr-3 [&_ul]:pr-5 [&_ol]:pr-5"
       : "text-left [&_blockquote]:border-l-4 [&_blockquote]:pl-3 [&_ul]:pl-5 [&_ol]:pl-5"
-  } [&_blockquote]:border-gray-300 [&_blockquote]:text-gray-500 [&_pre]:bg-gray-100 [&_pre]:rounded [&_pre]:p-2 [&_pre]:font-mono [&_pre]:text-xs [&_a]:text-blue-600 [&_a]:underline [&_ul]:list-disc [&_ol]:list-decimal [&_li]:my-0.5`;
+  } ${preserveLineBreaks ? "whitespace-pre-wrap" : ""} [&_blockquote]:border-gray-300 [&_blockquote]:text-gray-500 [&_pre]:bg-gray-100 [&_pre]:rounded [&_pre]:p-2 [&_pre]:font-mono [&_pre]:text-xs [&_a]:text-blue-600 [&_a]:underline [&_ul]:list-disc [&_ol]:list-decimal [&_li]:my-0.5`;
+
+function getPlainText(html) {
+  if (!html) return "";
+  const container = document.createElement("div");
+  container.innerHTML = html;
+  return container.textContent ?? "";
+}
 
 function getPlainTextLength(html) {
-  if (!html) return 0;
-  return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim().length;
+  return getPlainText(html).trim().length;
+}
+
+function getVisibleTextLength(html) {
+  return getPlainText(html).length;
+}
+
+function createPolicySchema(minLength, maxLength, minLengthMessage) {
+  const field = z.string()
+    .refine((html) => getPlainTextLength(html) >= minLength, {
+      message: minLengthMessage?.(minLength) ?? "Please enter at least {{min}} characters.",
+    })
+    .refine((html) => maxLength == null || getVisibleTextLength(html) <= maxLength, {
+      message: "Please enter no more than {{max}} characters.",
+    });
+  return z.object({ en: field, ar: field });
 }
 
 // Groups loose top-level text nodes (typed before any Enter press) into a <p>,
@@ -134,7 +156,7 @@ function ColorPopover({ label, onPick, onClose, currentColor, onClear }) {
   );
 }
 
-function RichTextArea({ lang, value, onChange, placeholder, error, resetKey, minLength = 0 }) {
+function RichTextArea({ lang, value, onChange, placeholder, error, resetKey, minLength = 0, maxLength, onMaxLengthError, preserveLineBreaks = false }) {
   const { t } = useTranslation("adminPages");
   const ref = useRef(null);
   const [headingOpen, setHeadingOpen] = useState(false);
@@ -146,6 +168,7 @@ function RichTextArea({ lang, value, onChange, placeholder, error, resetKey, min
   const [stickyColor, setStickyColor] = useState(null);    // text color
   const [stickyHighlight, setStickyHighlight] = useState(null); // highlight
   const savedSelection = useRef(null);
+  const lastAcceptedContent = useRef({ html: "", length: 0 });
 
 const saveSelection = useCallback(() => {
   const sel = window.getSelection();
@@ -189,6 +212,10 @@ const saveSelection = useCallback(() => {
     wrapLooseTopLevelNodes(ref.current); // safe here only: no live caret yet
     applyDirectionToBlocks();
     setCharCount(ref.current.textContent?.length || 0);
+    lastAcceptedContent.current = {
+      html: ref.current.innerHTML,
+      length: ref.current.textContent?.length || 0,
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetKey]);
 
@@ -205,25 +232,36 @@ const saveSelection = useCallback(() => {
       el.style.removeProperty("unicode-bidi");
       if (el.getAttribute("style") === "") el.removeAttribute("style");
     });
-    tmp.querySelectorAll("p, h1, h2, h3, h4, h5, h6").forEach((el) => {
-      if (!el.textContent.trim()) {
-        const nonBr = [...el.childNodes].filter((n) => !(n.nodeType === Node.ELEMENT_NODE && n.tagName === "BR"));
-        if (!nonBr.length) el.remove();
-      }
-    });
-    tmp.querySelectorAll("p").forEach((el) => {
-      const child = el.firstElementChild;
-      if (child && el.children.length === 1 && !el.textContent.trim()) el.replaceWith(child);
-    });
+    // The privacy policy keeps empty paragraphs so an Enter at the end survives saving.
+    if (!preserveLineBreaks) {
+      tmp.querySelectorAll("p, h1, h2, h3, h4, h5, h6").forEach((el) => {
+        if (!el.textContent.trim()) {
+          const nonBr = [...el.childNodes].filter((n) => !(n.nodeType === Node.ELEMENT_NODE && n.tagName === "BR"));
+          if (!nonBr.length) el.remove();
+        }
+      });
+      tmp.querySelectorAll("p").forEach((el) => {
+        const child = el.firstElementChild;
+        if (child && el.children.length === 1 && !el.textContent.trim()) el.replaceWith(child);
+      });
+    }
     return tmp.innerHTML;
-  }, []);
+  }, [preserveLineBreaks]);
 
   const emit = useCallback(() => {
     if (!ref.current) return;
     applyDirectionToBlocks();
+    const length = ref.current.textContent?.length || 0;
+    if (maxLength != null && length > maxLength && length > lastAcceptedContent.current.length) {
+      ref.current.innerHTML = lastAcceptedContent.current.html;
+      setCharCount(lastAcceptedContent.current.length);
+      onMaxLengthError?.();
+      return;
+    }
+    lastAcceptedContent.current = { html: ref.current.innerHTML, length };
     onChange(cleanHtml(ref.current.innerHTML));
-    setCharCount(ref.current.textContent?.length || 0);
-  }, [onChange, applyDirectionToBlocks, cleanHtml]);
+    setCharCount(length);
+  }, [onChange, applyDirectionToBlocks, cleanHtml, maxLength, onMaxLengthError]);
 
   const syncBlockState = useCallback(() => {
     if (!ref.current) return;
@@ -456,6 +494,30 @@ const applyColor = useCallback(
 
   const handleInput = () => { applyDirectionToBlocks(); emit(); };
 
+  const getRemainingCharacters = useCallback(() => {
+    if (maxLength == null || !ref.current) return Infinity;
+    const selection = window.getSelection();
+    const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
+    const selectedLength = range && ref.current.contains(range.commonAncestorContainer)
+      ? range.toString().length
+      : 0;
+    return maxLength - (ref.current.textContent?.length || 0) + selectedLength;
+  }, [maxLength]);
+
+  const handlePaste = (e) => {
+    if (e.clipboardData.getData("text/plain").length > getRemainingCharacters()) {
+      e.preventDefault();
+      onMaxLengthError?.();
+    }
+  };
+
+  const handleDrop = (e) => {
+    if (e.dataTransfer.getData("text/plain").length > getRemainingCharacters()) {
+      e.preventDefault();
+      onMaxLengthError?.();
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key !== "Enter" || !ref.current) return;
     const sel = window.getSelection();
@@ -463,7 +525,15 @@ const applyColor = useCallback(
     let node = sel.anchorNode;
     if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
     const block = findBlockAncestor(node, ref.current);
-    if (block === ref.current || !["H1", "H2", "H3", "H4", "H5", "H6"].includes(block.tagName)) return;
+    if (block === ref.current || !["H1", "H2", "H3", "H4", "H5", "H6"].includes(block.tagName)) {
+      if (preserveLineBreaks && !e.shiftKey && document.execCommand("insertParagraph", false)) {
+        e.preventDefault();
+        emit();
+        syncBlockState();
+        syncActiveCommands();
+      }
+      return;
+    }
 
     // Splits the heading at the caret into [heading][new <p>], so Enter never leaves
     // the rest of the note stuck inside a heading.
@@ -491,24 +561,30 @@ const applyColor = useCallback(
   // so every subsequent keystroke inherits the chosen color without needing a selection.
   const handleBeforeInput = useCallback(
     (e) => {
+      const inputType = e.nativeEvent?.inputType ?? e.inputType;
+      const inputData = e.nativeEvent?.data ?? e.data;
+      if (inputType?.startsWith("insert") && inputData?.length > getRemainingCharacters()) {
+        e.preventDefault();
+        onMaxLengthError?.();
+        return;
+      }
       const colorType = stickyColor ? "color" : stickyHighlight ? "backgroundColor" : null;
       if (!colorType || !ref.current) return;
 
-      const inputType = e.inputType;
       const color = colorType === "color" ? stickyColor : stickyHighlight;
       const styleProp = colorType === "color" ? "color" : "backgroundColor";
 
       let span;
 
-      if (inputType === "insertText" && e.data) {
+      if (inputType === "insertText" && inputData) {
         e.preventDefault();
         span = document.createElement("span");
         span.style[styleProp] = color;
-        span.textContent = e.data;
+        span.textContent = inputData;
       } else if (inputType === "insertFromPaste") {
         e.preventDefault();
         const html = e.clipboardData?.getData("text/html") || "";
-        const text = e.clipboardData?.getData("text/plain") || e.data || "";
+        const text = e.clipboardData?.getData("text/plain") || inputData || "";
         span = document.createElement("span");
         span.style[styleProp] = color;
         if (html) {
@@ -542,7 +618,7 @@ const applyColor = useCallback(
 
       afterMutation();
     },
-    [stickyColor, stickyHighlight, afterMutation]
+    [stickyColor, stickyHighlight, afterMutation, getRemainingCharacters, onMaxLengthError]
   );
 
   const activeHeadingLabel = HEADINGS.find((h) => h.tag === blockState.heading)?.label || "Normal";
@@ -676,25 +752,31 @@ const applyColor = useCallback(
         onInput={handleInput}
         onKeyDown={handleKeyDown}
         onBeforeInput={handleBeforeInput}
+        onPaste={handlePaste}
+        onDrop={handleDrop}
         onBlur={emit}
         onKeyUp={() => { syncBlockState(); syncActiveCommands(); }}
         onMouseUp={() => { syncBlockState(); syncActiveCommands(); }}
         data-placeholder={placeholder}
         style={{ direction, unicodeBidi: "isolate" }}
-        className={`${richTextClasses(isRTL)} text-gray-800 focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400`}
+        className={`${richTextClasses(isRTL, preserveLineBreaks)} text-gray-800 focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400`}
       />
 
       <div className="flex items-center justify-between px-3 py-1.5 border-t border-gray-100 text-xs">
         <span className={error ? "text-red-500 font-medium" : "text-gray-400"}>{error || ""}</span>
-        <span className={minLength > 0 && charCount < minLength ? "text-red-500 font-medium" : "text-gray-400"}>
-          {minLength > 0 ? t("{{count}} characters (minimum {{min}})", { count: charCount, min: minLength }) : t("{{count}} characters", { count: charCount })}
+        <span className={(minLength > 0 && charCount < minLength) || (maxLength != null && charCount > maxLength) ? "text-red-500 font-medium" : "text-gray-400"}>
+          {maxLength != null
+            ? t("{{count}}/{{max}} characters (minimum {{min}})", { count: charCount, max: maxLength, min: minLength })
+            : minLength > 0
+              ? t("{{count}} characters (minimum {{min}})", { count: charCount, min: minLength })
+              : t("{{count}} characters", { count: charCount })}
         </span>
       </div>
     </div>
   );
 }
 
-function ReadOnlyContent({ lang, value, placeholder }) {
+function ReadOnlyContent({ lang, value, placeholder, preserveLineBreaks = false }) {
   const { t } = useTranslation("adminPages");
   const isRTL = lang === "ar";
   const direction = isRTL ? "rtl" : "ltr";
@@ -705,7 +787,7 @@ function ReadOnlyContent({ lang, value, placeholder }) {
       <div
         dir={direction}
         style={{ direction, unicodeBidi: "isolate" }}
-        className={`${richTextClasses(isRTL)} ${hasContent ? "text-gray-800" : "text-gray-400"}`}
+        className={`${richTextClasses(isRTL, preserveLineBreaks)} ${hasContent ? "text-gray-800" : "text-gray-400"}`}
         // Content comes from our own backend / our own editor, not arbitrary third-party HTML.
         dangerouslySetInnerHTML={{ __html: hasContent ? value : placeholder }}
       />
@@ -731,6 +813,8 @@ export default function TermsAndConditionsEditor({
   enEditorPlaceholder,
   arEditorPlaceholder,
   minLength = 150,
+  maxLength,
+  preserveLineBreaks = false,
   minLengthMessage,
   canUpdate = false,
 }) {
@@ -763,10 +847,12 @@ export default function TermsAndConditionsEditor({
     if (saveDisabled || !canUpdate) return;
 
     const nextErrors = { en: "", ar: "" };
-    if (minLength > 0) {
-      const message = minLengthMessage?.(minLength) ?? "Please enter at least {{min}} characters.";
-      if (getPlainTextLength(content.en) < minLength) nextErrors.en = message;
-      if (getPlainTextLength(content.ar) < minLength) nextErrors.ar = message;
+    const result = createPolicySchema(minLength, maxLength, minLengthMessage).safeParse(content);
+    if (!result.success) {
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0];
+        if (field === "en" || field === "ar") nextErrors[field] ||= issue.message;
+      });
     }
     setValidationErrors(nextErrors);
 
@@ -788,14 +874,15 @@ export default function TermsAndConditionsEditor({
   };
 
   const getFieldError = (field) => {
-    if (validationErrors[field]) return t(validationErrors[field], { min: minLength });
+    if (validationErrors[field]) return t(validationErrors[field], { min: minLength, max: maxLength });
     const value = serverErrors?.[field];
     return Array.isArray(value) ? value[0] || "" : value || "";
   };
 
   const updateContent = (field, html) => {
     setContent((c) => ({ ...c, [field]: html }));
-    if (validationErrors[field] && getPlainTextLength(html) >= minLength) {
+    if (validationErrors[field] && getPlainTextLength(html) >= minLength &&
+        (maxLength == null || getVisibleTextLength(html) <= maxLength)) {
       setValidationErrors((v) => ({ ...v, [field]: "" }));
     }
   };
@@ -889,7 +976,7 @@ export default function TermsAndConditionsEditor({
           {loading || !isInitialized ? (
             <SkeletonText label={t("Loading content...")} lines={8} className="min-h-[380px] space-y-4 rounded-lg border border-gray-200 p-4" />
           ) : !isEditing ? (
-            <ReadOnlyContent lang={activeLang} value={content[activeLang]} placeholder={activeMeta.placeholder} />
+            <ReadOnlyContent lang={activeLang} value={content[activeLang]} placeholder={activeMeta.placeholder} preserveLineBreaks={preserveLineBreaks} />
           ) : (
             <RichTextArea
               key={`terms-editor-${activeLang}`}
@@ -898,6 +985,12 @@ export default function TermsAndConditionsEditor({
               resetKey={resetKey}
               error={activeError}
               minLength={minLength}
+              maxLength={maxLength}
+              preserveLineBreaks={preserveLineBreaks}
+              onMaxLengthError={() => setValidationErrors((v) => ({
+                ...v,
+                [activeLang]: "Please enter no more than {{max}} characters.",
+              }))}
               onChange={(html) => updateContent(activeLang, html)}
               placeholder={activeMeta.editorPlaceholder}
             />

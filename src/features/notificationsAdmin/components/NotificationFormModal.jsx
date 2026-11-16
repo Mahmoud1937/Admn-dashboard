@@ -652,11 +652,12 @@ export default function NotificationFormModal({
                     counter={
                       <CharacterCounter
                         value={title}
-                        max={100}
+                        max={50}
                       />
                     }
                   >
                     <input
+                      maxLength={50}
                       id="notification-title"
                       aria-invalid={!!errors.title}
                       aria-describedby={

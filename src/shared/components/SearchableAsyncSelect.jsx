@@ -154,6 +154,7 @@ export default function SearchableAsyncSelect({
         } ${error ? "border-red-400" : "border-slate-200"}`}
       >
         <input
+          maxLength={50}
           ref={inputRef}
           type="text"
           disabled={disabled}

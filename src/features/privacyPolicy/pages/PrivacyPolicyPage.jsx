@@ -19,6 +19,9 @@ export default function PrivacyPolicyPage() {
       loading={isLoading}
       serverErrors={serverErrors}
       canUpdate={canUpdate}
+      minLength={20}
+      maxLength={1000}
+      preserveLineBreaks
       title={t("Privacy Policy")}
       subtitle={t("Manage bilingual privacy policy content")}
       enDescription={t("Write the English version of the Privacy Policy below.")}

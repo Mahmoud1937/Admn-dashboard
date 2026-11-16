@@ -74,6 +74,7 @@ const CardNotActivatedTable = ({
 
           <NumberInput
             type="text"
+            maxLength={50}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={t("Search card number...")}

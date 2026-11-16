@@ -73,7 +73,7 @@ function NumericInputsHarness() {
   return <>
     <form onSubmit={handleSubmit(values => { numericSubmission = values; })}>
       <TextField label="NUMERIC_PHONE" inputMode="numeric" maxLength={11} sanitize={false} {...register("phone")} />
-      <NumberInput type="text" {...register("card")} />
+      <NumberInput type="text" maxLength={50} {...register("card")} />
       <TextField label="DECIMAL_PRICE" inputMode="decimal" sanitize={false} {...register("price")} />
       <NumberInput {...countField} onChange={event => {
         if (Number(event.target.value) > 10000) event.target.value = "10000";

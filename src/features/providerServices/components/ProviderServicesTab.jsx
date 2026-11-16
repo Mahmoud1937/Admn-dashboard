@@ -424,6 +424,7 @@ export default function ProviderServicesTab() {
               className={`pointer-events-none absolute top-1/2 -translate-y-1/2 text-slate-400 ${rtl ? "right-3" : "left-3"}`}
             />
             <input
+              maxLength={50}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder={tr("Search services")}

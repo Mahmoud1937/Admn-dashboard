@@ -18,6 +18,7 @@ export default function MedicinesFilters({
           className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${rtl ? "right-4" : "left-4"}`}
         />
         <input
+          maxLength={50}
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}

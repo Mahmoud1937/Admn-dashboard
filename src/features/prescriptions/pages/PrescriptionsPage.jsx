@@ -76,6 +76,7 @@ export default function PrescriptionsPage() {
               className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${rtl ? "right-4" : "left-4"}`}
             />
             <input
+              maxLength={50}
               type="search"
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}

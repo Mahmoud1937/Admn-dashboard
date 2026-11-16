@@ -109,6 +109,7 @@ export default function MapFilters({
                   className={`absolute top-1/2 -translate-y-1/2 text-xs text-slate-400 ${rtl ? "right-2.5" : "left-2.5"}`}
                 />
                 <input
+                  maxLength={50}
                   ref={govInputRef}
                   value={govQuery}
                   onChange={(e) => setGovQuery(e.target.value)}
@@ -169,6 +170,7 @@ export default function MapFilters({
         />
 
         <input
+          maxLength={50}
           type="text"
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}

@@ -106,6 +106,7 @@ export default function SoldCardsByPoolPage() {
             />
 
             <input
+              maxLength={50}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

@@ -138,6 +138,7 @@ export default function CategoriesPage() {
               className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${rtl ? "right-4" : "left-4"}`}
             />
             <input
+              maxLength={50}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

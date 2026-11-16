@@ -234,6 +234,7 @@ const CardSoldCreateModal = ({ isOpen, onClose, onSave, isSaving, serverErrors, 
           {t("Client Name")} <span className="text-red-500">*</span>
         </label>
         <input
+          maxLength={50}
           type="text"
           {...clientNameField}
           onKeyDown={(event) => {
