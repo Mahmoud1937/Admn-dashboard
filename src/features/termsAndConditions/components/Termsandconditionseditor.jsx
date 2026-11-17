@@ -27,7 +27,7 @@ const richTextClasses = (isRTL, preserveLineBreaks = false) =>
     isRTL
       ? "text-right [&_blockquote]:border-r-4 [&_blockquote]:pr-3 [&_ul]:pr-5 [&_ol]:pr-5"
       : "text-left [&_blockquote]:border-l-4 [&_blockquote]:pl-3 [&_ul]:pl-5 [&_ol]:pl-5"
-  } ${preserveLineBreaks ? "whitespace-pre-wrap" : ""} [&_blockquote]:border-gray-300 [&_blockquote]:text-gray-500 [&_pre]:bg-gray-100 [&_pre]:rounded [&_pre]:p-2 [&_pre]:font-mono [&_pre]:text-xs [&_a]:text-blue-600 [&_a]:underline [&_ul]:list-disc [&_ol]:list-decimal [&_li]:my-0.5`;
+  } ${preserveLineBreaks ? "whitespace-pre-wrap [overflow-wrap:anywhere] [&_pre]:whitespace-pre-wrap" : ""} [&_blockquote]:border-gray-300 [&_blockquote]:text-gray-500 [&_pre]:bg-gray-100 [&_pre]:rounded [&_pre]:p-2 [&_pre]:font-mono [&_pre]:text-xs [&_a]:text-blue-600 [&_a]:underline [&_ul]:list-disc [&_ol]:list-decimal [&_li]:my-0.5`;
 
 function getPlainText(html) {
   if (!html) return "";
